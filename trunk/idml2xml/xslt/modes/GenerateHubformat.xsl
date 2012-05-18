@@ -7,8 +7,6 @@
     xmlns:aid = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:idml2xml = "http://www.le-tex.de/namespace/idml2xml"
     exclude-result-prefixes = "#all"
     >
@@ -340,7 +338,7 @@
     <xsl:variable name="rowspan-src-name" select="'crows'" />
     <xsl:variable name="var-cols" select="xs:integer(idml2xml:genSpan[@aid:table='table']/@aid:tcols)" />
     <xsl:variable name="var-table">
-      <xsl:for-each select="letex:make-rows( $var-cols, 
+      <xsl:for-each select="idml2xml:make-rows( $var-cols, 
 			    descendant::*[local-name()=$cell-src-name][1], 
 			    number(descendant::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), 
 			    0, 
@@ -389,7 +387,7 @@
     </entry>
   </xsl:template>
   
-  <xsl:function name="letex:make-rows">
+  <xsl:function name="idml2xml:make-rows">
     <xsl:param name="var-cols" as="xs:double" />
     <xsl:param name="var-current-cell" as="element()*" />
     <xsl:param name="var-cumulated-cols" as="xs:double" />
@@ -418,12 +416,12 @@
     </xsl:variable>
     <xsl:if test="($var-current-cell ne '') or exists($var-current-cell/following-sibling::*[local-name()=$cell-src-name])">
       <xsl:element name="row">
-	<xsl:sequence select="letex:cells2row($var-cols, $var-current-cell, $var-cumulated-overlap + number($var-current-cell/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
+	<xsl:sequence select="idml2xml:cells2row($var-cols, $var-current-cell, $var-cumulated-overlap + number($var-current-cell/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
       </xsl:element>
     </xsl:if>
   </xsl:function>
 
-  <xsl:function name="letex:cells2row">
+  <xsl:function name="idml2xml:cells2row">
     <xsl:param name="var-cols" as="xs:double" />
     <xsl:param name="var-current-cell" as="element()*" />
     <xsl:param name="var-cumulated-cols" as="xs:double" />
@@ -432,7 +430,7 @@
     <xsl:param name="colspan-src-name" as="xs:string" />
     <xsl:param name="rowspan-src-name" as="xs:string" />
     <xsl:variable name="var-new-overlap" as="xs:integer*">
-      <xsl:sequence select="$var-overlap, if ($var-current-cell/@*[local-name()=$rowspan-src-name] ne '1') then letex:for-loop(1, xs:integer($var-current-cell/@*[local-name()=$colspan-src-name]), xs:integer($var-current-cell/@*[local-name()=$rowspan-src-name])) else 0" />
+      <xsl:sequence select="$var-overlap, if ($var-current-cell/@*[local-name()=$rowspan-src-name] ne '1') then idml2xml:for-loop(1, xs:integer($var-current-cell/@*[local-name()=$colspan-src-name]), xs:integer($var-current-cell/@*[local-name()=$rowspan-src-name])) else 0" />
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$var-cumulated-cols eq $var-cols">
@@ -442,7 +440,7 @@
 	    <xsl:copy-of select="@*|node()" />
 	  </xsl:copy>
 	</xsl:for-each>
-	<xsl:sequence select="letex:make-rows($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, 'false', $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
+	<xsl:sequence select="idml2xml:make-rows($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, 'false', $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
       </xsl:when>
       <xsl:when test="$var-cumulated-cols lt $var-cols">
 	<xsl:for-each select="$var-current-cell">
@@ -451,7 +449,7 @@
 	    <xsl:copy-of select="@*|node()" />
 	  </xsl:copy>
 	</xsl:for-each>
-	<xsl:sequence select="letex:cells2row($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], $var-cumulated-cols + number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
+	<xsl:sequence select="idml2xml:cells2row($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], $var-cumulated-cols + number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
       </xsl:when>
       <xsl:when test="$var-cumulated-cols gt $var-cols">
 	<xsl:message terminate="no">Error: <xsl:value-of select="$var-cumulated-cols" /> cells in row, but only <xsl:value-of select="$var-cols" /> are allowed.</xsl:message>
@@ -459,7 +457,7 @@
     </xsl:choose>
   </xsl:function>
 
-  <xsl:function name="letex:for-loop">
+  <xsl:function name="idml2xml:for-loop">
     <xsl:param name="from" as="xs:integer" />
     <xsl:param name="to" as="xs:integer" />
     <xsl:param name="do" />
@@ -469,7 +467,7 @@
       </xsl:when>
       <xsl:otherwise>
 	<xsl:sequence select="$do" />
-	<xsl:sequence select="letex:for-loop($from, $to - 1, $do)" />
+	<xsl:sequence select="idml2xml:for-loop($from, $to - 1, $do)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>

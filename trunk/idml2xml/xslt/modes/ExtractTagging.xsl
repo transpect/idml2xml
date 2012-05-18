@@ -5,10 +5,8 @@
   xmlns:aid		= "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5	= "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg	=	"http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-  xmlns:saxon	= "http://saxon.sf.net/"
-  xmlns:letex	= "http://www.le-tex.de/namespace"
   xmlns:idml2xml	= "http://www.le-tex.de/namespace/idml2xml"
-  exclude-result-prefixes="aid5 aid saxon xs letex"
+  exclude-result-prefixes="aid5 aid xs"
 >
 
   <!--== mode: idml2xml:ExtractTagging ==-->
@@ -196,7 +194,7 @@
 
 
 	<xsl:template match="ParagraphStyleRange[
-                       every $c1 in (* union HyperlinkTextSource/*) satisfies $c1/self::CharacterStyleRange[
+                       every $c1 in (* | HyperlinkTextSource/*) satisfies $c1/self::CharacterStyleRange[
                            every $c2 in * satisfies $c2/self::Br (: includes the case 'not(*)', too! :)
                          ]
                        ]" mode="idml2xml:ExtractTagging" priority="2.5" />
@@ -204,7 +202,7 @@
 	<xsl:template match="XMLElement
                          [@MarkupTag eq 'XMLTag/idml2xml%3agenSpan']
                          [
-                           every $c1 in (* union HyperlinkTextSource/*) satisfies $c1/self::CharacterStyleRange[
+                           every $c1 in (* | HyperlinkTextSource/*) satisfies $c1/self::CharacterStyleRange[
                              every $c2 in * satisfies $c2/self::Br (: includes the case 'not(*)', too! :)
                            ]
                          ]

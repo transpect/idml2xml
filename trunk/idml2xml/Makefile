@@ -17,6 +17,7 @@ default: usage
 	mkdir -p $<.tmp
 	unzip -u -o -d $<.tmp $<
 	$(SAXON) \
+      $(SAXONOPTS) \
       -xsl:xslt/idml2xml.xsl \
       -s:$(call uri,$<).tmp/designmap.xml \
       -it:$(call lc,$(subst .,,$(suffix $@))) \

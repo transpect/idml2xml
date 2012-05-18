@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="2.0"
-    xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
-    xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
-    xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
-    xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
-    xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  exclude-result-prefixes=" aid5 aid saxon xs letex"
+  xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
+  xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
+  xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
+  xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  exclude-result-prefixes=" aid5 aid xs"
 >
 
   <xsl:template match="Document[not(XmlStory)]" mode="idml2xml:GenerateTagging">
@@ -52,7 +50,7 @@
   <!-- Matches a ParagraphStyleRange that contains both (at least) one tagged para *and* some out-of-para text -->
   <xsl:template match="*:ParagraphStyleRange
                          [.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle']
-                         [ some $a in (. union .//XMLElement[idml2xml:same-scope(., current())][not(XMLAttribute/@Name = 'aid:pstyle')])
+                         [ some $a in (. | .//XMLElement[idml2xml:same-scope(., current())][not(XMLAttribute/@Name = 'aid:pstyle')])
                            /*[self::CharacterStyleRange or self::HyperlinkTextSource[CharacterStyleRange]][
                              some $c in .//Content[idml2xml:same-scope(., current())] satisfies (matches($c, '.'))
                            ]/@AppliedCharacterStyle 
@@ -74,7 +72,7 @@
   <xsl:template match="*:ParagraphStyleRange
                          [ancestor::Story]
                          [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
-                         [ some $a in (CharacterStyleRange union HyperlinkTextSource/CharacterStyleRange)[
+                         [ some $a in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange)[
                                some $c in .//Content satisfies (matches($c, '.'))
                              ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
@@ -121,7 +119,7 @@
                              not($x/XMLAttribute[@Name = 'aid:pstyle'])
                            )
                          ]
-                         [every $c in (CharacterStyleRange union HyperlinkTextSource/CharacterStyleRange) satisfies (matches($c, '^$'))]
+                         [every $c in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange) satisfies (matches($c, '^$'))]
                        /XMLElement
                          [not(every $c in * satisfies ($c/self::Table or $c/self::XMLAttribute))]" mode="idml2xml:GenerateTagging">
     <xsl:copy>

@@ -5,21 +5,10 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs saxon letex idPkg"
+    exclude-result-prefixes = "xs idPkg"
 >
   
-  <!-- le-tex functions -->
-
-  <xsl:function name="letex:ProcessingMessage">
-    <xsl:param name="msg"/>
-      <xsl:message>
- =- <xsl:value-of select="$msg"/> -=</xsl:message>
-  </xsl:function>
-
-
   <xsl:function name="idml2xml:substr">
     <xsl:param name="direction" as="xs:string"/> <!-- before: b, after: a -->
     <xsl:param name="Token"/>
@@ -146,7 +135,7 @@
                                               [some $a in ancestor::* satisfies ($a is $ancestor-elt)])" />
   </xsl:function>
 
-  <xsl:function name="idml2xml:br-first" as="xs:boolean" saxon:memo-function="yes">
+  <xsl:function name="idml2xml:br-first" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
     <xsl:sequence select="exists( 
                                   ($elt//*
@@ -157,7 +146,7 @@
                                 )" />
   </xsl:function>
 
-  <xsl:function name="idml2xml:br-last" as="xs:boolean" saxon:memo-function="yes">
+  <xsl:function name="idml2xml:br-last" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
     <xsl:sequence select="exists( 
                                   ($elt//*
@@ -351,7 +340,7 @@ http://cssdk.host.adobe.com/sdk/1.5/docs/WebHelp/references/csawlib/com/adobe/cs
     <xsl:value-of select="idml2xml:replaces( $propval, ('Color/', '') )"/>
   </xsl:function>
 
-  <!-- letex function replaces 
+  <!--  function replaces 
         - just replaces text -
         param 1: text to replace
         param 2: sequence of search- and replace-pattern 

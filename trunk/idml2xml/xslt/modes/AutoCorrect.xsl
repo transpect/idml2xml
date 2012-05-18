@@ -5,10 +5,8 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  exclude-result-prefixes="idPkg aid5 aid saxon xs letex"
+  exclude-result-prefixes="idPkg aid5 aid xs"
 >
 
   <xsl:template match="idml2xml:genSpan[not(@*)]" mode="idml2xml:AutoCorrect">
@@ -123,10 +121,10 @@
                          [*[@aid:pstyle]]
                          [count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]
                          [count(      *[@aid:pstyle] 
-                                union *[@aid:cstyle] 
-                                union *[@idml2xml:AppliedCharacterStyle] 
-                                union *[@idml2xml:story]
-                                union text()
+                                | *[@aid:cstyle] 
+                                | *[@idml2xml:AppliedCharacterStyle] 
+                                | *[@idml2xml:story]
+                                | text()
                                ) 
                           eq count(node())
                          ]" mode="idml2xml:AutoCorrect-clean-up">

@@ -5,11 +5,8 @@
     xmlns:aid		= "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5	= "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg	=	"http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon	= "http://saxon.sf.net/"
-    xmlns:letex	= "http://www.le-tex.de/namespace"
-    xmlns:date="java:java.util.Date"
     xmlns:idml2xml	= "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs saxon letex"
+    exclude-result-prefixes = "xs"
 >
   <xsl:template match="/" mode="idml2xml:Statistics">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -340,7 +337,7 @@
         <!-- filename and timestamp -->
         <p><xsl:value-of select="'File: ', $idml2xml:basename, '.idml'" separator=""/><br />
           <xsl:value-of select="'Date:', format-date(current-date(), '[Y]-[M]-[D]')"/><br />
-          <xsl:value-of select="'Timestamp:', date:getTime(date:new())"/></p>
+          <xsl:value-of select="'Timestamp:', current-dateTime()"/></p>
       </body>
     </html>
   </xsl:template>
