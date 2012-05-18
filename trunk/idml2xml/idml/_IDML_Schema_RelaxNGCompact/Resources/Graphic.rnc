@@ -1,0 +1,217 @@
+# Adobe InDesign CS5 7.0.3.535
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+
+grammar {
+start = Graphic_File
+
+include "../datatype.rnc"
+
+Graphic_File = element idPkg:Graphic {
+  attribute DOMVersion { "7.0" },
+(
+  Color_Object*,
+  Ink_Object*,
+  MixedInkGroup_Object*,
+  MixedInk_Object*,
+  PastedSmoothShade_Object*,
+  Tint_Object*,
+  Swatch_Object*,
+  Gradient_Object*,
+  (StrokeStyle_Object*&
+  DashedStrokeStyle_Object*&
+  DottedStrokeStyle_Object*&
+  StripedStrokeStyle_Object*)
+)
+}
+
+Color_Object = element Color {
+  attribute Self { xsd:string },
+  attribute Model { ColorModel_EnumValue }?,
+  attribute Space { ColorSpace_EnumValue }?,
+  attribute ColorValue { list { xsd:double * } }?,
+  attribute ColorOverride { ColorOverride_EnumValue }?,
+  attribute BaseColor { xsd:string }?,
+  attribute SpotInkAliasSpotColorReference { xsd:string }?,
+  attribute AlternateSpace { ColorSpace_EnumValue }?,
+  attribute AlternateColorValue { list { xsd:double * } }?,
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Ink_Object = element Ink {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute AliasInkName { xsd:string }?,
+  attribute Angle { xsd:double {minInclusive="0" maxInclusive="360"} }?,
+  attribute ConvertToProcess { xsd:boolean }?,
+  attribute Frequency { xsd:double {minInclusive="1" maxInclusive="500"} }?,
+  attribute NeutralDensity { xsd:double {minInclusive="0.001" maxInclusive="10"} }?,
+  attribute PrintInk { xsd:boolean }?,
+  attribute TrapOrder { xsd:int }?,
+  attribute InkType { InkTypes_EnumValue }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+MixedInkGroup_Object = element MixedInkGroup {
+  attribute Self { xsd:string },
+  attribute Model { ColorModel_EnumValue }?,
+  attribute InkList { list { xsd:string * } }?,
+  attribute InkNameList { list { xsd:string * } }?,
+  attribute MixedInkSpotColorNameList { list { xsd:string * } }?,
+  attribute MixedInkSpotColorList { list { xsd:string * } }?,
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+MixedInk_Object = element MixedInk {
+  attribute Self { xsd:string },
+  attribute Model { ColorModel_EnumValue }?,
+  attribute Space { ColorSpace_EnumValue }?,
+  attribute InkList { list { xsd:string * } }?,
+  attribute InkPercentages { list { xsd:double * } }?,
+  attribute BaseColor { xsd:string }?,
+  attribute InkNameList { list { xsd:string * } }?,
+  attribute MixedInkSpotColorNameList { list { xsd:string * } }?,
+  attribute MixedInkSpotColorList { list { xsd:string * } }?,
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+PastedSmoothShade_Object = element PastedSmoothShade {
+  attribute Self { xsd:string },
+  attribute ContentsVersion { xsd:int }?,
+  attribute ContentsType { ContentsTypeSettings_EnumValue }?,
+  attribute SpotColorList { list { xsd:string * } }?,
+  attribute ContentsEncoding { EncodingType_EnumValue }?,
+  attribute ContentsMatrix { TransformationMatrixType_TypeDef }?,
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Contents { text }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Tint_Object = element Tint {
+  attribute Self { xsd:string },
+  attribute TintValue { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute BaseColor { xsd:string },
+  attribute Name { xsd:string },
+  attribute ColorOverride { ColorOverride_EnumValue }?,
+  attribute SpotInkAliasSpotColorReference { xsd:string }?,
+  attribute AlternateSpace { ColorSpace_EnumValue }?,
+  attribute AlternateColorValue { list { xsd:double * } }?,
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Swatch_Object = element Swatch {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Gradient_Object = element Gradient {
+  attribute Self { xsd:string },
+  attribute Type { GradientType_EnumValue }?,
+  attribute Name { xsd:string },
+  attribute ColorEditable { xsd:boolean }?,
+  attribute ColorRemovable { xsd:boolean }?,
+  attribute Visible { xsd:boolean }?,
+  attribute SwatchCreatorID { xsd:int }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  GradientStop_Object*
+)
+}
+
+GradientStop_Object = element GradientStop {
+  attribute Self { xsd:string },
+  attribute StopColor { xsd:string }?,
+  attribute Location { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Midpoint { xsd:double {minInclusive="13" maxInclusive="87"} }?
+}
+
+StrokeStyle_Object = element StrokeStyle {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }
+}
+
+DashedStrokeStyle_Object = element DashedStrokeStyle {
+  attribute Self { xsd:string },
+  attribute DashArray { list { xsd:double * } }?,
+  attribute StrokeCornerAdjustment { StrokeCornerAdjustment_EnumValue }?,
+  attribute EndCap { EndCap_EnumValue }?,
+  attribute Name { xsd:string }
+}
+
+DottedStrokeStyle_Object = element DottedStrokeStyle {
+  attribute Self { xsd:string },
+  attribute DotArray { list { xsd:double * } }?,
+  attribute StrokeCornerAdjustment { StrokeCornerAdjustment_EnumValue }?,
+  attribute Name { xsd:string }
+}
+
+StripedStrokeStyle_Object = element StripedStrokeStyle {
+  attribute Self { xsd:string },
+  attribute StripeArray { list { xsd:double * } }?,
+  attribute Name { xsd:string }
+}
+
+
+}
