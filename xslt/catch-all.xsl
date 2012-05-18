@@ -33,10 +33,8 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs saxon letex idPkg idml2xml xhtml"
+    exclude-result-prefixes = "xs idPkg idml2xml xhtml"
 >
 
   <!--== Catch-All: import in main stylesheet, add new catch-all modes in &catchAllModes; ==-->

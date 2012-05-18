@@ -12,10 +12,8 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:saxon = "http://saxon.sf.net/"
-    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes="idPkg aid5 aid saxon xs letex idml2xml xhtml"
+    exclude-result-prefixes="idPkg aid5 aid xs idml2xml xhtml"
 >
 
   <!--== TEMPLATES / FUNCTIONS INCLUSION ==-->
@@ -32,7 +30,7 @@
   <xsl:import href="modes/ExtractTagging.xsl"/>
   <!-- AutoCorrect: mode to correct aid:pstyle and aid:cstyle according to applied styles -->
   <xsl:import href="modes/AutoCorrect.xsl"/>
-  <!-- GenerateHubformat: convert to letex hubformat -->
+  <!-- GenerateHubformat: convert to le-tex Hub format -->
   <xsl:import href="modes/GenerateHubformat.xsl"/>
   <!-- Statistics: output summaries of the idml document to a separate html-file -->
   <xsl:import href="modes/Statistics.xsl"/>
@@ -40,9 +38,8 @@
   <xsl:import href="modes/Index.xsl"/>
 
   <!--== XSL OUTPUT ==-->
+  <!-- removed saxon:suppress-indentiation (and indent="yes") in order to make this vendor-neutral: -->
   <xsl:output 
-      saxon:suppress-indentation="span phrase emphasis" 
-      indent="yes" 
       doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
       doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" 
       encoding="UTF-8"
