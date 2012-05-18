@@ -1,0 +1,80 @@
+# Adobe InDesign CS5 7.0.3.535
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+
+grammar {
+start = Fonts_File
+
+include "../datatype.rnc"
+
+Fonts_File = element idPkg:Fonts {
+  attribute DOMVersion { "7.0" },
+(
+  FontFamily_Object*,
+  CompositeFont_Object*
+)
+}
+
+FontFamily_Object = element FontFamily {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+(
+  Font_Object*
+)
+}
+
+Font_Object = element Font {
+  attribute Self { xsd:string },
+  attribute FontFamily { xsd:string }?,
+  attribute Name { xsd:string }?,
+  attribute PostScriptName { xsd:string }?,
+  attribute Status { FontStatus_EnumValue }?,
+  attribute FontStyleName { xsd:string }?,
+  attribute FontType { FontTypes_EnumValue }?,
+  attribute WritingScript { xsd:int }?,
+  attribute FullName { xsd:string }?,
+  attribute FullNameNative { xsd:string }?,
+  attribute FontStyleNameNative { xsd:string }?,
+  attribute PlatformName { xsd:string }?,
+  attribute Version { xsd:string }?
+}
+
+CompositeFont_Object = element CompositeFont {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  CompositeFontEntry_Object*
+)
+}
+
+CompositeFontEntry_Object = element CompositeFontEntry {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute FontStyle { xsd:string }?,
+  attribute RelativeSize { xsd:double }?,
+  attribute HorizontalScale { xsd:double }?,
+  attribute VerticalScale { xsd:double }?,
+  attribute CustomCharacters { xsd:string }?,
+  attribute Locked { xsd:boolean }?,
+  attribute ScaleOption { xsd:boolean }?,
+  attribute BaselineShift { xsd:double }?,
+  element Properties {
+    element AppliedFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+
+}

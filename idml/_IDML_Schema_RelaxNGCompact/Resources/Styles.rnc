@@ -1,0 +1,1486 @@
+# Adobe InDesign CS5 7.0.3.535
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+
+grammar {
+start = Styles_File
+
+include "../datatype.rnc"
+
+Styles_File = element idPkg:Styles {
+  attribute DOMVersion { "7.0" },
+(
+  RootCharacterStyleGroup_Object?,
+  RootParagraphStyleGroup_Object?,
+  TOCStyle_Object*,
+  RootCellStyleGroup_Object?,
+  RootTableStyleGroup_Object?,
+  RootObjectStyleGroup_Object?,
+  TrapPreset_Object*
+)
+}
+
+RootCharacterStyleGroup_Object = element RootCharacterStyleGroup {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  CharacterStyle_Object*&
+  CharacterStyleGroup_Object*
+)
+}
+
+CharacterStyle_Object = element CharacterStyle {
+  attribute Self { xsd:string },
+  attribute Imported { xsd:boolean }?,
+  attribute FontStyle { xsd:string }?,
+  attribute PointSize { xsd:double }?,
+  attribute KerningMethod { xsd:string }?,
+  attribute Tracking { xsd:double }?,
+  attribute Capitalization { Capitalization_EnumValue }?,
+  attribute Position { Position_EnumValue }?,
+  attribute Underline { xsd:boolean }?,
+  attribute StrikeThru { xsd:boolean }?,
+  attribute Ligatures { xsd:boolean }?,
+  attribute NoBreak { xsd:boolean }?,
+  attribute HorizontalScale { xsd:double }?,
+  attribute VerticalScale { xsd:double }?,
+  attribute BaselineShift { xsd:double }?,
+  attribute Skew { xsd:double }?,
+  attribute FillTint { xsd:double }?,
+  attribute StrokeTint { xsd:double }?,
+  attribute StrokeWeight { xsd:double }?,
+  attribute OverprintStroke { xsd:boolean }?,
+  attribute OverprintFill { xsd:boolean }?,
+  attribute OTFFigureStyle { OTFFigureStyle_EnumValue }?,
+  attribute OTFOrdinal { xsd:boolean }?,
+  attribute OTFFraction { xsd:boolean }?,
+  attribute OTFDiscretionaryLigature { xsd:boolean }?,
+  attribute OTFTitling { xsd:boolean }?,
+  attribute OTFContextualAlternate { xsd:boolean }?,
+  attribute OTFSwash { xsd:boolean }?,
+  attribute UnderlineTint { xsd:double }?,
+  attribute UnderlineGapTint { xsd:double }?,
+  attribute UnderlineOverprint { xsd:boolean }?,
+  attribute UnderlineGapOverprint { xsd:boolean }?,
+  attribute UnderlineOffset { xsd:double }?,
+  attribute UnderlineWeight { xsd:double }?,
+  attribute StrikeThroughTint { xsd:double }?,
+  attribute StrikeThroughGapTint { xsd:double }?,
+  attribute StrikeThroughOverprint { xsd:boolean }?,
+  attribute StrikeThroughGapOverprint { xsd:boolean }?,
+  attribute StrikeThroughOffset { xsd:double }?,
+  attribute StrikeThroughWeight { xsd:double }?,
+  attribute FillColor { xsd:string }?,
+  attribute StrokeColor { xsd:string }?,
+  attribute AppliedLanguage { xsd:string }?,
+  attribute KeyboardShortcut { list { xsd:short ,xsd:short } }?,
+  attribute OTFSlashedZero { xsd:boolean }?,
+  attribute OTFHistorical { xsd:boolean }?,
+  attribute OTFStylisticSets { xsd:int }?,
+  attribute GradientFillLength { xsd:double }?,
+  attribute GradientFillAngle { xsd:double }?,
+  attribute GradientStrokeLength { xsd:double }?,
+  attribute GradientStrokeAngle { xsd:double }?,
+  attribute GradientFillStart { UnitPointType_TypeDef }?,
+  attribute GradientStrokeStart { UnitPointType_TypeDef }?,
+  attribute OTFMark { xsd:boolean }?,
+  attribute OTFLocale { xsd:boolean }?,
+  attribute PositionalForm { PositionalForms_EnumValue }?,
+  attribute KerningValue { xsd:double }?,
+  attribute Name { xsd:string },
+  attribute MiterLimit { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute StrokeAlignment { TextStrokeAlign_EnumValue }?,
+  attribute EndJoin { OutlineJoin_EnumValue }?,
+  attribute OTFOverlapSwash { xsd:boolean }?,
+  attribute OTFStylisticAlternate { xsd:boolean }?,
+  attribute OTFJustificationAlternate { xsd:boolean }?,
+  attribute OTFStretchedAlternate { xsd:boolean }?,
+  attribute CharacterDirection { CharacterDirectionOptions_EnumValue }?,
+  attribute KeyboardDirection { CharacterDirectionOptions_EnumValue }?,
+  attribute DigitsType { DigitsTypeOptions_EnumValue }?,
+  attribute Kashidas { KashidasOptions_EnumValue }?,
+  attribute DiacriticPosition { DiacriticPositionOptions_EnumValue }?,
+  attribute XOffsetDiacritic { xsd:double }?,
+  attribute YOffsetDiacritic { xsd:double }?,
+  attribute ParagraphBreakType { ParagraphBreakTypes_EnumValue }?,
+  attribute PageNumberType { PageNumberTypes_EnumValue }?,
+  attribute CharacterAlignment { CharacterAlignment_EnumValue }?,
+  attribute Tsume { xsd:double }?,
+  attribute LeadingAki { xsd:double }?,
+  attribute TrailingAki { xsd:double }?,
+  attribute CharacterRotation { xsd:double }?,
+  attribute Jidori { xsd:short }?,
+  attribute ShataiMagnification { xsd:double }?,
+  attribute ShataiDegreeAngle { xsd:double }?,
+  attribute ShataiAdjustRotation { xsd:boolean }?,
+  attribute ShataiAdjustTsume { xsd:boolean }?,
+  attribute Tatechuyoko { xsd:boolean }?,
+  attribute TatechuyokoXOffset { xsd:double }?,
+  attribute TatechuyokoYOffset { xsd:double }?,
+  attribute KentenTint { xsd:double }?,
+  attribute KentenStrokeTint { xsd:double }?,
+  attribute KentenWeight { xsd:double }?,
+  attribute KentenOverprintFill { AdornmentOverprint_EnumValue }?,
+  attribute KentenOverprintStroke { AdornmentOverprint_EnumValue }?,
+  attribute KentenKind { KentenCharacter_EnumValue }?,
+  attribute KentenPlacement { xsd:double }?,
+  attribute KentenAlignment { KentenAlignment_EnumValue }?,
+  attribute KentenPosition { RubyKentenPosition_EnumValue }?,
+  attribute KentenFontSize { xsd:double }?,
+  attribute KentenXScale { xsd:double }?,
+  attribute KentenYScale { xsd:double }?,
+  attribute KentenCustomCharacter { xsd:string }?,
+  attribute KentenCharacterSet { KentenCharacterSet_EnumValue }?,
+  attribute RubyTint { xsd:double }?,
+  attribute RubyWeight { xsd:double }?,
+  attribute RubyOverprintFill { AdornmentOverprint_EnumValue }?,
+  attribute RubyOverprintStroke { AdornmentOverprint_EnumValue }?,
+  attribute RubyStrokeTint { xsd:double }?,
+  attribute RubyFontSize { xsd:double }?,
+  attribute RubyOpenTypePro { xsd:boolean }?,
+  attribute RubyXScale { xsd:double }?,
+  attribute RubyYScale { xsd:double }?,
+  attribute RubyType { RubyTypes_EnumValue }?,
+  attribute RubyAlignment { RubyAlignments_EnumValue }?,
+  attribute RubyPosition { RubyKentenPosition_EnumValue }?,
+  attribute RubyXOffset { xsd:double }?,
+  attribute RubyYOffset { xsd:double }?,
+  attribute RubyParentSpacing { RubyParentSpacing_EnumValue }?,
+  attribute RubyAutoAlign { xsd:boolean }?,
+  attribute RubyOverhang { xsd:boolean }?,
+  attribute RubyAutoScaling { xsd:boolean }?,
+  attribute RubyParentScalingPercent { xsd:double }?,
+  attribute RubyParentOverhangAmount { RubyOverhang_EnumValue }?,
+  attribute Warichu { xsd:boolean }?,
+  attribute WarichuSize { xsd:double }?,
+  attribute WarichuLines { xsd:short }?,
+  attribute WarichuLineSpacing { xsd:double }?,
+  attribute WarichuAlignment { WarichuAlignment_EnumValue }?,
+  attribute WarichuCharsAfterBreak { xsd:short }?,
+  attribute WarichuCharsBeforeBreak { xsd:short }?,
+  attribute OTFProportionalMetrics { xsd:boolean }?,
+  attribute OTFHVKana { xsd:boolean }?,
+  attribute OTFRomanItalics { xsd:boolean }?,
+  attribute ScaleAffectsLineHeight { xsd:boolean }?,
+  attribute CjkGridTracking { xsd:boolean }?,
+  attribute GlyphForm { AlternateGlyphForms_EnumValue }?,
+  attribute RubyAutoTcyDigits { xsd:short }?,
+  attribute RubyAutoTcyIncludeRoman { xsd:boolean }?,
+  attribute RubyAutoTcyAutoScale { xsd:boolean }?,
+  element Properties {
+    element BasedOn { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element AppliedFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Leading { 
+      (unit_type, xsd:double ) |
+      (enum_type, Leading_EnumValue )
+    }?&
+    element UnderlineColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element UnderlineGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element UnderlineType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element PreviewColor { 
+      (InDesignUIColorType_TypeDef ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element KentenFillColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenStrokeColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element RubyFill { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyStroke { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+CharacterStyleGroup_Object = element CharacterStyleGroup {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  CharacterStyle_Object*&
+  CharacterStyleGroup_Object*
+)
+}
+
+RootParagraphStyleGroup_Object = element RootParagraphStyleGroup {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  ParagraphStyle_Object*&
+  ParagraphStyleGroup_Object*
+)
+}
+
+ParagraphStyle_Object = element ParagraphStyle {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute Imported { xsd:boolean }?,
+  attribute NextStyle { xsd:string }?,
+  attribute FontStyle { xsd:string }?,
+  attribute PointSize { xsd:double }?,
+  attribute KerningMethod { xsd:string }?,
+  attribute Tracking { xsd:double }?,
+  attribute Capitalization { Capitalization_EnumValue }?,
+  attribute Position { Position_EnumValue }?,
+  attribute Underline { xsd:boolean }?,
+  attribute StrikeThru { xsd:boolean }?,
+  attribute Ligatures { xsd:boolean }?,
+  attribute NoBreak { xsd:boolean }?,
+  attribute HorizontalScale { xsd:double }?,
+  attribute VerticalScale { xsd:double }?,
+  attribute BaselineShift { xsd:double }?,
+  attribute Skew { xsd:double }?,
+  attribute FillTint { xsd:double }?,
+  attribute StrokeTint { xsd:double }?,
+  attribute StrokeWeight { xsd:double }?,
+  attribute OverprintStroke { xsd:boolean }?,
+  attribute OverprintFill { xsd:boolean }?,
+  attribute OTFFigureStyle { OTFFigureStyle_EnumValue }?,
+  attribute OTFOrdinal { xsd:boolean }?,
+  attribute OTFFraction { xsd:boolean }?,
+  attribute OTFDiscretionaryLigature { xsd:boolean }?,
+  attribute OTFTitling { xsd:boolean }?,
+  attribute OTFContextualAlternate { xsd:boolean }?,
+  attribute OTFSwash { xsd:boolean }?,
+  attribute UnderlineTint { xsd:double }?,
+  attribute UnderlineGapTint { xsd:double }?,
+  attribute UnderlineOverprint { xsd:boolean }?,
+  attribute UnderlineGapOverprint { xsd:boolean }?,
+  attribute UnderlineOffset { xsd:double }?,
+  attribute UnderlineWeight { xsd:double }?,
+  attribute StrikeThroughTint { xsd:double }?,
+  attribute StrikeThroughGapTint { xsd:double }?,
+  attribute StrikeThroughOverprint { xsd:boolean }?,
+  attribute StrikeThroughGapOverprint { xsd:boolean }?,
+  attribute StrikeThroughOffset { xsd:double }?,
+  attribute StrikeThroughWeight { xsd:double }?,
+  attribute FillColor { xsd:string }?,
+  attribute StrokeColor { xsd:string }?,
+  attribute AppliedLanguage { xsd:string }?,
+  attribute FirstLineIndent { xsd:double }?,
+  attribute LeftIndent { xsd:double }?,
+  attribute RightIndent { xsd:double }?,
+  attribute SpaceBefore { xsd:double }?,
+  attribute SpaceAfter { xsd:double }?,
+  attribute Justification { Justification_EnumValue }?,
+  attribute SingleWordJustification { SingleWordJustification_EnumValue }?,
+  attribute AutoLeading { xsd:double }?,
+  attribute DropCapLines { xsd:short {minInclusive="0" maxInclusive="25"} }?,
+  attribute DropCapCharacters { xsd:short {minInclusive="0" maxInclusive="150"} }?,
+  attribute KeepLinesTogether { xsd:boolean }?,
+  attribute KeepAllLinesTogether { xsd:boolean }?,
+  attribute KeepWithNext { xsd:short {minInclusive="0" maxInclusive="5"} }?,
+  attribute KeepFirstLines { xsd:short {minInclusive="1" maxInclusive="50"} }?,
+  attribute KeepLastLines { xsd:short {minInclusive="1" maxInclusive="50"} }?,
+  attribute StartParagraph { StartParagraph_EnumValue }?,
+  attribute Composer { xsd:string }?,
+  attribute MinimumWordSpacing { xsd:double }?,
+  attribute MaximumWordSpacing { xsd:double }?,
+  attribute DesiredWordSpacing { xsd:double }?,
+  attribute MinimumLetterSpacing { xsd:double }?,
+  attribute MaximumLetterSpacing { xsd:double }?,
+  attribute DesiredLetterSpacing { xsd:double }?,
+  attribute MinimumGlyphScaling { xsd:double }?,
+  attribute MaximumGlyphScaling { xsd:double }?,
+  attribute DesiredGlyphScaling { xsd:double }?,
+  attribute RuleAbove { xsd:boolean }?,
+  attribute RuleAboveOverprint { xsd:boolean }?,
+  attribute RuleAboveLineWeight { xsd:double }?,
+  attribute RuleAboveTint { xsd:double }?,
+  attribute RuleAboveOffset { xsd:double }?,
+  attribute RuleAboveLeftIndent { xsd:double }?,
+  attribute RuleAboveRightIndent { xsd:double }?,
+  attribute RuleAboveWidth { RuleWidth_EnumValue }?,
+  attribute RuleAboveGapTint { xsd:double }?,
+  attribute RuleAboveGapOverprint { xsd:boolean }?,
+  attribute RuleBelow { xsd:boolean }?,
+  attribute RuleBelowLineWeight { xsd:double }?,
+  attribute RuleBelowTint { xsd:double }?,
+  attribute RuleBelowOffset { xsd:double }?,
+  attribute RuleBelowLeftIndent { xsd:double }?,
+  attribute RuleBelowRightIndent { xsd:double }?,
+  attribute RuleBelowWidth { RuleWidth_EnumValue }?,
+  attribute RuleBelowGapTint { xsd:double }?,
+  attribute HyphenateCapitalizedWords { xsd:boolean }?,
+  attribute Hyphenation { xsd:boolean }?,
+  attribute HyphenateBeforeLast { xsd:short {minInclusive="1" maxInclusive="15"} }?,
+  attribute HyphenateAfterFirst { xsd:short {minInclusive="1" maxInclusive="15"} }?,
+  attribute HyphenateWordsLongerThan { xsd:short {minInclusive="3" maxInclusive="25"} }?,
+  attribute HyphenateLadderLimit { xsd:short {minInclusive="0" maxInclusive="25"} }?,
+  attribute HyphenationZone { xsd:double }?,
+  attribute HyphenWeight { xsd:short {minInclusive="0" maxInclusive="10"} }?,
+  attribute KeyboardShortcut { list { xsd:short ,xsd:short } }?,
+  attribute LastLineIndent { xsd:double }?,
+  attribute HyphenateLastWord { xsd:boolean }?,
+  attribute OTFSlashedZero { xsd:boolean }?,
+  attribute OTFHistorical { xsd:boolean }?,
+  attribute OTFStylisticSets { xsd:int }?,
+  attribute GradientFillLength { xsd:double }?,
+  attribute GradientFillAngle { xsd:double }?,
+  attribute GradientStrokeLength { xsd:double }?,
+  attribute GradientStrokeAngle { xsd:double }?,
+  attribute GradientFillStart { UnitPointType_TypeDef }?,
+  attribute GradientStrokeStart { UnitPointType_TypeDef }?,
+  attribute KeepWithPrevious { xsd:boolean }?,
+  attribute SpanColumnType { SpanColumnTypeOptions_EnumValue }?,
+  attribute SplitColumnInsideGutter { xsd:double }?,
+  attribute SplitColumnOutsideGutter { xsd:double }?,
+  attribute SpanColumnMinSpaceBefore { xsd:double }?,
+  attribute SpanColumnMinSpaceAfter { xsd:double }?,
+  attribute RuleBelowOverprint { xsd:boolean }?,
+  attribute RuleBelowGapOverprint { xsd:boolean }?,
+  attribute DropcapDetail { xsd:int }?,
+  attribute HyphenateAcrossColumns { xsd:boolean }?,
+  attribute KeepRuleAboveInFrame { xsd:boolean }?,
+  attribute IgnoreEdgeAlignment { xsd:boolean }?,
+  attribute OTFMark { xsd:boolean }?,
+  attribute OTFLocale { xsd:boolean }?,
+  attribute PositionalForm { PositionalForms_EnumValue }?,
+  attribute ParagraphDirection { ParagraphDirectionOptions_EnumValue }?,
+  attribute ParagraphJustification { ParagraphJustificationOptions_EnumValue }?,
+  attribute MiterLimit { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute StrokeAlignment { TextStrokeAlign_EnumValue }?,
+  attribute EndJoin { OutlineJoin_EnumValue }?,
+  attribute OTFOverlapSwash { xsd:boolean }?,
+  attribute OTFStylisticAlternate { xsd:boolean }?,
+  attribute OTFJustificationAlternate { xsd:boolean }?,
+  attribute OTFStretchedAlternate { xsd:boolean }?,
+  attribute CharacterDirection { CharacterDirectionOptions_EnumValue }?,
+  attribute KeyboardDirection { CharacterDirectionOptions_EnumValue }?,
+  attribute DigitsType { DigitsTypeOptions_EnumValue }?,
+  attribute Kashidas { KashidasOptions_EnumValue }?,
+  attribute DiacriticPosition { DiacriticPositionOptions_EnumValue }?,
+  attribute XOffsetDiacritic { xsd:double }?,
+  attribute YOffsetDiacritic { xsd:double }?,
+  attribute ParagraphBreakType { ParagraphBreakTypes_EnumValue }?,
+  attribute PageNumberType { PageNumberTypes_EnumValue }?,
+  attribute GridAlignFirstLineOnly { xsd:boolean }?,
+  attribute GridAlignment { GridAlignment_EnumValue }?,
+  attribute GridGyoudori { xsd:short }?,
+  attribute AutoTcy { xsd:short }?,
+  attribute AutoTcyIncludeRoman { xsd:boolean }?,
+  attribute KinsokuType { KinsokuType_EnumValue }?,
+  attribute KinsokuHangType { KinsokuHangTypes_EnumValue }?,
+  attribute BunriKinshi { xsd:boolean }?,
+  attribute Rensuuji { xsd:boolean }?,
+  attribute RotateSingleByteCharacters { xsd:boolean }?,
+  attribute LeadingModel { LeadingModel_EnumValue }?,
+  attribute CharacterAlignment { CharacterAlignment_EnumValue }?,
+  attribute Tsume { xsd:double }?,
+  attribute LeadingAki { xsd:double }?,
+  attribute TrailingAki { xsd:double }?,
+  attribute CharacterRotation { xsd:double }?,
+  attribute Jidori { xsd:short }?,
+  attribute ShataiMagnification { xsd:double }?,
+  attribute ShataiDegreeAngle { xsd:double }?,
+  attribute ShataiAdjustRotation { xsd:boolean }?,
+  attribute ShataiAdjustTsume { xsd:boolean }?,
+  attribute Tatechuyoko { xsd:boolean }?,
+  attribute TatechuyokoXOffset { xsd:double }?,
+  attribute TatechuyokoYOffset { xsd:double }?,
+  attribute KentenTint { xsd:double }?,
+  attribute KentenStrokeTint { xsd:double }?,
+  attribute KentenWeight { xsd:double }?,
+  attribute KentenOverprintFill { AdornmentOverprint_EnumValue }?,
+  attribute KentenOverprintStroke { AdornmentOverprint_EnumValue }?,
+  attribute KentenKind { KentenCharacter_EnumValue }?,
+  attribute KentenPlacement { xsd:double }?,
+  attribute KentenAlignment { KentenAlignment_EnumValue }?,
+  attribute KentenPosition { RubyKentenPosition_EnumValue }?,
+  attribute KentenFontSize { xsd:double }?,
+  attribute KentenXScale { xsd:double }?,
+  attribute KentenYScale { xsd:double }?,
+  attribute KentenCustomCharacter { xsd:string }?,
+  attribute KentenCharacterSet { KentenCharacterSet_EnumValue }?,
+  attribute RubyTint { xsd:double }?,
+  attribute RubyWeight { xsd:double }?,
+  attribute RubyOverprintFill { AdornmentOverprint_EnumValue }?,
+  attribute RubyOverprintStroke { AdornmentOverprint_EnumValue }?,
+  attribute RubyStrokeTint { xsd:double }?,
+  attribute RubyFontSize { xsd:double }?,
+  attribute RubyOpenTypePro { xsd:boolean }?,
+  attribute RubyXScale { xsd:double }?,
+  attribute RubyYScale { xsd:double }?,
+  attribute RubyType { RubyTypes_EnumValue }?,
+  attribute RubyAlignment { RubyAlignments_EnumValue }?,
+  attribute RubyPosition { RubyKentenPosition_EnumValue }?,
+  attribute RubyXOffset { xsd:double }?,
+  attribute RubyYOffset { xsd:double }?,
+  attribute RubyParentSpacing { RubyParentSpacing_EnumValue }?,
+  attribute RubyAutoAlign { xsd:boolean }?,
+  attribute RubyOverhang { xsd:boolean }?,
+  attribute RubyAutoScaling { xsd:boolean }?,
+  attribute RubyParentScalingPercent { xsd:double }?,
+  attribute RubyParentOverhangAmount { RubyOverhang_EnumValue }?,
+  attribute Warichu { xsd:boolean }?,
+  attribute WarichuSize { xsd:double }?,
+  attribute WarichuLines { xsd:short }?,
+  attribute WarichuLineSpacing { xsd:double }?,
+  attribute WarichuAlignment { WarichuAlignment_EnumValue }?,
+  attribute WarichuCharsAfterBreak { xsd:short }?,
+  attribute WarichuCharsBeforeBreak { xsd:short }?,
+  attribute OTFProportionalMetrics { xsd:boolean }?,
+  attribute OTFHVKana { xsd:boolean }?,
+  attribute OTFRomanItalics { xsd:boolean }?,
+  attribute ScaleAffectsLineHeight { xsd:boolean }?,
+  attribute CjkGridTracking { xsd:boolean }?,
+  attribute GlyphForm { AlternateGlyphForms_EnumValue }?,
+  attribute ParagraphGyoudori { xsd:boolean }?,
+  attribute RubyAutoTcyDigits { xsd:short }?,
+  attribute RubyAutoTcyIncludeRoman { xsd:boolean }?,
+  attribute RubyAutoTcyAutoScale { xsd:boolean }?,
+  attribute TreatIdeographicSpaceAsSpace { xsd:boolean }?,
+  attribute AllowArbitraryHyphenation { xsd:boolean }?,
+  attribute BulletsAndNumberingListType { ListType_EnumValue }?,
+  attribute NumberingExpression { xsd:string }?,
+  attribute BulletsTextAfter { xsd:string }?,
+  attribute NumberingLevel { xsd:int }?,
+  attribute NumberingContinue { xsd:boolean }?,
+  attribute NumberingStartAt { xsd:int }?,
+  attribute NumberingApplyRestartPolicy { xsd:boolean }?,
+  attribute BulletsAlignment { ListAlignment_EnumValue }?,
+  attribute NumberingAlignment { ListAlignment_EnumValue }?,
+  element Properties {
+    element BasedOn { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element AppliedFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Leading { 
+      (unit_type, xsd:double ) |
+      (enum_type, Leading_EnumValue )
+    }?&
+    element UnderlineColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element UnderlineGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element UnderlineType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element StrikeThroughType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element BalanceRaggedLines { 
+      (bool_type, xsd:boolean ) |
+      (enum_type, BalanceLinesStyle_EnumValue )
+    }?&
+    element RuleAboveColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RuleAboveGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RuleAboveType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RuleBelowColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RuleBelowGapColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RuleBelowType { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element SpanSplitColumnCount { 
+      (short_type, xsd:short {minInclusive="1" maxInclusive="40"} ) |
+      (enum_type, SpanColumnCountOptions_EnumValue )
+    }?&
+    element PreviewColor { 
+      (InDesignUIColorType_TypeDef ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element AllLineStyles { list_type, element ListItem { 
+        record_type, 
+        (
+          element AppliedCharacterStyle { object_type, xsd:string }&
+          element LineCount { long_type, xsd:int }&
+          element RepeatLast { long_type, xsd:int })
+      }* 
+    }?&
+    element AllGREPStyles { list_type, element ListItem { 
+        record_type, 
+        (
+          element AppliedCharacterStyle { object_type, xsd:string }&
+          element GrepExpression { string_type, xsd:string })
+      }* 
+    }?&
+    element AllNestedStyles { list_type, element ListItem { 
+        record_type, 
+        (
+          element AppliedCharacterStyle { object_type, xsd:string }&
+          element Delimiter { 
+            (string_type, xsd:string ) |
+            (enum_type, NestedStyleDelimiters_EnumValue )
+          }&
+          element Repetition { long_type, xsd:int }&
+          element Inclusive { bool_type, xsd:boolean })
+      }* 
+    }?&
+    element TabList { list_type, element ListItem { 
+        record_type, 
+        (
+          element Alignment { enum_type, TabStopAlignment_EnumValue }&
+          element AlignmentCharacter { string_type, xsd:string }&
+          element Leader { string_type, xsd:string }&
+          element Position { unit_type, xsd:double })
+      }* 
+    }?&
+    element KinsokuSet { 
+      (object_type, xsd:string ) |
+      (enum_type, KinsokuSet_EnumValue ) |
+      (string_type, xsd:string )
+    }?&
+    element Mojikumi { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string ) |
+      (enum_type, MojikumiTableDefaults_EnumValue )
+    }?&
+    element KentenFillColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenStrokeColor { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element KentenFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element RubyFill { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyStroke { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element RubyFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element BulletChar { 
+      attribute BulletCharacterType { BulletCharacterType_EnumValue },
+      attribute BulletCharacterValue { xsd:int }
+    }?&
+    element BulletsFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string ) |
+      (enum_type, AutoEnum_EnumValue )
+    }?&
+    element BulletsFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue ) |
+      (enum_type, AutoEnum_EnumValue )
+    }?&
+    element BulletsCharacterStyle { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element NumberingCharacterStyle { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element AppliedNumberingList { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element NumberingFormat { 
+      (enum_type, NumberingStyle_EnumValue ) |
+      (string_type, xsd:string )
+    }?&
+    element NumberingRestartPolicies { 
+      attribute RestartPolicy { RestartPolicy_EnumValue },
+      attribute LowerLevel { xsd:int },
+      attribute UpperLevel { xsd:int }
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+ParagraphStyleGroup_Object = element ParagraphStyleGroup {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  ParagraphStyle_Object*&
+  ParagraphStyleGroup_Object*
+)
+}
+
+TOCStyle_Object = element TOCStyle {
+  attribute Self { xsd:string },
+  attribute TitleStyle { xsd:string }?,
+  attribute Title { xsd:string }?,
+  attribute Name { xsd:string },
+  attribute RunIn { xsd:boolean }?,
+  attribute IncludeHidden { xsd:boolean }?,
+  attribute IncludeBookDocuments { xsd:boolean }?,
+  attribute CreateBookmarks { xsd:boolean }?,
+  attribute SetStoryDirection { HorizontalOrVertical_EnumValue }?,
+  attribute NumberedParagraphs { NumberedParagraphsOptions_EnumValue }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  TOCStyleEntry_Object*
+)
+}
+
+TOCStyleEntry_Object = element TOCStyleEntry {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Level { xsd:short }?,
+  attribute PageNumberPosition { PageNumberPosition_EnumValue }?,
+  attribute Separator { xsd:string }?,
+  attribute SortAlphabet { xsd:boolean }?,
+  element Properties {
+    element FormatStyle { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element PageNumberStyle { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element SeparatorStyle { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?
+  }
+  ?
+}
+
+RootCellStyleGroup_Object = element RootCellStyleGroup {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  CellStyle_Object*&
+  CellStyleGroup_Object*
+)
+}
+
+CellStyle_Object = element CellStyle {
+  attribute Self { xsd:string },
+  attribute AppliedParagraphStyle { xsd:string }?,
+  attribute GradientFillLength { xsd:double }?,
+  attribute GradientFillAngle { xsd:double }?,
+  attribute GradientFillStart { UnitPointType_TypeDef }?,
+  attribute TopInset { xsd:double }?,
+  attribute LeftInset { xsd:double }?,
+  attribute BottomInset { xsd:double }?,
+  attribute RightInset { xsd:double }?,
+  attribute FillColor { xsd:string }?,
+  attribute FillTint { xsd:double }?,
+  attribute OverprintFill { xsd:boolean }?,
+  attribute TopLeftDiagonalLine { xsd:boolean }?,
+  attribute TopRightDiagonalLine { xsd:boolean }?,
+  attribute DiagonalLineInFront { xsd:boolean }?,
+  attribute DiagonalLineStrokeWeight { xsd:double }?,
+  attribute DiagonalLineStrokeType { xsd:string }?,
+  attribute DiagonalLineStrokeColor { xsd:string }?,
+  attribute DiagonalLineStrokeTint { xsd:double }?,
+  attribute DiagonalLineStrokeOverprint { xsd:boolean }?,
+  attribute DiagonalLineStrokeGapColor { xsd:string }?,
+  attribute DiagonalLineStrokeGapTint { xsd:double }?,
+  attribute DiagonalLineStrokeGapOverprint { xsd:boolean }?,
+  attribute ClipContentToCell { xsd:boolean }?,
+  attribute FirstBaselineOffset { FirstBaseline_EnumValue }?,
+  attribute VerticalJustification { VerticalJustification_EnumValue }?,
+  attribute ParagraphSpacingLimit { xsd:double }?,
+  attribute MinimumFirstBaselineOffset { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute RotationAngle { xsd:double }?,
+  attribute LeftEdgeStrokeWeight { xsd:double }?,
+  attribute LeftEdgeStrokeType { xsd:string }?,
+  attribute LeftEdgeStrokeColor { xsd:string }?,
+  attribute LeftEdgeStrokeTint { xsd:double }?,
+  attribute LeftEdgeStrokeOverprint { xsd:boolean }?,
+  attribute LeftEdgeStrokeGapColor { xsd:string }?,
+  attribute LeftEdgeStrokeGapTint { xsd:double }?,
+  attribute LeftEdgeStrokeGapOverprint { xsd:boolean }?,
+  attribute TopEdgeStrokeWeight { xsd:double }?,
+  attribute TopEdgeStrokeType { xsd:string }?,
+  attribute TopEdgeStrokeColor { xsd:string }?,
+  attribute TopEdgeStrokeTint { xsd:double }?,
+  attribute TopEdgeStrokeOverprint { xsd:boolean }?,
+  attribute TopEdgeStrokeGapColor { xsd:string }?,
+  attribute TopEdgeStrokeGapTint { xsd:double }?,
+  attribute TopEdgeStrokeGapOverprint { xsd:boolean }?,
+  attribute RightEdgeStrokeWeight { xsd:double }?,
+  attribute RightEdgeStrokeType { xsd:string }?,
+  attribute RightEdgeStrokeColor { xsd:string }?,
+  attribute RightEdgeStrokeTint { xsd:double }?,
+  attribute RightEdgeStrokeOverprint { xsd:boolean }?,
+  attribute RightEdgeStrokeGapColor { xsd:string }?,
+  attribute RightEdgeStrokeGapTint { xsd:double }?,
+  attribute RightEdgeStrokeGapOverprint { xsd:boolean }?,
+  attribute BottomEdgeStrokeWeight { xsd:double }?,
+  attribute BottomEdgeStrokeType { xsd:string }?,
+  attribute BottomEdgeStrokeColor { xsd:string }?,
+  attribute BottomEdgeStrokeTint { xsd:double }?,
+  attribute BottomEdgeStrokeOverprint { xsd:boolean }?,
+  attribute BottomEdgeStrokeGapColor { xsd:string }?,
+  attribute BottomEdgeStrokeGapTint { xsd:double }?,
+  attribute BottomEdgeStrokeGapOverprint { xsd:boolean }?,
+  attribute KeyboardShortcut { list { xsd:short ,xsd:short } }?,
+  attribute RotationRunsAgainstStory { xsd:boolean }?,
+  attribute Name { xsd:string },
+  element Properties {
+    element BasedOn { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+CellStyleGroup_Object = element CellStyleGroup {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  CellStyle_Object*&
+  CellStyleGroup_Object*
+)
+}
+
+RootTableStyleGroup_Object = element RootTableStyleGroup {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  TableStyle_Object*&
+  TableStyleGroup_Object*
+)
+}
+
+TableStyle_Object = element TableStyle {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute StrokeOrder { StrokeOrderTypes_EnumValue }?,
+  attribute TopBorderStrokeWeight { xsd:double }?,
+  attribute TopBorderStrokeType { xsd:string }?,
+  attribute TopBorderStrokeColor { xsd:string }?,
+  attribute TopBorderStrokeTint { xsd:double }?,
+  attribute TopBorderStrokeOverprint { xsd:boolean }?,
+  attribute TopBorderStrokeGapColor { xsd:string }?,
+  attribute TopBorderStrokeGapTint { xsd:double }?,
+  attribute TopBorderStrokeGapOverprint { xsd:boolean }?,
+  attribute LeftBorderStrokeWeight { xsd:double }?,
+  attribute LeftBorderStrokeType { xsd:string }?,
+  attribute LeftBorderStrokeColor { xsd:string }?,
+  attribute LeftBorderStrokeTint { xsd:double }?,
+  attribute LeftBorderStrokeOverprint { xsd:boolean }?,
+  attribute LeftBorderStrokeGapColor { xsd:string }?,
+  attribute LeftBorderStrokeGapTint { xsd:double }?,
+  attribute LeftBorderStrokeGapOverprint { xsd:boolean }?,
+  attribute BottomBorderStrokeWeight { xsd:double }?,
+  attribute BottomBorderStrokeType { xsd:string }?,
+  attribute BottomBorderStrokeColor { xsd:string }?,
+  attribute BottomBorderStrokeTint { xsd:double }?,
+  attribute BottomBorderStrokeOverprint { xsd:boolean }?,
+  attribute BottomBorderStrokeGapColor { xsd:string }?,
+  attribute BottomBorderStrokeGapTint { xsd:double }?,
+  attribute BottomBorderStrokeGapOverprint { xsd:boolean }?,
+  attribute RightBorderStrokeWeight { xsd:double }?,
+  attribute RightBorderStrokeType { xsd:string }?,
+  attribute RightBorderStrokeColor { xsd:string }?,
+  attribute RightBorderStrokeTint { xsd:double }?,
+  attribute RightBorderStrokeOverprint { xsd:boolean }?,
+  attribute RightBorderStrokeGapColor { xsd:string }?,
+  attribute RightBorderStrokeGapTint { xsd:double }?,
+  attribute RightBorderStrokeGapOverprint { xsd:boolean }?,
+  attribute SpaceBefore { xsd:double }?,
+  attribute SpaceAfter { xsd:double }?,
+  attribute SkipFirstAlternatingStrokeRows { xsd:int }?,
+  attribute SkipLastAlternatingStrokeRows { xsd:int }?,
+  attribute StartRowStrokeCount { xsd:int }?,
+  attribute StartRowStrokeColor { xsd:string }?,
+  attribute StartRowStrokeWeight { xsd:double }?,
+  attribute StartRowStrokeType { xsd:string }?,
+  attribute StartRowStrokeTint { xsd:double }?,
+  attribute StartRowStrokeGapOverprint { xsd:boolean }?,
+  attribute StartRowStrokeGapColor { xsd:string }?,
+  attribute StartRowStrokeGapTint { xsd:double }?,
+  attribute StartRowStrokeOverprint { xsd:boolean }?,
+  attribute EndRowStrokeCount { xsd:int }?,
+  attribute EndRowStrokeColor { xsd:string }?,
+  attribute EndRowStrokeWeight { xsd:double }?,
+  attribute EndRowStrokeType { xsd:string }?,
+  attribute EndRowStrokeTint { xsd:double }?,
+  attribute EndRowStrokeOverprint { xsd:boolean }?,
+  attribute EndRowStrokeGapColor { xsd:string }?,
+  attribute EndRowStrokeGapTint { xsd:double }?,
+  attribute EndRowStrokeGapOverprint { xsd:boolean }?,
+  attribute SkipFirstAlternatingStrokeColumns { xsd:int }?,
+  attribute SkipLastAlternatingStrokeColumns { xsd:int }?,
+  attribute StartColumnStrokeCount { xsd:int }?,
+  attribute StartColumnStrokeColor { xsd:string }?,
+  attribute StartColumnStrokeWeight { xsd:double }?,
+  attribute StartColumnStrokeType { xsd:string }?,
+  attribute StartColumnStrokeTint { xsd:double }?,
+  attribute StartColumnStrokeOverprint { xsd:boolean }?,
+  attribute StartColumnStrokeGapColor { xsd:string }?,
+  attribute StartColumnStrokeGapTint { xsd:double }?,
+  attribute StartColumnStrokeGapOverprint { xsd:boolean }?,
+  attribute EndColumnStrokeCount { xsd:int }?,
+  attribute EndColumnStrokeColor { xsd:string }?,
+  attribute EndColumnStrokeWeight { xsd:double }?,
+  attribute EndColumnLineStyle { xsd:string }?,
+  attribute EndColumnStrokeTint { xsd:double }?,
+  attribute EndColumnStrokeOverprint { xsd:boolean }?,
+  attribute EndColumnStrokeGapColor { xsd:string }?,
+  attribute EndColumnStrokeGapTint { xsd:double }?,
+  attribute EndColumnStrokeGapOverprint { xsd:boolean }?,
+  attribute ColumnFillsPriority { xsd:boolean }?,
+  attribute SkipFirstAlternatingFillRows { xsd:int }?,
+  attribute SkipLastAlternatingFillRows { xsd:int }?,
+  attribute StartRowFillColor { xsd:string }?,
+  attribute StartRowFillCount { xsd:int }?,
+  attribute StartRowFillTint { xsd:double }?,
+  attribute StartRowFillOverprint { xsd:boolean }?,
+  attribute EndRowFillCount { xsd:int }?,
+  attribute EndRowFillColor { xsd:string }?,
+  attribute EndRowFillTint { xsd:double }?,
+  attribute EndRowFillOverprint { xsd:boolean }?,
+  attribute SkipFirstAlternatingFillColumns { xsd:int }?,
+  attribute SkipLastAlternatingFillColumns { xsd:int }?,
+  attribute StartColumnFillCount { xsd:int }?,
+  attribute StartColumnFillColor { xsd:string }?,
+  attribute StartColumnFillTint { xsd:double }?,
+  attribute StartColumnFillOverprint { xsd:boolean }?,
+  attribute EndColumnFillCount { xsd:int }?,
+  attribute EndColumnFillColor { xsd:string }?,
+  attribute EndColumnFillTint { xsd:double }?,
+  attribute EndColumnFillOverprint { xsd:boolean }?,
+  attribute HeaderRegionSameAsBodyRegion { xsd:boolean }?,
+  attribute FooterRegionSameAsBodyRegion { xsd:boolean }?,
+  attribute LeftColumnRegionSameAsBodyRegion { xsd:boolean }?,
+  attribute RightColumnRegionSameAsBodyRegion { xsd:boolean }?,
+  attribute HeaderRegionCellStyle { xsd:string }?,
+  attribute FooterRegionCellStyle { xsd:string }?,
+  attribute LeftColumnRegionCellStyle { xsd:string }?,
+  attribute RightColumnRegionCellStyle { xsd:string }?,
+  attribute BodyRegionCellStyle { xsd:string }?,
+  attribute KeyboardShortcut { list { xsd:short ,xsd:short } }?,
+  element Properties {
+    element BasedOn { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+TableStyleGroup_Object = element TableStyleGroup {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  TableStyle_Object*&
+  TableStyleGroup_Object*
+)
+}
+
+RootObjectStyleGroup_Object = element RootObjectStyleGroup {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  ObjectStyleGroup_Object*&
+  ObjectStyle_Object*
+)
+}
+
+ObjectStyleGroup_Object = element ObjectStyleGroup {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  ObjectStyle_Object*&
+  ObjectStyleGroup_Object*
+)
+}
+
+ObjectStyle_Object = element ObjectStyle {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute AppliedParagraphStyle { xsd:string }?,
+  attribute ApplyNextParagraphStyle { xsd:boolean }?,
+  attribute EnableFill { xsd:boolean }?,
+  attribute EnableStroke { xsd:boolean }?,
+  attribute EnableParagraphStyle { xsd:boolean }?,
+  attribute EnableTextFrameGeneralOptions { xsd:boolean }?,
+  attribute EnableTextFrameBaselineOptions { xsd:boolean }?,
+  attribute EnableStoryOptions { xsd:boolean }?,
+  attribute EnableTextWrapAndOthers { xsd:boolean }?,
+  attribute EnableAnchoredObjectOptions { xsd:boolean }?,
+  attribute CornerRadius { xsd:double }?,
+  attribute FillColor { xsd:string }?,
+  attribute FillTint { xsd:double }?,
+  attribute OverprintFill { xsd:boolean }?,
+  attribute StrokeWeight { xsd:double }?,
+  attribute MiterLimit { xsd:double {minInclusive="1" maxInclusive="500"} }?,
+  attribute EndCap { EndCap_EnumValue }?,
+  attribute EndJoin { EndJoin_EnumValue }?,
+  attribute StrokeType { xsd:string }?,
+  attribute LeftLineEnd { ArrowHead_EnumValue }?,
+  attribute RightLineEnd { ArrowHead_EnumValue }?,
+  attribute StrokeColor { xsd:string }?,
+  attribute StrokeTint { xsd:double }?,
+  attribute OverprintStroke { xsd:boolean }?,
+  attribute GapColor { xsd:string }?,
+  attribute GapTint { xsd:double }?,
+  attribute OverprintGap { xsd:boolean }?,
+  attribute StrokeAlignment { StrokeAlignment_EnumValue }?,
+  attribute Nonprinting { xsd:boolean }?,
+  attribute GradientFillAngle { xsd:double }?,
+  attribute GradientStrokeAngle { xsd:double }?,
+  attribute StrokeCornerAdjustment { StrokeCornerAdjustment_EnumValue }?,
+  attribute StrokeDashAndGap { list { xsd:double * } }?,
+  attribute AppliedNamedGrid { xsd:string }?,
+  attribute KeyboardShortcut { list { xsd:short ,xsd:short } }?,
+  attribute TopLeftCornerOption { CornerOptions_EnumValue }?,
+  attribute TopRightCornerOption { CornerOptions_EnumValue }?,
+  attribute BottomLeftCornerOption { CornerOptions_EnumValue }?,
+  attribute BottomRightCornerOption { CornerOptions_EnumValue }?,
+  attribute TopLeftCornerRadius { xsd:double }?,
+  attribute TopRightCornerRadius { xsd:double }?,
+  attribute BottomLeftCornerRadius { xsd:double }?,
+  attribute BottomRightCornerRadius { xsd:double }?,
+  attribute EnableFrameFittingOptions { xsd:boolean }?,
+  attribute CornerOption { CornerOptions_EnumValue }?,
+  attribute EnableStrokeAndCornerOptions { xsd:boolean }?,
+  element Properties {
+    element BasedOn { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  TextFramePreference_Object?&
+  BaselineFrameGridOption_Object?&
+  AnchoredObjectSetting_Object?&
+  TextWrapPreference_Object?&
+  StoryPreference_Object?&
+  FrameFittingOption_Object?&
+  TransparencySetting_Object?&
+  StrokeTransparencySetting_Object?&
+  FillTransparencySetting_Object?&
+  ContentTransparencySetting_Object?&
+  ObjectStyleObjectEffectsCategorySettings_Object?&
+  ObjectStyleStrokeEffectsCategorySettings_Object?&
+  ObjectStyleFillEffectsCategorySettings_Object?&
+  ObjectStyleContentEffectsCategorySettings_Object?
+)
+}
+
+TextFramePreference_Object = element TextFramePreference {
+  attribute TextColumnCount { xsd:int {minInclusive="1" maxInclusive="40"} }?,
+  attribute TextColumnGutter { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute TextColumnFixedWidth { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute UseFixedColumnWidth { xsd:boolean }?,
+  attribute FirstBaselineOffset { FirstBaseline_EnumValue }?,
+  attribute MinimumFirstBaselineOffset { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute VerticalJustification { VerticalJustification_EnumValue }?,
+  attribute VerticalThreshold { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute IgnoreWrap { xsd:boolean }?,
+  attribute VerticalBalanceColumns { xsd:boolean }?,
+  element Properties {
+    element InsetSpacing { 
+      (unit_type, xsd:double {minInclusive="0" maxInclusive="8640"} ) |
+      (list_type, 
+      element ListItem { unit_type, xsd:double {minInclusive="0" maxInclusive="8640"} },
+      element ListItem { unit_type, xsd:double {minInclusive="0" maxInclusive="8640"} },
+      element ListItem { unit_type, xsd:double {minInclusive="0" maxInclusive="8640"} },
+      element ListItem { unit_type, xsd:double {minInclusive="0" maxInclusive="8640"} })
+    }?
+  }
+  ?
+}
+
+BaselineFrameGridOption_Object = element BaselineFrameGridOption {
+  attribute UseCustomBaselineFrameGrid { xsd:boolean }?,
+  attribute StartingOffsetForBaselineFrameGrid { xsd:double {minInclusive="0" maxInclusive="8640"} }?,
+  attribute BaselineFrameGridRelativeOption { BaselineFrameGridRelativeOption_EnumValue }?,
+  attribute BaselineFrameGridIncrement { xsd:double {minInclusive="1" maxInclusive="8640"} }?,
+  element Properties {
+    element BaselineFrameGridColor { InDesignUIColorType_TypeDef }?
+  }
+  ?
+}
+
+AnchoredObjectSetting_Object = element AnchoredObjectSetting {
+  attribute AnchoredPosition { AnchorPosition_EnumValue }?,
+  attribute SpineRelative { xsd:boolean }?,
+  attribute LockPosition { xsd:boolean }?,
+  attribute PinPosition { xsd:boolean }?,
+  attribute AnchorPoint { AnchorPoint_EnumValue }?,
+  attribute HorizontalAlignment { HorizontalAlignment_EnumValue }?,
+  attribute HorizontalReferencePoint { AnchoredRelativeTo_EnumValue }?,
+  attribute VerticalAlignment { VerticalAlignment_EnumValue }?,
+  attribute VerticalReferencePoint { VerticallyRelativeTo_EnumValue }?,
+  attribute AnchorXoffset { xsd:double }?,
+  attribute AnchorYoffset { xsd:double }?,
+  attribute AnchorSpaceAbove { xsd:double }?
+}
+
+TextWrapPreference_Object = element TextWrapPreference {
+  attribute Inverse { xsd:boolean }?,
+  attribute ApplyToMasterPageOnly { xsd:boolean }?,
+  attribute TextWrapSide { TextWrapSideOptions_EnumValue }?,
+  attribute TextWrapMode { TextWrapModes_EnumValue }?,
+  element Properties {
+    element TextWrapOffset { UnitRectangleBoundsType_TypeDef }?&
+    element PathGeometry { element GeometryPathType { GeometryPathType_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  ContourOption_Object?
+)
+}
+
+ContourOption_Object = element ContourOption {
+  attribute ContourType { ContourOptionsTypes_EnumValue }?,
+  attribute IncludeInsideEdges { xsd:boolean }?,
+  attribute ContourPathName { xsd:string }?
+}
+
+StoryPreference_Object = element StoryPreference {
+  attribute OpticalMarginAlignment { xsd:boolean }?,
+  attribute OpticalMarginSize { xsd:double {minInclusive="0.1" maxInclusive="1296"} }?,
+  attribute FrameType { FrameTypes_EnumValue }?,
+  attribute StoryOrientation { StoryHorizontalOrVertical_EnumValue }?,
+  attribute StoryDirection { StoryDirectionOptions_EnumValue }?
+}
+
+FrameFittingOption_Object = element FrameFittingOption {
+  attribute AutoFit { xsd:boolean }?,
+  attribute LeftCrop { xsd:double }?,
+  attribute TopCrop { xsd:double }?,
+  attribute RightCrop { xsd:double }?,
+  attribute BottomCrop { xsd:double }?,
+  attribute FittingOnEmptyFrame { EmptyFrameFittingOptions_EnumValue }?,
+  attribute FittingAlignment { AnchorPoint_EnumValue }?
+}
+
+TransparencySetting_Object = element TransparencySetting {
+(
+  BlendingSetting_Object?&
+  DropShadowSetting_Object?&
+  FeatherSetting_Object?&
+  InnerShadowSetting_Object?&
+  OuterGlowSetting_Object?&
+  InnerGlowSetting_Object?&
+  BevelAndEmbossSetting_Object?&
+  SatinSetting_Object?&
+  DirectionalFeatherSetting_Object?&
+  GradientFeatherSetting_Object?
+)
+}
+
+BlendingSetting_Object = element BlendingSetting {
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute KnockoutGroup { xsd:boolean }?,
+  attribute IsolateBlending { xsd:boolean }?
+}
+
+DropShadowSetting_Object = element DropShadowSetting {
+  attribute Distance { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute Mode { ShadowMode_EnumValue }?,
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute XOffset { xsd:double {minInclusive="-1000" maxInclusive="1000"} }?,
+  attribute YOffset { xsd:double {minInclusive="-1000" maxInclusive="1000"} }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute EffectColor { xsd:string }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Spread { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute UseGlobalLight { xsd:boolean }?,
+  attribute KnockedOut { xsd:boolean }?,
+  attribute HonorOtherEffects { xsd:boolean }?
+}
+
+FeatherSetting_Object = element FeatherSetting {
+  attribute Mode { FeatherMode_EnumValue }?,
+  attribute Width { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute CornerType { FeatherCornerType_EnumValue }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute ChokeAmount { xsd:double {minInclusive="0" maxInclusive="100"} }?
+}
+
+InnerShadowSetting_Object = element InnerShadowSetting {
+  attribute XOffset { xsd:double {minInclusive="-1000" maxInclusive="1000"} }?,
+  attribute YOffset { xsd:double {minInclusive="-1000" maxInclusive="1000"} }?,
+  attribute Applied { xsd:boolean }?,
+  attribute EffectColor { xsd:string }?,
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute Distance { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute UseGlobalLight { xsd:boolean }?,
+  attribute ChokeAmount { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?
+}
+
+OuterGlowSetting_Object = element OuterGlowSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute EffectColor { xsd:string }?,
+  attribute Technique { GlowTechnique_EnumValue }?,
+  attribute Spread { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?
+}
+
+InnerGlowSetting_Object = element InnerGlowSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute EffectColor { xsd:string }?,
+  attribute Technique { GlowTechnique_EnumValue }?,
+  attribute Spread { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute Source { InnerGlowSource_EnumValue }?
+}
+
+BevelAndEmbossSetting_Object = element BevelAndEmbossSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute Style { BevelAndEmbossStyle_EnumValue }?,
+  attribute Technique { BevelAndEmbossTechnique_EnumValue }?,
+  attribute Depth { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute Direction { BevelAndEmbossDirection_EnumValue }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute Soften { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute Altitude { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute UseGlobalLight { xsd:boolean }?,
+  attribute HighlightColor { xsd:string }?,
+  attribute HighlightBlendMode { BlendMode_EnumValue }?,
+  attribute HighlightOpacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute ShadowColor { xsd:string }?,
+  attribute ShadowBlendMode { BlendMode_EnumValue }?,
+  attribute ShadowOpacity { xsd:double {minInclusive="0" maxInclusive="100"} }?
+}
+
+SatinSetting_Object = element SatinSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute EffectColor { xsd:string }?,
+  attribute BlendMode { BlendMode_EnumValue }?,
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute Distance { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute Size { xsd:double {minInclusive="0" maxInclusive="144"} }?,
+  attribute InvertEffect { xsd:boolean }?
+}
+
+DirectionalFeatherSetting_Object = element DirectionalFeatherSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute LeftWidth { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute RightWidth { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute TopWidth { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute BottomWidth { xsd:double {minInclusive="0" maxInclusive="1000"} }?,
+  attribute ChokeAmount { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute FollowShapeMode { FollowShapeModeOptions_EnumValue }?,
+  attribute Noise { xsd:double {minInclusive="0" maxInclusive="100"} }?
+}
+
+GradientFeatherSetting_Object = element GradientFeatherSetting {
+  attribute Applied { xsd:boolean }?,
+  attribute Type { GradientType_EnumValue }?,
+  attribute Angle { xsd:double {minInclusive="-180" maxInclusive="180"} }?,
+  attribute Length { xsd:double }?,
+  attribute GradientStart { UnitPointType_TypeDef }?,
+  attribute HiliteAngle { xsd:double }?,
+  attribute HiliteLength { xsd:double }?,
+(
+  OpacityGradientStop_Object*
+)
+}
+
+OpacityGradientStop_Object = element OpacityGradientStop {
+  attribute Self { xsd:string },
+  attribute Opacity { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Location { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute Midpoint { xsd:double {minInclusive="13" maxInclusive="87"} }?
+}
+
+StrokeTransparencySetting_Object = element StrokeTransparencySetting {
+(
+  BlendingSetting_Object?&
+  DropShadowSetting_Object?&
+  FeatherSetting_Object?&
+  InnerShadowSetting_Object?&
+  OuterGlowSetting_Object?&
+  InnerGlowSetting_Object?&
+  BevelAndEmbossSetting_Object?&
+  SatinSetting_Object?&
+  DirectionalFeatherSetting_Object?&
+  GradientFeatherSetting_Object?
+)
+}
+
+FillTransparencySetting_Object = element FillTransparencySetting {
+(
+  BlendingSetting_Object?&
+  DropShadowSetting_Object?&
+  FeatherSetting_Object?&
+  InnerShadowSetting_Object?&
+  OuterGlowSetting_Object?&
+  InnerGlowSetting_Object?&
+  BevelAndEmbossSetting_Object?&
+  SatinSetting_Object?&
+  DirectionalFeatherSetting_Object?&
+  GradientFeatherSetting_Object?
+)
+}
+
+ContentTransparencySetting_Object = element ContentTransparencySetting {
+(
+  BlendingSetting_Object?&
+  DropShadowSetting_Object?&
+  FeatherSetting_Object?&
+  InnerShadowSetting_Object?&
+  OuterGlowSetting_Object?&
+  InnerGlowSetting_Object?&
+  BevelAndEmbossSetting_Object?&
+  SatinSetting_Object?&
+  DirectionalFeatherSetting_Object?&
+  GradientFeatherSetting_Object?
+)
+}
+
+ObjectStyleObjectEffectsCategorySettings_Object = element ObjectStyleObjectEffectsCategorySettings {
+  attribute EnableTransparency { xsd:boolean }?,
+  attribute EnableDropShadow { xsd:boolean }?,
+  attribute EnableFeather { xsd:boolean }?,
+  attribute EnableInnerShadow { xsd:boolean }?,
+  attribute EnableOuterGlow { xsd:boolean }?,
+  attribute EnableInnerGlow { xsd:boolean }?,
+  attribute EnableBevelEmboss { xsd:boolean }?,
+  attribute EnableSatin { xsd:boolean }?,
+  attribute EnableDirectionalFeather { xsd:boolean }?,
+  attribute EnableGradientFeather { xsd:boolean }?
+}
+
+ObjectStyleStrokeEffectsCategorySettings_Object = element ObjectStyleStrokeEffectsCategorySettings {
+  attribute EnableTransparency { xsd:boolean }?,
+  attribute EnableDropShadow { xsd:boolean }?,
+  attribute EnableFeather { xsd:boolean }?,
+  attribute EnableInnerShadow { xsd:boolean }?,
+  attribute EnableOuterGlow { xsd:boolean }?,
+  attribute EnableInnerGlow { xsd:boolean }?,
+  attribute EnableBevelEmboss { xsd:boolean }?,
+  attribute EnableSatin { xsd:boolean }?,
+  attribute EnableDirectionalFeather { xsd:boolean }?,
+  attribute EnableGradientFeather { xsd:boolean }?
+}
+
+ObjectStyleFillEffectsCategorySettings_Object = element ObjectStyleFillEffectsCategorySettings {
+  attribute EnableTransparency { xsd:boolean }?,
+  attribute EnableDropShadow { xsd:boolean }?,
+  attribute EnableFeather { xsd:boolean }?,
+  attribute EnableInnerShadow { xsd:boolean }?,
+  attribute EnableOuterGlow { xsd:boolean }?,
+  attribute EnableInnerGlow { xsd:boolean }?,
+  attribute EnableBevelEmboss { xsd:boolean }?,
+  attribute EnableSatin { xsd:boolean }?,
+  attribute EnableDirectionalFeather { xsd:boolean }?,
+  attribute EnableGradientFeather { xsd:boolean }?
+}
+
+ObjectStyleContentEffectsCategorySettings_Object = element ObjectStyleContentEffectsCategorySettings {
+  attribute EnableTransparency { xsd:boolean }?,
+  attribute EnableDropShadow { xsd:boolean }?,
+  attribute EnableFeather { xsd:boolean }?,
+  attribute EnableInnerShadow { xsd:boolean }?,
+  attribute EnableOuterGlow { xsd:boolean }?,
+  attribute EnableInnerGlow { xsd:boolean }?,
+  attribute EnableBevelEmboss { xsd:boolean }?,
+  attribute EnableSatin { xsd:boolean }?,
+  attribute EnableDirectionalFeather { xsd:boolean }?,
+  attribute EnableGradientFeather { xsd:boolean }?
+}
+
+TrapPreset_Object = element TrapPreset {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute DefaultTrapWidth { xsd:double {minInclusive="0" maxInclusive="8"} }?,
+  attribute BlackWidth { xsd:double {minInclusive="0" maxInclusive="8"} }?,
+  attribute TrapJoin { EndJoin_EnumValue }?,
+  attribute TrapEnd { TrapEndTypes_EnumValue }?,
+  attribute ObjectsToImages { xsd:boolean }?,
+  attribute ImagesToImages { xsd:boolean }?,
+  attribute InternalImages { xsd:boolean }?,
+  attribute OneBitImages { xsd:boolean }?,
+  attribute ImagePlacement { TrapImagePlacementTypes_EnumValue }?,
+  attribute StepThreshold { xsd:double {minInclusive="1" maxInclusive="100"} }?,
+  attribute BlackColorThreshold { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute BlackDensity { xsd:double {minInclusive="0" maxInclusive="10"} }?,
+  attribute SlidingTrapThreshold { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  attribute ColorReduction { xsd:double {minInclusive="0" maxInclusive="100"} }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+
+}

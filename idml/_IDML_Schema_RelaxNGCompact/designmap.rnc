@@ -1,0 +1,693 @@
+# Adobe InDesign CS5 7.0.3.535
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+
+grammar {
+start = Document_Object
+
+include "datatype.rnc"
+
+Document_Object = element Document {
+  attribute DOMVersion { "7.0" },
+  attribute Self { xsd:string },
+  attribute ActiveProcess { xsd:string }?,
+  attribute TransparencyAttributeDefaultProperty { xsd:string }?,
+  attribute StoryList { list { xsd:string * } }?,
+  attribute FullName { xsd:string }?,
+  attribute Name { xsd:string }?,
+  attribute Visible { xsd:boolean }?,
+  attribute FilePath { xsd:string }?,
+  attribute Modified { xsd:boolean }?,
+  attribute Saved { xsd:boolean }?,
+  attribute ZeroPoint { UnitPointType_TypeDef }?,
+  attribute UnusedSwatches { list { xsd:string * } }?,
+  attribute ActiveLayer { xsd:string }?,
+  attribute Converted { xsd:boolean }?,
+  attribute Recovered { xsd:boolean }?,
+  attribute ReadOnly { xsd:boolean }?,
+  attribute Id { xsd:int }?,
+  attribute CMYKProfileList { list { xsd:string * } }?,
+  attribute RGBProfileList { list { xsd:string * } }?,
+  attribute CMYKProfile { xsd:string }?,
+  attribute RGBProfile { xsd:string }?,
+  attribute SolidColorIntent { RenderingIntent_EnumValue }?,
+  attribute AfterBlendingIntent { RenderingIntent_EnumValue }?,
+  attribute DefaultImageIntent { RenderingIntent_EnumValue }?,
+  attribute RGBPolicy { ColorSettingsPolicy_EnumValue }?,
+  attribute CMYKPolicy { ColorSettingsPolicy_EnumValue }?,
+  attribute AccurateLABSpots { xsd:boolean }?,
+  element Properties {
+    element InstanceList { element IndexInstanceType { IndexInstanceType_TypeDef }* 
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  Language_Object*,
+  element idPkg:Graphic { attribute src {"Resources/Graphic.xml"} }?,
+  element idPkg:Fonts { attribute src {"Resources/Fonts.xml"} }?,
+  KinsokuTable_Object*,
+  MojikumiTable_Object*,
+  element idPkg:Styles { attribute src {"Resources/Styles.xml"} }?,
+  NumberingList_Object*,
+  NamedGrid_Object*,
+  MotionPreset_Object*,
+  Condition_Object*,
+  ConditionSet_Object*,
+  (element idPkg:Preferences { attribute src {"Resources/Preferences.xml"} }?&
+  MetadataPacketPreference_Object?&
+  WatermarkPreference_Object?&
+  ConditionalTextPreference_Object?),
+  TextVariable_Object*,
+  element idPkg:Tags { attribute src {"XML/Tags.xml"} }?,
+  Layer_Object*,
+  element idPkg:MasterSpread { attribute src {xsd:string {pattern = ".*\.xml"} } }*,
+  element idPkg:Spread { attribute src {xsd:string {pattern = ".*\.xml"} } }*,
+  Section_Object*,
+  DocumentUser_Object*,
+  CrossReferenceFormat_Object*,
+  Index_Object*,
+  element idPkg:BackingStory { attribute src {"XML/BackingStory.xml"} }?,
+  element idPkg:Story { attribute src {xsd:string {pattern = ".*\.xml"} } }*,
+  HyperlinkPageDestination_Object*,
+  HyperlinkURLDestination_Object*,
+  HyperlinkExternalPageDestination_Object*,
+  HyperlinkPageItemSource_Object*,
+  Hyperlink_Object*,
+  element idPkg:Mapping { attribute src {"XML/Mapping.xml"} }?,
+  Bookmark_Object*,
+  (PreflightProfile_Object*&
+  DataMergeImagePlaceholder_Object*&
+  HyphenationException_Object*&
+  IndexingSortOption_Object*&
+  ABullet_Object*&
+  Assignment_Object*)
+)
+}
+
+Language_Object = element Language {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute SingleQuotes { xsd:string }?,
+  attribute DoubleQuotes { xsd:string }?,
+  attribute PrimaryLanguageName { xsd:string }?,
+  attribute SublanguageName { xsd:string }?,
+  attribute Id { xsd:int }?,
+  attribute HyphenationVendor { xsd:string }?,
+  attribute SpellingVendor { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+KinsokuTable_Object = element KinsokuTable {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute CantBeginLineChars { xsd:string }?,
+  attribute CantEndLineChars { xsd:string }?,
+  attribute HangingPunctuationChars { xsd:string }?,
+  attribute CantBeSeparatedChars { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+MojikumiTable_Object = element MojikumiTable {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute BasedOnMojikumiSet { MojikumiTableDefaults_EnumValue }?,
+  element Properties {
+    element OverrideMojikumiAkiList { element OverrideMojikumiAkiType { OverrideMojikumiAkiType_TypeDef }* 
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+NumberingList_Object = element NumberingList {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute ContinueNumbersAcrossStories { xsd:boolean }?,
+  attribute ContinueNumbersAcrossDocuments { xsd:boolean }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+NamedGrid_Object = element NamedGrid {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  GridDataInformation_Object?
+)
+}
+
+GridDataInformation_Object = element GridDataInformation {
+  attribute FontStyle { xsd:string }?,
+  attribute PointSize { xsd:double }?,
+  attribute CharacterAki { xsd:double }?,
+  attribute LineAki { xsd:double }?,
+  attribute HorizontalScale { xsd:double }?,
+  attribute VerticalScale { xsd:double }?,
+  attribute LineAlignment { LineAlignment_EnumValue }?,
+  attribute GridAlignment { GridAlignment_EnumValue }?,
+  attribute CharacterAlignment { CharacterAlignment_EnumValue }?,
+  attribute GridView { GridViewSettings_EnumValue }?,
+  attribute CharacterCountLocation { CharacterCountLocation_EnumValue }?,
+  attribute CharacterCountSize { xsd:double }?,
+  element Properties {
+    element AppliedFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string )
+    }?
+  }
+  ?
+}
+
+MotionPreset_Object = element MotionPreset {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute EditLocked { xsd:boolean }?,
+  attribute DeleteLocked { xsd:boolean }?,
+  attribute NameLocked { xsd:boolean }?,
+  element Properties {
+    element Contents { xsd:string }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Condition_Object = element Condition {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute IndicatorMethod { ConditionIndicatorMethod_EnumValue }?,
+  attribute UnderlineIndicatorAppearance { ConditionUnderlineIndicatorAppearance_EnumValue }?,
+  attribute Visible { xsd:boolean }?,
+  element Properties {
+    element IndicatorColor { InDesignUIColorType_TypeDef }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+ConditionSet_Object = element ConditionSet {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  element Properties {
+    element SetConditions { element VisibilityPair { VisibilityPair_TypeDef }* 
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+MetadataPacketPreference_Object = element MetadataPacketPreference {
+  element Properties {
+    element Contents { xsd:string }?
+  }
+  ?
+}
+
+WatermarkPreference_Object = element WatermarkPreference {
+  attribute WatermarkVisibility { xsd:boolean }?,
+  attribute WatermarkDoPrint { xsd:boolean }?,
+  attribute WatermarkDrawInBack { xsd:boolean }?,
+  attribute WatermarkText { xsd:string }?,
+  attribute WatermarkFontFamily { xsd:string }?,
+  attribute WatermarkFontStyle { xsd:string }?,
+  attribute WatermarkFontPointSize { xsd:int }?,
+  attribute WatermarkOpacity { xsd:int }?,
+  attribute WatermarkRotation { xsd:int }?,
+  attribute WatermarkHorizontalPosition { WatermarkHorizontalPositionEnum_EnumValue }?,
+  attribute WatermarkHorizontalOffset { xsd:double }?,
+  attribute WatermarkVerticalPosition { WatermarkVerticalPositionEnum_EnumValue }?,
+  attribute WatermarkVerticalOffset { xsd:double }?,
+  element Properties {
+    element WatermarkFontColor { InDesignUIColorType_TypeDef }?
+  }
+  ?
+}
+
+ConditionalTextPreference_Object = element ConditionalTextPreference {
+  attribute ShowConditionIndicators { ConditionIndicatorMode_EnumValue }?,
+  attribute ActiveConditionSet { xsd:string }?
+}
+
+TextVariable_Object = element TextVariable {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute VariableType { VariableTypes_EnumValue }?,
+(
+  CustomTextVariablePreference_Object?&
+  FileNameVariablePreference_Object?&
+  PageNumberVariablePreference_Object?&
+  ChapterNumberVariablePreference_Object?&
+  DateVariablePreference_Object?&
+  MatchCharacterStylePreference_Object?&
+  MatchParagraphStylePreference_Object?&
+  CaptionMetadataVariablePreference_Object?
+)
+}
+
+CustomTextVariablePreference_Object = element CustomTextVariablePreference {
+  element Properties {
+    element Contents { 
+      (string_type, xsd:string ) |
+      (enum_type, SpecialCharacters_EnumValue ) |
+      (object_type, xsd:string )
+    }?
+  }
+  ?
+}
+
+FileNameVariablePreference_Object = element FileNameVariablePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute IncludePath { xsd:boolean }?,
+  attribute IncludeExtension { xsd:boolean }?,
+  attribute TextAfter { xsd:string }?
+}
+
+PageNumberVariablePreference_Object = element PageNumberVariablePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute Format { VariableNumberingStyles_EnumValue }?,
+  attribute TextAfter { xsd:string }?,
+  attribute Scope { VariableScopes_EnumValue }?
+}
+
+ChapterNumberVariablePreference_Object = element ChapterNumberVariablePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute Format { VariableNumberingStyles_EnumValue }?,
+  attribute TextAfter { xsd:string }?
+}
+
+DateVariablePreference_Object = element DateVariablePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute Format { xsd:string }?,
+  attribute TextAfter { xsd:string }?
+}
+
+MatchCharacterStylePreference_Object = element MatchCharacterStylePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute TextAfter { xsd:string }?,
+  attribute AppliedCharacterStyle { xsd:string }?,
+  attribute SearchStrategy { SearchStrategies_EnumValue }?,
+  attribute ChangeCase { ChangeCaseOptions_EnumValue }?,
+  attribute DeleteEndPunctuation { xsd:boolean }?
+}
+
+MatchParagraphStylePreference_Object = element MatchParagraphStylePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute TextAfter { xsd:string }?,
+  attribute AppliedParagraphStyle { xsd:string }?,
+  attribute SearchStrategy { SearchStrategies_EnumValue }?,
+  attribute ChangeCase { ChangeCaseOptions_EnumValue }?,
+  attribute DeleteEndPunctuation { xsd:boolean }?
+}
+
+CaptionMetadataVariablePreference_Object = element CaptionMetadataVariablePreference {
+  attribute TextBefore { xsd:string }?,
+  attribute MetadataProviderName { xsd:string }?,
+  attribute TextAfter { xsd:string }?
+}
+
+Layer_Object = element Layer {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Visible { xsd:boolean }?,
+  attribute Locked { xsd:boolean }?,
+  attribute IgnoreWrap { xsd:boolean }?,
+  attribute ShowGuides { xsd:boolean }?,
+  attribute LockGuides { xsd:boolean }?,
+  attribute UI { xsd:boolean }?,
+  attribute Expendable { xsd:boolean }?,
+  attribute Printable { xsd:boolean }?,
+  element Properties {
+    element LayerColor { InDesignUIColorType_TypeDef }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Section_Object = element Section {
+  attribute Self { xsd:string },
+  attribute Length { xsd:int }?,
+  attribute Name { xsd:string }?,
+  attribute ContinueNumbering { xsd:boolean }?,
+  attribute IncludeSectionPrefix { xsd:boolean }?,
+  attribute PageNumberStart { xsd:int {minInclusive="1" maxInclusive="999999"} }?,
+  attribute Marker { xsd:string }?,
+  attribute PageStart { xsd:string }?,
+  attribute SectionPrefix { xsd:string }?,
+  element Properties {
+    element PageNumberStyle { 
+      (enum_type, PageNumberStyle_EnumValue ) |
+      (string_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+DocumentUser_Object = element DocumentUser {
+  attribute Self { xsd:string },
+  attribute UserName { xsd:string },
+  element Properties {
+    element UserColor { InCopyUIColorType_TypeDef }?
+  }
+  ?
+}
+
+CrossReferenceFormat_Object = element CrossReferenceFormat {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute AppliedCharacterStyle { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  BuildingBlock_Object*
+)
+}
+
+BuildingBlock_Object = element BuildingBlock {
+  attribute Self { xsd:string },
+  attribute BlockType { BuildingBlockTypes_EnumValue },
+  attribute AppliedCharacterStyle { xsd:string }?,
+  attribute CustomText { xsd:string }?,
+  attribute AppliedDelimiter { xsd:string }?,
+  attribute IncludeDelimiter { xsd:boolean }?
+}
+
+Index_Object = element Index {
+  attribute Self { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  Topic_Object*
+)
+}
+
+Topic_Object = element Topic {
+  attribute Self { xsd:string },
+  attribute SortOrder { xsd:string }?,
+  attribute Name { xsd:string },
+(
+  Topic_Object*&
+  CrossReference_Object*
+)
+}
+
+CrossReference_Object = element CrossReference {
+  attribute Self { xsd:string },
+  attribute ReferencedTopic { xsd:string }?,
+  attribute CrossReferenceType { CrossReferenceType_EnumValue }?,
+  attribute CustomTypeString { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+HyperlinkPageDestination_Object = element HyperlinkPageDestination {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute NameManually { xsd:boolean }?,
+  attribute DestinationPage { xsd:string }?,
+  attribute ViewSetting { HyperlinkDestinationPageSetting_EnumValue }?,
+  attribute ViewPercentage { xsd:double {minInclusive="5" maxInclusive="4000"} }?,
+  attribute Hidden { xsd:boolean }?,
+  attribute DestinationUniqueKey { xsd:int }?,
+  element Properties {
+    element ViewBounds { UnitRectangleBoundsType_TypeDef }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+HyperlinkURLDestination_Object = element HyperlinkURLDestination {
+  attribute Self { xsd:string },
+  attribute DestinationUniqueKey { xsd:int }?,
+  attribute Name { xsd:string },
+  attribute DestinationURL { xsd:string }?,
+  attribute Hidden { xsd:boolean }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+HyperlinkExternalPageDestination_Object = element HyperlinkExternalPageDestination {
+  attribute Self { xsd:string },
+  attribute DestinationUniqueKey { xsd:int }?,
+  attribute Name { xsd:string }?,
+  attribute DocumentPath { xsd:string }?,
+  attribute DestinationPageIndex { xsd:int {minInclusive="1" maxInclusive="9999"} }?,
+  attribute ViewSetting { HyperlinkDestinationPageSetting_EnumValue }?,
+  attribute ViewPercentage { xsd:double {minInclusive="5" maxInclusive="4000"} }?,
+  attribute Hidden { xsd:boolean }?,
+  element Properties {
+    element ViewBounds { UnitRectangleBoundsType_TypeDef }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+HyperlinkPageItemSource_Object = element HyperlinkPageItemSource {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute SourcePageItem { xsd:string },
+  attribute Hidden { xsd:boolean }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Hyperlink_Object = element Hyperlink {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Source { xsd:string },
+  attribute Visible { xsd:boolean }?,
+  attribute Highlight { HyperlinkAppearanceHighlight_EnumValue }?,
+  attribute Width { HyperlinkAppearanceWidth_EnumValue }?,
+  attribute BorderStyle { HyperlinkAppearanceStyle_EnumValue }?,
+  attribute Hidden { xsd:boolean }?,
+  attribute DestinationUniqueKey { xsd:int }?,
+  element Properties {
+    element BorderColor { InDesignUIColorType_TypeDef }?&
+    element Destination { 
+      (element FileName { string_type, xsd:string },
+      element Volumn { string_type, xsd:string },
+      element DirectoryId { long_type, xsd:int },
+      element DataLinkClassId { long_type, xsd:int },
+      element DestinationUid { long_type, xsd:int }) |
+      (object_type, xsd:string )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+Bookmark_Object = element Bookmark {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Destination { xsd:string },
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  Bookmark_Object*
+)
+}
+
+PreflightProfile_Object = element PreflightProfile {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Description { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  PreflightProfileRule_Object*&
+  PreflightRuleInstance_Object*
+)
+}
+
+PreflightProfileRule_Object = element PreflightProfileRule {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Id { xsd:string },
+  attribute Description { xsd:string }?,
+  attribute Flag { PreflightRuleFlag_EnumValue }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  RuleDataObject_Object*
+)
+}
+
+RuleDataObject_Object = element RuleDataObject {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute DataType { RuleDataType_EnumValue },
+  attribute Id { xsd:string }?,
+  element Properties {
+    element DataValue { 
+      (string_type, xsd:string ) |
+      (double_type, xsd:double ) |
+      (long_type, xsd:int ) |
+      (short_type, xsd:short ) |
+      (bool_type, xsd:boolean ) |
+      (object_type, xsd:string ) |
+      (list_type, element ListItem { 
+        (string_type, xsd:string ) |
+        (double_type, xsd:double ) |
+        (long_type, xsd:int ) |
+        (short_type, xsd:short ) |
+        (bool_type, xsd:boolean ) |
+        (object_type, xsd:string ) |
+        (list_type, element PreflightRuleDataListType { PreflightRuleDataListType_TypeDef }* )
+      }* )
+    }
+  }
+}
+
+PreflightRuleInstance_Object = element PreflightRuleInstance {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute Id { xsd:string },
+  attribute Description { xsd:string }?,
+  attribute Flag { PreflightRuleFlag_EnumValue }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  RuleDataObject_Object*
+)
+}
+
+DataMergeImagePlaceholder_Object = element DataMergeImagePlaceholder {
+  attribute Self { xsd:string },
+  attribute Field { xsd:string },
+  attribute PlaceholderPageItem { xsd:string }
+}
+
+HyphenationException_Object = element HyphenationException {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute RemovedExceptions { list { xsd:string * } }?,
+  attribute AddedExceptions { list { xsd:string * } }?
+}
+
+IndexingSortOption_Object = element IndexingSortOption {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string },
+  attribute Include { xsd:boolean }?,
+  attribute Priority { xsd:int }?,
+  attribute HeaderType { (HeaderTypes_EnumValue ) |
+    (NothingEnum_EnumValue )
+  }?
+}
+
+ABullet_Object = element ABullet {
+  attribute Self { xsd:string },
+  attribute CharacterType { BulletCharacterType_EnumValue }?,
+  attribute CharacterValue { xsd:int }?,
+  element Properties {
+    element BulletsFont { 
+      (object_type, xsd:string ) |
+      (string_type, xsd:string ) |
+      (enum_type, AutoEnum_EnumValue )
+    }?&
+    element BulletsFontStyle { 
+      (string_type, xsd:string ) |
+      (enum_type, NothingEnum_EnumValue ) |
+      (enum_type, AutoEnum_EnumValue )
+    }?
+  }
+  ?
+}
+
+Assignment_Object = element Assignment {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute UserName { xsd:string }?,
+  attribute ExportOptions { AssignmentExportOptions_EnumValue }?,
+  attribute IncludeLinksWhenPackage { xsd:boolean }?,
+  attribute FilePath { xsd:string },
+  element Properties {
+    element FrameColor { 
+      (InDesignUIColorType_TypeDef ) |
+      (enum_type, NothingEnum_EnumValue )
+    }?&
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+  ,
+(
+  AssignedStory_Object*
+)
+}
+
+AssignedStory_Object = element AssignedStory {
+  attribute Self { xsd:string },
+  attribute Name { xsd:string }?,
+  attribute StoryReference { xsd:string }?,
+  attribute FilePath { xsd:string }?,
+  element Properties {
+    element Label { element KeyValuePair { KeyValuePair_TypeDef }* 
+    }?
+  }
+  ?
+}
+
+
+}
