@@ -19,7 +19,6 @@
   <!--== TEMPLATES / FUNCTIONS INCLUSION ==-->
   <xsl:import href="catch-all.xsl"/>
   <xsl:import href="common-functions.xsl"/>
-  <!--<xsl:import href="modes/DocBook.xsl"/>-->
   <!-- Document: all files in one document -->
   <xsl:import href="modes/Document.xsl"/>
   <xsl:import href="modes/ConsolidateParagraphStyleRanges.xsl"/>
@@ -38,7 +37,7 @@
   <xsl:import href="modes/Index.xsl"/>
 
   <!--== XSL OUTPUT ==-->
-  <!-- removed saxon:suppress-indentiation (and indent="yes") in order to make this vendor-neutral: -->
+  <!-- removed saxon:suppress-indentation (and indent="yes") in order to make this vendor-neutral: -->
   <xsl:output 
       doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
       doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" 
@@ -71,8 +70,9 @@
 
 
   <!--== PARAMS ==-->
-  <xsl:param name="debug"        select="'0'"               as="xs:string"/>
-  <xsl:param name="debugdir"        select="'debug'"               as="xs:string"/>
+  <xsl:param name="src-dir-uri" as="xs:string"/>
+  <xsl:param name="debug" select="'0'" as="xs:string"/>
+  <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
 
   <!-- Comma separated list of inline element names (e.g., 'span,html:span')
        which to split when they stretch across layout paragraphs: -->
@@ -84,6 +84,7 @@
 
   <!--== VARIABLES ==-->
 
+  <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
     select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor')" 
@@ -99,7 +100,7 @@
     as="xs:string*" />
   <xsl:variable 
     name="idml2xml:basename" 
-    select="replace(document-uri(/), '^(.*/)?(.+?)(\..+)?/designmap\.xml', '$2')"
+    select="replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2')"
     as="xs:string" />
   <xsl:variable
     name="designmap-root"
@@ -111,8 +112,10 @@
   <!--== PROCESSING PIPELINE ==-->
 
   <!-- generate an all in one xml-file -->
-  <xsl:variable name="idml2xml:Document">
-    <xsl:apply-templates mode="idml2xml:Document"/>
+  <xsl:variable name="idml2xml:Document" as="document-node(element(Document))">
+    <!-- need to read a named file instead of / of the default input because of XProc compatibility
+         (otherwise the idml2xml:Document variable will be filled with the input of the current step) -->
+    <xsl:apply-templates select="$designmap-doc" mode="idml2xml:Document"/>
   </xsl:variable>
   <!-- write an HTML summary -->
   <xsl:variable name="idml2xml:Statistics">
@@ -192,21 +195,6 @@
     <xsl:apply-templates select="$idml2xml:IndexTerms-extract" mode="idml2xml:IndexTerms"/>
   </xsl:variable>
 
-
-  <idml2xml:default-namespaces>
-    <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml"/>
-    <XMLAttribute Name="xmlns:aid" Value="http://ns.adobe.com/AdobeInDesign/4.0/"/>
-    <XMLAttribute Name="xmlns:aid5" Value="http://ns.adobe.com/AdobeInDesign/5.0/"/>
-  </idml2xml:default-namespaces>
-  <!-- save all namespaces -->
-  <xsl:variable name="idml2xml:Namespaces">
-    <xsl:for-each-group
-      select="($idml2xml:Document union document('')/*/idml2xml:default-namespaces)//XMLAttribute[ @Name[ matches( ., '^xmlns:' ) ] ]" 
-      group-by="@Value">
-      <ns short="{substring-after( @Name, ':' )}" space="{@Value}" />
-    </xsl:for-each-group>
-  </xsl:variable>
-
   <!--== MAIN TEMPLATE ==-->
   <xsl:template name="tagged">
     <xsl:call-template name="debug-common" />
@@ -220,11 +208,7 @@
     <xsl:call-template name="debug-common" />
     <xsl:call-template name="debug-tagged" />
     <xsl:call-template name="debug-hub" />
-    <book>
-      <!-- table of content title -->
-      <xsl:attribute name="TOCStyle_Title" select="$idml2xml:Document/descendant::TOCStyle[@Title ne ''][1]/@Title"/>
-      <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-    </book>
+    <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   </xsl:template>
 
   <xsl:template name="indexterms">

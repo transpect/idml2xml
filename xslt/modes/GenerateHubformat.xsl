@@ -18,13 +18,19 @@
 
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
-      select="('anchor', 'para', 'informaltable', 'table', 'tgroup', 
+      select="('anchor', 'book', 'para', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar')"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties">
+    <book>
+      <xsl:apply-templates select="@TOCStyle_Title | node()" mode="#current"/>
+    </book>
+  </xsl:template>
 
   <xsl:template match="idml2xml:genPara |
                        idml2xml:genSpan 
@@ -51,7 +57,7 @@
 
   <xsl:template name="add-properties">
     <xsl:param name="context" select="." />
-    <xsl:variable name="style-type">
+    <xsl:variable name="style-type" as="xs:string">
       <xsl:choose>
         <xsl:when test="local-name ($context) eq 'genPara'">ParagraphStyle</xsl:when>
         <xsl:when test="local-name ($context) eq 'genSpan'">CharacterStyle</xsl:when>
@@ -60,7 +66,7 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="style-name">
+    <xsl:variable name="style-name" as="xs:string">
       <xsl:choose>
         <xsl:when test="local-name ($context) eq 'genPara'">
           <xsl:value-of select="$context/@aid:pstyle"/>
@@ -77,18 +83,18 @@
     <xsl:variable 
         name="style-node"
         select="$idml2xml:Document/
-                descendant::*[local-name() eq $style-type and @Name eq $style-name]"/>
+                descendant::*[local-name() eq $style-type and @Name eq $style-name]" as="element(*)?"/>
     <xsl:variable 
         name="style-name-based-on"
         select="if ($style-node/Properties/BasedOn[matches(., concat('^', $style-type ) )]) 
                 then replace($style-node/Properties/BasedOn[matches(., concat('^', $style-type ) )], '^ParagraphStyle/', '')
-                else ()"/>
+                else ()" as="xs:string?"/>
     <xsl:variable 
         name="style-node-based-on"
         select="if ($style-name-based-on ) 
                 then $idml2xml:Document/
                      descendant::*[local-name() eq $style-type and @Name eq $style-name-based-on]
-                else ()"/>
+                else ()" as="element(*)?"/>
     <xsl:for-each 
         select="$style-node/@*[not (local-name() eq 'Name')] union $style-node-based-on/@*[not (local-name() eq 'Name')]">
       <xsl:sequence select="idml2xml:hubformat-add-property(current())"/>
@@ -212,7 +218,7 @@
   </xsl:template>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <anchor id="{$id-prefix}{@id}" />
+    <anchor id="{$id-prefix}{@*:id}" />
   </xsl:template>
 
   <xsl:template match="@linkend" mode="idml2xml:XML-Hubformat-remap-para-and-span">
