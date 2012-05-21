@@ -11,12 +11,15 @@
 
   <!--== mode: idml2xml:ExtractTagging ==-->
 	
-  <xsl:template match="/" mode="idml2xml:ExtractTagging">
-    <xsl:apply-templates select="Document/XmlStory" mode="#current"/>
-    <xsl:variable name="processed-stories" as="xs:string*">
-      <xsl:apply-templates select="Document/XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
-    </xsl:variable>
-    <xsl:apply-templates select="Document/TextFrame/Story[not(@Self = distinct-values($processed-stories))] " mode="#current"/>
+  <xsl:template match="Document" mode="idml2xml:ExtractTagging">
+    <idml2xml:doc>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates select="XmlStory" mode="#current"/>
+      <xsl:variable name="processed-stories" as="xs:string*">
+        <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
+      </xsl:variable>
+      <xsl:apply-templates select="TextFrame/Story[not(@Self = distinct-values($processed-stories))] " mode="#current"/>
+    </idml2xml:doc>
   </xsl:template>
 
   <xsl:template match="*" mode="idml2xml:ExtractTagging-gather-IDs">
@@ -43,7 +46,7 @@
 		<xsl:variable name="ElementName" select="idml2xml:substr( 'a', $ElementFullName, 'XMLTag/' )" />
 		<xsl:variable name="ElementSpace" select="idml2xml:substr( 'b', $ElementName, ':' )" />
 		<xsl:element name="{ $ElementFullName }" 
-			namespace="{if (contains( $ElementName, ':' ) )  then  $idml2xml:Namespaces/ns[ @short = $ElementSpace ]/@space  else  ''}">
+      namespace="{if (contains( $ElementName, ':' ) ) then /Document/idml2xml:namespaces/ns[ @short = $ElementSpace ]/@space  else  ''}">
 
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
       <xsl:if test="not(XMLAttribute[@Name eq 'aid:cstyle'])">
@@ -98,10 +101,16 @@
   </xsl:template>
 
   <xsl:template match="XMLAttribute" mode="idml2xml:ExtractAttributes">
-    <xsl:call-template name="makeNsAttribute">
-      <xsl:with-param name="Attribute" select="@Value"/>
-      <xsl:with-param name="AttributeFullName" select="@Name"/>
-    </xsl:call-template>
+    <xsl:variable name="AttrName" select="idml2xml:substr( 'a', @Name, ':' )" as="xs:string+"/>
+    <xsl:variable name="AttrSpace" select="idml2xml:substr( 'b', @Name, ':' )" as="xs:string+"/>
+    <xsl:choose>
+      <xsl:when test="matches( @Name, ':' )  and  ( /Document/idml2xml:namespaces/ns[ @short = $AttrSpace ]/@space != '' )">
+        <xsl:attribute name="{ @Name }" select="@Value" namespace="{ /Document/idml2xml:namespaces/ns[ @short = $AttrSpace ]/@space }" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:attribute name="{ $AttrName }" select="@Value" />
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="Table" mode="idml2xml:ExtractAttributes">

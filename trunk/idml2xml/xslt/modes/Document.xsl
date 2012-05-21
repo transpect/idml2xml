@@ -26,15 +26,46 @@
     <xsl:sequence select="document(@src)"/>
   </xsl:template>
 
-  <!-- temporary root-template -->
-  <!--<xsl:template match="/" mode="idml2xml:DocumentStoriesSorted">
-  <Document><xsl:apply-templates select="//Story" mode="idml2xml:DocumentResolveTextFrames"/><xsl:apply-templates select="//XmlStory" mode="#current"/></Document>
-  </xsl:template>-->
+  <xsl:template match="/processing-instruction()" mode="idml2xml:Document" />
 
-  <!-- root-template -->
+  <xsl:template match="/" mode="idml2xml:Document">
+    <xsl:document>
+      <xsl:apply-templates mode="#current" />
+    </xsl:document>
+  </xsl:template>
+
+  <xsl:template match="/Document" mode="idml2xml:Document">
+    <xsl:copy>
+      <xsl:copy-of select="@*" />
+      <xsl:copy-of select="/processing-instruction()" />
+      <xsl:apply-templates mode="#current" />
+    </xsl:copy>
+  </xsl:template>
+
+  <idml2xml:default-namespaces>
+    <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml"/>
+    <XMLAttribute Name="xmlns:aid" Value="http://ns.adobe.com/AdobeInDesign/4.0/"/>
+    <XMLAttribute Name="xmlns:aid5" Value="http://ns.adobe.com/AdobeInDesign/5.0/"/>
+  </idml2xml:default-namespaces>
+
+  <!-- root template -->
   <xsl:template match="/" mode="idml2xml:DocumentStoriesSorted">
-    <Document>
-      <xsl:for-each-group select="Document/idPkg:Spread/Spread/TextFrame" group-by="@ParentStory">
+    <xsl:apply-templates mode="#current" />
+  </xsl:template>
+
+  <xsl:template match="/Document" mode="idml2xml:DocumentStoriesSorted">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current" />
+      <xsl:attribute name="TOCStyle_Title" select="//TOCStyle[@Title ne ''][1]/@Title"/>
+      <idml2xml:namespaces>
+        <xsl:for-each-group
+          select="//XMLAttribute[ @Name[ matches( ., '^xmlns:' ) ] ] 
+                  union document('')/*/idml2xml:default-namespaces/XMLAttribute" 
+          group-by="@Value">
+          <ns short="{substring-after( @Name, ':' )}" space="{@Value}" />
+        </xsl:for-each-group>
+      </idml2xml:namespaces>
+      <xsl:for-each-group select="idPkg:Spread/Spread/TextFrame" group-by="@ParentStory">
         <!--<xsl:sort select="xs:double( tokenize(@ItemTransform, ' ' )[6] )" order="ascending" />
         <xsl:sort select="xs:double( tokenize(@ItemTransform, ' ' )[5] )" order="ascending" />-->
         <!--<xsl:sort 
@@ -94,13 +125,13 @@ and PDF.
         </xsl:copy>
       </xsl:for-each-group>
       <xsl:apply-templates select="//XmlStory" mode="#current"/>
-    </Document>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template match="TextFrame" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="$idml2xml:Document//key( 'story', current()/@ParentStory )" mode="#current"/>
+      <xsl:apply-templates select="key( 'story', current()/@ParentStory, $idml2xml:Document )" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -123,7 +154,7 @@ and PDF.
 
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
-  <xsl:variable name="idml2xml:NewStoriesName" select="$idml2xml:Document/Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName"/>
+  <xsl:variable name="idml2xml:NewStoriesName" select="$idml2xml:Document/Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName" as="attribute(DefaultStoryTagName)"/>
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = $idml2xml:NewStoriesName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>

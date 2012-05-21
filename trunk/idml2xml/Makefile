@@ -19,8 +19,8 @@ default: usage
 	$(SAXON) \
       $(SAXONOPTS) \
       -xsl:xslt/idml2xml.xsl \
-      -s:$(call uri,$<).tmp/designmap.xml \
       -it:$(call lc,$(subst .,,$(suffix $@))) \
+      src-dir-uri=$(call uri,$<).tmp \
       split=$(SPLIT) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
@@ -46,6 +46,5 @@ usage:
 	@echo "  > make -C $(CURDIR) \`realpath relpath_to/xyz.idml.HUB\` DEBUGDIR=\`pwd\`/debug"
 	@echo ""
 	@echo "Prerequisites:"
-	@echo "  Saxon PE or EE 9.3 or newer (should work with HE with minor modifications),"
-	@echo "  expected as a 'saxon' script in the path (you can override this with SAXON=...)"
+	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
 	@echo ""
