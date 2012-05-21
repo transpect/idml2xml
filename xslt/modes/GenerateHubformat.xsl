@@ -19,7 +19,7 @@
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
       select="('anchor', 'book', 'para', 'informaltable', 'table', 'tgroup', 
-               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 
+               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar')"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
