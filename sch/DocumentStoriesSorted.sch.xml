@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:schema
+  xmlns:s="http://purl.oclc.org/dsdl/schematron"
+  xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
+  xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
+  xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  queryBinding="xslt2" 
+  defaultPhase="#ALL">
+
+  <s:ns prefix="aid" uri="http://ns.adobe.com/AdobeInDesign/4.0/" />
+  <s:ns prefix="aid5" uri="http://ns.adobe.com/AdobeInDesign/5.0/" />
+  <s:ns prefix="idPkg" uri="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging" />
+  <s:ns prefix="idml2xml" uri="http://www.le-tex.de/namespace/idml2xml" />
+
+  <s:title>Sample ISO Schematron rules for idml2xml content checking</s:title>
+
+  <s:p>Copyright (C) 2012, le-tex publishing services GmbH</s:p>
+
+  <s:let name="top-level-frames" value="/Document/TextFrame/@Self"/>
+  <s:let name="multiple-top-level-frames" 
+    value="xs:string(
+             if (string-join(/Document/XmlStory//Content, '') eq '&#xfeff;') (: default XmlStory without actual content :)
+               then count($top-level-frames) gt 0
+               else count($top-level-frames) gt 1
+           )"/>
+
+  <s:pattern id="unanchored">
+    <s:rule context="/Document">
+      <s:report test="$multiple-top-level-frames eq 'true'" 
+        id="DocumentStoriesSorted_001" role="WRN">
+        The document contains <s:value-of select="count(TextFrame)"/> top-level TextFrames. Please check anchoring.</s:report>
+    </s:rule>
+    <s:rule context="TextFrame[@Self = $top-level-frames]">
+      <s:report test="$multiple-top-level-frames eq 'true'" 
+        id="DocumentStoriesSorted_001" role="WRN">
+        <s:span class="srcpath"><xsl:value-of select="(.//*/@idml2xml:srcpath)[1]"/></s:span>
+        This frame is not anchored. You can ignore this message if it contains the main story.</s:report>
+    </s:rule>
+  </s:pattern>
+
+</s:schema>

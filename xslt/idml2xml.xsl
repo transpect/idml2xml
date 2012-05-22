@@ -107,7 +107,9 @@
     select="/"
     as="document-node(element(Document))" />
 
-
+  <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
+       It's irrelevant to XProc processing (the variables won't be computed because
+       they will be referenced nowhere -->
 
   <!--== PROCESSING PIPELINE ==-->
 
@@ -289,5 +291,6 @@
       </xsl:result-document>
     </xsl:if>
   </xsl:template>
+
 
 </xsl:stylesheet>

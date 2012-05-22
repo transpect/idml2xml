@@ -55,6 +55,12 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="idPkg:Styles | idPkg:Graphic" mode="idml2xml:XML-Hubformat-add-properties" />
+
+  <xsl:key name="style" 
+    match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
+    use="concat(name(), '__', @Name)" />
+
   <xsl:template name="add-properties">
     <xsl:param name="context" select="." />
     <xsl:variable name="style-type" as="xs:string">
@@ -79,11 +85,9 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <!-- should be a presolved universal variable ... -->
     <xsl:variable 
         name="style-node"
-        select="$idml2xml:Document/
-                descendant::*[local-name() eq $style-type and @Name eq $style-name]" as="element(*)?"/>
+        select="key('style', concat($style-type, '__', $style-name))" as="element(*)?"/>
     <xsl:variable 
         name="style-name-based-on"
         select="if ($style-node/Properties/BasedOn[matches(., concat('^', $style-type ) )]) 
@@ -92,8 +96,7 @@
     <xsl:variable 
         name="style-node-based-on"
         select="if ($style-name-based-on ) 
-                then $idml2xml:Document/
-                     descendant::*[local-name() eq $style-type and @Name eq $style-name-based-on]
+                then key('style', concat($style-type, '__', $style-name-based-on))
                 else ()" as="element(*)?"/>
     <xsl:for-each 
         select="$style-node/@*[not (local-name() eq 'Name')] union $style-node-based-on/@*[not (local-name() eq 'Name')]">
@@ -323,6 +326,10 @@
     match="@idml2xml:* " 
     mode="idml2xml:XML-Hubformat-remap-para-and-span" 
     />
+
+  <xsl:template match="@idml2xml:srcpath" mode="idml2xml:XML-Hubformat-remap-para-and-span" >
+    <xsl:copy-of select="." />
+  </xsl:template>
 
   <xsl:template 
     match="@*[name() = $dimensional-attributes]" 

@@ -188,6 +188,7 @@
         <xsl:when test="current-grouping-key()">
           <xsl:element name="{name()}">
             <xsl:copy-of select="current-group()[last()]/@*" />
+            <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
             <xsl:attribute name="idml2xml:reason" select="'ac6'" />
             <xsl:apply-templates select="current-group()/node()" mode="idml2xml:AutoCorrect" />
           </xsl:element>
