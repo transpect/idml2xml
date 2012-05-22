@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<p:pipeline xmlns:p="http://www.w3.org/ns/xproc" 
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
@@ -10,14 +10,41 @@
   xmlns:ltx="http://le-tex.de/tools/unzip"
   version="1.0"
   name="idml2xml"
+  type="idml2xml:hub"
   >
-
-  <p:import href="../calabash/lib/xproc-extensions.xpl" />
-  <p:import href="../calabash/lib/ltx-unzip/ltx-lib.xpl" />
 
   <p:option name="idmlfile" />
 
-<!--   <p:serialization port="result" indent="true" omit-xml-declaration="false"/> -->
+  <p:input port="source" primary="true" />
+
+  <p:output port="result" primary="true">
+    <p:pipe step="XML-Hubformat-cleanup-paras-and-br" port="result" />
+  </p:output>
+  <p:serialization port="result" omit-xml-declaration="false"/>
+
+  <p:output port="DocumentStoriesSorted">
+    <p:pipe step="DocumentStoriesSorted" port="result" />
+  </p:output>
+  <p:serialization port="DocumentStoriesSorted" indent="true" omit-xml-declaration="false"/>
+  <p:output port="GenerateTagging">
+    <p:pipe step="GenerateTagging" port="result" />
+  </p:output>
+  <p:serialization port="GenerateTagging" indent="true" omit-xml-declaration="false"/>
+  <p:output port="ExtractTagging">
+    <p:pipe step="ExtractTagging" port="result" />
+  </p:output>
+  <p:serialization port="ExtractTagging" indent="true" omit-xml-declaration="false"/>
+  <p:output port="AutoCorrect">
+    <p:pipe step="AutoCorrect" port="result" />
+  </p:output>
+  <p:serialization port="AutoCorrect" indent="true" omit-xml-declaration="false"/>
+  <p:output port="XML-Hubformat-cleanup-paras-and-br">
+    <p:pipe step="XML-Hubformat-cleanup-paras-and-br" port="result" />
+  </p:output>
+  <p:serialization port="XML-Hubformat-cleanup-paras-and-br" indent="true" omit-xml-declaration="false"/>
+
+  <p:import href="../calabash/lib/xproc-extensions.xpl" />
+  <p:import href="../calabash/lib/ltx-unzip/ltx-lib.xpl" />
 
   <p:string-replace match="/c:query/*/text()" name="idmlfilename">
     <p:input port="source">
@@ -50,11 +77,13 @@
     </p:with-option>
   </p:add-attribute>
 
+
   <p:load name="designmap">
     <p:with-option name="href" select="concat(/c:files/@xml:base, 'designmap.xml')">
       <p:pipe step="unzip" port="result"/>
     </p:with-option>
   </p:load>
+
 
   <p:xslt name="Document" initial-mode="idml2xml:Document">
     <p:input port="parameters">
@@ -191,13 +220,6 @@
     </p:input>
   </p:xslt>
 
-  <!--
   <p:sink/>
-  
-  <p:identity>
-    <p:input port="source">
-      <p:pipe step="ExtractTagging" port="result" />
-    </p:input>
-  </p:identity>
--->
-</p:pipeline>
+
+</p:declare-step>

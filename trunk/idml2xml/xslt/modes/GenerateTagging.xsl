@@ -35,6 +35,7 @@
         <xsl:choose>
           <xsl:when test="current-grouping-key()">
             <XMLElement MarkupTag="XMLTag/idml2xml%3agenDoc">
+              <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
               <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
               <xsl:apply-templates select="current-group()" mode="#current" />
             </XMLElement>

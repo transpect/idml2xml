@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:schema
+  xmlns:s="http://purl.oclc.org/dsdl/schematron"
+  xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
+  xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
+  xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  queryBinding="xslt2" 
+  defaultPhase="#ALL">
+
+  <s:ns prefix="aid" uri="http://ns.adobe.com/AdobeInDesign/4.0/" />
+  <s:ns prefix="aid5" uri="http://ns.adobe.com/AdobeInDesign/5.0/" />
+  <s:ns prefix="idPkg" uri="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging" />
+  <s:ns prefix="idml2xml" uri="http://www.le-tex.de/namespace/idml2xml" />
+
+  <s:title>Sample ISO Schematron rules for idml2xml content checking</s:title>
+
+  <s:p>Copyright (C) 2012, le-tex publishing services GmbH</s:p>
+
+  <!--
+
+  <s:pattern id="role-with-colon">
+    <s:rule context="*[@role]">
+      <s:report test="matches(@role, '%3a')"
+        id="XML-Hubformat-cleanup-paras-and-br_001" role="MSG">
+        <s:span class="srcpath"><xsl:value-of select="@idml2xml:srcpath"/></s:span>
+        Please avoid ':' (or '%3a') in role attribute values: <s:value-of select="name()"/> with role <s:value-of select="@role"/>: <s:value-of select="substring(., 1, 40)"/>…</s:report>
+    </s:rule>
+  </s:pattern>
+
+  <s:pattern id="para-without-role">
+    <s:rule context="para[matches(., '\S')]">
+      <s:assert test="exists(@role)"
+        id="XML-Hubformat-cleanup-paras-and-br_002" role="ERR">
+        <s:span class="srcpath"><xsl:value-of select="@idml2xml:srcpath"/></s:span>
+        Paras with content must have roles: <s:value-of select="substring(., 1, 40)"/>…</s:assert>
+    </s:rule>
+  </s:pattern>
+
+  <s:pattern id="nested-sidebar">
+    <s:rule context="sidebar">
+      <s:report test="exists(sidebar)"
+        id="XML-Hubformat-cleanup-paras-and-br_003" role="WRN">
+        <s:span class="srcpath"><xsl:value-of select="@idml2xml:srcpath"/></s:span>
+        Sidebar is contained in another sidebar: <s:value-of select="substring(., 1, 40)"/>…</s:report>
+    </s:rule>
+  </s:pattern>
+
+-->
+</s:schema>

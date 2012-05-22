@@ -299,8 +299,8 @@ http://cssdk.host.adobe.com/sdk/1.5/docs/WebHelp/references/csawlib/com/adobe/cs
         <xsl:value-of select="if( $property eq 'LeftToRightDirection') then 'ltr' else 'rtl'"/>
       </xsl:when>
       <xsl:when test="matches( $property, '^Color/' )">
-	<xsl:variable name="ref-value" select="$idml2xml:Document//Color[ @Self eq $property ]"/>
-	<xsl:value-of select="concat( $ref-value/@Space, '(', replace( $ref-value/@ColorValue, ' ', ',' ), ')' )"/>
+        <xsl:variable name="ref-value" select="root($property)/*/idPkg:Graphic/Color[ @Self eq $property ]"/>
+        <xsl:value-of select="concat( $ref-value/@Space, '(', replace( $ref-value/@ColorValue, ' ', ',' ), ')' )"/>
       </xsl:when>
       <xsl:when test="$propname = 'FontStyle'">
       	<xsl:sequence select="replace( lower-case ($property), 'semi', '')"/>

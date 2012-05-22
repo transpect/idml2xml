@@ -14,6 +14,8 @@
   <xsl:template match="Document" mode="idml2xml:ExtractTagging">
     <idml2xml:doc>
       <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:copy-of select="idPkg:Graphic" />
+      <xsl:copy-of select="idPkg:Styles" />
       <xsl:apply-templates select="XmlStory" mode="#current"/>
       <xsl:variable name="processed-stories" as="xs:string*">
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
