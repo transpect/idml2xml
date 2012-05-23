@@ -18,8 +18,6 @@
 
   <s:p>Copyright (C) 2012, le-tex publishing services GmbH</s:p>
 
-  <!--
-
   <s:pattern id="role-with-colon">
     <s:rule context="*[@role]">
       <s:report test="matches(@role, '%3a')"
@@ -47,5 +45,4 @@
     </s:rule>
   </s:pattern>
 
--->
 </s:schema>

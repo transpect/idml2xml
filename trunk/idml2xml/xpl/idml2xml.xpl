@@ -15,7 +15,6 @@
 
   <p:option name="idmlfile" />
 
-  <p:input port="source" primary="true" />
 
   <p:output port="result" primary="true">
     <p:pipe step="XML-Hubformat-cleanup-paras-and-br" port="result" />
