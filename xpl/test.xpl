@@ -14,13 +14,14 @@
   <p:serialization port="svrl" indent="true" omit-xml-declaration="false"/>
   <p:serialization port="result" indent="true" omit-xml-declaration="false"/>
   <p:serialization port="xsl" indent="true" omit-xml-declaration="false"/>
+  <p:serialization port="xpl" indent="true" omit-xml-declaration="false"/>
 
 
   <p:option name="idmlfile" />
   <p:option name="conffile" />
 
   <p:output port="svrl" sequence="true">
-    <p:pipe step="test" port="report"/>
+    <p:pipe step="test" port="result"/>
   </p:output>
 
   <p:output port="result" primary="true">
@@ -31,12 +32,17 @@
     <p:pipe step="patch" port="xsl"/>
   </p:output>
 
+  <p:output port="xpl">
+    <p:pipe step="test" port="xpl"/>
+  </p:output>
+
   <p:import href="schematron.xpl" />
 
   <idml2xml:apply-schematrons name="test">
     <p:with-option name="idmlfile-uri" select="$idmlfile"/>
     <p:with-option name="conf-uri" select="$conffile"/>
   </idml2xml:apply-schematrons>
+
 
   <idml2xml:patch-hub name="patch">
     <p:input port="svrl">
