@@ -21,7 +21,7 @@
   <p:option name="conffile" />
 
   <p:output port="svrl" sequence="true">
-    <p:pipe step="test" port="result"/>
+    <p:pipe step="test" port="report"/>
   </p:output>
 
   <p:output port="result" primary="true">
