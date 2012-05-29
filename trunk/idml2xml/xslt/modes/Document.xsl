@@ -94,6 +94,9 @@
       </idml2xml:namespaces>
       <xsl:copy-of select="idPkg:Graphic" />
       <xsl:copy-of select="idPkg:Styles" />
+      <idml2xml:hyper>
+        <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink" />
+      </idml2xml:hyper>
       <xsl:for-each-group select="idPkg:Spread/Spread/TextFrame" group-by="@ParentStory">
         <xsl:if test="count( Properties/PathGeometry/GeometryPathType ) gt 1">
           <xsl:message select="'WARNING: more than one GeometryPathType element in', @Self"/>
