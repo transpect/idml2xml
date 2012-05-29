@@ -6,6 +6,7 @@
   xmlns:aid5	= "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg	=	"http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml	= "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:xlink	= "http://www.w3.org/1999/xlink"
   exclude-result-prefixes="aid5 aid xs"
 >
 
@@ -14,8 +15,7 @@
   <xsl:template match="Document" mode="idml2xml:ExtractTagging">
     <idml2xml:doc>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="idPkg:Graphic" />
-      <xsl:copy-of select="idPkg:Styles" />
+      <xsl:copy-of select="(idPkg:Graphic, idPkg:Styles, idml2xml:hyper)" />
       <xsl:apply-templates select="XmlStory" mode="#current"/>
       <xsl:variable name="processed-stories" as="xs:string*">
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
@@ -226,6 +226,34 @@
                          ]
                        " mode="idml2xml:ExtractTagging">
     <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+
+  <xsl:key name="hyperlink-by-source-id" match="Hyperlink" use="@Source" />
+  <xsl:key name="hyperlink-dest-by-name" match="HyperlinkURLDestination | HyperlinkPageDestination" use="@Name" />
+
+	<xsl:template match="HyperlinkTextSource" mode="idml2xml:ExtractTagging">
+    <xsl:variable name="hyperlink" select="key('hyperlink-by-source-id', @Self)" as="element(Hyperlink)" />
+    <xsl:variable name="dest-id" select="$hyperlink/Properties/Destination" as="xs:string" />
+    <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
+    <xsl:variable name="target-name" select="substring-after($dest-id, '/')" as="xs:string" />
+    <xsl:variable name="dest" select="key('hyperlink-dest-by-name', $target-name)" as="element(*)" />
+    <xsl:choose>
+      <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
+        <idml2xml:xref linkend="xref_{@Name}">
+          <xsl:apply-templates mode="#current" />
+        </idml2xml:xref>
+      </xsl:when>
+      <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
+        <idml2xml:link xlink:href="{$dest/@DestinationURL}">
+          <xsl:apply-templates mode="#current" />
+        </idml2xml:link>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message>Don't know how to handle <xsl:value-of select="$target-element-name"/> 
+        </xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 

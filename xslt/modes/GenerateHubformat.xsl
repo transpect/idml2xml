@@ -20,7 +20,8 @@
       name="hubformat-elementnames-whitelist"
       select="('anchor', 'book', 'para', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 
-               'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar')"/>
+               'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
+               'link', 'xref')"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
@@ -55,7 +56,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="idPkg:Styles | idPkg:Graphic" mode="idml2xml:XML-Hubformat-add-properties" />
+  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:key name="style" 
     match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
@@ -218,6 +219,18 @@
         </phrase>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:link" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <link>
+      <xsl:apply-templates select="@* | node()" mode="#current" />
+    </link>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xref>
+      <xsl:apply-templates select="@* | node()" mode="#current" />
+    </xref>
   </xsl:template>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
