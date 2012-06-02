@@ -92,7 +92,7 @@
         <xsl:when test="current-grouping-key()">
           <XMLElement>
             <xsl:copy-of select="$context/@*" />
-            <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
+            <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
             <xsl:apply-templates select="current-group()" mode="#current" />
             <xsl:copy-of select="$context/XMLAttribute" />
           </XMLElement>
@@ -132,7 +132,7 @@
                 <idml2xml:ParagraphStyleRange>
                   <xsl:attribute name="AppliedParagraphStyle" select="idml2xml:RemoveTypeFromStyleName((current-group()/descendant-or-self::*[@AppliedParagraphStyle][idml2xml:same-scope(., $context)]/@AppliedParagraphStyle)[1])" />
                   <xsl:attribute name="idml2xml:reason" select="'cp1'" />
-                  <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
+                  <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
                   <xsl:apply-templates select="current-group()" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-ranges" />
                 </idml2xml:ParagraphStyleRange>
               </xsl:when>

@@ -13,7 +13,7 @@ DEBUGDIR = debug
 
 default: usage
 
-%.idml.HUB %.idml.INDEXTERMS %.idml.TAGGED:	%.idml Makefile xslt/idml2xml.xsl xslt/catch-all.xsl xslt/modes/*.xsl xslt/common-functions.xsl
+%.idml.HUB %.idml.INDEXTERMS %.idml.TAGGED:	%.idml Makefile xslt/*.xsl xslt/modes/*.xsl
 	mkdir -p $<.tmp
 	unzip -u -o -d $<.tmp $<
 	$(SAXON) \

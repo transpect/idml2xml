@@ -35,7 +35,7 @@
         <xsl:choose>
           <xsl:when test="current-grouping-key()">
             <XMLElement MarkupTag="XMLTag/idml2xml%3agenDoc">
-              <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
+              <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
               <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
               <xsl:apply-templates select="current-group()" mode="#current" />
             </XMLElement>
@@ -134,6 +134,7 @@
 
   <xsl:template match="CharacterStyleRange[node()][.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenSpan">
+      <xsl:copy-of select="@* except @AppliedCharacterStyle"/>
       <xsl:choose>
         <xsl:when test="@AppliedCharacterStyle eq 'CharacterStyle/$ID/[No character style]'">
           <XMLAttribute Name="aid:cstyle" Value="idml2xml:default" />
@@ -143,16 +144,10 @@
         </xsl:otherwise>
       </xsl:choose>
       <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
-      <xsl:apply-templates select="@*" mode="idml2xml:GenerateXMLAttributes"/>
       <xsl:apply-templates mode="#current" />
     </XMLElement>
   </xsl:template>
 
-  <xsl:template match="@AppliedCharacterStyle" mode="idml2xml:GenerateXMLAttributes"/>
-
-  <xsl:template match="@*" mode="idml2xml:GenerateXMLAttributes">
-    <XMLAttribute Name="idml2xml:{local-name()}" Value="{idml2xml:attrname(.)}" />
-  </xsl:template>
 
   <xsl:template match="CharacterStyleRange/TextFrame | Group | Group/TextFrame" mode="idml2xml:GenerateTagging">
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenFrame">

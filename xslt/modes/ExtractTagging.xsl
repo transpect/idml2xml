@@ -76,26 +76,22 @@
   </xsl:template>
 
   <xsl:template match="Properties/*" mode="idml2xml:ExtractAttributes">
-    <xsl:attribute name="idml2xml:{local-name()}" select="." />
+    <xsl:attribute name="{name()}" select="." />
   </xsl:template>
 
 
   <xsl:template match="ParagraphStyleRange | CharacterStyleRange" mode="idml2xml:ExtractAttributes">
-    <xsl:apply-templates select="@*" mode="#current" />
+    <xsl:apply-templates select="@* | Properties" mode="#current" />
   </xsl:template>
 
   <xsl:template match="@*" mode="idml2xml:ExtractAttributes">
-    <xsl:attribute name="idml2xml:{local-name()}" select="."/>
+    <xsl:copy-of select="." />
   </xsl:template>
 
   <xsl:template match="CharacterStyleRange[@AppliedCharacterStyle eq 'CharacterStyle/$ID/[No character style]']" mode="idml2xml:ExtractAttributes" />
 
   <xsl:template match="@AppliedParagraphStyle | @AppliedCharacterStyle" mode="idml2xml:ExtractAttributes">
     <xsl:attribute name="idml2xml:{local-name()}" select="idml2xml:RemoveTypeFromStyleName( . )"/>
-  </xsl:template>
-
-  <xsl:template match="@FillColor" mode="idml2xml:ExtractAttributes">
-    <xsl:attribute name="idml2xml:color" select="replace(., '^Color/', '')"/>
   </xsl:template>
 
   <xsl:template match="XMLAttribute[starts-with(@Name, 'xmlns:')]" mode="idml2xml:ExtractAttributes">

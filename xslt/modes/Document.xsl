@@ -47,7 +47,7 @@
                        | ParagraphStyleRange | Table | XMLElement"
     mode="idml2xml:Document">
     <xsl:copy>
-      <xsl:attribute name="idml2xml:srcpath" select="idml2xml:srcpath(.)" />
+      <xsl:attribute name="srcpath" select="idml2xml:srcpath(.)" />
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </xsl:copy>
   </xsl:template>
@@ -56,7 +56,7 @@
     <xsl:param name="elt" as="element(*)?" />
     <xsl:sequence select="string-join(
                             (
-                              if ($elt/.. instance of element(*)) then idml2xml:srcpath($elt/..) else concat(base-uri($elt), '/'),
+                              if ($elt/.. instance of element(*)) then idml2xml:srcpath($elt/..) else concat(base-uri($elt), '?xpath='),
                               '/',
                               name($elt),
                               '[',

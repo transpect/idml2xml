@@ -78,9 +78,6 @@
        which to split when they stretch across layout paragraphs: -->
   <xsl:param name="split" as="xs:string?"/>
 
-  <!-- add properties to hubformat block and inline elements -->
-  <xsl:param name="hubformat-add-properties" select="1" as="xs:integer"/>
-
 
   <!--== VARIABLES ==-->
 

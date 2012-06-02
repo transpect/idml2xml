@@ -58,9 +58,13 @@
 
   <xsl:function name="idml2xml:StyleName">
     <xsl:param name="stylename" as="xs:string+"/>
-    <xsl:value-of select="replace( idml2xml:RemoveTypeFromStyleName( $stylename), 
-                          '\|| |[+]',
-                          '' )"/>
+    <xsl:value-of select="replace(
+                            replace( idml2xml:RemoveTypeFromStyleName( $stylename), 
+                            '[ |+]',
+                            '_' ),
+                            '%3a',
+                            ':'
+                          )"/>
   </xsl:function>
   
   <xsl:function name="idml2xml:RemoveTypeFromStyleName">
@@ -70,35 +74,6 @@
                           '' )"/>
   </xsl:function>
 
-  <xsl:function name="idml2xml:attrname">
-    <xsl:param name="name" as="xs:string"/>
-    <xsl:sequence select="replace(
-                            replace($name, '^[^/]+/', ''),
-                            '%3a',
-                            ':'
-                          )"/>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:StyleProperty">
-    <xsl:param name="property" as="attribute()"/>
-    <xsl:choose>
-      <xsl:when test="name( $property ) = 'PointSize'">
-        <xsl:variable name="pt2em" select="xs:string( $property div 12 )" />
-        <xsl:value-of select="(if( matches( $pt2em, '\.' ) ) 
-                                then 
-                                  ('  ', 'font-size: ', idml2xml:substr( 'b', $pt2em, '.' ), '.', substring( idml2xml:substr( 'a', $pt2em, '.' ), 1, 3 ) )
-                                else 
-                                  ( 'font-size: ', $pt2em )
-                              ), 'em;'" separator=""/>
-      </xsl:when>
-      <xsl:when test="name( $property ) = 'Justification'">
-        <xsl:value-of select="'text-align: ', $property, ';'" separator=""/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="' ', name( $property ), ': ', $property, ';'" separator=""/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
 
   <xsl:function name="idml2xml:countIndexterms">
     <!-- type '1' = primary; type '2' = secondary; type '3' = tertiary; type '4' = quaternary -->
@@ -180,165 +155,6 @@
                  )]" />
   </xsl:function>
 
-  <!-- 
-function idml2xml:hubformat-add-property:
-remap and output indesign attribute settings to hubformat
-
-see: idml/_IDML_Schema_RelaxNGCompact or
-http://cssdk.host.adobe.com/sdk/1.5/docs/WebHelp/references/csawlib/com/adobe/csawlib/CSEnumBase.html
-  -->
-  <xsl:function name="idml2xml:hubformat-add-property">
-    <xsl:param name="style-node" as="attribute()"/>
-    <xsl:choose>
-      <xsl:when test="not (
-                        local-name ($style-node) = 
-                        ( 'Capitalization',
-                          'CharacterDirection',
-                          'FillColor',
-                          'FirstLineIndent',
-                          'FontStyle',
-                          'Justification',
-                          'LeftIndent',
-                          'Name',
-                          'PointSize',
-                          'RightIndent',
-                          'ShadowColor',
-                          'StrikeThru',
-                          'Underline')
-                      ) " />
-      <xsl:when test="local-name($style-node) eq 'StrikeThru' and $style-node eq 'false'" />
-      <xsl:when test="local-name($style-node) eq 'CharacterDirection' and $style-node eq 'DefaultDirection'" />
-      <xsl:when test="local-name($style-node) eq 'FontStyle' and $style-node eq 'Regular'" />
-      <xsl:when test="local-name($style-node) eq 'FontStyle' and $style-node eq 'Bold Italic'">
-        <xsl:attribute name="font-style" select="'italic'"/>
-        <xsl:attribute name="font-weight" select="'bold'"/>
-      </xsl:when>
-      <xsl:when test="local-name($style-node) eq 'Justification' and $style-node eq 'LeftAlign'" />
-      <xsl:otherwise>
-        <xsl:attribute 
-            name="{idml2xml:styleproperty-name-to-hubformat( $style-node )}" 
-            select="idml2xml:styleproperty-value-to-hubformat( $style-node )" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:styleproperty-name-to-hubformat">
-    <xsl:param name="property" as="attribute()"/>
-    <xsl:variable name="property-name" select="name($property)" as="xs:string"/>
-    <xsl:choose>
-      <xsl:when test="$property-name = 'Capitalization' and $property eq 'SmallCaps'">
-      	<xsl:sequence select="'font-variant'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'Capitalization'">
-      	<xsl:sequence select="'text-transform'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'CharacterDirection'">
-      	<xsl:sequence select="'text-direction'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'FillColor'">
-      	<xsl:sequence select="'color'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'FirstLineIndent'">
-      	<xsl:sequence select="'text-indent'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'FontStyle' and $property eq 'Italic'">
-      	<xsl:sequence select="'font-style'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'FontStyle'">
-      	<xsl:sequence select="'font-weight'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'Justification'">
-      	<xsl:sequence select="'text-align'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'LeftIndent'">
-      	<xsl:sequence select="'margin-left'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'Name'">
-      	<xsl:sequence select="'role'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'PointSize'">
-      	<xsl:sequence select="'font-size'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'RightIndent'">
-      	<xsl:sequence select="'margin-right'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'ShadowColor'">
-      	<xsl:sequence select="'text-shadow'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'StrikeThru'">
-      	<xsl:sequence select="'text-decoration'"/>
-      </xsl:when>
-      <xsl:when test="$property-name = 'Underline'">
-      	<xsl:sequence select="'text-decoration'"/>
-      </xsl:when>
-      <xsl:otherwise>
-      	<xsl:sequence select="$property-name"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-  
-  <!--
-      function idml2xml:styleproperty-value-to-hubformat
-      see: idml/_IDML_Schema_RelaxNGCompact/datatype.rnc
-  -->
-  <xsl:function name="idml2xml:styleproperty-value-to-hubformat">
-    <xsl:param name="property" as="attribute()"/>
-    <xsl:variable name="propname" select="name ($property)" as="xs:string"/>
-    <xsl:choose>
-      <xsl:when test="$propname = 'Capitalization'">
-        <!-- string "Normal" | string "SmallCaps" | string "AllCaps" | string "CapToSmallCap" -->
-        <xsl:choose>
-          <xsl:when test="$property eq 'SmallCaps'">smallcaps</xsl:when>
-          <xsl:when test="$property eq 'AllCaps'">uppercase</xsl:when>
-          <xsl:when test="$property eq 'CapToSmallCap'">uppercase</xsl:when>
-          <xsl:otherwise>none</xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="$propname = 'CharacterDirection'">
-        <!-- string "DefaultDirection" | string "LeftToRightDirection" | string "RightToLeftDirection" -->
-        <xsl:value-of select="if( $property eq 'LeftToRightDirection') then 'ltr' else 'rtl'"/>
-      </xsl:when>
-      <xsl:when test="matches( $property, '^Color/' )">
-        <xsl:variable name="ref-value" select="root($property)/*/idPkg:Graphic/Color[ @Self eq $property ]"/>
-        <xsl:value-of select="concat( $ref-value/@Space, '(', replace( $ref-value/@ColorValue, ' ', ',' ), ')' )"/>
-      </xsl:when>
-      <xsl:when test="$propname = 'FontStyle'">
-      	<xsl:sequence select="replace( lower-case ($property), 'semi', '')"/>
-      </xsl:when>
-      <xsl:when test="$propname = 'Justification'">
-        <!-- string "LeftAlign" | string "CenterAlign" | string "RightAlign" | string "LeftJustified" | string "RightJustified" | string "CenterJustified" | string "FullyJustified" | string "ToBindingSide" | string "AwayFromBindingSide" -->
-      	<xsl:sequence 
-            select="idml2xml:replaces( $property, 
-                                       ('LeftAlign', 'left', 
-                                        'CenterAlign', 'center',
-                                        'RightAlign', 'right',
-                                        'LeftJustified', 'left',
-                                        'RightJustified', 'right',
-                                        'CenterJustified', 'center',
-                                        'FullyJustified', 'left',
-                                        'ToBindingSide', 'left',
-                                        'AwayFromBindingSide', 'left'
-                                     ) )"/>
-      </xsl:when>
-      <xsl:when test="$propname = 'Name'">
-      	<xsl:sequence select="idml2xml:StyleName( idml2xml:remove-type-from-property-value( $property ) )"/>
-      </xsl:when>
-      <xsl:when test="$propname eq 'ShadowColor'">
-        <xsl:message select="'WARNING: attribute value for ShadowColor not implemented yet!'"/>
-      </xsl:when>
-      <xsl:when test="$propname = 'StrikeThru'">
-      	<xsl:sequence select="'line-through'"/>
-      </xsl:when>
-      <xsl:otherwise>
-      	<xsl:sequence select="idml2xml:remove-type-from-property-value( $property )"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:remove-type-from-property-value">
-    <xsl:param name="propval" as="xs:string+"/>
-    <xsl:value-of select="idml2xml:replaces( $propval, ('Color/', '') )"/>
-  </xsl:function>
 
   <!--  function replaces 
         - just replaces text -
