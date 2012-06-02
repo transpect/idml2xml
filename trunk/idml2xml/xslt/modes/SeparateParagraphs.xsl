@@ -32,7 +32,7 @@
         <xsl:otherwise>
           <ParagraphStyleRange>
             <xsl:copy-of select="$context/@*" />
-            <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
+            <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
             <xsl:apply-templates select="current-group()" mode="#current" />
           </ParagraphStyleRange>
         </xsl:otherwise>
@@ -61,7 +61,7 @@
         <xsl:otherwise>
           <ParagraphStyleRange>
             <xsl:copy-of select="$context/@*" />
-            <xsl:attribute name="idml2xml:srcpath" select="current-group()/@idml2xml:srcpath" />
+            <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
             <xsl:apply-templates select="current-group()" mode="#current" />
           </ParagraphStyleRange>
         </xsl:otherwise>
