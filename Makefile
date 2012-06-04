@@ -1,6 +1,6 @@
 ifeq ($(shell uname -o),Cygwin)
 win_path = $(shell cygpath -ma $(1))
-uri = file:///$(call win_path,$(1))
+uri = $(shell echo file:///$(call win_path,$(1))  | perl -pe 's/ /%20/g')
 else
 uri = $(1)
 endif
@@ -14,17 +14,17 @@ DEBUGDIR = debug
 default: usage
 
 %.idml.HUB %.idml.INDEXTERMS %.idml.TAGGED:	%.idml Makefile xslt/*.xsl xslt/modes/*.xsl
-	mkdir -p $<.tmp
-	unzip -u -o -d $<.tmp $<
+	mkdir -p "$<.tmp"
+	unzip -u -o -d "$<.tmp" "$<"
 	$(SAXON) \
       $(SAXONOPTS) \
       -xsl:xslt/idml2xml.xsl \
       -it:$(call lc,$(subst .,,$(suffix $@))) \
-      src-dir-uri=$(call uri,$<).tmp \
+      src-dir-uri=$(call uri,"$<").tmp \
       split=$(SPLIT) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
-      > $@
+      > "$@"
 
 usage:
 	@echo ""

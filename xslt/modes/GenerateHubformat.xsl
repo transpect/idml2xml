@@ -9,8 +9,8 @@
     xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml = "http://www.le-tex.de/namespace/idml2xml"
+    xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
-    exclude-result-prefixes = "#all"
     xmlns="http://docbook.org/ns/docbook"
     >
 
@@ -19,16 +19,23 @@
        xmlns="http://www.le-tex.de/namespace/hubformat"
   -->
 
+  <xsl:import href="../propmap.xsl"/>
+
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
-      select="('anchor', 'book', 'para', 'informaltable', 'table', 'tgroup', 
-               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 
+      select="('anchor', 'book', 'para', 'info', 'informaltable', 'table', 'tgroup', 
+               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
-               'link', 'xref')"/>
+               'superscript', 'subscript', 'link', 'xref', 'footnote',
+               'keywordset', 'keyword',
+               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style'
+              )"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <!-- see ../propmap.xsl -->
 
   <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties">
     <book xmlns="http://docbook.org/ns/docbook" version="5.1-variant le-tex_Hub-1.0" css:version="3.0-variant le-tex_Hub-1.0">
@@ -44,39 +51,45 @@
           <inlinestyles>
             <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', $s))" mode="#current" />
           </inlinestyles>
+          <tablestyles>
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', $s))" mode="#current" />
+          </tablestyles>
+          <cellstyles>
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', $s))" mode="#current" />
+          </cellstyles>
         </styles>
       </info>
       <xsl:apply-templates mode="#current"/>
     </book>
   </xsl:template>
 
-  <xsl:template match="ParagraphStyle | CharacterStyle" mode="idml2xml:XML-Hubformat-add-properties">
+  <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
-    <xsl:variable name="atts" as="attribute(*)*">
+    <xsl:variable name="atts" as="node()*">
       <xsl:apply-templates select="if (Properties/BasedOn) 
                                    then key('idml2xml:style', Properties/BasedOn) 
                                    else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>
-      <xsl:variable name="mergeable-atts" as="attribute(*)*">
+      <xsl:variable name="mergeable-atts" as="element(*)*">
         <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn)]" mode="#current" />
       </xsl:variable>
-      <xsl:for-each-group select="$mergeable-atts" group-by="name()">
-        <xsl:attribute name="{current-grouping-key()}" select="current-group()" />
+      <xsl:for-each-group select="$mergeable-atts[self::idml2xml:attribute]" group-by="@name">
+        <idml2xml:attribute name="{current-grouping-key()}"><xsl:value-of select="current-group()" /></idml2xml:attribute>
       </xsl:for-each-group>
+      <xsl:sequence select="$mergeable-atts[not(self::idml2xml:attribute)]"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$wrap-in-style-element">
         <style role="{idml2xml:StyleName(@Name)}">
-          <xsl:sequence select="$atts" />
+          <xsl:sequence select="$atts"/>
         </style>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:sequence select="$atts" />
+        <xsl:sequence select="$atts"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
 
   <xsl:template match="Properties" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:apply-templates mode="#current"/>
@@ -89,23 +102,44 @@ see: idml/_IDML_Schema_RelaxNGCompact
 http://cssdk.host.adobe.com/sdk/1.5/docs/WebHelp/references/csawlib/com/adobe/csawlib/CSEnumBase.html or
 http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs55-docs/IDML/idml-specification.pdf
   -->
-  <xsl:template match="@* | Properties/*" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:variable name="prop" select="key('idml2xml:prop', name(), $idml2xml:propmap)" />
-    <xsl:apply-templates select="$prop" mode="#current">
-      <xsl:with-param name="val" select="." tunnel="yes" />
-    </xsl:apply-templates>
-    <xsl:if test="empty($prop)">
-      <xsl:attribute name="css:_idml-{local-name()}" select="." />
-    </xsl:if>
+  <xsl:template match="@* | Properties/* | ListItem/*" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:variable name="prop" select="key('idml2xml:prop', idml2xml:propkey(.), $idml2xml:propmap)" />
+    <xsl:variable name="raw-output" as="element(*)*">
+      <xsl:apply-templates select="$prop" mode="#current">
+        <xsl:with-param name="val" select="." tunnel="yes" />
+      </xsl:apply-templates>
+      <xsl:if test="empty($prop)">
+        <idml2xml:attribute name="idml2xml:{local-name()}"><xsl:value-of select="." /></idml2xml:attribute>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:sequence select="$raw-output" />
+<!--     <xsl:apply-templates select="$raw-output" mode="idml2xml:XML-Hubformat-add-properties2"/> -->
   </xsl:template>
 
+  <xsl:function name="idml2xml:propkey" as="xs:string">
+    <xsl:param name="prop" as="node()" />
+    <xsl:choose>
+      <xsl:when test="$prop/../self::Properties">
+        <xsl:sequence select="name($prop)" />
+      </xsl:when>
+      <xsl:when test="$prop instance of attribute()">
+        <xsl:sequence select="name($prop)" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="concat(name($prop/..), '/', name($prop))" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
   <xsl:template match="prop" mode="idml2xml:XML-Hubformat-add-properties" as="node()*">
-    <xsl:variable name="atts" as="attribute(*)*">
+    <xsl:param name="val" as="node()" tunnel="yes" />
+    <xsl:variable name="atts" as="element(*)*">
+      <!-- in the following line, val is a potential child of prop (do not cofuse with $val)! -->
       <xsl:apply-templates select="@type, val" mode="#current" />
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="empty($atts) and @default">
-        <xsl:attribute name="css:{@target-name}" select="@default" />
+        <idml2xml:attribute name="{@target-name}"><xsl:value-of select="@default" /></idml2xml:attribute>
       </xsl:when>
       <xsl:when test="empty($atts)" />
       <xsl:otherwise>
@@ -114,7 +148,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="val" mode="idml2xml:XML-Hubformat-add-properties" as="attribute(*)?">
+  <xsl:template match="val" mode="idml2xml:XML-Hubformat-add-properties" as="element(*)?">
     <xsl:apply-templates select="@eq, @match" mode="#current" />
   </xsl:template>
 
@@ -123,25 +157,75 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="prop/@type" mode="idml2xml:XML-Hubformat-add-properties" as="node()?">
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:choose>
-      <xsl:when test=". eq 'passthru'">
-        <xsl:attribute name="{../@name}" select="$val" />
-      </xsl:when>
-      <xsl:when test=". eq 'linear'">
-        <xsl:attribute name="css:{../@target-name}" select="$val" />
-      </xsl:when>
+
       <xsl:when test=". eq 'color'">
-        <xsl:attribute name="css:{../@target-name}">
-          <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" />
-        </xsl:attribute>
+        <xsl:choose>
+          <xsl:when test="matches($val, '^Color')">
+            <xsl:variable name="context-name" select="$val/../name()" as="xs:string" />
+            <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
+            <idml2xml:attribute name="{$target-name}">
+              <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" />
+            </idml2xml:attribute>
+          </xsl:when>
+          <!-- no color in any case for FillColor="Swatch/..."? -->
+          <xsl:when test="matches($val, '^Swatch/None')">
+            <idml2xml:remove-attribute name="{../@target-name}" />
+          </xsl:when>
+          <xsl:otherwise>
+            <idml2xml:attribute name="{../@target-name}">?</idml2xml:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
+
+      <xsl:when test=". eq 'percentage'">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="xs:double($val) * 0.01" /></idml2xml:attribute>
+      </xsl:when>
+
+      <xsl:when test=". eq 'lang'">
+        <idml2xml:attribute name="{../@target-name}">
+          <!-- provisional -->
+          <xsl:value-of select="if (matches($val, 'German') or matches($val, '\Wde\W'))
+                                then 'de'
+                                else 
+                                  if (matches($val, 'English'))
+                                  then 'en'
+                                  else $val" />
+        </idml2xml:attribute>
+      </xsl:when>
+
       <xsl:when test=". eq 'length'">
-        <xsl:attribute name="css:{../@target-name}" select="idml2xml:pt-length($val)" />
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length($val)" /></idml2xml:attribute>
       </xsl:when>
+
+      <xsl:when test=". eq 'linear'">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
+      </xsl:when>
+
+      <xsl:when test=". eq 'passthru'">
+        <idml2xml:attribute name="{../@name}"><xsl:value-of select="$val" /></idml2xml:attribute>
+      </xsl:when>
+
+      <xsl:when test=". eq 'position'">
+        <xsl:choose>
+          <xsl:when test="$val eq 'Normal'" />
+          <xsl:otherwise>
+            <idml2xml:wrap element="{lower-case($val)}" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test=". eq 'style-link'">
+        <idml2xml:style-link type="{../@name}" target="{idml2xml:StyleName($val)}"/>
+      </xsl:when>
+
       <xsl:when test=". eq 'tablist'">
-        <xsl:copy-of select="$val"/>
+        <tabs>
+          <xsl:apply-templates select="$val/*" mode="#current"/>
+        </tabs>
       </xsl:when>
+
       <xsl:otherwise>
-        <xsl:attribute name="css:{../@target-name}" select="$val" />
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -151,34 +235,35 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:sequence select="concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')" />
   </xsl:function>
 
-  <xsl:template match="val/@match" mode="idml2xml:XML-Hubformat-add-properties" as="attribute(*)?">
+  <xsl:template match="val/@match" mode="idml2xml:XML-Hubformat-add-properties" as="element(*)?">
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:if test="matches($val, .)">
       <xsl:call-template name="idml2xml:XML-Hubformat-atts" />
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="val/@eq" mode="idml2xml:XML-Hubformat-add-properties" as="attribute(*)?">
+  <xsl:template match="val/@eq" mode="idml2xml:XML-Hubformat-add-properties" as="element(*)?">
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:if test="$val eq .">
       <xsl:call-template name="idml2xml:XML-Hubformat-atts" />
     </xsl:if>
   </xsl:template>
 
-  <xsl:template name="idml2xml:XML-Hubformat-atts" as="attribute(*)?">
+  <xsl:template name="idml2xml:XML-Hubformat-atts" as="element(*)?">
     <xsl:variable name="target-val" select="(../@target-value, ../../@target-value)[last()]" as="xs:string?" />
     <xsl:if test="exists($target-val)">
-      <xsl:attribute name="css:{(../@target-name, ../../@target-name)[last()]}" select="$target-val" />
+      <idml2xml:attribute name="{(../@target-name, ../../@target-name)[last()]}"><xsl:value-of select="$target-val" /></idml2xml:attribute>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="Color" mode="idml2xml:XML-Hubformat-add-properties" as="xs:string">
+    <xsl:param name="multiplier" as="xs:double" select="1.0" />
     <xsl:choose>
       <xsl:when test="@Space eq 'CMYK'">
         <xsl:sequence select="concat(
                                 'device-cmyk(', 
                                 string-join(
-                                  for $v in tokenize(@ColorValue, '\s') return xs:string(xs:double($v) * 0.01)
+                                  for $v in tokenize(@ColorValue, '\s') return xs:string(xs:integer(xs:double($v) * 10000 * $multiplier) * 0.000001)
                                   , ','
                                 ),
                                 ')'
@@ -192,332 +277,94 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="TabList/ListItem" mode="idml2xml:XML-Hubformat-add-properties" as="element(dbk:tab)">
+    <tab>
+      <xsl:apply-templates mode="#current" />
+    </tab>
+  </xsl:template>
 
-  <xsl:key name="idml2xml:prop" match="prop" use="@name" />
-
-  <xsl:variable name="idml2xml:propmap" as="document-node(element(propmap))">
-    <xsl:document xmlns="">
-      <propmap>
-        <prop name="Name" />
-        <prop name="NextStyle" />
-        <prop name="Self" />
-        <prop name="Imported" />
-        <prop name="idml2xml:reason" />
-
-        <prop name="aid:cstyle" type="passthru" />
-        <prop name="aid:pstyle" type="passthru" />
-        <prop name="srcpath" type="passthru" />
-
-        <prop name="AutoLeading" implement="maybe later" />
-        <prop name="BaselineShift" implement="maybe later" />
-        <prop name="Composer" implement="maybe later" />
-        <prop name="DropCapCharacters" implement="maybe later" />
-        <prop name="DropCapLines" implement="maybe later" />
-        <prop name="HorizontalScale" implement="maybe later"/>
-        <prop name="Hyphenation" implement="maybe later" />
-        <prop name="HyphenateAfterFirst" implement="maybe later" />
-        <prop name="HyphenateBeforeLast" implement="maybe later" />
-        <prop name="HyphenateCapitalizedWords" implement="maybe later" />
-        <prop name="HyphenateLadderLimit" implement="maybe later" />
-        <prop name="HyphenateWordsLongerThan" implement="maybe later" />
-        <prop name="HyphenationZone" implement="maybe later" />
-        <prop name="KerningMethod" implement="maybe later" />
-        <prop name="Ligatures" implement="maybe later" />
-        <prop name="NoBreak" implement="maybe later" />
-
-        <prop name="PageNumberType" implement="maybe later" />
-        <prop name="PreviewColor" implement="maybe later" />
-        <prop name="StrokeColor" implement="maybe later" />
-        <prop name="StrokeWeight" implement="maybe later" />
-        <prop name="Tracking" implement="maybe later" />
-        <prop name="VerticalScale" implement="maybe later" />
-        <prop name="OTFFigureStyle" implement="maybe later" />
-        <prop name="DesiredWordSpacing" implement="maybe later" />
-        <prop name="MaximumWordSpacing" implement="maybe later" />
-        <prop name="MinimumWordSpacing" implement="maybe later" />
-        <prop name="DesiredLetterSpacing" implement="maybe later" />
-        <prop name="MaximumLetterSpacing" implement="maybe later" />
-        <prop name="MinimumLetterSpacing" implement="maybe later" />
-        <prop name="DesiredGlyphScaling" implement="maybe later" />
-        <prop name="MaximumGlyphScaling" implement="maybe later" />
-        <prop name="MinimumGlyphScaling" implement="maybe later" />
-        <prop name="StartParagraph" implement="maybe later" />
-        <prop name="KeepAllLinesTogether" implement="maybe later" />
-        <prop name="KeepWithNext" implement="maybe later" />
-        <prop name="KeepFirstLines" implement="maybe later" />
-        <prop name="KeepLastLines" implement="maybe later" />
-        <prop name="Position" implement="maybe later" />
-        <prop name="CharacterAlignment" implement="maybe later" />
-        <prop name="KeepLinesTogether" implement="maybe later" />
-        <prop name="StrokeTint" implement="maybe later" />
-        <prop name="FillTint" implement="maybe later" />
-        <prop name="OverprintStroke" implement="maybe later" />
-        <prop name="OverprintFill" implement="maybe later" />
-        <prop name="GradientStrokeAngle" implement="maybe later" />
-        <prop name="GradientFillAngle" implement="maybe later" />
-        <prop name="GradientStrokeLength" implement="maybe later" />
-        <prop name="GradientFillLength" implement="maybe later" />
-        <prop name="GradientStrokeStart" implement="maybe later" />
-        <prop name="GradientFillStart" implement="maybe later" />
-        <prop name="Skew" implement="maybe later" />
-        <prop name="RuleAboveLineWeight" implement="maybe later" />
-        <prop name="RuleAboveTint" implement="maybe later" />
-        <prop name="RuleAboveOffset" implement="maybe later" />
-        <prop name="RuleAboveLeftIndent" implement="maybe later" />
-        <prop name="RuleAboveRightIndent" implement="maybe later" />
-        <prop name="RuleAboveWidth" implement="maybe later" />
-        <prop name="RuleBelowLineWeight" implement="maybe later" />
-        <prop name="RuleBelowTint" implement="maybe later" />
-        <prop name="RuleBelowOffset" implement="maybe later" />
-        <prop name="RuleBelowLeftIndent" implement="maybe later" />
-        <prop name="RuleBelowRightIndent" implement="maybe later" />
-        <prop name="RuleBelowWidth" implement="maybe later" />
-        <prop name="RuleAboveOverprint" implement="maybe later" />
-        <prop name="RuleBelowOverprint" implement="maybe later" />
-        <prop name="RuleAbove" implement="maybe later" />
-        <prop name="RuleBelow" implement="maybe later" />
-        <prop name="LastLineIndent" implement="maybe later" />
-        <prop name="HyphenateLastWord" implement="maybe later" />
-        <prop name="ParagraphBreakType" implement="maybe later" />
-        <prop name="SingleWordJustification" implement="maybe later" />
-        <prop name="OTFOrdinal" implement="maybe later" />
-        <prop name="OTFFraction" implement="maybe later" />
-        <prop name="OTFDiscretionaryLigature" implement="maybe later" />
-        <prop name="OTFTitling" implement="maybe later" />
-        <prop name="RuleAboveGapTint" implement="maybe later" />
-        <prop name="RuleAboveGapOverprint" implement="maybe later" />
-        <prop name="RuleBelowGapTint" implement="maybe later" />
-        <prop name="RuleBelowGapOverprint" implement="maybe later" />
-        <prop name="DropcapDetail" implement="maybe later" />
-        <prop name="PositionalForm" implement="maybe later" />
-        <prop name="OTFMark" implement="maybe later" />
-        <prop name="HyphenWeight" implement="maybe later" />
-        <prop name="OTFLocale" implement="maybe later" />
-        <prop name="HyphenateAcrossColumns" implement="maybe later" />
-        <prop name="KeepRuleAboveInFrame" implement="maybe later" />
-        <prop name="IgnoreEdgeAlignment" implement="maybe later" />
-        <prop name="OTFSlashedZero" implement="maybe later" />
-        <prop name="OTFStylisticSets" implement="maybe later" />
-        <prop name="OTFHistorical" implement="maybe later" />
-        <prop name="OTFContextualAlternate" implement="maybe later" />
-        <prop name="UnderlineGapOverprint" implement="maybe later" />
-        <prop name="UnderlineGapTint" implement="maybe later" />
-        <prop name="UnderlineOffset" implement="maybe later" />
-        <prop name="UnderlineOverprint" implement="maybe later" />
-        <prop name="UnderlineTint" implement="maybe later" />
-        <prop name="UnderlineWeight" implement="maybe later" />
-        <prop name="StrikeThroughGapOverprint" implement="maybe later" />
-        <prop name="StrikeThroughGapTint" implement="maybe later" />
-        <prop name="StrikeThroughOffset" implement="maybe later" />
-        <prop name="StrikeThroughOverprint" implement="maybe later" />
-        <prop name="StrikeThroughTint" implement="maybe later" />
-        <prop name="StrikeThroughWeight" implement="maybe later" />
-        <prop name="MiterLimit" implement="maybe later" />
-        <prop name="StrokeAlignment" implement="maybe later" />
-        <prop name="EndJoin" implement="maybe later" />
-        <prop name="OTFSwash" implement="maybe later" />
-        <prop name="Tsume" implement="maybe later" />
-        <prop name="LeadingAki" implement="maybe later" />
-        <prop name="TrailingAki" implement="maybe later" />
-        <prop name="KinsokuType" implement="maybe later" />
-        <prop name="KinsokuHangType" implement="maybe later" />
-        <prop name="BunriKinshi" implement="maybe later" />
-        <prop name="RubyOpenTypePro" implement="maybe later" />
-        <prop name="RubyFontSize" implement="maybe later" />
-        <prop name="RubyAlignment" implement="maybe later" />
-        <prop name="RubyType" implement="maybe later" />
-        <prop name="RubyParentSpacing" implement="maybe later" />
-        <prop name="RubyXScale" implement="maybe later" />
-        <prop name="RubyYScale" implement="maybe later" />
-        <prop name="RubyXOffset" implement="maybe later" />
-        <prop name="RubyYOffset" implement="maybe later" />
-        <prop name="RubyPosition" implement="maybe later" />
-        <prop name="RubyAutoAlign" implement="maybe later" />
-        <prop name="RubyParentOverhangAmount" implement="maybe later" />
-        <prop name="RubyOverhang" implement="maybe later" />
-        <prop name="RubyAutoScaling" implement="maybe later" />
-        <prop name="RubyParentScalingPercent" implement="maybe later" />
-        <prop name="RubyTint" implement="maybe later" />
-        <prop name="RubyOverprintFill" implement="maybe later" />
-        <prop name="RubyStrokeTint" implement="maybe later" />
-        <prop name="RubyOverprintStroke" implement="maybe later" />
-        <prop name="RubyWeight" implement="maybe later" />
-        <prop name="KentenKind" implement="maybe later" />
-        <prop name="KentenFontSize" implement="maybe later" />
-        <prop name="KentenXScale" implement="maybe later" />
-        <prop name="KentenYScale" implement="maybe later" />
-        <prop name="KentenPlacement" implement="maybe later" />
-        <prop name="KentenAlignment" implement="maybe later" />
-        <prop name="KentenPosition" implement="maybe later" />
-        <prop name="KentenCustomCharacter" implement="maybe later" />
-        <prop name="KentenCharacterSet" implement="maybe later" />
-        <prop name="KentenTint" implement="maybe later" />
-        <prop name="KentenOverprintFill" implement="maybe later" />
-        <prop name="KentenStrokeTint" implement="maybe later" />
-        <prop name="KentenOverprintStroke" implement="maybe later" />
-        <prop name="KentenWeight" implement="maybe later" />
-        <prop name="Tatechuyoko" implement="maybe later" />
-        <prop name="TatechuyokoXOffset" implement="maybe later" />
-        <prop name="TatechuyokoYOffset" implement="maybe later" />
-        <prop name="AutoTcy" implement="maybe later" />
-        <prop name="AutoTcyIncludeRoman" implement="maybe later" />
-        <prop name="Jidori" implement="maybe later" />
-        <prop name="GridGyoudori" implement="maybe later" />
-        <prop name="GridAlignFirstLineOnly" implement="maybe later" />
-        <prop name="GridAlignment" implement="maybe later" />
-        <prop name="CharacterRotation" implement="maybe later" />
-        <prop name="RotateSingleByteCharacters" implement="maybe later" />
-        <prop name="Rensuuji" implement="maybe later" />
-        <prop name="ShataiMagnification" implement="maybe later" />
-        <prop name="ShataiDegreeAngle" implement="maybe later" />
-        <prop name="ShataiAdjustTsume" implement="maybe later" />
-        <prop name="ShataiAdjustRotation" implement="maybe later" />
-        <prop name="Warichu" implement="maybe later" />
-        <prop name="WarichuLines" implement="maybe later" />
-        <prop name="WarichuSize" implement="maybe later" />
-        <prop name="WarichuLineSpacing" implement="maybe later" />
-        <prop name="WarichuAlignment" implement="maybe later" />
-        <prop name="WarichuCharsBeforeBreak" implement="maybe later" />
-        <prop name="WarichuCharsAfterBreak" implement="maybe later" />
-        <prop name="OTFHVKana" implement="maybe later" />
-        <prop name="OTFProportionalMetrics" implement="maybe later" />
-        <prop name="OTFRomanItalics" implement="maybe later" />
-        <prop name="LeadingModel" implement="maybe later" />
-        <prop name="ScaleAffectsLineHeight" implement="maybe later" />
-        <prop name="ParagraphGyoudori" implement="maybe later" />
-        <prop name="CjkGridTracking" implement="maybe later" />
-        <prop name="GlyphForm" implement="maybe later" />
-        <prop name="RubyAutoTcyDigits" implement="maybe later" />
-        <prop name="RubyAutoTcyIncludeRoman" implement="maybe later" />
-        <prop name="RubyAutoTcyAutoScale" implement="maybe later" />
-        <prop name="TreatIdeographicSpaceAsSpace" implement="maybe later" />
-        <prop name="AllowArbitraryHyphenation" implement="maybe later" />
-
-        <prop name="BulletsAndNumberingListType" implement="maybe later" />
-        <prop name="NumberingStartAt" implement="maybe later" />
-        <prop name="NumberingLevel" implement="maybe later" />
-        <prop name="NumberingContinue" implement="maybe later" />
-        <prop name="NumberingApplyRestartPolicy" implement="maybe later" />
-        <prop name="BulletsAlignment" implement="maybe later" />
-        <prop name="NumberingAlignment" implement="maybe later" />
-        <prop name="NumberingExpression" implement="maybe later" />
-        <prop name="BulletsTextAfter" implement="maybe later" />
-        <prop name="DigitsType" implement="maybe later" />
-        <prop name="Kashidas" implement="maybe later" />
-        <prop name="DiacriticPosition" implement="maybe later" />
-        <prop name="ParagraphDirection" implement="maybe later" />
-        <prop name="ParagraphJustification" implement="maybe later" />
-
-        <prop name="XOffsetDiacritic" implement="maybe later" />
-        <prop name="YOffsetDiacritic" implement="maybe later" />
-        <prop name="OTFOverlapSwash" implement="maybe later" />
-        <prop name="OTFStylisticAlternate" implement="maybe later" />
-        <prop name="OTFJustificationAlternate" implement="maybe later" />
-        <prop name="OTFStretchedAlternate" implement="maybe later" />
-        <prop name="KeyboardDirection" implement="maybe later" />
-        <prop name="KeyboardShortcut" implement="maybe later" />
-        <prop name="Leading" implement="maybe later" />
-        <prop name="RuleAboveColor" implement="maybe later" />
-        <prop name="RuleBelowColor" implement="maybe later" />
-        <prop name="RuleAboveType" implement="maybe later" />
-        <prop name="RuleBelowType" implement="maybe later" />
-        <prop name="BalanceRaggedLines" implement="maybe later" />
-        <prop name="RuleAboveGapColor" implement="maybe later" />
-        <prop name="RuleBelowGapColor" implement="maybe later" />
-        <prop name="UnderlineColor" implement="maybe later" />
-        <prop name="UnderlineGapColor" implement="maybe later" />
-
-        <prop name="StrikeThroughColor" implement="maybe later" />
-        <prop name="StrikeThroughGapColor" implement="maybe later" />
-        <prop name="StrikeThroughType" implement="maybe later" />
-        <prop name="Mojikumi" implement="maybe later" />
-        <prop name="KinsokuSet" implement="maybe later" />
-        <prop name="RubyFont" implement="maybe later" />
-        <prop name="RubyFontStyle" implement="maybe later" />
-        <prop name="RubyFill" implement="maybe later" />
-        <prop name="RubyStroke" implement="maybe later" />
-        <prop name="KentenFont" implement="maybe later" />
-        <prop name="KentenFontStyle" implement="maybe later" />
-        <prop name="KentenFillColor" implement="maybe later" />
-        <prop name="KentenStrokeColor" implement="maybe later" />
-        <prop name="BulletChar" implement="maybe later" />
-        <prop name="NumberingFormat" implement="maybe later" />
-        <prop name="BulletsFont" implement="maybe later" />
-        <prop name="BulletsFontStyle" implement="maybe later" />
-        <prop name="AppliedNumberingList" implement="maybe later" />
-        <prop name="NumberingRestartPolicies" implement="maybe later" />
-        <prop name="BulletsCharacterStyle" implement="maybe later" />
-        <prop name="NumberingCharacterStyle" implement="maybe later" />
-
-
-        <prop name="AppliedFont" type="linear" target-name="font-family"/>
-        <prop name="AppliedLanguage" implement="maybe later" />
-        <prop name="Capitalization" target-name="text-transform">
-          <val eq="SmallCaps" target-name="font-variant" target-value="smallcaps"/>
-          <val eq="AllCaps" target-name="text-transform" target-value="uppercase"/>
-          <val eq="CapToSmallCap" target-name="text-transform" target-value="uppercase"/><!-- ? -->
-        </prop>
-        <prop name="CharacterDirection" target-name="text-direction">
-          <!-- string "DefaultDirection" | string "LeftToRightDirection" | 
-               string "RightToLeftDirection" -->
-          <val eq="LeftToRightDirection" target-value="ltr"/>
-          <val eq="RightToLeftDirection" target-value="rtl"/>
-        </prop>
-        <prop name="FillColor" type="color" target-name="color" />
-        <prop name="FirstLineIndent" type="length" target-name="text-indent" />
-        <prop name="FontStyle">
-          <val match="Condensed" target-name="font-stretch" target-value="condensed" />
-          <val match="Italic" target-name="font-style" target-value="italic" />
-          <val match="Medium" target-name="font-weight" target-value="normal" />
-          <val match="Regular" target-name="font-weight" target-value="400" />
-          <val match="Roman" target-name="font-weight" target-value="400" />
-        </prop>
-        <prop name="Justification">
-          <!-- string "LeftAlign" | string "CenterAlign" | string "RightAlign" | 
-               string "LeftJustified" | string "RightJustified" | 
-               string "CenterJustified" | string "FullyJustified" | 
-               string "ToBindingSide" | string "AwayFromBindingSide" -->
-          <val match="LeftAlign" target-name="text-align" target-value="left" />
-          <val match="ToBindingSide" target-name="text-align" target-value="left" />
-          <val match="AwayFromBindingSide" target-name="text-align" target-value="right" />
-          <val match="RightAlign" target-name="text-align" target-value="right" />
-          <val match="CenterAlign" target-name="text-align" target-value="center" />
-          <val match="Justified" target-name="text-align" target-value="justify" />
-          <val match="LeftJustified" target-name="text-align-last" target-value="left" />
-          <val match="RightJustified" target-name="text-align-last" target-value="right" />
-          <val match="CenterJustified" target-name="text-align-last" target-value="center" />
-          <val match="FullyJustified" target-name="text-align-last" target-value="justify" />
-        </prop>
-        <prop name="LeftIndent" type="length" target-name="margin-left" />
-        <prop name="ParagraphDirection" target-name="text-direction">
-          <!-- string | string "LeftToRightDirection" | string "RightToLeftDirection" -->
-          <val eq="RightToLeftDirection" target-value="rtl"/>
-        </prop>
-        <prop name="PointSize" type="length" target-name="font-size" />
-        <prop name="RightIndent" type="length" target-name="margin-right" />
-        <prop name="ShadowColor" type="color" target-name="_hub-shadow-color" />
-        <prop name="SpaceAfter" type="length" target-name="margin-bottom" />
-        <prop name="SpaceBefore" type="length" target-name="margin-top" />
-        <prop name="StrikeThru" target-name="text-decoration">
-          <val eq="true" target-value="line-through"/>
-          <val eq="false"/>
-        </prop>
-        <prop name="TabList" type="list" target-name="text-decoration"/>
-        <prop name="Underline" target-name="text-decoration">
-          <val eq="true" target-value="underline"/>
-          <val eq="false"/>
-        </prop>
-        <prop name="UnderlineType" implement="use text-decoration-style must look at Stroke/..." />
-      </propmap>
-    </xsl:document>
-  </xsl:variable>
-
-
-  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper" mode="idml2xml:XML-Hubformat-add-properties" />
+  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper | idml2xml:lang" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:key name="idml2xml:style" 
     match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
     use="@Self" />
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- mode: XML-Hubformat-properties2atts -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="content" as="node()*">
+      <xsl:apply-templates select="idml2xml:style-link" mode="#current" />
+      <xsl:apply-templates select="idml2xml:attribute[not(@name = following-sibling::idml2xml:remove-attribute/@name)]" mode="#current" />
+      <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="exists(idml2xml:wrap) and not(self::style)">
+        <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap))" />
+      </xsl:when>
+      <xsl:when test="exists(idml2xml:wrap) and exists(self::style)">
+        <xsl:attribute name="wrap" select="@element" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy>
+          <xsl:sequence select="@*, $content" />
+        </xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:function name="idml2xml:wrap" as="node()*">
+    <xsl:param name="content" as="node()*" />
+    <xsl:param name="wrappers" as="element(idml2xml:wrap)*" />
+    <xsl:choose>
+      <xsl:when test="exists($wrappers)">
+        <xsl:element name="{$wrappers[1]/@element}">
+          <xsl:sequence select="idml2xml:wrap($content, $wrappers[position() gt 1])" />
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="$content" mode="idml2xml:XML-Hubformat-properties2atts"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
+  <xsl:template match="idml2xml:attribute" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="{@name}" select="." />
+  </xsl:template>
+
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = 'fill-tint'][last()]" as="element(idml2xml:attribute)?" />
+    <xsl:attribute name="{@name}" select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
+  </xsl:template>
+
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+
+  <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
+  <xsl:function name="idml2xml:tint-color" as="xs:string">
+    <xsl:param name="color" as="xs:string" />
+    <xsl:param name="tint" as="xs:double" />
+    <xsl:variable name="tmp" as="xs:string+">
+      <xsl:analyze-string select="$color" regex="[0-9.]+">
+        <xsl:matching-substring>
+          <xsl:sequence select="xs:string(xs:integer(xs:double(.) * $tint * 100000) * 0.00001)" />
+        </xsl:matching-substring>
+        <xsl:non-matching-substring>
+          <xsl:sequence select="." />
+        </xsl:non-matching-substring>
+      </xsl:analyze-string>
+    </xsl:variable>
+    <xsl:sequence select="string-join($tmp, '')" />
+  </xsl:function>
+
+  <xsl:template match="idml2xml:remove-attribute" mode="idml2xml:XML-Hubformat-properties2atts" />
+
+  <xsl:template match="idml2xml:style-link" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="{if (@type eq 'AppliedParagraphStyle')
+                          then 'parastyle'
+                          else @type}" 
+      select="@target" />
+  </xsl:template>
 
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -600,15 +447,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                          )
                        ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="role" select="idml2xml:StyleName( @aid:cstyle )"/>
+    <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
     <xsl:choose>
-      <xsl:when test="$role = ('Nocharacterstyle', 'idml2xml:default') and not(text()[matches(., '\S')]) and count(*) gt 0 and count(*) eq count(PageReference union HyperlinkTextSource)">
+      <xsl:when test="$role eq 'No_character_style' and not(text()[matches(., '\S')]) and count(*) gt 0 and count(*) eq count(PageReference union HyperlinkTextSource)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role = ('Nocharacterstyle', 'idml2xml:default') and not(text()[matches(., '\S')]) and count(* except idml2xml:genAnchor) eq 0">
+      <xsl:when test="$role eq 'No_character_style' and not(text()[matches(., '\S')]) and count(* except idml2xml:genAnchor) eq 0">
         <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role = ('Nocharacterstyle', 'idml2xml:default') and text() and count(* except idml2xml:genAnchor) eq 0">
+      <xsl:when test="$role eq 'No_character_style' and text() 
+                      and count(* except idml2xml:genAnchor) eq 0
+                      and count(@* except (@aid:cstyle union @srcpath)) eq 0
+                      ">
         <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         <xsl:apply-templates select="node() except idml2xml:genAnchor" mode="#current"/>
       </xsl:when>
@@ -616,21 +466,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:if test="idml2xml:genAnchor">
           <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         </xsl:if>
-        <phrase role="{$role}">
-          <xsl:variable name="emph-atts" as="attribute(*)*">
-            <xsl:apply-templates select="@* except @aid:cstyle" mode="#current"/>
-          </xsl:variable>
-          <xsl:choose>
-            <xsl:when test="exists($emph-atts)">
-              <emphasis>
-                <xsl:sequence select="$emph-atts" />
-                <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
-              </emphasis>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
-            </xsl:otherwise>
-          </xsl:choose>
+        <phrase>
+          <xsl:if test="$role ne ''">
+            <xsl:attribute name="role" select="$role"/>
+          </xsl:if>
+          <xsl:apply-templates select="@* except @aid:cstyle" mode="#current"/>
+          <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
         </phrase>
       </xsl:otherwise>
     </xsl:choose>
@@ -712,6 +553,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="idml2xml:newline"
     mode="idml2xml:XML-Hubformat-remap-para-and-span" />
+
+  <xsl:template match="idml2xml:tab" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <tab>
+      <xsl:apply-templates select="@*" mode="#current" />
+    </tab>
+  </xsl:template>
   
   <xsl:template match="	Root |
 		       idml2xml:Content | 
@@ -762,144 +609,142 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- BEGIN: tables -->
 
-  <xsl:template match="idml2xml:*[*[@aid:table='table']]"
-		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="cell-src-name" select="'genCell'" />
-    <xsl:variable name="colspan-src-name" select="'ccols'" />
-    <xsl:variable name="rowspan-src-name" select="'crows'" />
-    <xsl:variable name="var-cols" select="xs:integer(idml2xml:genSpan[@aid:table='table']/@aid:tcols)" />
-    <xsl:variable name="var-table">
-      <xsl:for-each select="idml2xml:make-rows( $var-cols, 
-			    descendant::*[local-name()=$cell-src-name][1], 
-			    number(descendant::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), 
-			    0, 
-			    'true',
-			    $cell-src-name,
-			    $colspan-src-name,
-			    $rowspan-src-name
-			    )/descendant-or-self::*:row">
-	<xsl:copy>
-	  <xsl:sequence select="*[local-name()=$cell-src-name]" />
-	</xsl:copy>
+  <!-- doesn't work correctly for nested tables yet (need to restrict selected cells to idml2xml:same-scope cells -->
+
+  <xsl:template match="idml2xml:*
+                         [*[@aid:table='table']]
+                         [every $c in * satisfies ($c[@aid:table='table'])]"
+    mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:variable name="var-cols" select="xs:integer(*[@aid:table='table']/@aid:tcols)" as="xs:integer"/>
+    <xsl:variable name="var-table" as="element(dbk:row)*">
+      <xsl:for-each select="idml2xml:make-rows( 
+                              $var-cols, 
+                              descendant::*[@aid:table eq 'cell'][1], 
+                              number(descendant::*[@aid:table eq 'cell'][1]/@aid:ccols), 
+                              0, 
+                              'true'
+                            )/descendant-or-self::dbk:row">
+        <xsl:copy>
+          <xsl:sequence select="*[@aid:table eq 'cell']" />
+        </xsl:copy>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:element name="informaltable">
-      <xsl:element name="tgroup">
-	<xsl:attribute name="cols" select="$var-cols" />
-	<xsl:for-each select="1 to $var-cols">
-	  <xsl:element name="colspec">
-	    <xsl:attribute name="colname" select="concat( 'c', current() )"/>
-	  </xsl:element>
-	</xsl:for-each>
-	<xsl:element name="tbody">
-	    <xsl:apply-templates select="$var-table" mode="#current" />
-	</xsl:element>
-      </xsl:element>
-    </xsl:element>
+    <informaltable>
+      <tgroup>
+        <xsl:attribute name="cols" select="$var-cols" />
+        <xsl:for-each select="1 to $var-cols">
+          <xsl:element name="colspec">
+            <xsl:attribute name="colname" select="concat( 'c', current() )"/>
+          </xsl:element>
+        </xsl:for-each>
+        <xsl:element name="tbody">
+          <xsl:apply-templates select="$var-table" mode="#current" />
+        </xsl:element>
+      </tgroup>
+    </informaltable>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genCell[@aid:table='cell']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="*[@aid:table='cell']" mode="idml2xml:XML-Hubformat-remap-para-and-span" as="element(dbk:entry)">
     <xsl:variable name="cumulated-cols" select="xs:integer(@cumulated-cols)" />
     <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" />
     <xsl:variable name="rowspan" select="xs:integer(@aid:crows)" />
     <entry>
       <xsl:if test="$colspan=1">
-	<xsl:attribute name="colname" select="concat('c', $cumulated-cols - $colspan + 1)" />
+        <xsl:attribute name="colname" select="concat('c', $cumulated-cols - $colspan + 1)" />
       </xsl:if>
       <xsl:if test="$colspan gt 1">
-	<xsl:attribute name="namest" select="concat('c', $cumulated-cols - $colspan + 1)" />
-	<xsl:attribute name="nameend" select="concat('c', $cumulated-cols)" />
+        <xsl:attribute name="namest" select="concat('c', $cumulated-cols - $colspan + 1)" />
+        <xsl:attribute name="nameend" select="concat('c', $cumulated-cols)" />
       </xsl:if>
       <xsl:if test="$rowspan gt 1">
-	<xsl:attribute name="morerows" select="$rowspan - 1" />
+        <xsl:attribute name="morerows" select="$rowspan - 1" />
       </xsl:if>
-      <xsl:attribute name="role" select="@aid:pstyle"/>
+      <xsl:attribute name="role" select="@aid5:cellstyle"/>
       <xsl:apply-templates mode="#current"/>
     </entry>
   </xsl:template>
   
-  <xsl:function name="idml2xml:make-rows">
+  <xsl:function name="idml2xml:make-rows" as="element(dbk:row)*">
     <xsl:param name="var-cols" as="xs:double" />
     <xsl:param name="var-current-cell" as="element()*" />
     <xsl:param name="var-cumulated-cols" as="xs:double" />
     <xsl:param name="var-overlap" as="xs:integer*" />
     <xsl:param name="var-starts" as="xs:string" />
-    <xsl:param name="cell-src-name" as="xs:string" />
-    <xsl:param name="colspan-src-name" as="xs:string" />
-    <xsl:param name="rowspan-src-name" as="xs:string" />
     <xsl:variable name="var-new-overlap" as="xs:integer*">
       <xsl:choose>
-	<xsl:when test="$var-starts = 'false'">
-	  <xsl:for-each select="subsequence($var-overlap, 1)">
-	    <xsl:variable name="decrement" select=". - 1" as="xs:integer"/>
-	    <xsl:if test="$decrement gt 0">
-	      <xsl:value-of select=". - 1" />
-	    </xsl:if>
-	  </xsl:for-each>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:sequence select="$var-overlap" />
-	</xsl:otherwise>
+        <xsl:when test="$var-starts = 'false'">
+          <xsl:for-each select="subsequence($var-overlap, 1)">
+            <xsl:variable name="decrement" select=". - 1" as="xs:integer"/>
+            <xsl:if test="$decrement gt 0">
+              <xsl:value-of select=". - 1" />
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$var-overlap" />
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="var-cumulated-overlap" as="xs:integer*">
       <xsl:value-of select="count(subsequence($var-new-overlap, 1)[. gt 0])"/>
     </xsl:variable>
-    <xsl:if test="($var-current-cell ne '') or exists($var-current-cell/following-sibling::*[local-name()=$cell-src-name])">
-      <xsl:element name="row">
-	<xsl:sequence select="idml2xml:cells2row($var-cols, $var-current-cell, $var-cumulated-overlap + number($var-current-cell/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
-      </xsl:element>
+    <xsl:if test="($var-current-cell ne '') or exists($var-current-cell/following-sibling::*[@aid:table eq 'cell'])">
+      <row>
+        <xsl:sequence select="idml2xml:cells2row(
+                                $var-cols, 
+                                $var-current-cell, 
+                                $var-cumulated-overlap + number($var-current-cell/@aid:ccols), 
+                                $var-new-overlap
+                              )" />
+      </row>
     </xsl:if>
   </xsl:function>
 
-  <xsl:function name="idml2xml:cells2row">
+  <xsl:function name="idml2xml:cells2row" as="element(*)*"> <!-- cell elements with their original name -->
     <xsl:param name="var-cols" as="xs:double" />
     <xsl:param name="var-current-cell" as="element()*" />
     <xsl:param name="var-cumulated-cols" as="xs:double" />
     <xsl:param name="var-overlap" as="xs:integer*" />
-    <xsl:param name="cell-src-name" as="xs:string" />
-    <xsl:param name="colspan-src-name" as="xs:string" />
-    <xsl:param name="rowspan-src-name" as="xs:string" />
-    <xsl:variable name="var-new-overlap" as="xs:integer*">
-      <xsl:sequence select="$var-overlap, if ($var-current-cell/@*[local-name()=$rowspan-src-name] ne '1') then idml2xml:for-loop(1, xs:integer($var-current-cell/@*[local-name()=$colspan-src-name]), xs:integer($var-current-cell/@*[local-name()=$rowspan-src-name])) else 0" />
-    </xsl:variable>
+    <xsl:variable name="var-new-overlap" as="xs:integer*"
+       select="$var-overlap, 
+               if ($var-current-cell/@aid:crows ne '1') 
+               then 
+                 for $j in 1 to xs:integer($var-current-cell/@aid:ccols)
+                 return xs:integer($var-current-cell/@aid:crows)
+               else 0" />
     <xsl:choose>
       <xsl:when test="$var-cumulated-cols eq $var-cols">
-	<xsl:for-each select="$var-current-cell">
-	  <xsl:copy>
-	    <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
-	    <xsl:copy-of select="@*|node()" />
-	  </xsl:copy>
-	</xsl:for-each>
-	<xsl:sequence select="idml2xml:make-rows($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, 'false', $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
+        <xsl:for-each select="$var-current-cell">
+          <xsl:copy>
+            <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
+            <xsl:copy-of select="@*|node()" />
+          </xsl:copy>
+        </xsl:for-each>
+        <xsl:sequence select="idml2xml:make-rows(
+                                $var-cols, 
+                                $var-current-cell/following-sibling::*[@aid:table eq 'cell'][1], 
+                                number($var-current-cell/following-sibling::*[@aid:table eq 'cell'][1]/@aid:ccols), 
+                                $var-new-overlap, 
+                                'false'
+                              )" />
       </xsl:when>
       <xsl:when test="$var-cumulated-cols lt $var-cols">
-	<xsl:for-each select="$var-current-cell">
-	  <xsl:copy>
-	    <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
-	    <xsl:copy-of select="@*|node()" />
-	  </xsl:copy>
-	</xsl:for-each>
-	<xsl:sequence select="idml2xml:cells2row($var-cols, $var-current-cell/following-sibling::*[local-name()=$cell-src-name][1], $var-cumulated-cols + number($var-current-cell/following-sibling::*[local-name()=$cell-src-name][1]/@*[local-name()=$colspan-src-name]), $var-new-overlap, $cell-src-name, $colspan-src-name, $rowspan-src-name)" />
+        <xsl:for-each select="$var-current-cell">
+          <xsl:copy>
+            <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
+            <xsl:copy-of select="@*|node()" />
+          </xsl:copy>
+        </xsl:for-each>
+        <xsl:sequence select="idml2xml:cells2row(
+                                $var-cols, 
+                                $var-current-cell/following-sibling::*[@aid:table eq 'cell'][1], 
+                                $var-cumulated-cols + number($var-current-cell/following-sibling::*[@aid:table eq 'cell'][1]/@aid:ccols), 
+                                $var-new-overlap
+                              )" />
       </xsl:when>
       <xsl:when test="$var-cumulated-cols gt $var-cols">
-	<xsl:message terminate="no">Error: <xsl:value-of select="$var-cumulated-cols" /> cells in row, but only <xsl:value-of select="$var-cols" /> are allowed.</xsl:message>
+        <xsl:message terminate="no">Error: <xsl:value-of select="$var-cumulated-cols" /> cells in row, but only <xsl:value-of select="$var-cols" /> are allowed.</xsl:message>
       </xsl:when>
-    </xsl:choose>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:for-loop">
-    <xsl:param name="from" as="xs:integer" />
-    <xsl:param name="to" as="xs:integer" />
-    <xsl:param name="do" />
-    <xsl:choose>
-      <xsl:when test="$from eq $to">
-	<xsl:sequence select="$do" />
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:sequence select="$do" />
-	<xsl:sequence select="idml2xml:for-loop($from, $to - 1, $do)" />
-      </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
 
@@ -913,7 +758,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
   <!-- figures -->
-  <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')]"
+  <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <para>
       <mediaobject>
@@ -922,6 +767,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </imageobject>
       </mediaobject>
     </para>
+  </xsl:template>
+
+  <xsl:template match="Rectangle" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
+
+
+  <!-- footnotes -->
+  <xsl:template match="Footnote" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <footnote>
+      <xsl:apply-templates mode="#current"/>
+    </footnote>
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[Rectangle]"
@@ -937,21 +792,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
+  <!-- what's this supposed to do? There's no p element (and no dbk:p) here. What if there's text around the phrase? -->
   <xsl:template match="phrase[ parent::p[count(*) eq 1 ] ]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="phrase[@role='br'][ following-sibling::*[ self::para ] ] |
-		       phrase[@role='br'][ not(following-sibling::*) and parent::para ]" 
+  <xsl:template match="dbk:phrase[@role='br'][ following-sibling::*[ self::dbk:para ] ] |
+		       dbk:phrase[@role='br'][ not(following-sibling::*) and parent::dbk:para ]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
 
-  <xsl:template match="row[not(node())]" 
+  <xsl:template match="dbk:row[not(node())]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:message select="'INFO: Removed empty element row.'"/>
   </xsl:template>
 
-  <xsl:template match="para[parent::para]" 
+  <xsl:template match="dbk:para[parent::dbk:para]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <phrase role="idml2xml-para {@role}">
       <xsl:apply-templates select="@* except @role | node()" mode="#current"/>
@@ -967,12 +823,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="content" select="string-join(.,'')"/>
     <xsl:message>
-      INFO: Removed non-hub element <xsl:value-of select="local-name()"/>
+      INFO: Removed non-hub element <xsl:value-of select="name()"/>
       <xsl:if test="$content ne ''">
         ===
         Text content: <xsl:value-of select="$content"/>
         ===</xsl:if>
     </xsl:message>
   </xsl:template>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-without-srcpath" />
+
 
 </xsl:stylesheet>

@@ -15,12 +15,13 @@
   <xsl:template match="Document" mode="idml2xml:ExtractTagging">
     <idml2xml:doc>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="(idPkg:Graphic, idPkg:Styles, idml2xml:hyper)" />
+      <xsl:copy-of select="(idPkg:Graphic, idPkg:Styles, idml2xml:hyper, idml2xml:lang)" />
       <xsl:apply-templates select="XmlStory" mode="#current"/>
       <xsl:variable name="processed-stories" as="xs:string*">
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
       </xsl:variable>
       <xsl:apply-templates select="TextFrame/Story[not(@Self = distinct-values($processed-stories))] " mode="#current"/>
+      <xsl:apply-templates select="Rectangle" mode="#current"/>
     </idml2xml:doc>
   </xsl:template>
 
@@ -50,6 +51,7 @@
 		<xsl:element name="{ $ElementFullName }" 
       namespace="{if (contains( $ElementName, ':' ) ) then /Document/idml2xml:namespaces/ns[ @short = $ElementSpace ]/@space  else  ''}">
 
+      <xsl:apply-templates select="@*" mode="idml2xml:ExtractAttributes" />
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
       <xsl:if test="not(XMLAttribute[@Name eq 'aid:cstyle'])">
         <xsl:apply-templates select="(ancestor::ParagraphStyleRange, ../ancestor::XMLElement)[last()]" mode="idml2xml:ExtractAttributes"/>
@@ -60,6 +62,7 @@
       <!-- ancestor::XMLElement[1] is here for the following reason:
            If Cell was preceded by XMLElement when looking upwards the ancestor axis, do nothing. -->
       <xsl:apply-templates select="(ancestor::Cell[1] union ancestor::XMLElement[1])[last()]" mode="idml2xml:ExtractAttributes"/>
+
 
       <xsl:if test="parent::Story or parent::XmlStory">
         <xsl:attribute name="idml2xml:story" select="../@Self" />
@@ -72,7 +75,8 @@
   <xsl:template match="*" mode="idml2xml:ExtractAttributes" />
 
 	<xsl:template match="Properties" mode="idml2xml:ExtractAttributes">
-    <xsl:apply-templates mode="#current" />
+    <xsl:copy-of select="." />
+<!--     <xsl:apply-templates mode="#current" /> -->
   </xsl:template>
 
   <xsl:template match="Properties/*" mode="idml2xml:ExtractAttributes">
@@ -87,6 +91,8 @@
   <xsl:template match="@*" mode="idml2xml:ExtractAttributes">
     <xsl:copy-of select="." />
   </xsl:template>
+
+  <xsl:template match="@MarkupTag" mode="idml2xml:ExtractAttributes" />
 
   <xsl:template match="CharacterStyleRange[@AppliedCharacterStyle eq 'CharacterStyle/$ID/[No character style]']" mode="idml2xml:ExtractAttributes" />
 
@@ -115,7 +121,7 @@
     <xsl:attribute name="aid:table" select="'table'"/>
     <xsl:attribute name="aid:tcols" select="count( Column )"/>
     <xsl:attribute name="aid:trows" select="count( Row )"/>
-    <xsl:attribute name="idml2xml:AppliedTableStyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedTableStyle)"/>
+    <xsl:attribute name="aid5:tablestyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedTableStyle)"/>
     <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:AppliedObjectStyle" />
   </xsl:template>
 
@@ -125,7 +131,7 @@
     <xsl:attribute name="aid:crows" select="@RowSpan"/>
     <xsl:attribute name="aid:ccolwidth" 
       select="preceding::Column[ @Name eq tokenize( current()/@Name, ':' )[1] ][1]/@SingleColumnWidth"/>
-    <xsl:attribute name="idml2xml:AppliedCellStyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedCellStyle)"/>
+    <xsl:attribute name="aid5:cellstyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedCellStyle)"/>
   </xsl:template>
   
   

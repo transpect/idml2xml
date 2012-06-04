@@ -56,8 +56,8 @@
     <xsl:sequence select="$elt/ancestor::ParagraphStyleRange[1]/@AppliedParagraphStyle" />
   </xsl:function>
 
-  <xsl:function name="idml2xml:StyleName">
-    <xsl:param name="stylename" as="xs:string+"/>
+  <xsl:function name="idml2xml:StyleName" as="xs:string">
+    <xsl:param name="stylename" as="xs:string"/>
     <xsl:value-of select="replace(
                             replace( idml2xml:RemoveTypeFromStyleName( $stylename), 
                             '[ |+]',
@@ -67,8 +67,8 @@
                           )"/>
   </xsl:function>
   
-  <xsl:function name="idml2xml:RemoveTypeFromStyleName">
-    <xsl:param name="stylename" as="xs:string+"/>
+  <xsl:function name="idml2xml:RemoveTypeFromStyleName" as="xs:string">
+    <xsl:param name="stylename" as="xs:string"/>
     <xsl:value-of select="replace( idml2xml:substr( 'a', $stylename, '$ID/' ), 
                           '(Paragraph|Character|Table|Cell|Object)Style/|\[|\]',
                           '' )"/>

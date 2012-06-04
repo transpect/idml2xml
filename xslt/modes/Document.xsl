@@ -97,6 +97,9 @@
       <idml2xml:hyper>
         <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink" />
       </idml2xml:hyper>
+      <idml2xml:lang>
+        <xsl:copy-of select="Language" />
+      </idml2xml:lang>
       <xsl:for-each-group select="idPkg:Spread/Spread/TextFrame" group-by="@ParentStory">
         <xsl:if test="count( Properties/PathGeometry/GeometryPathType ) gt 1">
           <xsl:message select="'WARNING: more than one GeometryPathType element in', @Self"/>
@@ -149,7 +152,7 @@ and PDF.
           <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="idml2xml:DocumentResolveTextFrames"/>
         </xsl:copy>
       </xsl:for-each-group>
-      <xsl:apply-templates select="//XmlStory" mode="#current"/>
+      <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
