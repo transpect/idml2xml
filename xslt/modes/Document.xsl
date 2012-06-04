@@ -44,7 +44,7 @@
   </xsl:template>
 
   <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource
-                       | ParagraphStyleRange | Table | XMLElement"
+                       | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
     mode="idml2xml:Document">
     <xsl:copy>
       <xsl:attribute name="srcpath" select="idml2xml:srcpath(.)" />
