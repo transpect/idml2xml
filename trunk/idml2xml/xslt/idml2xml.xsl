@@ -167,9 +167,13 @@
   <xsl:variable name="idml2xml:XML-Hubformat-add-properties">
     <xsl:apply-templates select="$idml2xml:AutoCorrect-clean-up" mode="idml2xml:XML-Hubformat-add-properties"/>
   </xsl:variable>
+  <!-- make proper attributes out of intermediate ones -->
+  <xsl:variable name="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:apply-templates select="$idml2xml:XML-Hubformat-add-properties" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  </xsl:variable>
   <!-- extract anchored frames from paras -->
   <xsl:variable name="idml2xml:XML-Hubformat-extract-frames">
-    <xsl:apply-templates select="$idml2xml:XML-Hubformat-add-properties" mode="idml2xml:XML-Hubformat-extract-frames"/>
+    <xsl:apply-templates select="$idml2xml:XML-Hubformat-properties2atts" mode="idml2xml:XML-Hubformat-extract-frames"/>
   </xsl:variable>
   <!-- convert genSpan and genPara to Hubformat -->
   <xsl:variable name="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -275,16 +279,22 @@
   <xsl:template name="debug-hub">
     <xsl:if test="xs:boolean(xs:integer($debug))">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.07.XML-Hubformat-add-properties.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:XML-Hubformat-add-properties"/>
+        <xsl:sequence select="$idml2xml:XML-Hubformat-add-properties"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.07a.XML-Hubformat-properties2atts.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:XML-Hubformat-properties2atts"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.08.XML-Hubformat-extract-frames.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:XML-Hubformat-extract-frames"/>
+        <xsl:sequence select="$idml2xml:XML-Hubformat-extract-frames"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.10.XML-Hubformat-remap-para-and-span.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:XML-Hubformat-remap-para-and-span"/>
+        <xsl:sequence select="$idml2xml:XML-Hubformat-remap-para-and-span"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.15.XML-Hubformat-cleanup-paras-and-br.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+        <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.20.XML-Hubformat-without-srcpath.xml')}" format="debug">
+        <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-without-srcpath"/>
       </xsl:result-document>
     </xsl:if>
   </xsl:template>

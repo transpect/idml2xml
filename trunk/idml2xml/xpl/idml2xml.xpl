@@ -62,6 +62,10 @@
 
   <p:sink/>
 
+  <p:document name="load-stylesheet" href="../xslt/idml2xml.xsl" />
+
+  <p:sink/>
+
   <p:add-attribute match="/c:param-set/c:param[@name eq 'src-dir-uri']" attribute-name="value" name="xslt-params">
     <p:input port="source">
       <p:inline>
@@ -89,7 +93,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -98,7 +102,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -107,7 +111,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -116,7 +120,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -125,7 +129,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -134,7 +138,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -143,7 +147,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -152,7 +156,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -161,7 +165,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -170,7 +174,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -179,7 +183,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -188,7 +192,16 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
+    </p:input>
+  </p:xslt>
+
+  <p:xslt name="XML-Hubformat-properties2atts" initial-mode="idml2xml:XML-Hubformat-properties2atts">
+    <p:input port="parameters">
+      <p:pipe step="xslt-params" port="result" />
+    </p:input>
+    <p:input port="stylesheet">
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -197,7 +210,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -206,7 +219,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -215,7 +228,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:document href="../xslt/idml2xml.xsl" />
+      <p:pipe name="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 

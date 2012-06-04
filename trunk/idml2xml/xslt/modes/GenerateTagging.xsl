@@ -135,14 +135,7 @@
   <xsl:template match="CharacterStyleRange[node()][.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenSpan">
       <xsl:copy-of select="@* except @AppliedCharacterStyle"/>
-      <xsl:choose>
-        <xsl:when test="@AppliedCharacterStyle eq 'CharacterStyle/$ID/[No character style]'">
-          <XMLAttribute Name="aid:cstyle" Value="idml2xml:default" />
-        </xsl:when>
-        <xsl:otherwise>
-          <XMLAttribute Name="aid:cstyle" Value="{replace(@AppliedCharacterStyle, '^CharacterStyle/', '')}" />
-        </xsl:otherwise>
-      </xsl:choose>
+      <XMLAttribute Name="aid:cstyle" Value="{idml2xml:StyleName(@AppliedCharacterStyle)}" />
       <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
       <xsl:apply-templates mode="#current" />
     </XMLElement>
