@@ -43,7 +43,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource
+  <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource | Footnote
                        | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
     mode="idml2xml:Document">
     <xsl:copy>

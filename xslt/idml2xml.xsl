@@ -84,7 +84,7 @@
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor')" 
+    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor', 'Footnote')" 
     as="xs:string+" />
   <xsl:variable
     name="idml2xml:idml-scope-terminal-names"
