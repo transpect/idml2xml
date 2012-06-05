@@ -73,95 +73,12 @@
   </xsl:template>
 
 
-  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <!-- mode: idml2xml:AutoCorrect-clean-up -->
-  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-  <!-- Where genPara is only a wrapper around a single para with the same pstyle (plus optionally some elements in between). --> 
-  <xsl:template match="idml2xml:genPara
-                         [descendant::*[not(@idml2xml:story)][@aid:pstyle][1]/@aid:pstyle = current()/@aid:pstyle]
-                         [every $elt in (descendant::*[@aid:pstyle][1]/ancestor::* intersect descendant-or-self::*)
-                          satisfies (count($elt/node()[matches(., '.') and not(@idml2xml:story)]) eq 1)]
-                       " mode="idml2xml:AutoCorrect-clean-up" priority="2">
-    <xsl:apply-templates mode="#current" />
-  </xsl:template>
-
-  <!-- Where genPara is only a wrapper around a single para with another pstyle (plus optionally some elements in between). --> 
-  <xsl:template match="idml2xml:genPara
-                         [descendant::*[idml2xml:same-scope(., current())][@aid:pstyle]]
-                         [every $elt in (descendant::*[idml2xml:same-scope(., current())][@aid:pstyle][1]/ancestor::* intersect descendant-or-self::*)
-                          satisfies (count($elt/node()[matches(., '.') and not(@idml2xml:story)]) eq 1)]
-                       " mode="idml2xml:AutoCorrect-clean-up" priority="1.8">
-    <xsl:apply-templates mode="#current">
-      <xsl:with-param name="genPara" select="." tunnel="yes" />
-    </xsl:apply-templates>
-  </xsl:template>
-
-  <xsl:template match="@idml2xml:AppliedParagraphStyle[. = ../@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up" />
-
-  <xsl:template match="*[not(self::idml2xml:genPara)][@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:param name="genPara" as="element(idml2xml:genPara)?" tunnel="yes" />
-    <xsl:choose>
-      <xsl:when test="$genPara/@aid:pstyle and idml2xml:same-scope(., $genPara)">
-        <xsl:copy>
-          <xsl:copy-of select="@*" />
-          <xsl:attribute name="aid:pstyle" select="$genPara/@aid:pstyle" />
-          <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac8'), ' ')" />
-          <xsl:apply-templates mode="#current" />
-        </xsl:copy>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:next-match />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <!-- one kind of pstyled element, together with optional anchored objects and character ranges. Everything will be wrapped in an element like the last pstyled   -->
-  <xsl:template match="idml2xml:genPara
-                         [*[@aid:pstyle]]
-                         [count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]
-                         [count(      *[@aid:pstyle] 
-                                | *[@aid:cstyle] 
-                                | *[@idml2xml:AppliedCharacterStyle] 
-                                | *[@idml2xml:story]
-                                | text()
-                               ) 
-                          eq count(node())
-                         ]" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:element name="{name(*[@aid:pstyle][last()])}">
-      <xsl:copy-of select="*[@aid:pstyle][last()]/@*" />
-      <xsl:attribute name="aid:pstyle" select="@aid:pstyle" />
-      <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac7'), ' ')" />
-      <xsl:apply-templates select="      *[@aid:pstyle]/node() 
-                                   union *[@aid:cstyle] 
-                                   union *[@idml2xml:AppliedCharacterStyle] 
-                                   union *[@idml2xml:story]
-                                   union text()" mode="#current" />
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, '\$ID/\[No character style\]')]
-		                       [parent::idml2xml:genPara[count(descendant::idml2xml:genSpan) = 1]]" 
-		mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:apply-templates mode="#current"/>
-  </xsl:template>
-
   <xsl:template 
     match="idml2xml:genPara[count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]" 
     mode="idml2xml:AutoCorrect">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <xsl:template 
-    match="idml2xml:genPara[count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]/
-           *[@aid:pstyle ne ../@aid:pstyle]" 
-    mode="idml2xml:AutoCorrect-DISCARD">
-    <idml2xml:genSpan>
-      <xsl:copy-of select="../@*" />
-      <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac4'), ' ')" />
-      <xsl:apply-templates mode="#current" />
-    </idml2xml:genSpan>
-  </xsl:template>
 
   <xsl:template match="idml2xml:genPara[idml2xml:contains(@idml2xml:reason, 'gp2')]" mode="idml2xml:AutoCorrect idml2xml:AutoCorrect-group-pseudoparas" priority="4">
     <xsl:copy>
@@ -235,4 +152,59 @@
   </xsl:template>
 
   
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- mode: idml2xml:AutoCorrect-clean-up -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template match="@idml2xml:AppliedParagraphStyle[. = ../@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up" />
+
+  <xsl:template match="*[not(self::idml2xml:genPara)][@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:param name="genPara" as="element(idml2xml:genPara)?" tunnel="yes" />
+    <xsl:choose>
+      <xsl:when test="$genPara/@aid:pstyle and idml2xml:same-scope(., $genPara)">
+        <xsl:copy>
+          <xsl:copy-of select="@*" />
+          <xsl:attribute name="aid:pstyle" select="$genPara/@aid:pstyle" />
+          <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac8'), ' ')" />
+          <xsl:apply-templates mode="#current" />
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- one kind of pstyled element, together with optional anchored objects and character ranges. Everything will be wrapped in an element like the last pstyled   -->
+  <xsl:template match="idml2xml:genPara
+                         [*[@aid:pstyle]]
+                         [count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]
+                         [count(      *[@aid:pstyle] 
+                                | *[@aid:cstyle] 
+                                | *[@idml2xml:AppliedCharacterStyle] 
+                                | *[@idml2xml:story]
+                                | text()
+                               ) 
+                          eq count(node())
+                         ]" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:element name="{name(*[@aid:pstyle][last()])}">
+      <xsl:copy-of select="*[@aid:pstyle][last()]/@*" />
+      <xsl:attribute name="aid:pstyle" select="@aid:pstyle" />
+      <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac7'), ' ')" />
+      <xsl:apply-templates select="      *[@aid:pstyle]/node() 
+                                   union *[@aid:cstyle] 
+                                   union *[@idml2xml:AppliedCharacterStyle] 
+                                   union *[@idml2xml:story]
+                                   union text()" mode="#current" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, '\$ID/\[No character style\]')]
+		                       [parent::idml2xml:genPara[count(descendant::idml2xml:genSpan) = 1]]" 
+		mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+
+
 </xsl:stylesheet>

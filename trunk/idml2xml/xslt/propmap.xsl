@@ -39,8 +39,8 @@
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
         <prop name="BulletsAndNumberingListType" target-name="list-type" type="linear"/>
-        <prop name="Capitalization" target-name="css:text-transform">
-          <val eq="SmallCaps" target-name="css:font-variant" target-value="smallcaps"/>
+        <prop name="Capitalization">
+          <val eq="SmallCaps" target-name="css:font-variant" target-value="small-caps"/>
           <val eq="AllCaps" target-name="css:text-transform" target-value="uppercase"/>
           <val eq="CapToSmallCap" target-name="css:text-transform" target-value="uppercase"/><!-- ? -->
         </prop>
@@ -111,13 +111,13 @@
         <prop name="ShadowColor" type="color" target-name="shadow-color" />
         <prop name="SpaceAfter" type="length" target-name="css:margin-bottom" />
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
-        <prop name="StrikeThru" target-name="css:text-decoration">
+        <prop name="StrikeThru" target-name="css:text-decoration-line">
           <val eq="true" target-value="line-through"/>
           <val eq="false"/>
         </prop>
         <prop name="TabList" type="tablist"/>
         <prop name="TopInset" type="length" target-name="css:padding-top" />
-        <prop name="Underline" target-name="css:text-decoration">
+        <prop name="Underline" target-name="css:text-decoration-line">
           <val eq="true" target-value="underline"/>
           <val eq="false"/>
         </prop>

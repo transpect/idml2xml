@@ -340,14 +340,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
 
+  <xsl:template match="idml2xml:attribute[@name = ('aid:cstyle')][. ne 'No_character_style']" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="role" select="idml2xml:StyleName(.)" />
+  </xsl:template>
+
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />
     <xsl:param name="tint" as="xs:double" />
+    <xsl:variable name="positive-tint" as="xs:double" select="if ($tint lt 0) then 1 else $tint" />
     <xsl:variable name="tmp" as="xs:string+">
       <xsl:analyze-string select="$color" regex="[0-9.]+">
         <xsl:matching-substring>
-          <xsl:sequence select="xs:string(xs:integer(xs:double(.) * $tint * 100000) * 0.00001)" />
+          <xsl:sequence select="xs:string(xs:integer(xs:double(.) * $positive-tint * 100000) * 0.00001)" />
         </xsl:matching-substring>
         <xsl:non-matching-substring>
           <xsl:sequence select="." />
@@ -395,7 +400,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:function>
 
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames">
-    <idml2xml:genAnchor id="{generate-id()}"/>
+    <idml2xml:genAnchor xml:id="{generate-id()}"/>
   </xsl:template>
 
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
@@ -484,13 +489,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xref>
+    <link>
       <xsl:apply-templates select="@* | node()" mode="#current" />
-    </xref>
+    </link>
   </xsl:template>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <anchor id="{$id-prefix}{@*:id}" />
+    <anchor xml:id="{$id-prefix}{@*:id}" />
   </xsl:template>
 
   <xsl:template match="@linkend" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -798,6 +803,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  <xsl:template match="dbk:superscript
+                         [dbk:footnote]
+                         [every $c in (text()[normalize-space()], *) 
+                          satisfies ($c/self::dbk:footnote)]" 
+		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <phrase>
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </phrase>
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
   <xsl:template match="dbk:phrase[@role='br'][ following-sibling::*[ self::dbk:para ] ] |
 		       dbk:phrase[@role='br'][ not(following-sibling::*) and parent::dbk:para ]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
