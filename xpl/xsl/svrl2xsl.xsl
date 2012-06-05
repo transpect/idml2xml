@@ -23,6 +23,7 @@
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
       xmlns:xs="http://www.w3.org/2001/XMLSchema" 
       xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
+      xmlns:dbk="http://docbook.org/ns/docbook"
       xmlns:css="http://www.w3.org/1996/css"
       xmlns:s="http://purl.oclc.org/dsdl/schematron"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -46,12 +47,12 @@
         </xslout:copy>
       </xslout:template>
 
-      <xslout:template match="@idml2xml:srcpath" mode="#default" />
+      <xslout:template match="@srcpath" mode="#default" />
 
       <xsl:for-each-group
         select="collection()//svrl:text[s:span[@class eq 'srcpath'] ne '']"
         group-by="tokenize(s:span[@class eq 'srcpath'], '\s+')">
-        <xslout:template match="*[contains(@idml2xml:srcpath, '{current-grouping-key()}')]">
+        <xslout:template match="*[contains(@srcpath, '{current-grouping-key()}')]">
           <xslout:copy>
             <xslout:apply-templates select="@*" mode="#current" />
             <xsl:apply-templates select="current-group()" mode="create-message" />
@@ -63,7 +64,7 @@
   </xsl:template>
 
   <xsl:template match="svrl:text[s:span[@class eq 'srcpath'] ne '']" mode="create-message">
-    <xslout:processing-instruction name="idml2xml">
+    <xslout:processing-instruction name="hubcheck">
       <xsl:value-of select="../@role"/>
       <xsl:text> </xsl:text>
       <xsl:value-of select="../@id"/>
