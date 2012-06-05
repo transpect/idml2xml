@@ -62,7 +62,7 @@
 
   <p:sink/>
 
-  <p:document name="load-stylesheet" href="../xslt/idml2xml.xsl" />
+  <p:load name="load-stylesheet" href="../xslt/idml2xml.xsl" />
 
   <p:sink/>
 
@@ -93,7 +93,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -102,7 +102,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -111,7 +111,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -120,7 +120,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -129,7 +129,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -138,7 +138,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -147,7 +147,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -156,7 +156,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -165,7 +165,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -174,7 +174,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -183,7 +183,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -192,7 +192,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -201,7 +201,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -210,7 +210,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -219,7 +219,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
@@ -228,7 +228,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe name="load-stylesheet" port="result"/>
+      <p:pipe step="load-stylesheet" port="result"/>
     </p:input>
   </p:xslt>
 
