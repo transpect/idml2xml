@@ -25,10 +25,10 @@
       <xsl:when test="matches( $Token, $SearchTerm )">
         <xsl:choose>
           <xsl:when test="$direction = 'a'">
-            <xsl:value-of select="substring-after( $Token, $Search )"/>
+            <xsl:sequence select="substring-after( $Token, $Search )"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="substring-before( $Token, $Search )"/>
+            <xsl:sequence select="substring-before( $Token, $Search )"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -41,7 +41,7 @@
   <xsl:function name="idml2xml:contains" as="xs:string?">
     <xsl:param name="tokens-string" as="xs:string"/>
     <xsl:param name="search-string" as="xs:string+" />
-    <xsl:value-of select="$search-string[. = tokenize(if($tokens-string) then $tokens-string else '', '\s+')]"/>
+    <xsl:sequence select="$search-string[. = tokenize(if($tokens-string) then $tokens-string else '', '\s+')]"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:debug-uri" as="xs:string">
@@ -58,7 +58,7 @@
 
   <xsl:function name="idml2xml:StyleName" as="xs:string">
     <xsl:param name="stylename" as="xs:string"/>
-    <xsl:value-of select="replace(
+    <xsl:sequence select="replace(
                             replace( idml2xml:RemoveTypeFromStyleName( $stylename), 
                             '[ |+]',
                             '_' ),
@@ -66,10 +66,10 @@
                             ':'
                           )"/>
   </xsl:function>
-  
+
   <xsl:function name="idml2xml:RemoveTypeFromStyleName" as="xs:string">
     <xsl:param name="stylename" as="xs:string"/>
-    <xsl:value-of select="replace( idml2xml:substr( 'a', $stylename, '$ID/' ), 
+    <xsl:sequence select="replace( idml2xml:substr( 'a', $stylename, '$ID/' ), 
                           '(Paragraph|Character|Table|Cell|Object)Style/|\[|\]',
                           '' )"/>
   </xsl:function>

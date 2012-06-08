@@ -232,28 +232,37 @@
 
 
   <xsl:key name="hyperlink-by-source-id" match="Hyperlink" use="@Source" />
-  <xsl:key name="hyperlink-dest-by-name" match="HyperlinkURLDestination | HyperlinkPageDestination" use="@Name" />
+  <xsl:key name="hyperlink-dest-by-self" match="HyperlinkURLDestination | HyperlinkPageDestination" use="@Self" />
 
 	<xsl:template match="HyperlinkTextSource" mode="idml2xml:ExtractTagging">
     <xsl:variable name="hyperlink" select="key('hyperlink-by-source-id', @Self)" as="element(Hyperlink)" />
     <xsl:variable name="dest-id" select="$hyperlink/Properties/Destination" as="xs:string" />
     <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
-    <xsl:variable name="target-name" select="substring-after($dest-id, '/')" as="xs:string" />
-    <xsl:variable name="dest" select="key('hyperlink-dest-by-name', $target-name)" as="element(*)" />
+    <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)?" />
     <xsl:choose>
-      <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
-        <idml2xml:xref linkend="xref_{@Name}">
-          <xsl:apply-templates mode="#current" />
-        </idml2xml:xref>
-      </xsl:when>
-      <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
-        <idml2xml:link xlink:href="{$dest/@DestinationURL}">
-          <xsl:apply-templates mode="#current" />
-        </idml2xml:link>
+      <xsl:when test="empty($dest)">
+        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource":
+        No target found for hyperlink <xsl:value-of select="$dest-id"/>
+        </xsl:message>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message>Don't know how to handle <xsl:value-of select="$target-element-name"/> 
-        </xsl:message>
+        <xsl:choose>
+          <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
+            <idml2xml:link linkend="id_{@Name}">
+              <xsl:apply-templates mode="#current" />
+            </idml2xml:link>
+          </xsl:when>
+          <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
+            <idml2xml:link xlink:href="{$dest/@DestinationURL}">
+              <xsl:apply-templates mode="#current" />
+            </idml2xml:link>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource":
+            Don't know how to handle <xsl:value-of select="$target-element-name"/> 
+            </xsl:message>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -272,6 +281,10 @@
     </xsl:message>
 		<xsl:copy-of select="."/>
 	</xsl:template>
+
+  <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '3']" mode="idml2xml:ExtractTagging">
+    <idml2xml:tab role="end-nested-style" />
+  </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '4']" mode="idml2xml:ExtractTagging">
     <idml2xml:tab role="footnotemarker" />

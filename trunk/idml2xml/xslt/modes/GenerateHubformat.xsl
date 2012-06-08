@@ -27,7 +27,8 @@
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
                'superscript', 'subscript', 'link', 'xref', 'footnote',
-               'keywordset', 'keyword',
+               'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
+               'see', 'seealso',
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style'
               )"/>
 
@@ -46,16 +47,25 @@
         </keywordset>
         <styles>
           <parastyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', $s))" mode="#current" />
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', $s))" mode="#current">
+              <xsl:sort select="@Name" />
+            </xsl:apply-templates>
           </parastyles>
           <inlinestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', $s))" mode="#current" />
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', $s))" mode="#current">
+              <xsl:sort select="@Name" />
+            </xsl:apply-templates>
           </inlinestyles>
           <tablestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', $s))" mode="#current" />
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', $s))" mode="#current">
+              <xsl:sort select="@Name" />
+            </xsl:apply-templates>
+
           </tablestyles>
           <cellstyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', $s))" mode="#current" />
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', $s))" mode="#current" >
+              <xsl:sort select="@Name" />
+            </xsl:apply-templates>
           </cellstyles>
         </styles>
       </info>
@@ -153,19 +163,31 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:key name="idml2xml:color" match="idPkg:Graphic/Color" use="@Self" />
+  <xsl:key name="idml2xml:tint" match="idPkg:Graphic/Tint" use="@Self" />
 
-  <xsl:template match="prop/@type" mode="idml2xml:XML-Hubformat-add-properties" as="node()?">
+  <xsl:template match="prop/@type" mode="idml2xml:XML-Hubformat-add-properties" as="node()*">
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:choose>
 
       <xsl:when test=". eq 'color'">
+        <xsl:variable name="context-name" select="$val/../name()" as="xs:string" />
+        <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
         <xsl:choose>
           <xsl:when test="matches($val, '^Color')">
-            <xsl:variable name="context-name" select="$val/../name()" as="xs:string" />
-            <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
             <idml2xml:attribute name="{$target-name}">
               <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" />
             </idml2xml:attribute>
+          </xsl:when>
+          <xsl:when test="matches($val, '^Tint')">
+            <xsl:variable name="tint-decl" select="key('idml2xml:tint', $val, root($val))" as="element(Tint)" />
+            <idml2xml:attribute name="{$target-name}">
+              <xsl:apply-templates select="key(
+                                             'idml2xml:color',
+                                             $tint-decl/@BaseColor,
+                                             root($val)
+                                           )" mode="#current" />
+            </idml2xml:attribute>
+            <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current" />
           </xsl:when>
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, '^Swatch/None')">
@@ -178,7 +200,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'percentage'">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="xs:double($val) * 0.01" /></idml2xml:attribute>
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="if (xs:integer($val) eq -1) then 1 else xs:double($val) * 0.01" /></idml2xml:attribute>
       </xsl:when>
 
       <xsl:when test=". eq 'lang'">
@@ -488,7 +510,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </link>
   </xsl:template>
 
-  <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span_DISABLED">
     <link>
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </link>
