@@ -65,6 +65,9 @@
       encoding="utf-8" 
       indent="yes" />
 
+  <xsl:strip-space elements="*"/>
+  <xsl:preserve-space elements="Content"/>
+
 
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>

@@ -74,13 +74,8 @@
 
   <xsl:template match="*" mode="idml2xml:ExtractAttributes" />
 
-	<xsl:template match="Properties" mode="idml2xml:ExtractAttributes">
+  <xsl:template match="Properties" mode="idml2xml:ExtractAttributes">
     <xsl:copy-of select="." />
-<!--     <xsl:apply-templates mode="#current" /> -->
-  </xsl:template>
-
-  <xsl:template match="Properties/*" mode="idml2xml:ExtractAttributes">
-    <xsl:attribute name="{name()}" select="." />
   </xsl:template>
 
 
