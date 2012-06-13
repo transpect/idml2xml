@@ -477,12 +477,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="$role eq 'No_character_style' 
                       and not(text()[matches(., '\S')]) 
                       and count(* except idml2xml:genAnchor) eq 0">
-        <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
+        <xsl:apply-templates mode="#current"/>
       </xsl:when>
       <xsl:when test="$role eq 'No_character_style' 
                       and text() 
                       and count(* except idml2xml:genAnchor) eq 0
-                      and count(@* except (@aid:cstyle union @srcpath)) eq 0
+                      and count(@* except (@aid:cstyle union @srcpath union @idml2xml:*)) eq 0
                       ">
         <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         <xsl:apply-templates select="node() except idml2xml:genAnchor" mode="#current"/>
@@ -491,18 +491,24 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:if test="idml2xml:genAnchor">
           <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         </xsl:if>
-        <phrase srcpath="{@srcpath}">
+        <phrase>
           <xsl:if test="$role ne ''">
             <xsl:attribute name="role" select="$role"/>
           </xsl:if>
-          <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath)" as="attribute(*)*" />
+          <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath union @idml2xml:*)" as="attribute(*)*" />
           <xsl:choose>
             <xsl:when test="exists($atts)">
-              <emphasis>
+              <!--
+              <xsl:if test="matches(., '^Tab\.&#xa0;')">
+ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), '=', $a), ', ')"/>
+              </xsl:if>
+              -->
+              <emphasis srcpath="{@srcpath}">
                 <xsl:apply-templates select="$atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
               </emphasis>
             </xsl:when>
             <xsl:otherwise>
+              <xsl:copy-of select="@srcpath" />
               <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
             </xsl:otherwise>
           </xsl:choose>
