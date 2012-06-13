@@ -29,6 +29,8 @@
         <prop name="aid:crows" type="passthru" />
         <prop name="aid:tcols" type="passthru" />
         <prop name="aid:trows" type="passthru" />
+        <prop name="linkend" type="passthru" />
+        <prop name="remap" type="passthru" />
         <prop name="role" type="passthru" />
         <prop name="srcpath" type="passthru" />
         <prop name="idml2xml:elementName" type="passthru" />

@@ -71,17 +71,33 @@
   </xsl:template>
 
 
-  <!-- remove empty CharacterStyleRanges etc. (requires separate pass) -->
+  <!-- remove empty CharacterStyleRanges etc.
+       It seems as if there are no templates that server the original purpose.
+       Ok, we'll use this mode under its historical name for splitting
+       span elements that span line breaks, and for re-grouping CrossReferenceSources. -->
 
-  <!-- <xsl:template match="*:CharacterStyleRange[ .//* and not(.//*[name() = $idml2xml:idml-scope-terminal-names])]"  -->
-  <!--   mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty"> -->
-  <!--   <xsl:message select="'INFO: The following Element(s) in CharacterStyleRange are not in scope and so not processed:', for $i in .//* return local-name($i)"/> -->
-  <!-- </xsl:template> -->
+  <xsl:template match="*[CrossReferenceSource]" 
+    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
+    <xsl:variable name="context" select="." as="element(XMLElement)" />
+    <xsl:for-each-group select="*" group-adjacent="idml2xml:elt-signature(self::CrossReferenceSource)">
+      <xsl:choose>
+        <xsl:when test="current-grouping-key()">
+          <xsl:copy>
+            <xsl:copy-of select="@*" />
+            <xsl:apply-templates select="current-group()" mode="#current" />
+          </xsl:copy>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="current-group()" mode="#current" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each-group>
+  </xsl:template>
 
-  <!-- <xsl:template match="*:ParagraphStyleRange[ .//* and not(.//*[name() = ($idml2xml:idml-scope-terminal-names, 'XMLElement', 'XMLAttribute')])]"  -->
-  <!--   mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty"> -->
-  <!--   <xsl:message select="'INFO: The following Element(s) in ParagraphStyleRange are not in scope and so not processed:', for $i in .//* return local-name($i)"/> -->
-  <!-- </xsl:template> -->
+  <xsl:template match="CrossReferenceSource" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
+    <xsl:apply-templates select="*" mode="#current"/>
+  </xsl:template>
+
 
   <!-- collateral: divide span elements that span line breaks (CAVEAT: CHANGES ORIGINAL MARKUP!) -->
   <xsl:template match="XMLElement[XMLAttribute[@Name eq 'aid:cstyle']][idml2xml:Br]" 
@@ -105,7 +121,8 @@
   </xsl:template>
 
 
-  <!-- Paragraph grouping (requires separate pass) -->
+
+  <!-- Paragraph grouping -->
 
   <xsl:template match="Table/idml2xml:Br" mode="idml2xml:ConsolidateParagraphStyleRanges" />
 

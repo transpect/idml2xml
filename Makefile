@@ -44,6 +44,8 @@ usage:
 	@echo "  If you want to invoke this from your project directory (and also want to have"
 	@echo "    the debug files there), use something like:"
 	@echo "  > make -C $(CURDIR) \`realpath relpath_to/xyz.idml.HUB\` DEBUGDIR=\`pwd\`/debug"
+	@echo "  Example for processing 37 chapters from bash:"
+	@echo "  > for c in $$(seq -f '%02g' 37); do make -C Dev/idml2xml/  /path/to/IDML/$${c}_Chap.idml.HUB; done"
 	@echo ""
 	@echo "Prerequisites:"
 	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
