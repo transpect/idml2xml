@@ -139,10 +139,11 @@
  
 	 </s:pattern>
 
+<!--
  <s:pattern id="override">
 	<s:rule context="@PointSize">
 		<s:report test="true()" id="DocumentStoriesSorted_008a" role="MSG">
-			<s:span class="srcpath"><xsl:value-of select="./parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
+			<s:span class="srcpath"><xsl:value-of select="ancestor::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Paragraph style override! (Point size)
 		</s:report>
     </s:rule>
@@ -177,6 +178,6 @@
 		</s:report>
     </s:rule>
  </s:pattern>
-
+-->
  
 </s:schema>

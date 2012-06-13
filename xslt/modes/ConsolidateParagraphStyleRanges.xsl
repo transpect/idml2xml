@@ -72,26 +72,29 @@
 
 
   <!-- remove empty CharacterStyleRanges etc.
-       It seems as if there are no templates that server the original purpose.
+       It seems as if there are no templates that serve the original purpose.
        Ok, we'll use this mode under its historical name for splitting
        span elements that span line breaks, and for re-grouping CrossReferenceSources. -->
 
   <xsl:template match="*[CrossReferenceSource]" 
     mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
     <xsl:variable name="context" select="." as="element(XMLElement)" />
-    <xsl:for-each-group select="*" group-adjacent="idml2xml:elt-signature(self::CrossReferenceSource)">
-      <xsl:choose>
-        <xsl:when test="current-grouping-key()">
-          <xsl:copy>
-            <xsl:copy-of select="@*" />
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current" />
+      <xsl:for-each-group select="*" group-adjacent="idml2xml:elt-signature(self::CrossReferenceSource)">
+        <xsl:choose>
+          <xsl:when test="current-grouping-key()">
+            <xsl:copy>
+              <xsl:copy-of select="@*" />
+              <xsl:apply-templates select="current-group()" mode="#current" />
+            </xsl:copy>
+          </xsl:when>
+          <xsl:otherwise>
             <xsl:apply-templates select="current-group()" mode="#current" />
-          </xsl:copy>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates select="current-group()" mode="#current" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:for-each-group>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template match="CrossReferenceSource" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
