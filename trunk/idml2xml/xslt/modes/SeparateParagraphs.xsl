@@ -114,11 +114,12 @@
   <!-- ParagraphStyleRange that contains a Br below (in its own scope, i.e., not looking further 
        down than to the next contained ParagraphStyleRange): -->
   <xsl:template
-    match="ParagraphStyleRange[.//*[self::ParagraphStyleRange or not(*)][not(ancestor::ParagraphStyleRange[some $a in ancestor::* satisfies ($a is current())])]]" 
+    match="ParagraphStyleRange[.//Br[idml2xml:same-scope(., current())]]" 
     mode="idml2xml:SeparateParagraphs"
     priority="3">
     <xsl:sequence select="idml2xml:split-at-br(.)" />
   </xsl:template>
+<!--     match="ParagraphStyleRange[.//*[self::ParagraphStyleRange or not(*)][not(ancestor::ParagraphStyleRange[some $a in ancestor::* satisfies ($a is current())])]]"  -->
 
   <!-- Dealing with erroneous inline elements (of the payload XML format; e.g., span or p). The typesetter
        inserted a paragraph break in the layout and forgot to adjust the tagging. -->
@@ -134,27 +135,17 @@
     <xsl:variable name="leaves" as="element(*)+">
       <xsl:choose>
         <xsl:when test="$elt/self::ParagraphStyleRange">
-          <xsl:sequence select="$elt//*[self::Cell or self::Story or self::XmlStory or not(*)][idml2xml:same-scope(., $elt)]" />
+          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
 <!--           <xsl:sequence select="$elt//*[self::ParagraphStyleRange or not(*)][not(ancestor::ParagraphStyleRange[some $a in ancestor::* satisfies ($a is $elt)])]" /> -->
         </xsl:when>
         <xsl:when test="$elt/self::XMLElement">
-          <xsl:sequence select="$elt//*[self::Cell or self::Story or self::XmlStory or not(*)][idml2xml:same-scope(., $elt)]" />
+          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
         </xsl:when>
         <xsl:otherwise>
           <idml2xml:error msg="idml2xml:split-at-br in SeparateParagraphs.xsl is only defined for XMLElement or ParagraphStyleRange"/> 
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <!--
-    <split>
-      <elt>
-        <xsl:value-of select="string-join((local-name($elt), $elt/@Self, $elt/@MarkupTag, $elt/@AppliedParagraphStyle), '|')" />
-      </elt>
-      <leaves>
-        <xsl:sequence select="$leaves" />
-      </leaves>
-    </split>
-    -->
     <xsl:for-each-group select="$leaves" group-ending-with="*[self::Br]">
       <xsl:variable name="cg" select="current-group()" />
       <xsl:apply-templates select="$elt" mode="idml2xml:SeparateParagraphs-slice">
@@ -165,41 +156,55 @@
   </xsl:function>
 
   <!-- move CharacterStyleRange down, immediately above Content -->
-  <xsl:template match="CharacterStyleRange[XMLElement]" mode="idml2xml:SeparateParagraphs-slice">
+  <xsl:template match="CharacterStyleRange" mode="idml2xml:SeparateParagraphs-slice">
     <xsl:apply-templates mode="#current">
       <xsl:with-param name="charstylerange" select="." tunnel="yes"/>
     </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="CrossReferenceSource" mode="idml2xml:SeparateParagraphs-slice">
+    <xsl:apply-templates mode="#current" />
   </xsl:template>
 
   <xsl:template match="*" mode="idml2xml:SeparateParagraphs-slice">
     <xsl:param name="local-leaves" as="element(*)*" tunnel="yes"/>
     <xsl:param name="local-leaves-ancestors" as="element(*)*" tunnel="yes"/>
     <xsl:param name="charstylerange" as="element(CharacterStyleRange)?" tunnel="yes"/>
-<!--             <copy/> -->
     <xsl:choose>
       <!-- Current element is one of the leaves whose upward-projected tree should be exported: -->
       <xsl:when test="exists(. intersect $local-leaves)">
         <xsl:choose>
           <!-- No content; remove: -->
-          <xsl:when test="self::ParagraphStyleRange[not(.//*[name() = ($idml2xml:idml-content-element-names, 'Br')])]">
-<!--             <c1/> -->
-          </xsl:when>
+          <xsl:when test="self::ParagraphStyleRange[not(.//*[name() = ($idml2xml:idml-content-element-names, 'Br')])]" />
           <!-- Nested para, as in a table cell: -->
           <xsl:when test="self::ParagraphStyleRange[*]">
-<!--             <c2/> -->
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
           <xsl:when test="self::XMLElement[@MarkupTag = $idml2xml:split-these-elements-if-they-stretch-across-paragraphs]">
-<!--             <c3/> -->
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
           <!-- Move a CharacterStyleRange down here, immediately above the rendered content: -->
           <xsl:when test="exists($charstylerange) and name() = $idml2xml:idml-content-element-names">
-<!--             <c4/> -->
-            <CharacterStyleRange>
-              <xsl:copy-of select="$charstylerange/@*" />
-              <xsl:copy-of select="." />
-            </CharacterStyleRange>
+            <xsl:variable name="new-charstylerange" as="element(CharacterStyleRange)">
+              <CharacterStyleRange>
+                <xsl:copy-of select="$charstylerange/@*" />
+                <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
+              </CharacterStyleRange>
+            </xsl:variable>
+            <xsl:variable name="parent-is-crossrefsrc" select="$charstylerange/parent::CrossReferenceSource" as="element(CrossReferenceSource)?" />
+            <xsl:choose>
+              <xsl:when test="exists($parent-is-crossrefsrc)">
+                <!-- move an enclosing CrossRefSrc down, too (thereby potentially splitting it – we gotta do this 
+                     because they sometimes span para breaks. We can join them later if they're within the same para.): -->
+                <CrossReferenceSource>
+                  <xsl:copy-of select="$parent-is-crossrefsrc/@*"/>
+                  <xsl:sequence select="$new-charstylerange" />
+                </CrossReferenceSource>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:sequence select="$new-charstylerange" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <!-- Plain copy: -->
           <xsl:otherwise>

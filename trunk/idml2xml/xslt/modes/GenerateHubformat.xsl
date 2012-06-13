@@ -23,7 +23,7 @@
 
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
-      select="('anchor', 'book', 'para', 'info', 'informaltable', 'table', 'tgroup', 
+      select="('anchor', 'book', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
                'superscript', 'subscript', 'link', 'xref', 'footnote',
@@ -39,11 +39,16 @@
   <!-- see ../propmap.xsl -->
 
   <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties">
-    <book xmlns="http://docbook.org/ns/docbook" version="5.1-variant le-tex_Hub-1.0" css:version="3.0-variant le-tex_Hub-1.0">
+    <Body xmlns="http://docbook.org/ns/docbook" version="5.1-variant le-tex_Hub-1.0" css:version="3.0-variant le-tex_Hub-1.0">
       <info>
         <keywordset role="hub">
           <keyword role="formatting-deviations-only">true</keyword>
           <keyword role="source-type">idml</keyword>
+          <xsl:if test="/*/@TOCStyle_Title">
+            <keyword role="toc-title">
+              <xsl:value-of select="/*/@TOCStyle_Title"/>
+            </keyword>
+          </xsl:if>
         </keywordset>
         <styles>
           <parastyles>
@@ -70,7 +75,7 @@
         </styles>
       </info>
       <xsl:apply-templates mode="#current"/>
-    </book>
+    </Body>
   </xsl:template>
 
   <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle" mode="idml2xml:XML-Hubformat-add-properties">
@@ -362,10 +367,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
 
-  <xsl:template match="idml2xml:attribute[@name = ('aid:cstyle')][. ne 'No_character_style']" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:attribute name="role" select="idml2xml:StyleName(.)" />
-  </xsl:template>
-
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />
@@ -447,17 +448,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         name="style" select="if (@aid:pstyle ne '') then @aid:pstyle else 'Standard'"
         as="xs:string"/>
     <para>
-      <xsl:attribute name="role" select="idml2xml:StyleName( $style )" />
-      <xsl:apply-templates select="@* except (@pstyle|@aid:pstyle )" mode="#current"/>
-      <xsl:if test="HyperlinkTextDestination[1]/@DestinationUniqueKey ne ''">
-        <xsl:attribute name="xml:id" select="concat ($id-prefix, HyperlinkTextDestination[1]/@DestinationUniqueKey)"/>
-      </xsl:if>
-      <!-- set anchor for hyperlink -->
-      <xsl:if test="count (HyperlinkTextDestination) gt 1">
-        <xsl:for-each select="HyperlinkTextDestination[position() ne 1]/@DestinationUniqueKey">
-          <phrase xml:id="{concat ($id-prefix,.)}"/>
-        </xsl:for-each>
-      </xsl:if>
+      <xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+      <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
     </para>
   </xsl:template>
@@ -476,13 +468,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
     <xsl:choose>
-      <xsl:when test="$role eq 'No_character_style' and not(text()[matches(., '\S')]) and count(*) gt 0 and count(*) eq count(PageReference union HyperlinkTextSource)">
+      <xsl:when test="$role eq 'No_character_style' 
+                      and not(text()[matches(., '\S')]) 
+                      and count(*) gt 0 and 
+                      count(*) eq count(PageReference union HyperlinkTextSource)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role eq 'No_character_style' and not(text()[matches(., '\S')]) and count(* except idml2xml:genAnchor) eq 0">
+      <xsl:when test="$role eq 'No_character_style' 
+                      and not(text()[matches(., '\S')]) 
+                      and count(* except idml2xml:genAnchor) eq 0">
         <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role eq 'No_character_style' and text() 
+      <xsl:when test="$role eq 'No_character_style' 
+                      and text() 
                       and count(* except idml2xml:genAnchor) eq 0
                       and count(@* except (@aid:cstyle union @srcpath)) eq 0
                       ">
@@ -497,8 +495,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:if test="$role ne ''">
             <xsl:attribute name="role" select="$role"/>
           </xsl:if>
-          <xsl:apply-templates select="@* except @aid:cstyle" mode="#current"/>
-          <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
+          <xsl:variable name="atts" select="@* except @aid:cstyle" as="attribute(*)*" />
+          <xsl:choose>
+            <xsl:when test="exists($atts)">
+              <emphasis>
+                <xsl:apply-templates select="$atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
+              </emphasis>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </phrase>
       </xsl:otherwise>
     </xsl:choose>
@@ -524,6 +531,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="linkend" select="concat ($id-prefix, .)" />
   </xsl:template>
 
+  <xsl:template match="@aid:cstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:attribute name="role" select="." />
+  </xsl:template>
+
   <xsl:template match="idml2xml:genFrame" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <sidebar remap="{@idml2xml:elementName}">
@@ -537,8 +548,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <!-- May this be safely discarded under any circumstance? -->
-  <xsl:template match="TextVariableInstance" mode="idml2xml:XML-Hubformat-remap-para-and-span" />
+  <xsl:template match="TextVariableInstance" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
 
 
 <!--  <xsl:template match="idml2xml:CharacterStyleRange[ ( idml2xml:Br  and  count(*) eq 1 )  or  
@@ -638,11 +648,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- doesn't work correctly for nested tables yet (need to restrict selected cells to idml2xml:same-scope cells -->
 
-  <xsl:template match="idml2xml:*
+  <xsl:template match="idml2xml:genPara
                          [*[@aid:table='table']]
-                         [every $c in * satisfies ($c[@aid:table='table'])]"
+                         [every $c in * satisfies ($c[@aid:table='table'])]
+                       |
+                       idml2xml:genPara
+                         [idml2xml:genSpan
+                           [*[@aid:table='table']]
+                           [every $c in * satisfies ($c[@aid:table='table'])]
+                         ]
+                         [every $s in * satisfies ($s/self::idml2xml:genSpan)]"
     mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="var-cols" select="xs:integer(*[@aid:table='table']/@aid:tcols)" as="xs:integer"/>
+    <xsl:variable name="table" select="(*[@aid:table='table'], */*[@aid:table='table'])[1]" as="element(*)" />
+    <xsl:variable name="var-cols" select="xs:integer($table/@aid:tcols)" as="xs:integer"/>
     <xsl:variable name="var-table" as="element(dbk:row)*">
       <xsl:for-each select="idml2xml:make-rows( 
                               $var-cols, 

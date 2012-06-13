@@ -53,7 +53,7 @@
                          [.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle']
                          [ some $a in (. | .//XMLElement[idml2xml:same-scope(., current())][not(XMLAttribute/@Name = 'aid:pstyle')])
                            /*[self::CharacterStyleRange or self::HyperlinkTextSource[CharacterStyleRange]][
-                             some $c in .//Content[idml2xml:same-scope(., current())] satisfies (matches($c, '.'))
+                             some $c in .//Content[idml2xml:same-scope(., current())] satisfies (matches($c, '[^\s&#xfeff;]'))
                            ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
                          ]" mode="idml2xml:GenerateTagging">
@@ -69,12 +69,15 @@
     </xsl:copy>
   </xsl:template>
 
+
+  <xsl:template match="XmlStory[matches(string-join(.//Content, ''), '^&#xfeff;$')]" mode="idml2xml:GenerateTagging" />
+
   <!-- Matches a ParagraphStyleRange that contains some text -->
   <xsl:template match="*:ParagraphStyleRange
                          [ancestor::Story]
                          [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
                          [ some $a in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange)[
-                               some $c in .//Content satisfies (matches($c, '.'))
+                               some $c in .//Content satisfies (matches($c, '[^\s&#xfeff;]'))
                              ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
                          ]" mode="idml2xml:GenerateTagging" priority="0.3">
@@ -90,6 +93,23 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Matches a ParagraphStyleRange that contains a table -->
+  <xsl:template match="ParagraphStyleRange
+                         [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
+                         [Table]" mode="idml2xml:GenerateTagging">
+    <xsl:copy>
+      <xsl:copy-of select="@*" />
+      <xsl:copy-of select="Properties" />
+      <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
+        <xsl:apply-templates select="* except Properties" mode="#current" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
+        <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp5'), ' ')}" />
+      </XMLElement>
+    </xsl:copy>
+  </xsl:template>
+
+
   <!-- If there is exactly 1 XMLElement immediately below a Cell, it is supposed that this element
        represents a table cell. In all other cases, an idml2xml:genCell XMLElement will be created: -->
   <xsl:template match="Cell[not(XMLElement and count(*) eq 1)]" mode="idml2xml:GenerateTagging">
@@ -102,6 +122,18 @@
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp7'), ' ')}" />
       </XMLElement>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="Table" mode="idml2xml:GenerateTagging">
+    <XMLElement MarkupTag="XMLTag/idml2xml%3agenTable">
+      <xsl:copy>
+        <xsl:copy-of select="@*" />
+        <xsl:copy-of select="Properties" />
+        <xsl:apply-templates select="* except Properties" mode="#current" />
+      </xsl:copy>
+      <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+      <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp7'), ' ')}" />
+    </XMLElement>
   </xsl:template>
 
   <xsl:template match="*:XMLElement" mode="idml2xml:GenerateTagging">

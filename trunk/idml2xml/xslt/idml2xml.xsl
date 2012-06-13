@@ -84,11 +84,11 @@
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor', 'Footnote')" 
+    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor', 'TextFrame')" 
     as="xs:string+" />
-  <xsl:variable
+  <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
-    select="($idml2xml:idml-content-element-names, 'Br', 'TextFrame', 'Table', 'Story', 'CharacterStyleRange')" 
+    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'CharacterStyleRange')" 
     as="xs:string+" />
   <xsl:variable
     name="idml2xml:split-these-elements-if-they-stretch-across-paragraphs" 

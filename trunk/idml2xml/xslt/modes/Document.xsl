@@ -175,15 +175,5 @@ and PDF.
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="CrossReferenceSource" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:apply-templates select="*" mode="#current"/>
-  </xsl:template>
-
-  <xsl:template match="CrossReferenceSource//Content[. is (ancestor::CrossReferenceSource[1]//Content)[1]]" mode="idml2xml:DocumentResolveTextFrames">
-    <idml2xml:genAnchor xml:id="{ancestor::CrossReferenceSource[1]/@Self}"/>
-    <xsl:copy>
-      <xsl:apply-templates select="@* | node()" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
 
 </xsl:stylesheet>

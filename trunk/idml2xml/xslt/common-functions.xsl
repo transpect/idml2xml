@@ -74,6 +74,11 @@
                           '' )"/>
   </xsl:function>
 
+  <xsl:function name="idml2xml:escape-id" as="xs:string">
+    <xsl:param name="input" as="xs:string"/>
+    <xsl:sequence select="replace($input, '[/ ]', '_' )"/>
+  </xsl:function>
+
 
   <xsl:function name="idml2xml:countIndexterms">
     <!-- type '1' = primary; type '2' = secondary; type '3' = tertiary; type '4' = quaternary -->
@@ -103,6 +108,7 @@
     <xsl:param name="ancestor-elt" as="element(*)" />
     <xsl:sequence select="not($elt/ancestor::*[self::Cell 
                                                or @aid:table eq 'cell' 
+                                               or self::Footnote
                                                or self::Story
                                                or self::idml2xml:genFrame
                                                or self::XmlStory 
@@ -154,6 +160,38 @@
                   (some $b in $a/ancestor::* satisfies ($b is $elt))
                  )]" />
   </xsl:function>
+
+
+  <xsl:function name="idml2xml:elt-signature" as="xs:string*">
+    <xsl:param name="elt" as="element(*)?" />
+    <xsl:sequence select="if (exists($elt)) 
+                          then string-join((name($elt), idml2xml:attr-hashes($elt)), '___')
+                          else '' " />
+  </xsl:function>
+
+  <xsl:function name="idml2xml:attr-hashes" as="xs:string*">
+    <xsl:param name="elt" as="node()*" />
+    <xsl:perform-sort>
+      <xsl:sort/>
+      <xsl:sequence select="for $a in $elt/@* return idml2xml:attr-hash($a)" />
+    </xsl:perform-sort>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:attr-hash" as="xs:string">
+    <xsl:param name="att" as="attribute(*)" />
+    <xsl:sequence select="concat(name($att), '__=__', $att)" />
+  </xsl:function>
+
+  <xsl:function name="idml2xml:attname" as="xs:string">
+    <xsl:param name="hash" as="xs:string" />
+    <xsl:value-of select="replace($hash, '__=__.+$', '')" />
+  </xsl:function>
+
+  <xsl:function name="idml2xml:attval" as="xs:string">
+    <xsl:param name="hash" as="xs:string" />
+    <xsl:value-of select="replace($hash, '^.+__=__', '')" />
+  </xsl:function>
+
 
 
   <!--  function replaces 
