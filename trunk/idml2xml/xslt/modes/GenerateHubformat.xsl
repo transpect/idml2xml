@@ -491,11 +491,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:if test="idml2xml:genAnchor">
           <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         </xsl:if>
-        <phrase>
+        <phrase srcpath="{@srcpath}">
           <xsl:if test="$role ne ''">
             <xsl:attribute name="role" select="$role"/>
           </xsl:if>
-          <xsl:variable name="atts" select="@* except @aid:cstyle" as="attribute(*)*" />
+          <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath)" as="attribute(*)*" />
           <xsl:choose>
             <xsl:when test="exists($atts)">
               <emphasis>

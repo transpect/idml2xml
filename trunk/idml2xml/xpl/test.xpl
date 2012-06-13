@@ -13,6 +13,7 @@
 
   <p:serialization port="svrl" indent="true" omit-xml-declaration="false"/>
   <p:serialization port="result" indent="true" omit-xml-declaration="false"/>
+  <p:serialization port="unpatched" indent="true" omit-xml-declaration="false"/>
   <p:serialization port="xsl" indent="true" omit-xml-declaration="false"/>
   <p:serialization port="xpl" indent="true" omit-xml-declaration="false"/>
 
@@ -26,6 +27,10 @@
 
   <p:output port="result" primary="true">
     <p:pipe step="patch" port="result"/>
+  </p:output>
+
+  <p:output port="unpatched">
+    <p:pipe step="test" port="result"/>
   </p:output>
 
   <p:output port="xsl">
