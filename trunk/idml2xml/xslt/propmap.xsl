@@ -19,6 +19,8 @@
         <prop name="Self" />
         <prop name="Imported" />
         <prop name="idml2xml:reason" />
+        <prop name="AllGREPStyles" />
+        <prop name="AllNestedStyles" />
 
         <prop name="aid:cstyle" type="passthru" />
         <prop name="aid:pstyle" type="passthru" />

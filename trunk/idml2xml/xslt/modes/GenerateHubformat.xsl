@@ -111,6 +111,7 @@
   </xsl:template>
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
 
+
   <!-- 
 remap and output indesign attribute+property settings to hub format
 see: idml/_IDML_Schema_RelaxNGCompact

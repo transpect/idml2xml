@@ -23,11 +23,11 @@
           idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br
           idml2xml:ConsolidateParagraphStyleRanges-remove-empty
           idml2xml:ConsolidateParagraphStyleRanges-remove-ranges
+          idml2xml:ExtractTagging
           idml2xml:GenerateTagging
           idml2xml:IndexTerms-Topics
           idml2xml:IndexTerms-SeeAlso
           idml2xml:Statistics
-          idml2xml:ExtractTagging
           idml2xml:XML-Hubformat-add-properties
           idml2xml:XML-Hubformat-extract-frames
           idml2xml:XML-Hubformat-remap-para-and-span
