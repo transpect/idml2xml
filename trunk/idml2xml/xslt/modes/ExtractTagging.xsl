@@ -299,6 +299,19 @@
 												InCopyExportOption"
 		mode="idml2xml:ExtractTagging"/>
 	
+  <xsl:template match="text()" mode="idml2xml:ExtractTagging">
+    <xsl:analyze-string select="." regex="&#9;">
+      <xsl:matching-substring>
+        <idml2xml:tab>
+          <xsl:text>&#9;</xsl:text>
+        </idml2xml:tab>
+      </xsl:matching-substring>
+      <xsl:non-matching-substring>
+        <xsl:value-of select="."/>
+      </xsl:non-matching-substring>
+    </xsl:analyze-string>
+  </xsl:template>
+
 	<!-- sometimes there are processing-instructions, e.g. <?ACE 8?> -->
 	<xsl:template match="processing-instruction()" mode="idml2xml:ExtractTagging">
     <xsl:message>PI
