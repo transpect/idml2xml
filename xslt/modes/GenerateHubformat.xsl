@@ -600,7 +600,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <xsl:template match="idml2xml:tab" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <tab>
-      <xsl:apply-templates select="@*" mode="#current" />
+      <xsl:apply-templates select="@* | node()" mode="#current" />
     </tab>
   </xsl:template>
   
