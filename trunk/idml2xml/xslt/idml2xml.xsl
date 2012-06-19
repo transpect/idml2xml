@@ -101,7 +101,7 @@
     as="xs:string" />
   <xsl:variable
     name="designmap-root"
-    select="/"
+    select="$designmap-doc"
     as="document-node(element(Document))" />
 
   <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
