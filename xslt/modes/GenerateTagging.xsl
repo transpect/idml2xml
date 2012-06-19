@@ -77,7 +77,7 @@
                          [ancestor::Story]
                          [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
                          [ some $a in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange)[
-                               some $c in .//Content satisfies (matches($c, '[^\s&#xfeff;]'))
+                               some $c in (.//Content | .//TextVariableInstance/@ResultText) satisfies (matches($c, '[^\s&#xfeff;]'))
                              ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
                          ]" mode="idml2xml:GenerateTagging" priority="0.3">

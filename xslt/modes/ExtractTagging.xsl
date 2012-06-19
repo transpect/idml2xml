@@ -144,7 +144,7 @@
   <xsl:template match="XMLAttribute | Contents[ancestor::MetadataPacketPreference]" mode="idml2xml:ExtractTagging"/>
   
   <xsl:template match="Br | idml2xml:Br" mode="idml2xml:ExtractTagging">
-    <idml2xml:newline/>
+    <idml2xml:parsep/>
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
 
