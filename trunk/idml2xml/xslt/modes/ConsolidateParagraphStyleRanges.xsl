@@ -176,7 +176,7 @@
             </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
-            <idml2xml:newline/>
+            <idml2xml:parsep/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each-group>

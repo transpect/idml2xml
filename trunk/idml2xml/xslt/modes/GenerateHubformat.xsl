@@ -595,7 +595,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </indexterm>
   </xsl:template>
   
-  <xsl:template match="idml2xml:newline"
+  <xsl:template match="idml2xml:parsep"
     mode="idml2xml:XML-Hubformat-remap-para-and-span" />
 
   <xsl:template match="idml2xml:tab" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -617,8 +617,8 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <xsl:template match="idml2xml:genDoc[ node() ]
                        [ not (descendant::*[local-name() eq 'genPara']) and
-                         preceding-sibling::*[1][self::idml2xml:newline] and
-                         following-sibling::*[1][self::idml2xml:newline]
+                         preceding-sibling::*[1][self::idml2xml:parsep] and
+                         following-sibling::*[1][self::idml2xml:parsep]
                        ]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <para>
       <xsl:attribute 
@@ -839,6 +839,16 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   <xsl:template match="idml2xml:XmlStory" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
   
+  <xsl:template match="text()" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:analyze-string select="." regex="&#x2028;">
+      <xsl:matching-substring>
+        <br/>
+      </xsl:matching-substring>
+      <xsl:non-matching-substring>
+        <xsl:value-of select="."/>
+      </xsl:non-matching-substring>
+    </xsl:analyze-string>
+  </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
@@ -850,6 +860,10 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  <xsl:template match="text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:value-of select="replace(., '&#xfeff;', '')"/>
+  </xsl:template>
+
   <xsl:template match="dbk:superscript
                          [dbk:footnote]
                          [every $c in (text()[normalize-space()], *) 
