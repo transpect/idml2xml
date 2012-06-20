@@ -328,11 +328,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="exists(idml2xml:wrap) and not(self::style)">
-        <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap))" />
+      <xsl:when test="exists(idml2xml:wrap) and exists(self::dbk:style)">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="remap" select="idml2xml:wrap/@element" />
+        </xsl:copy>
       </xsl:when>
-      <xsl:when test="exists(idml2xml:wrap) and exists(self::style)">
-        <xsl:attribute name="wrap" select="@element" />
+      <xsl:when test="exists(idml2xml:wrap) and not(self::dbk:style)">
+        <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap))" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:copy>
