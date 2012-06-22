@@ -16,7 +16,9 @@
   <xsl:template match="idml2xml:genSpan[not(node())]"
 		mode="idml2xml:AutoCorrect" priority="1.5" />
 
-  <xsl:template match="idml2xml:genSpan[string-length(.) eq 0]" mode="idml2xml:AutoCorrect" />
+  <xsl:template match="idml2xml:genSpan
+                         [string-length(.) eq 0]
+                         [not(Rectangle)]" mode="idml2xml:AutoCorrect" />
 
 
   <xsl:template match="idml2xml:genSpan[@aid:pstyle][not(../@aid:cstyle)]" mode="idml2xml:AutoCorrect">
