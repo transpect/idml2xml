@@ -572,7 +572,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <indexterm>
-    <xsl:for-each select="tokenize( @ReferencedTopic, '(d1)?Topicn' )">
+    <xsl:for-each select="tokenize( @idml2xml:ReferencedTopic, '(d1)?Topicn' )">
       <xsl:choose>
 	<xsl:when test="position() eq 1  or  current() eq ''"/>
 	<xsl:when test="position() eq 2">
