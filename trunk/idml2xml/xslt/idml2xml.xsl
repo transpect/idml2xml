@@ -216,7 +216,7 @@
 
   <xsl:template name="indexterms">
     <xsl:sequence select="$idml2xml:IndexTerms"/>
-    <xsl:if test="xs:boolean(xs:integer($debug))">
+    <xsl:if test="$debug = ('1','yes')">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '20.DocumentStoriesSorted.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:DocumentStoriesSorted"/>
       </xsl:result-document>
@@ -230,7 +230,7 @@
   </xsl:template>
 
   <xsl:template name="debug-common">
-    <xsl:if test="xs:boolean(xs:integer($debug))">
+    <xsl:if test="$debug = ('1','yes')">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '05.Document.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:Document"/>
       </xsl:result-document>
@@ -266,7 +266,7 @@
 
 
   <xsl:template name="debug-tagged">
-    <xsl:if test="xs:boolean(xs:integer($debug))">
+    <xsl:if test="$debug = ('1','yes')">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '50.AutoCorrect.xml')}" format="debug">
 	<xsl:sequence select="$idml2xml:AutoCorrect"/>
       </xsl:result-document>
@@ -277,7 +277,7 @@
   </xsl:template>
 
   <xsl:template name="debug-hub">
-    <xsl:if test="xs:boolean(xs:integer($debug))">
+    <xsl:if test="$debug = ('1','yes')">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.07.XML-Hubformat-add-properties.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-add-properties"/>
       </xsl:result-document>
