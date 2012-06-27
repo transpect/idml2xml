@@ -658,23 +658,14 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <!-- doesn't work correctly for nested tables yet (need to restrict selected cells to idml2xml:same-scope cells -->
 
-  <xsl:template match="idml2xml:genPara
-                         [*[@aid:table='table']]
-                         [every $c in * satisfies ($c[@aid:table='table'])]
-                       |
-                       idml2xml:genPara
-                         [idml2xml:genSpan
-                           [*[@aid:table='table']]
-                           [every $c in * satisfies ($c[@aid:table='table'])]
-                         ]
-                         [every $s in * satisfies ($s/self::idml2xml:genSpan)]"
+  <xsl:template match="*[@aid:table eq 'table']"
     mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="table" select="(*[@aid:table='table'], */*[@aid:table='table'])[1]" as="element(*)" />
+    <xsl:variable name="table" select="(self::*[@aid:table='table'], *[@aid:table='table'])[1]" as="element(*)" />
     <xsl:variable name="var-cols" select="xs:integer($table/@aid:tcols)" as="xs:integer"/>
     <xsl:variable name="var-table" as="element(dbk:row)*">
       <xsl:for-each select="idml2xml:make-rows( 
                               $var-cols, 
-                              descendant::*[@aid:table eq 'cell'][1], 
+                              (descendant::*[@aid:table eq 'cell'], self::*[@aid:table eq 'cell'])[1], 
                               number(descendant::*[@aid:table eq 'cell'][1]/@aid:ccols), 
                               0, 
                               'true'
