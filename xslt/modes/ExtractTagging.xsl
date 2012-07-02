@@ -53,15 +53,16 @@
 
       <xsl:apply-templates select="@*" mode="idml2xml:ExtractAttributes" />
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
-      <xsl:if test="not(XMLAttribute[@Name eq 'aid:cstyle'])">
-        <xsl:apply-templates select="(ancestor::ParagraphStyleRange, ../ancestor::XMLElement)[last()]" mode="idml2xml:ExtractAttributes"/>
+      <xsl:if test="XMLAttribute[@Name eq 'aid:pstyle']">
+        <xsl:attribute name="hurz" select="(ancestor::ParagraphStyleRange | ../ancestor::XMLElement)[last()]/name()"/>
+        <xsl:apply-templates select="(ancestor::ParagraphStyleRange | ../ancestor::XMLElement)[last()]" mode="idml2xml:ExtractAttributes"/>
       </xsl:if>
-      <xsl:if test="not(XMLAttribute[@Name eq 'aid:pstyle'])">
+      <xsl:if test="XMLAttribute[@Name eq 'aid:cstyle']">
         <xsl:apply-templates select="ancestor::CharacterStyleRange[1]" mode="idml2xml:ExtractAttributes"/>
       </xsl:if>
       <!-- ancestor::XMLElement[1] is here for the following reason:
            If Cell was preceded by XMLElement when looking upwards the ancestor axis, do nothing. -->
-      <xsl:apply-templates select="(ancestor::Cell[1] union ancestor::XMLElement[1])[last()]" mode="idml2xml:ExtractAttributes"/>
+      <xsl:apply-templates select="(ancestor::Cell[1] | ancestor::XMLElement[1])[last()]" mode="idml2xml:ExtractAttributes"/>
 
 
       <xsl:if test="parent::Story or parent::XmlStory">
