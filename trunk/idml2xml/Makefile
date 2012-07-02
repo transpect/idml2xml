@@ -1,9 +1,11 @@
+MAKEFILEDIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))))
+
 ifeq ($(shell uname -o),Cygwin)
 win_path = $(shell cygpath -ma $(1))
 uri = $(shell echo file:///$(call win_path,$(1))  | perl -pe 's/ /%20/g')
 else
-uri = $(1)
-endif
+uri = $(shell echo file:///$(abspath $(1))  | perl -pe 's/ /%20/g')
+	endif
 
 lc = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
@@ -13,12 +15,12 @@ DEBUGDIR = debug
 
 default: usage
 
-%.idml.HUB %.idml.INDEXTERMS %.idml.TAGGED:	%.idml Makefile xslt/*.xsl xslt/modes/*.xsl
+%.idml.HUB %.idml.INDEXTERMS %.idml.TAGGED:	%.idml $(MAKEFILEDIR)/Makefile $(wildcard $(MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(MAKEFILEDIR)/xslt/modes/*.xsl)
 	mkdir -p "$<.tmp"
 	unzip -u -o -d "$<.tmp" "$<"
 	$(SAXON) \
       $(SAXONOPTS) \
-      -xsl:xslt/idml2xml.xsl \
+      -xsl:$(call uri,$(MAKEFILEDIR)/xslt/idml2xml.xsl) \
       -it:$(call lc,$(subst .,,$(suffix $@))) \
       src-dir-uri=$(call uri,"$<").tmp \
       split=$(SPLIT) \
@@ -34,18 +36,16 @@ usage:
 	@echo "All rights reserved"
 	@echo ""
 	@echo "Usage:"
-	@echo "  Place a file xyz.idml anywhere, then run 'make path_to/xyz.idml.XYZ',"
-	@echo "    where XYZ is one of TAGGED, HUB, or INDEXTERMS."
+	@echo "  Place a file xyz.idml anywhere, then run 'make -f $(MAKEFILEDIR)/Makefile path_to/xyz.idml.XYZ',"
+	@echo "    where XYZ is one of TAGGED, HUB, or INDEXTERMS. Use make's -C option (instead of the -f option)"
+	@echo "    only if the file name contains an absolute directory."
 	@echo "  Optional parameter SPLIT for the .TAGGED target: comma-separated list of tags that"
 	@echo "    should be split if they cross actual InDesign paragraph boundaries (e.g., SPLIT=span,p)."
 	@echo "  Optional parameter DEBUG=1 (which is default) will cause debugging info to be dumped"
 	@echo "    into DEBUGDIR (which is `realpath $(DEBUGDIR)` by default)."
 	@echo "    Use DEBUG=0 to switch off debugging."
-	@echo "  If you want to invoke this from your project directory (and also want to have"
-	@echo "    the debug files there), use something like:"
-	@echo "  > make -C $(CURDIR) \`realpath relpath_to/xyz.idml.HUB\` DEBUGDIR=\`pwd\`/debug"
 	@echo "  Example for processing 37 chapters from bash:"
-	@echo "  > for c in $$(seq -f '%02g' 37); do make -C Dev/idml2xml/  /path/to/IDML/$${c}_Chap.idml.HUB; done"
+	@echo '  > for c in $$(seq -f '%02g' 37); do make -f $(MAKEFILEDIR)Makefile path/to/IDML/$${c}_Chap.idml.HUB; done'
 	@echo ""
 	@echo "Prerequisites:"
 	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
