@@ -1,4 +1,4 @@
-MAKEFILEDIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))))
+MAKEFILEDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 ifeq ($(shell uname -o),Cygwin)
 win_path = $(shell cygpath -ma $(1))
