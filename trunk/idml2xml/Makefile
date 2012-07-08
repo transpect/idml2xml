@@ -5,13 +5,13 @@ win_path = $(shell cygpath -ma $(1))
 uri = $(shell echo file:///$(call win_path,$(1))  | perl -pe 's/ /%20/g')
 else
 uri = $(shell echo file:///$(abspath $(1))  | perl -pe 's/ /%20/g')
-	endif
+endif
 
 lc = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 SAXON := saxon
 DEBUG := 1
-DEBUGDIR = debug
+DEBUGDIR = "$<.tmp/debug"
 
 default: usage
 
