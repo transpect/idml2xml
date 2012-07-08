@@ -11,9 +11,6 @@ SAXON := saxon
 DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 
-test:
-	@echo $(CURDIR)
-
 default: idml2xml_usage
 
 %.hub.xml %.indexterms.xml %.tagged.xml:	%.idml $(IDML2XML_MAKEFILEDIR)/Makefile $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/modes/*.xsl)
