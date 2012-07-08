@@ -54,7 +54,6 @@
       <xsl:apply-templates select="@*" mode="idml2xml:ExtractAttributes" />
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
       <xsl:if test="XMLAttribute[@Name eq 'aid:pstyle']">
-        <xsl:attribute name="hurz" select="(ancestor::ParagraphStyleRange | ../ancestor::XMLElement)[last()]/name()"/>
         <xsl:apply-templates select="(ancestor::ParagraphStyleRange | ../ancestor::XMLElement)[last()]" mode="idml2xml:ExtractAttributes"/>
       </xsl:if>
       <xsl:if test="XMLAttribute[@Name eq 'aid:cstyle']">

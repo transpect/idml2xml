@@ -110,7 +110,6 @@
                                                or @aid:table eq 'cell' 
                                                or self::Footnote
                                                or self::Story
-                                               or self::idml2xml:genFrame
                                                or self::XmlStory 
                                                or @idml2xml:story]
                                               [some $a in ancestor::* satisfies ($a is $ancestor-elt)])" />
