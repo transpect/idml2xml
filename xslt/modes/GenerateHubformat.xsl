@@ -403,8 +403,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-  <!-- must handle frames in frames! -->
-  <xsl:template match="*[@*:pstyle or @*:AppliedParagraphStyle][.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" mode="idml2xml:XML-Hubformat-extract-frames">
+  <xsl:template match="*[@aid:pstyle][.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" mode="idml2xml:XML-Hubformat-extract-frames">
     <xsl:variable name="frames" as="element(idml2xml:genFrame)+">
       <xsl:sequence select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
     </xsl:variable>

@@ -93,10 +93,10 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Matches a ParagraphStyleRange that contains a table -->
+  <!-- Matches a ParagraphStyleRange that contains a table or a group -->
   <xsl:template match="ParagraphStyleRange
                          [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
-                         [Table]" mode="idml2xml:GenerateTagging">
+                         [Table or Group]" mode="idml2xml:GenerateTagging">
     <xsl:copy>
       <xsl:copy-of select="@*" />
       <xsl:copy-of select="Properties" />
