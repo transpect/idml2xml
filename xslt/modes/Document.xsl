@@ -100,16 +100,19 @@
       <idml2xml:lang>
         <xsl:copy-of select="Language" />
       </idml2xml:lang>
-      <xsl:for-each-group select="idPkg:Spread/Spread/TextFrame" group-by="@ParentStory">
-        <xsl:if test="count( Properties/PathGeometry/GeometryPathType ) gt 1">
-          <xsl:message select="'WARNING: more than one GeometryPathType element in', @Self"/>
+      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame
+                                  | idPkg:Spread/Spread/Group[TextFrame]" 
+        group-by="(@ParentStory, TextFrame/@ParentStory)">
+        <xsl:variable name="frame" select="(., TextFrame)[@ParentStory]" as="element(TextFrame)" />
+        <xsl:if test="count( $frame/Properties/PathGeometry/GeometryPathType ) gt 1">
+          <xsl:message select="'WARNING: more than one GeometryPathType element in', $frame/@Self"/>
         </xsl:if>
+        <!--
         <xsl:variable name="PathPoints" select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" as="node()*"/>
         <xsl:variable name="CoordinateLeft" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" as="xs:double"/>
         <xsl:variable name="CoordinateTop" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" as="xs:double"/>
         <xsl:variable name="CoordinateRight" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" as="xs:double"/>
         <xsl:variable name="CoordinateBottom" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <!--
         <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>
         <xsl:message select="key( 'story', current()/@ParentStory )//Content/text()"/>
         <xsl:message select="@ItemTransform, @ParentStory"/>
@@ -147,10 +150,17 @@ and PDF.
         Object*&
         Button_Object*
         -->
-        <xsl:copy>
-          <xsl:copy-of select="@* | node()" />
-          <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="idml2xml:DocumentResolveTextFrames"/>
-        </xsl:copy>
+        <xsl:choose>
+          <xsl:when test="self::Group">
+            <xsl:apply-templates select="." mode="idml2xml:DocumentResolveTextFrames" />
+          </xsl:when>
+          <xsl:otherwise><!-- self::TextFrame -->
+            <xsl:copy>
+              <xsl:copy-of select="@* | node()" />
+              <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="idml2xml:DocumentResolveTextFrames"/>
+            </xsl:copy>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:for-each-group>
       <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="#current"/>
     </xsl:copy>
