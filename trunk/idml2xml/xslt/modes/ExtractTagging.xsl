@@ -20,8 +20,9 @@
       <xsl:variable name="processed-stories" as="xs:string*">
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
       </xsl:variable>
-      <xsl:apply-templates select="TextFrame/Story[not(@Self = distinct-values($processed-stories))] " mode="#current"/>
-      <xsl:apply-templates select="Rectangle" mode="#current"/>
+      <xsl:apply-templates select="  TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
+                                   | Rectangle 
+                                   | XMLElement" mode="#current"/>
     </idml2xml:doc>
   </xsl:template>
 

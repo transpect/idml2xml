@@ -416,6 +416,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates select="$frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
   </xsl:template>
 
+  <xsl:template match="/*/idml2xml:genFrame (: unanchored frames :)" mode="idml2xml:XML-Hubformat-extract-frames">
+    <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
+  </xsl:template>
+
   <xsl:function name="idml2xml:text-after" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
     <xsl:param name="ancestor" as="element(*)" />
