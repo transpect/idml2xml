@@ -78,6 +78,9 @@
        which to split when they stretch across layout paragraphs: -->
   <xsl:param name="split" as="xs:string?"/>
 
+  <!-- On hubformat output: specifiy other allowed element names here (otherwise element and content will be removed) 
+       comma-separated list of element names -->
+  <xsl:param name="hub-other-elementnames-whitelist" select="''" as="xs:string"/>
 
   <!--== VARIABLES ==-->
 

@@ -4,7 +4,7 @@ ifeq ($(shell uname -o),Cygwin)
 win_path = $(shell cygpath -ma $(1))
 uri = $(shell echo file:///$(call win_path,$(1))  | perl -pe 's/ /%20/g')
 else
-uri = $(shell echo file:///$(abspath $(1))  | perl -pe 's/ /%20/g')
+uri = $(shell echo file://$(abspath $(1))  | perl -pe 's/ /%20/g')
 endif
 
 SAXON := saxon
@@ -14,12 +14,13 @@ DEBUGDIR = "$<.tmp/debug"
 default: idml2xml_usage
 
 %.hub.xml %.indexterms.xml %.tagged.xml:	%.idml $(IDML2XML_MAKEFILEDIR)/Makefile $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/modes/*.xsl)
-	mkdir -p "$<.tmp"
-	unzip -u -o -d "$<.tmp" "$<"
-	$(SAXON) \
+	umask 002; mkdir -p "$<.tmp"
+	umask 002; unzip -u -o -d "$<.tmp" "$<"
+	umask 002; $(SAXON) \
       $(SAXONOPTS) \
       -xsl:$(call uri,$(IDML2XML_MAKEFILEDIR)/xslt/idml2xml.xsl) \
       -it:$(subst .,,$(suffix $(basename $@))) \
+      hub-other-elementnames-whitelist=$(HUB-OTHER-ELNAMES-WHITELIST) \
       src-dir-uri=$(call uri,"$<").tmp \
       split=$(SPLIT) \
       debug=$(DEBUG) \
