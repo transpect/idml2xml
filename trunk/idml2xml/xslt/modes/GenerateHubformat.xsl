@@ -42,6 +42,8 @@
     <Body xmlns="http://docbook.org/ns/docbook" version="5.1-variant le-tex_Hub-1.0" css:version="3.0-variant le-tex_Hub-1.0">
       <info>
         <keywordset role="hub">
+          <keyword role="source-basename"><xsl:value-of select="$idml2xml:basename"/></keyword>
+          <keyword role="source-dir-uri"><xsl:value-of select="$src-dir-uri"/></keyword>
           <keyword role="formatting-deviations-only">true</keyword>
           <keyword role="source-type">idml</keyword>
           <xsl:if test="/*/@TOCStyle_Title">
