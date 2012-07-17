@@ -14,8 +14,7 @@ DEBUGDIR = "$<.tmp/debug"
 default: idml2xml_usage
 
 %.hub.xml %.indexterms.xml %.tagged.xml:	%.idml $(IDML2XML_MAKEFILEDIR)/Makefile $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/modes/*.xsl)
-	umask 002; mkdir -p "$<.tmp"
-	umask 002; unzip -u -o -d "$<.tmp" "$<"
+	umask 002; mkdir -p "$<.tmp" && unzip -u -o -q -d "$<.tmp" "$<"
 	umask 002; $(SAXON) \
       $(SAXONOPTS) \
       -xsl:$(call uri,$(IDML2XML_MAKEFILEDIR)/xslt/idml2xml.xsl) \
@@ -26,6 +25,9 @@ default: idml2xml_usage
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
       > "$@"
+ifeq ($(DEBUG),0)
+	-@rm -rf $(DEBUGDIR) && rm -rf "$<.tmp"
+endif
 
 idml2xml_usage:
 	@echo ""
