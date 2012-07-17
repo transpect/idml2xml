@@ -400,15 +400,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="@target" />
   </xsl:template>
 
-
-  <!-- remove other namespaces -->
-  <xsl:template match="node()[ namespace-uri() eq '' and self::* ]" 
-    mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:element name="{local-name()}" namespace="http://docbook.org/ns/docbook">
-      <xsl:apply-templates select="@*, node()" mode="#current" />
-    </xsl:element>
-  </xsl:template>
-
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -452,22 +443,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
 
-  <!-- handle imported/tagged elements -->
-  <xsl:template match="dbk:*[local-name() = tokenize($hub-other-elementnames-whitelist,',') and not(.//idml2xml:genFrame[idml2xml:same-scope(., current())])]" 
-    mode="idml2xml:XML-Hubformat-extract-frames">
-    <xsl:copy>
-      <xsl:if test="@aid:pstyle">
-        <xsl:attribute name="role" select="@aid:pstyle"/>
-      </xsl:if>
-      <xsl:apply-templates select="@* except @aid:pstyle, node()" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
-
-  <xsl:template 
-    match="idml2xml:parsep[preceding-sibling::*[1][self::dbk:*[local-name() = tokenize($hub-other-elementnames-whitelist,',')]]]" 
-    mode="idml2xml:XML-Hubformat-extract-frames" />
-
-
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-remap-para-and-span -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -503,7 +478,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="$role eq 'No_character_style' 
                       and not(text()[matches(., '\S')]) 
                       and count(*) gt 0 and 
-                      count(*) eq count(dbk:PageReference union PageReference union HyperlinkTextSource)">
+                      count(*) eq count(PageReference union HyperlinkTextSource)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
       <xsl:when test="$role eq 'No_character_style' 
@@ -598,7 +573,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
     </xsl:if>
   </xsl:template>-->
 
-  <xsl:template match="PageReference | dbk:PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <indexterm>
     <xsl:for-each select="tokenize( @idml2xml:ReferencedTopic, '(d1)?Topicn' )">
       <xsl:choose>
@@ -819,7 +794,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <!-- END: tables -->
 
-  <xsl:template match="HyperlinkTextDestination | 
+  <xsl:template match="HyperlinkTextDestination |
                        HyperlinkTextSource"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:apply-templates mode="#current"/>
@@ -867,6 +842,29 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
     </xsl:analyze-string>
   </xsl:template>
 
+  <!-- remove other namespaces -->
+  <xsl:template match="node()[ namespace-uri() eq '' and self::* ]" 
+    mode="idml2xml:XML-Hubformat-remap-para-and-span"
+    priority="-0.7">
+    <xsl:element name="{local-name()}" namespace="http://docbook.org/ns/docbook">
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </xsl:element>
+  </xsl:template>
+
+
+  <!-- handle imported/tagged elements -->
+  <xsl:template match="*[local-name() = tokenize($hub-other-elementnames-whitelist,',') and not(.//idml2xml:genFrame[idml2xml:same-scope(., current())])]" 
+    mode="idml2xml:XML-Hubformat-remap-para-and-span"
+    priority="-0.5">
+    <xsl:copy>
+      <xsl:if test="@aid:pstyle">
+        <xsl:attribute name="role" select="@aid:pstyle"/>
+      </xsl:if>
+      <xsl:apply-templates select="@* except @aid:pstyle, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -913,11 +911,11 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
-      match="node()[local-name() != '' and not( local-name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
+      match="node()[local-name() ne '' and not( local-name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="content" select="string-join(.,'')"/>
     <xsl:message>
-      INFO: Removed non-hub element '<xsl:value-of select="name()"/>'
+      INFO: Removed non-hub element '<xsl:value-of select="name()"/>'<xsl:value-of select="if($content eq '') then ' (without content)' else ''"/>
       <xsl:if test="$content ne ''">
         ===
         Text content: <xsl:value-of select="$content"/>
@@ -926,7 +924,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
+  <!-- mode: XML-Hubformat-without-srcpath -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-without-srcpath" />
