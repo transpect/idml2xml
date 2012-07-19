@@ -103,7 +103,7 @@
       <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame
                                   | idPkg:Spread/Spread/Group[TextFrame]" 
         group-by="(@ParentStory, TextFrame/@ParentStory)">
-        <xsl:variable name="frame" select="(., TextFrame)[@ParentStory]" as="element(TextFrame)" />
+        <xsl:variable name="frame" select="(., TextFrame)[@ParentStory][1]" as="element(TextFrame)" />
         <xsl:if test="count( $frame/Properties/PathGeometry/GeometryPathType ) gt 1">
           <xsl:message select="'WARNING: more than one GeometryPathType element in', $frame/@Self"/>
         </xsl:if>
