@@ -367,11 +367,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = 'fill-tint'][last()]" as="element(idml2xml:attribute)?" />
+    <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
     <xsl:attribute name="{@name}" select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
   </xsl:template>
 
-  <xsl:template match="idml2xml:attribute[@name = ('fill-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
 
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
@@ -587,32 +587,99 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </xsl:template>-->
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <indexterm>
-    <xsl:for-each select="tokenize( @idml2xml:ReferencedTopic, '(d1)?Topicn' )">
-      <xsl:choose>
-	<xsl:when test="position() eq 1  or  current() eq ''"/>
-	<xsl:when test="position() eq 2">
-	  <primary>
-	    <xsl:value-of select="current()"/>
-	  </primary>
-	</xsl:when>
-	<xsl:when test="position() eq 3">
-	  <secondary>
-	    <xsl:value-of select="current()"/>
-	  </secondary>
-	</xsl:when>
-	<xsl:when test="position() eq 4">
-	  <tertiary>
-	    <xsl:value-of select="current()"/>
-	  </tertiary>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:message select="'WARNING: PageReference / sub-indexterm not processed:', ."/>
-	</xsl:otherwise>
-      </xsl:choose>
-    </xsl:for-each>
-  </indexterm>
+    <indexterm remap="{@idml2xml:ReferencedTopic}">
+      <xsl:variable 
+        name="topic-praefix" 
+        select="if(matches(@idml2xml:ReferencedTopic,'##_praefix'))
+                then replace(@idml2xml:ReferencedTopic,'^.*?##_praefix(.*)$','$1')
+                else ''" 
+        as="xs:string"/>
+      <xsl:variable 
+        name="topic" 
+        select="replace(@idml2xml:ReferencedTopic,'^(.*)##_praefix.*$','$1')" 
+        as="xs:string"/>
+      <xsl:for-each select="tokenize( $topic, '(d1)?Topicn' )">
+        <xsl:choose>
+          <xsl:when test="position() eq 1  or  . eq ''"/>
+          <xsl:when test="position() eq 2">
+            <primary>
+              <xsl:if test="matches(.,'##first')">
+                <xsl:attribute name="sortas" select="replace(.,'^.*(.)##first.*$','$1')" />
+              </xsl:if>
+              <xsl:if test="$topic ne $topic-praefix">
+                <xsl:sequence select="idml2xml:indexentry-text-to-markup($topic-praefix)" />
+                <xsl:message select="'TOPIC:',$topic"/>
+                <xsl:message select="$topic-praefix"/>
+              </xsl:if>
+              <xsl:sequence select="idml2xml:indexentry-text-to-markup(.)"/>
+            </primary>
+          </xsl:when>
+          <xsl:when test="position() eq 3">
+            <xsl:if test="matches(.,'##first')">
+              <xsl:attribute name="sortas" select="replace(.,'^.*(.)##first.*$','$1')" />
+            </xsl:if>
+            <secondary>
+              <xsl:sequence select="idml2xml:indexentry-text-to-markup(.)"/>
+            </secondary>
+          </xsl:when>
+          <xsl:when test="position() eq 4">
+            <xsl:if test="matches(.,'##first')">
+              <xsl:attribute name="sortas" select="replace(.,'^.*(.)##first.*$','$1')" />
+            </xsl:if>
+            <tertiary>
+              <xsl:sequence select="idml2xml:indexentry-text-to-markup(.)"/>
+            </tertiary>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:message select="'WARNING: PageReference / sub-indexterm not processed:', ."/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </indexterm>
   </xsl:template>
+
+  <xsl:function name="idml2xml:indexentry-text-to-markup" as="node()+">
+    <xsl:param name="entry" as="xs:string" />
+    <xsl:variable name="remove-first-letter-info" select="replace($entry,'^(.*).##first(.*)$','$1$2')"/>
+    <xsl:variable name="result">
+      <xsl:choose>
+        <xsl:when test="matches($remove-first-letter-info, '##')">
+          <xsl:for-each select="tokenize($remove-first-letter-info,'##')">
+            <xsl:choose>
+              <xsl:when test="matches(.,'^_praefix')" />
+              <xsl:when test="matches(.,'^hoch')">
+                <superscript>
+                  <xsl:value-of select="replace(., '^hoch(.).*$', '$1')"/>
+                </superscript>
+                <xsl:value-of select="replace(., '^hoch.(.*)$', '$1')"/>
+              </xsl:when>
+              <xsl:when test="matches(.,'^kursiv')">
+                <phrase>
+                  <emphasis role="italic">
+                    <xsl:value-of select="replace(., '^kursiv(.).*$', '$1')"/>
+                  </emphasis>
+                </phrase>
+                <xsl:value-of select="replace(., '^kursiv.(.*)$', '$1')"/>
+              </xsl:when>
+              <xsl:when test="matches(.,'^(symbol)')">
+                <xsl:value-of select="replace(., '^(symbol)', '')"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="."/>
+                <!-- <xsl:if test=". ne ''"> -->
+                <!--   <xsl:message select="'not yet supported:', ."/> -->
+                <!-- </xsl:if> -->
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$entry"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:sequence select="$result"/>
+  </xsl:function>
   
   <xsl:template match="idml2xml:parsep"
     mode="idml2xml:XML-Hubformat-remap-para-and-span" />
