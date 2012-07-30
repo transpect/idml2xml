@@ -400,6 +400,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="@target" />
   </xsl:template>
 
+  <!-- workaround: how to handle this in ConsolidateParagraphStyleRanges?
+       must be solved in GenerateTagging-mode? grep for 'AppliedParagraphStyleCount' -->
+  <xsl:template match="idml2xml:ParagraphStyleRange[
+                         count(*[not(local-name()=('style-link','attribute'))]) eq 
+                         count(idml2xml:genPara)]" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  <xsl:template match="idml2xml:ParagraphStyleRange[
+                         count(*[not(local-name()=('style-link','attribute'))]) eq 
+                         count(idml2xml:genPara)]/*[local-name()=('style-link','attribute')]" 
+                mode="idml2xml:XML-Hubformat-properties2atts" />
+
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
