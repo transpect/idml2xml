@@ -120,7 +120,7 @@
           <val eq="false"/>
         </prop>
         <prop name="TabList" type="tablist"/>
-        <prop name="TintValue" type="percentage" target-name="fill-tint"/>
+        <prop name="TintValue" type="percentage" target-name="fill-value"/>
         <prop name="TopInset" type="length" target-name="css:padding-top" />
         <prop name="Underline" target-name="css:text-decoration-line">
           <val eq="true" target-value="underline"/>
