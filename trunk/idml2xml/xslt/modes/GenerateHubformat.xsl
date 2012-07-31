@@ -538,9 +538,16 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </xsl:template>
 
   <xsl:template match="idml2xml:link" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <link>
-      <xsl:apply-templates select="@* | node()" mode="#current" />
-    </link>
+    <xsl:choose>
+      <xsl:when test="matches(@idml2xml:href,'(end)?page')">
+        <anchor xml:id="{@idml2xml:href}" />
+      </xsl:when>
+      <xsl:otherwise>
+        <link>
+          <xsl:apply-templates select="@idml2xml:*, @* | node()" mode="#current" />
+        </link>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span_DISABLED">
@@ -772,12 +779,13 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
     <xsl:variable name="cumulated-cols" select="xs:integer(@cumulated-cols)" />
     <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" />
     <xsl:variable name="rowspan" select="xs:integer(@aid:crows)" />
+    <xsl:variable name="colpos" select="$cumulated-cols - $colspan + 1" />
     <entry>
       <xsl:if test="$colspan=1">
-        <xsl:attribute name="colname" select="concat('c', $cumulated-cols - $colspan + 1)" />
+        <xsl:attribute name="colname" select="concat('c', $colpos)" />
       </xsl:if>
       <xsl:if test="$colspan gt 1">
-        <xsl:attribute name="namest" select="concat('c', $cumulated-cols - $colspan + 1)" />
+        <xsl:attribute name="namest" select="concat('c', $colpos)" />
         <xsl:attribute name="nameend" select="concat('c', $cumulated-cols)" />
       </xsl:if>
       <xsl:if test="$rowspan gt 1">
@@ -974,11 +982,6 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 		       dbk:phrase[@role='br'][ not(following-sibling::*) and parent::dbk:para ]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
 
-  <xsl:template match="dbk:row[not(node())]" 
-		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:message select="'INFO: Removed empty element row.'"/>
-  </xsl:template>
-
   <xsl:template match="dbk:para[parent::dbk:para]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <phrase role="idml2xml-para {@role}">
@@ -1002,6 +1005,57 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
         ===</xsl:if>
     </xsl:message>
   </xsl:template>
+
+
+  <!-- postprocessing tables -->
+
+  <xsl:template match="dbk:row[not(node())]" 
+		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:message select="'INFO: Removed empty element row.'"/>
+  </xsl:template>
+
+<!--  <xsl:template match="dbk:tbody[.//@morerows][(: for debugging, remove this !!!:) count(../dbk:colspec) eq 7]" 
+		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:sequence select="idml2xml:correct-colnames( count( ../dbk:colspec), dbk:row, (), 0 )"/>
+    </xsl:copy>
+  </xsl:template>
+-->
+
+  <xsl:function name="idml2xml:correct-colnames">
+    <xsl:param name="var-cols" as="xs:double" />
+    <xsl:param name="var-all-rows" as="element()*" />
+    <xsl:param name="var-processed-rows" as="element()*" />
+    <xsl:param name="var-morerows-for-next-row" as="xs:integer*" />
+    <xsl:variable name="var-next-row-num" select="count($var-processed-rows) + 1" as="xs:double"/>
+    <xsl:sequence select="$var-all-rows"/>
+    <xsl:variable name="matrix">
+      <xsl:for-each select="1 to xs:integer($var-cols)">
+        <xsl:variable 
+            name="corresponding-entry" 
+            select="idml2xml:get-entry-by-colnum($var-all-rows[$var-next-row-num], position())"/>
+        <xsl:value-of select="xs:integer($corresponding-entry/@morerows)"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:message select="'table with',$var-cols,'cols; var-processed-rows:', $var-next-row-num,' count rows:', count($var-all-rows),' ____',count($matrix)"/>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:get-entry-by-colnum">
+    <xsl:param name="var-row" as="element()*" />
+    <xsl:param name="var-colpos" as="xs:integer" />
+    <xsl:sequence 
+      select="
+$var-row/dbk:entry[ if (@namest and @nameend) 
+              then (xs:integer(replace(@namest,'c','')) ge $var-colpos and $var-colpos le xs:integer(replace(@nameend,'c','')))
+              else .[@colname[. eq concat('c',$var-colpos)] ] ]
+"/>
+
+
+    <xsl:message select="'row - entries:', count($var-row/dbk:entry)
+"/>
+  </xsl:function>
+
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-without-srcpath -->
