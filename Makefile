@@ -20,7 +20,7 @@ default: idml2xml_usage
       -xsl:$(call uri,$(IDML2XML_MAKEFILEDIR)/xslt/idml2xml.xsl) \
       -it:$(subst .,,$(suffix $(basename $@))) \
       hub-other-elementnames-whitelist=$(HUB-OTHER-ELNAMES-WHITELIST) \
-      src-dir-uri=$(call uri,"$<").tmp \
+      src-dir-uri=$(call uri,$(abspath $<)).tmp \
       split=$(SPLIT) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
