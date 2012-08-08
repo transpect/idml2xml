@@ -40,13 +40,15 @@ idml2xml_usage:
 	@echo "  Place a file xyz.idml anywhere, then run 'make -f $(IDML2XML_MAKEFILEDIR)/Makefile path/to/xyz.targetfmt.xml',"
 	@echo "    where targetfmt is one of tagged, hub, or indexterms. Use make's -C option (instead of the -f option)"
 	@echo "    only if the file name contains an absolute directory."
-	@echo "  Optional parameter SPLIT for the .TAGGED target: comma-separated list of tags that"
+	@echo "  Optional parameter SPLIT for the .tagged.xml target: comma-separated list of tags that"
 	@echo "    should be split if they cross actual InDesign paragraph boundaries (e.g., SPLIT=span,p)."
 	@echo "  Optional parameter DEBUG=1 (which is default) will cause debugging info to be dumped"
-	@echo "    into DEBUGDIR (which is `realpath $(DEBUGDIR)` by default)."
+	@echo "    into DEBUGDIR (which is path/to/xyz.idml.tmp/debug by default)."
 	@echo "    Use DEBUG=0 to switch off debugging."
 	@echo "  Example for processing 37 chapters from bash:"
-	@echo '  > for c in $$(seq -f '%02g' 37); do make -f $(IDML2XML_MAKEFILEDIR)Makefile path/to/IDML/$${c}_Chap.idml.HUB; done'
+	@echo '  > for c in $$(seq -f '%02g' 37); do make -f $(IDML2XML_MAKEFILEDIR)Makefile path/to/IDML/$${c}_Chap.hub.xml; done'
+	@echo "  Another example:"
+	@echo '  > for f in somedir/*idml; do make $$(dirname $$f)/$$(basename $$f idml)indexterms.xml; done'
 	@echo ""
 	@echo "Prerequisites:"
 	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
