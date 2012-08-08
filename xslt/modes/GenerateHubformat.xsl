@@ -315,6 +315,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper | idml2xml:lang" mode="idml2xml:XML-Hubformat-add-properties" />
 
+  <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:copy-of select="." />
+  </xsl:template>
+
   <xsl:key name="idml2xml:style" 
     match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
     use="@Self" />
@@ -594,31 +598,9 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </xsl:template>-->
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <indexterm>
-      <xsl:for-each select="tokenize( @idml2xml:ReferencedTopic, '(d1)?Topicn' )">
-        <xsl:choose>
-          <xsl:when test="position() eq 1  or  current() eq ''"/>
-          <xsl:when test="position() eq 2">
-            <primary>
-              <xsl:value-of select="current()"/>
-            </primary>
-          </xsl:when>
-          <xsl:when test="position() eq 3">
-            <secondary>
-              <xsl:value-of select="current()"/>
-            </secondary>
-          </xsl:when>
-          <xsl:when test="position() eq 4">
-            <tertiary>
-              <xsl:value-of select="current()"/>
-            </tertiary>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:message select="'WARNING: PageReference / sub-indexterm not processed:', ."/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
-    </indexterm>
+    <!-- Could be converted to an indexterm here. But we decided to export the indexterms in a separate pass,
+         using the "indexterms" initial template. -->
+    <anchor xml:id="{$idml2xml:basename}_{@Self}" />
   </xsl:template>
   
   <xsl:template match="idml2xml:parsep"

@@ -86,6 +86,9 @@
   <xsl:template match="Topic[not(parent::Topic)]" mode="idml2xml:IndexTerms">
     <xsl:param name="pagenum" as="xs:string?" />
     <indexterm>
+      <xsl:if test="@page-reference">
+        <xsl:attribute name="xml:id" select="concat($idml2xml:basename, '_', @page-reference)" />
+      </xsl:if>
       <xsl:variable name="crossrefs" select="CrossReference" />
       <xsl:choose>
         <xsl:when test="exists($pagenum)">
