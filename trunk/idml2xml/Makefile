@@ -46,7 +46,7 @@ idml2xml_usage:
 	@echo "    into DEBUGDIR (which is path/to/xyz.idml.tmp/debug by default)."
 	@echo "    Use DEBUG=0 to switch off debugging."
 	@echo "  Example for processing 37 chapters from bash:"
-	@echo '  > for c in $$(seq -f '%02g' 37); do make -f $(IDML2XML_MAKEFILEDIR)Makefile path/to/IDML/$${c}_Chap.hub.xml; done'
+	@echo '  > for c in $$(seq -f '%02g' 37); do make -f $(IDML2XML_MAKEFILEDIR)/Makefile path/to/IDML/$${c}_Chap.hub.xml; done'
 	@echo "  Another example:"
 	@echo '  > for f in somedir/*idml; do make $$(dirname $$f)/$$(basename $$f idml)indexterms.xml; done'
 	@echo ""

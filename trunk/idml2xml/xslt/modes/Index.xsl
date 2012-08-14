@@ -58,10 +58,24 @@
     <xsl:apply-templates select="key('hyperlink', @Self, $designmap-root)" mode="#current" />
   </xsl:template>
 
+
+  <!-- begin and end of print page -->
+
+  <!-- BEGIN: new indesign script -->
   <xsl:template match="Hyperlink" mode="idml2xml:IndexTerms-extract">
     <xsl:apply-templates select="key('destination', Properties/Destination, $designmap-root)" mode="#current" />
   </xsl:template>
 
+    <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
+    <pagestart num="{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
+  </xsl:template>
+
+  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageEnd')]" mode="idml2xml:IndexTerms-extract">
+    <pageend num="{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
+  </xsl:template>
+  <!-- END: new indesign script -->
+
+  <!-- BEGIN: old indesign script -->
   <xsl:template match="HyperlinkURLDestination[matches(@DestinationURL, '^page_')]" mode="idml2xml:IndexTerms-extract">
     <pagestart num="{replace(@DestinationURL, '^page_', '')}" />
   </xsl:template>
@@ -69,6 +83,7 @@
   <xsl:template match="HyperlinkURLDestination[matches(@DestinationURL, '^endpage_')]" mode="idml2xml:IndexTerms-extract">
     <pageend num="{replace(@DestinationURL, '^endpage_', '')}" />
   </xsl:template>
+  <!-- END: old indesign script -->
 
 
   <xsl:template match="idml2xml:indexterms" mode="idml2xml:IndexTerms">
@@ -87,7 +102,7 @@
     <xsl:param name="pagenum" as="xs:string?" />
     <indexterm>
       <xsl:if test="@page-reference">
-        <xsl:attribute name="xml:id" select="concat($idml2xml:basename, '_', @page-reference)" />
+        <xsl:attribute name="xml:id" select="concat('ie_', $idml2xml:basename, '_', @page-reference)" />
       </xsl:if>
       <xsl:variable name="crossrefs" select="CrossReference" />
       <xsl:choose>

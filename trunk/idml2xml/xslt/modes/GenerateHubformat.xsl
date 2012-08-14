@@ -600,7 +600,15 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <!-- Could be converted to an indexterm here. But we decided to export the indexterms in a separate pass,
          using the "indexterms" initial template. -->
-    <anchor xml:id="{$idml2xml:basename}_{@Self}" />
+    <anchor xml:id="ie_{$idml2xml:basename}_{@Self}" />
+  </xsl:template>
+
+  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <anchor xml:id="page_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
+  </xsl:template>
+
+  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <anchor xml:id="pageend_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
   
   <xsl:template match="idml2xml:parsep"
