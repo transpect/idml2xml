@@ -598,9 +598,33 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   </xsl:template>-->
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <!-- Could be converted to an indexterm here. But we decided to export the indexterms in a separate pass,
-         using the "indexterms" initial template. -->
-    <anchor xml:id="ie_{$idml2xml:basename}_{@Self}" />
+    <!-- Convert to an indexterm here for general projects and set specific @xml:id for 
+         "indexterms" initial template (will export the indexterms in a separate pass). -->
+    <indexterm xml:id="ie_{$idml2xml:basename}_{@Self}">
+      <xsl:for-each select="tokenize( if(@idml2xml:ReferencedTopic) then @idml2xml:ReferencedTopic else @ReferencedTopic, '(d1)?Topicn' )">
+        <xsl:choose>
+          <xsl:when test="position() eq 1  or  current() eq ''"/>
+          <xsl:when test="position() eq 2">
+            <primary>
+              <xsl:value-of select="current()"/>
+            </primary>
+          </xsl:when>
+          <xsl:when test="position() eq 3">
+            <secondary>
+              <xsl:value-of select="current()"/>
+            </secondary>
+          </xsl:when>
+          <xsl:when test="position() eq 4">
+            <tertiary>
+              <xsl:value-of select="current()"/>
+            </tertiary>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:message select="'WARNING: PageReference / sub-indexterm not processed:', ."/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </indexterm>
   </xsl:template>
 
   <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
