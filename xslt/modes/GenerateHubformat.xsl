@@ -837,7 +837,7 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
 
   <!-- figures -->
-  <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF]"
+  <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <para>
       <mediaobject>
