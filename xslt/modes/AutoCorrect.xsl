@@ -21,7 +21,7 @@
                          [
                            not(*[local-name()=$idml2xml:idml-content-element-names])
                            and 
-                           not(.//EPS or .//PDF or .//Image )
+                           not(.//EPS or .//PDF or .//Image or .//WMF)
                          ]" mode="idml2xml:AutoCorrect" />
 
 
