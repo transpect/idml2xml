@@ -134,6 +134,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 <!--     <xsl:apply-templates select="$raw-output" mode="idml2xml:XML-Hubformat-add-properties2"/> -->
   </xsl:template>
 
+  <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-add-properties">
+    <idml2xml:attribute name="srcpath"><xsl:value-of select="substring-after(., replace($src-dir-uri, '^file:/+', 'file:/'))" /></idml2xml:attribute>
+  </xsl:template>
+
   <xsl:function name="idml2xml:propkey" as="xs:string">
     <xsl:param name="prop" as="node()" />
     <xsl:choose>
