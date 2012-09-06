@@ -75,6 +75,8 @@
     <XMLAttribute Name="xmlns:aid5" Value="http://ns.adobe.com/AdobeInDesign/5.0/"/>
   </idml2xml:default-namespaces>
 
+  <!--== mode: DocumentStoriesSorted ==-->
+
   <!-- root template -->
   <xsl:template match="/" mode="idml2xml:DocumentStoriesSorted">
     <xsl:apply-templates mode="#current" />
@@ -164,6 +166,15 @@ and PDF.
       </xsl:for-each-group>
       <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="#current"/>
     </xsl:copy>
+  </xsl:template>
+
+  <!-- Usually, Groups contain Frames with different stories (e.g., an image and its caption).
+       If every Frame in the group contains the same story, we will dissolve the group and process 
+       the first frame. -->
+  <xsl:template match="Group
+                       [every $child in (* except TextWrapPreference) satisfies $child/self::TextFrame] (: no idea what else to expect :)
+                       [count(distinct-values(TextFrame/@ParentStory)) eq 1]" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:apply-templates select="TextFrame[1]" mode="#current" />
   </xsl:template>
 
   <xsl:template match="TextFrame" mode="idml2xml:DocumentResolveTextFrames">
