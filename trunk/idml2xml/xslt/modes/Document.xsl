@@ -152,29 +152,12 @@ and PDF.
         Object*&
         Button_Object*
         -->
-        <xsl:choose>
-          <xsl:when test="self::Group">
-            <xsl:apply-templates select="." mode="idml2xml:DocumentResolveTextFrames" />
-          </xsl:when>
-          <xsl:otherwise><!-- self::TextFrame -->
-            <xsl:copy>
-              <xsl:copy-of select="@* | node()" />
-              <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="idml2xml:DocumentResolveTextFrames"/>
-            </xsl:copy>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates
+          select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
+          mode="idml2xml:DocumentResolveTextFrames" />
       </xsl:for-each-group>
       <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="#current"/>
     </xsl:copy>
-  </xsl:template>
-
-  <!-- Usually, Groups contain Frames with different stories (e.g., an image and its caption).
-       If every Frame in the group contains the same story, we will dissolve the group and process 
-       the first frame. -->
-  <xsl:template match="Group
-                       [every $child in (* except TextWrapPreference) satisfies $child/self::TextFrame] (: no idea what else to expect :)
-                       [count(distinct-values(TextFrame/@ParentStory)) eq 1]" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:apply-templates select="TextFrame[1]" mode="#current" />
   </xsl:template>
 
   <xsl:template match="TextFrame" mode="idml2xml:DocumentResolveTextFrames">
