@@ -100,7 +100,7 @@
     as="xs:string*" />
   <xsl:variable 
     name="idml2xml:basename" 
-    select="replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2')"
+    select="'idml2xml' (: old, basename: replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2') :)"
     as="xs:string" />
   <xsl:variable
     name="designmap-root"
