@@ -24,9 +24,12 @@ default: idml2xml_usage
       split=$(SPLIT) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
+      2> "$@".idml2hub.log \
       > "$@"
 ifeq ($(DEBUG),0)
 	-@rm -rf $(DEBUGDIR) && rm -rf "$<.tmp"
+else
+	@cat "$@".idml2hub.log
 endif
 
 idml2xml_usage:
