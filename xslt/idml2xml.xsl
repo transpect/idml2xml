@@ -100,7 +100,7 @@
     as="xs:string*" />
   <xsl:variable 
     name="idml2xml:basename" 
-    select="'idml2xml' (: old, basename: replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2') :)"
+    select="replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2')"
     as="xs:string" />
   <xsl:variable
     name="designmap-root"
@@ -220,13 +220,13 @@
   <xsl:template name="indexterms">
     <xsl:sequence select="$idml2xml:IndexTerms"/>
     <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '20.DocumentStoriesSorted.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '20.DocumentStoriesSorted.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:DocumentStoriesSorted"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '81.IndexTerms-extract.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '81.IndexTerms-extract.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:IndexTerms-extract"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '83.IndexTerms.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '83.IndexTerms.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:IndexTerms"/>
       </xsl:result-document>
     </xsl:if>
@@ -234,34 +234,34 @@
 
   <xsl:template name="debug-common">
     <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '05.Document.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '05.Document.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:Document"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'aa.Statistics.html')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'aa.Statistics.html')}" format="debug">
         <xsl:copy-of select="$idml2xml:Statistics"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '20.DocumentStoriesSorted.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '20.DocumentStoriesSorted.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:DocumentStoriesSorted"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '22.SeparateParagraphs-pull-down-psrange.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '22.SeparateParagraphs-pull-down-psrange.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:SeparateParagraphs-pull-down-psrange"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '24.SeparateParagraphs.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '24.SeparateParagraphs.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:SeparateParagraphs"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '26.ConsolidateParagraphStyleRanges-pull-up-Br.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '26.ConsolidateParagraphStyleRanges-pull-up-Br.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '27.ConsolidateParagraphStyleRanges-remove-empty.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '27.ConsolidateParagraphStyleRanges-remove-empty.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:ConsolidateParagraphStyleRanges-remove-empty"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '28.ConsolidateParagraphStyleRanges.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '28.ConsolidateParagraphStyleRanges.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:ConsolidateParagraphStyleRanges"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '29.GenerateTagging.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '29.GenerateTagging.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:GenerateTagging"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '30.ExtractTagging.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '30.ExtractTagging.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:ExtractTagging"/>
       </xsl:result-document>
     </xsl:if>
@@ -270,10 +270,10 @@
 
   <xsl:template name="debug-tagged">
     <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '50.AutoCorrect.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '50.AutoCorrect.xml')}" format="debug">
 	<xsl:sequence select="$idml2xml:AutoCorrect"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '52.AutoCorrect-clean-up.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '52.AutoCorrect-clean-up.xml')}" format="debug">
 	<xsl:sequence select="$idml2xml:AutoCorrect-clean-up"/>
       </xsl:result-document>
     </xsl:if>
@@ -281,22 +281,22 @@
 
   <xsl:template name="debug-hub">
     <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.07.XML-Hubformat-add-properties.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.07.XML-Hubformat-add-properties.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-add-properties"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.07a.XML-Hubformat-properties2atts.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.07a.XML-Hubformat-properties2atts.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-properties2atts"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.08.XML-Hubformat-extract-frames.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.08.XML-Hubformat-extract-frames.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-extract-frames"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.10.XML-Hubformat-remap-para-and-span.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.10.XML-Hubformat-remap-para-and-span.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-remap-para-and-span"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.15.XML-Hubformat-cleanup-paras-and-br.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.15.XML-Hubformat-cleanup-paras-and-br.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, 'HUB.20.XML-Hubformat-without-srcpath.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.20.XML-Hubformat-without-srcpath.xml')}" format="debug">
         <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-without-srcpath"/>
       </xsl:result-document>
     </xsl:if>
