@@ -702,58 +702,43 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
             <xsl:attribute name="colname" select="concat('c',position())"/>
           </colspec>
         </xsl:for-each>
-        <xsl:if test="if (@idml2xml:header-row-count) then (if (number(@idml2xml:header-row-count) gt 0) then true() else false()) else false()">
+        <xsl:if test="number(@idml2xml:header-row-count) gt 0">
           <thead>
             <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
-              <row>
-                <xsl:for-each select="current-group()">
-                  <entry>
-                    <xsl:choose>
-                      <xsl:when test="number(@aid:ccols) gt 1">
-                        <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
-                        <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
-                      </xsl:when>
-                      <xsl:otherwise>
-                        <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                    <xsl:if test="number(@aid:crows) gt 1">
-                      <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
-                    </xsl:if>
-                    <xsl:attribute name="role" select="@aid5:cellstyle"/>
-                    <xsl:apply-templates mode="#current"/>
-                  </entry>
-                </xsl:for-each>
-              </row>
+              <xsl:call-template name="idml2xml:row" />
             </xsl:for-each-group>
           </thead>
         </xsl:if>
         <tbody>
           <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) gt ($head-count - 1)]" group-by="@idml2xml:rowname">
-            <row>
-              <xsl:for-each select="current-group()">
-                <entry>
-                  <xsl:choose>
-                    <xsl:when test="number(@aid:ccols) gt 1">
-                      <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
-                      <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                  <xsl:if test="number(@aid:crows) gt 1">
-                    <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
-                  </xsl:if>
-                  <xsl:attribute name="role" select="@aid5:cellstyle"/>
-                  <xsl:apply-templates mode="#current"/>
-                </entry>
-              </xsl:for-each>
-            </row>
+            <xsl:call-template name="idml2xml:row" />
           </xsl:for-each-group>
         </tbody>
       </tgroup>
     </informaltable>
+  </xsl:template>
+
+  <xsl:template name="idml2xml:row" as="element(dbk:row)*">
+    <row>
+      <xsl:for-each select="current-group()">
+        <entry>
+          <xsl:choose>
+            <xsl:when test="number(@aid:ccols) gt 1">
+              <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
+              <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:if test="number(@aid:crows) gt 1">
+            <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
+          </xsl:if>
+          <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:cellstyle)"/>
+          <xsl:apply-templates mode="#current"/>
+        </entry>
+      </xsl:for-each>
+    </row>
   </xsl:template>
 
   <!-- END: tables -->
