@@ -115,8 +115,10 @@
 
   <xsl:template match="Table" mode="idml2xml:ExtractAttributes">
     <xsl:attribute name="aid:table" select="'table'"/>
-    <xsl:attribute name="aid:tcols" select="count( Column )"/>
+    <xsl:attribute name="aid:tcols" select="@ColumnCount"/>
     <xsl:attribute name="aid:trows" select="count( Row )"/>
+    <xsl:attribute name="aid:header-row-count" select="@HeaderRowCount"/>
+    <xsl:attribute name="aid:body-row-count" select="if (@FooterRowCount) then number(@BodyRowCount) + number(@FooterRowCount) else @BodyRowCount"/>
     <xsl:attribute name="aid5:tablestyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedTableStyle)"/>
     <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:AppliedObjectStyle" />
   </xsl:template>
@@ -125,6 +127,8 @@
     <xsl:attribute name="aid:table" select="'cell'"/>
     <xsl:attribute name="aid:ccols" select="@ColumnSpan"/>
     <xsl:attribute name="aid:crows" select="@RowSpan"/>
+    <xsl:attribute name="aid:colname" select="tokenize(@Name,':')[1]"/>
+    <xsl:attribute name="aid:rowname" select="tokenize(@Name,':')[2]"/>
     <xsl:attribute name="aid:ccolwidth" 
       select="preceding::Column[ @Name eq tokenize( current()/@Name, ':' )[1] ][1]/@SingleColumnWidth"/>
     <xsl:attribute name="aid5:cellstyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedCellStyle)"/>

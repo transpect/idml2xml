@@ -29,7 +29,7 @@
                'superscript', 'subscript', 'link', 'xref', 'footnote',
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso',
-               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style'
+               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
               )"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -692,144 +692,69 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
 
   <!-- BEGIN: tables -->
 
-  <!-- doesn't work correctly for nested tables yet (need to restrict selected cells to idml2xml:same-scope cells -->
-
-  <xsl:template match="*[@aid:table eq 'table']"
-    mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="table" select="(self::*[@aid:table='table'], *[@aid:table='table'])[1]" as="element(*)" />
-    <xsl:variable name="var-cols" select="xs:integer($table/@aid:tcols)" as="xs:integer"/>
-    <xsl:variable name="var-table" as="element(dbk:row)*"><xsl:message select="'ccols:',number(descendant::*[@aid:table eq 'cell'][1]/@aid:ccols), ' all:', for $i in descendant::*[@aid:table eq 'cell']/@aid:ccols return number($i)"/>
-      <xsl:for-each select="idml2xml:make-rows( 
-                              $var-cols, 
-                              (descendant::*[@aid:table eq 'cell'], self::*[@aid:table eq 'cell'])[1], 
-                              number(descendant::*[@aid:table eq 'cell'][1]/@aid:ccols), 
-                              0, 
-                              'true'
-                            )/descendant-or-self::dbk:row">
-        <xsl:copy>
-          <xsl:sequence select="*[@aid:table eq 'cell']" />
-        </xsl:copy>
-      </xsl:for-each>
-    </xsl:variable>
+  <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
     <informaltable>
       <tgroup>
-        <xsl:attribute name="cols" select="$var-cols" />
-        <xsl:for-each select="1 to $var-cols">
-          <xsl:element name="colspec">
-            <xsl:attribute name="colname" select="concat( 'c', current() )"/>
-          </xsl:element>
+        <xsl:attribute name="cols" select="@aid:tcols"/>
+        <xsl:for-each select="1 to xs:integer(@aid:tcols)">
+          <colspec>
+            <xsl:attribute name="colname" select="concat('c',position())"/>
+          </colspec>
         </xsl:for-each>
-        <xsl:element name="tbody">
-          <xsl:apply-templates select="$var-table" mode="#current" />
-        </xsl:element>
+        <xsl:if test="if (@idml2xml:header-row-count) then (if (number(@idml2xml:header-row-count) gt 0) then true() else false()) else false()">
+          <thead>
+            <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
+              <row>
+                <xsl:for-each select="current-group()">
+                  <entry>
+                    <xsl:choose>
+                      <xsl:when test="number(@aid:ccols) gt 1">
+                        <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
+                        <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                    <xsl:if test="number(@aid:crows) gt 1">
+                      <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
+                    </xsl:if>
+                    <xsl:attribute name="role" select="@aid5:cellstyle"/>
+                    <xsl:apply-templates mode="#current"/>
+                  </entry>
+                </xsl:for-each>
+              </row>
+            </xsl:for-each-group>
+          </thead>
+        </xsl:if>
+        <tbody>
+          <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) gt ($head-count - 1)]" group-by="@idml2xml:rowname">
+            <row>
+              <xsl:for-each select="current-group()">
+                <entry>
+                  <xsl:choose>
+                    <xsl:when test="number(@aid:ccols) gt 1">
+                      <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
+                      <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                  <xsl:if test="number(@aid:crows) gt 1">
+                    <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
+                  </xsl:if>
+                  <xsl:attribute name="role" select="@aid5:cellstyle"/>
+                  <xsl:apply-templates mode="#current"/>
+                </entry>
+              </xsl:for-each>
+            </row>
+          </xsl:for-each-group>
+        </tbody>
       </tgroup>
     </informaltable>
   </xsl:template>
-
-  <xsl:template match="*[@aid:table='cell']" mode="idml2xml:XML-Hubformat-remap-para-and-span" as="element(dbk:entry)">
-    <xsl:variable name="cumulated-cols" select="xs:integer(@cumulated-cols)" />
-    <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" />
-    <xsl:variable name="rowspan" select="xs:integer(@aid:crows)" />
-    <xsl:variable name="colpos" select="$cumulated-cols - $colspan + 1" />
-    <entry>
-      <xsl:if test="$colspan=1">
-        <xsl:attribute name="colname" select="concat('c', $colpos)" />
-      </xsl:if>
-      <xsl:if test="$colspan gt 1">
-        <xsl:attribute name="namest" select="concat('c', $colpos)" />
-        <xsl:attribute name="nameend" select="concat('c', $cumulated-cols)" />
-      </xsl:if>
-      <xsl:if test="$rowspan gt 1">
-        <xsl:attribute name="morerows" select="$rowspan - 1" />
-      </xsl:if>
-      <xsl:attribute name="role" select="@aid5:cellstyle"/>
-      <xsl:apply-templates mode="#current"/>
-    </entry>
-  </xsl:template>
-  
-  <xsl:function name="idml2xml:make-rows" as="element(dbk:row)*">
-    <xsl:param name="var-cols" as="xs:double" />
-    <xsl:param name="var-current-cell" as="element()*" />
-    <xsl:param name="var-cumulated-cols" as="xs:double" />
-    <xsl:param name="var-overlap" as="xs:integer*" />
-    <xsl:param name="var-starts" as="xs:string" />
-    <xsl:variable name="var-new-overlap" as="xs:integer*">
-      <xsl:choose>
-        <xsl:when test="$var-starts = 'false'">
-          <xsl:for-each select="subsequence($var-overlap, 1)">
-            <xsl:variable name="decrement" select=". - 1" as="xs:integer"/>
-            <xsl:if test="$decrement gt 0">
-              <xsl:value-of select=". - 1" />
-            </xsl:if>
-          </xsl:for-each>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:sequence select="$var-overlap" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:variable name="var-cumulated-overlap" as="xs:integer*">
-      <xsl:value-of select="count(subsequence($var-new-overlap, 1)[. gt 0])"/>
-    </xsl:variable>
-    <xsl:if test="($var-current-cell ne '') or exists($var-current-cell/following-sibling::*[@aid:table eq 'cell'])">
-      <row>
-        <xsl:sequence select="idml2xml:cells2row(
-                                $var-cols, 
-                                $var-current-cell, 
-                                $var-cumulated-overlap + number($var-current-cell/@aid:ccols), 
-                                $var-new-overlap
-                              )" />
-      </row>
-    </xsl:if>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:cells2row" as="element(*)*"> <!-- cell elements with their original name -->
-    <xsl:param name="var-cols" as="xs:double" />
-    <xsl:param name="var-current-cell" as="element()*" />
-    <xsl:param name="var-cumulated-cols" as="xs:double" />
-    <xsl:param name="var-overlap" as="xs:integer*" />
-    <xsl:variable name="var-new-overlap" as="xs:integer*"
-       select="$var-overlap, 
-               if ($var-current-cell/@aid:crows ne '1') 
-               then 
-                 for $j in 1 to xs:integer($var-current-cell/@aid:ccols)
-                 return xs:integer($var-current-cell/@aid:crows)
-               else 0" />
-    <xsl:choose>
-      <xsl:when test="$var-cumulated-cols eq $var-cols">
-        <xsl:for-each select="$var-current-cell">
-          <xsl:copy>
-            <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
-            <xsl:copy-of select="@*|node()" />
-          </xsl:copy>
-        </xsl:for-each>
-        <xsl:sequence select="idml2xml:make-rows(
-                                $var-cols, 
-                                $var-current-cell/following-sibling::*[@aid:table eq 'cell'][1], 
-                                number($var-current-cell/following-sibling::*[@aid:table eq 'cell'][1]/@aid:ccols), 
-                                $var-new-overlap, 
-                                'false'
-                              )" />
-      </xsl:when>
-      <xsl:when test="$var-cumulated-cols lt $var-cols">
-        <xsl:for-each select="$var-current-cell">
-          <xsl:copy>
-            <xsl:attribute name="cumulated-cols" select="$var-cumulated-cols" />
-            <xsl:copy-of select="@*|node()" />
-          </xsl:copy>
-        </xsl:for-each>
-        <xsl:sequence select="idml2xml:cells2row(
-                                $var-cols, 
-                                $var-current-cell/following-sibling::*[@aid:table eq 'cell'][1], 
-                                $var-cumulated-cols + number($var-current-cell/following-sibling::*[@aid:table eq 'cell'][1]/@aid:ccols), 
-                                $var-new-overlap
-                              )" />
-      </xsl:when>
-      <xsl:when test="$var-cumulated-cols gt $var-cols">
-        <xsl:message terminate="no">Error: <xsl:value-of select="$var-cumulated-cols" /> cells in row, but only <xsl:value-of select="$var-cols" /> are allowed.</xsl:message>
-      </xsl:when>
-    </xsl:choose>
-  </xsl:function>
 
   <!-- END: tables -->
 
@@ -956,91 +881,6 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
         ===</xsl:if>
     </xsl:message>
   </xsl:template>
-
-
-  <!-- postprocessing tables -->
-
-  <xsl:template match="dbk:row[not(node())]" 
-		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:message select="'INFO: Removed empty element row.'"/>
-  </xsl:template>
-
-
-<!--  <xsl:template match="dbk:tbody[.//@morerows][(: for debugging, remove this !!!:) count(../dbk:colspec) eq 7]" 
-		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:copy>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:sequence select="idml2xml:correct-colnames( count( ../dbk:colspec), dbk:row, (), 0 )"/>
-    </xsl:copy>
-  </xsl:template>
--->
-<!-- for debugging only: -->
-<!--
-  <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
--->
-
-
-  <!-- this function builds new all rows of tbody or thead and sets colnames correctly
-       assumption: morerows attribute is on correct cell/entry and
-                   namest and nameend attributes are also correct -->
-  <xsl:function name="idml2xml:correct-colnames">
-    <xsl:param name="var-cols" as="xs:double" />
-    <xsl:param name="var-all-rows" as="element()*" />
-    <xsl:param name="var-processed-rows" as="element(dbk:rows)*" />
-    <xsl:param name="var-morerows-for-next-row" as="xs:integer*" />
-    <xsl:variable name="var-next-row-num" select="count($var-processed-rows/node()) + 1" as="xs:double"/>
-
-    <xsl:variable name="matrix" as="xs:integer+">
-      <xsl:for-each select="1 to xs:integer($var-cols)">
-        <xsl:variable 
-            name="corresponding-entry" 
-            select="idml2xml:get-entry-by-colnum($var-all-rows[$var-next-row-num], position())"/>
-        <xsl:sequence select="if($corresponding-entry/@morerows) then $corresponding-entry/@morerows else 0"/>
-      </xsl:for-each>
-    </xsl:variable>
-
-    <xsl:variable name="var-new-processed-rows" as="element()*">
-      <rows>
-      <xsl:choose>
-	<xsl:when test="empty($var-processed-rows)">
-	  <xsl:apply-templates select="$var-all-rows[1]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:apply-templates select="$var-processed-rows/node()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-	  <xsl:apply-templates select="$var-all-rows[$var-next-row-num]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-	</xsl:otherwise>
-      </xsl:choose>
-      </rows>
-    </xsl:variable>
-
-    <xsl:choose>
-      <xsl:when test="count($var-processed-rows/node()) le count($var-all-rows)">
-	<xsl:message select="'table with',$var-cols,'cols; var-processed-rows:', $var-next-row-num,' count rows:', count($var-all-rows),' ____',count($matrix), 'morerows:',$matrix"/>
-	<xsl:sequence select="idml2xml:correct-colnames( $var-cols, $var-all-rows, $var-new-processed-rows, $matrix )"/>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:sequence select="$var-new-processed-rows/node()"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:get-entry-by-colnum">
-    <xsl:param name="var-row" as="element()*" />
-    <xsl:param name="var-colpos" as="xs:integer" /><!--<xsl:message select="'entries: ',count($var-row/node()), count($var-row/dbk:entry), for $i in $var-row/node() return name($i), ' morerows:', $var-row//@*"/>-->
-    <xsl:choose>
-      <xsl:when test="count($var-row/dbk:entry[@colname eq concat('c', $var-colpos)]) eq 1"><xsl:message select="'colname'"/>
-	<xsl:sequence select="$var-row/dbk:entry[@colname eq concat('c',$var-colpos)]"/>
-      </xsl:when>
-      <xsl:when test="$var-row/dbk:entry[@namest and @nameend]"><xsl:message select="'namest and nameend'"/>
-	<xsl:sequence select="$var-row/dbk:entry[@namest[xs:integer(replace(.,'c','')) le $var-colpos] and
-			                         @nameend[xs:integer(replace(.,'c','')) ge $var-colpos]]"/>
-      </xsl:when>
-      <xsl:otherwise><xsl:message select="'gen empty entry'"/>
-	<xsl:element name="entry"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-without-srcpath -->
