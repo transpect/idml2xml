@@ -1,7 +1,7 @@
 IDML2XML_MAKEFILEDIR = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 ifeq ($(shell uname -o),Cygwin)
-win_path = $(shell cygpath -ma $(1))
+win_path = $(shell cygpath -ma "$(1)")
 uri = $(shell echo file:///$(call win_path,$(1))  | perl -pe 's/ /%20/g')
 else
 uri = $(shell echo file://$(abspath $(1))  | perl -pe 's/ /%20/g')
