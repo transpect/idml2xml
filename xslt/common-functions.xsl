@@ -58,10 +58,17 @@
 
   <xsl:function name="idml2xml:StyleName" as="xs:string">
     <xsl:param name="stylename" as="xs:string"/>
+    <xsl:sequence select="idml2xml:StyleNameEscape( idml2xml:RemoveTypeFromStyleName( $stylename) )"/>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:StyleNameEscape" as="xs:string">
+    <xsl:param name="stylename" as="xs:string"/>
     <xsl:sequence select="replace(
-                            replace( idml2xml:RemoveTypeFromStyleName( $stylename), 
-                            '[ |+]',
-                            '_' ),
+                            replace(
+                              $stylename,
+                             '[^\w%/.:]',
+                              '_' 
+                            ),
                             '%3a',
                             ':'
                           )"/>

@@ -60,7 +60,7 @@
   <xsl:template
     match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][count(*) eq 1][not(*/@aid:cstyle)]" 
     mode="idml2xml:AutoCorrect" priority="2">
-    <xsl:element name="{name(*)}">
+    <xsl:element name="{local-name(*)}">
       <xsl:apply-templates select="*/@*" mode="#current"/>
       <xsl:attribute name="aid:pstyle" select="@AppliedParagraphStyle" />
       <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac2'), ' ')" />

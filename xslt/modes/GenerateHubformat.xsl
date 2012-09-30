@@ -44,6 +44,7 @@
         <keywordset role="hub">
           <keyword role="source-basename"><xsl:value-of select="$idml2xml:basename"/></keyword>
           <keyword role="source-dir-uri"><xsl:value-of select="$src-dir-uri"/></keyword>
+          <keyword role="source-paths"><xsl:value-of select="if ($srcpaths = 'yes') then 'true' else 'false'"/></keyword>
           <keyword role="formatting-deviations-only">true</keyword>
           <keyword role="source-type">idml</keyword>
           <xsl:if test="/*/@TOCStyle_Title">
@@ -54,23 +55,23 @@
         </keywordset>
         <styles>
           <parastyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', $s))" mode="#current">
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
               <xsl:sort select="@Name" />
             </xsl:apply-templates>
           </parastyles>
           <inlinestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', $s))" mode="#current">
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
               <xsl:sort select="@Name" />
             </xsl:apply-templates>
           </inlinestyles>
           <tablestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', $s))" mode="#current">
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
               <xsl:sort select="@Name" />
             </xsl:apply-templates>
 
           </tablestyles>
           <cellstyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', $s))" mode="#current" >
+            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current" >
               <xsl:sort select="@Name" />
             </xsl:apply-templates>
           </cellstyles>
@@ -325,7 +326,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:key name="idml2xml:style" 
     match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
-    use="@Self" />
+    use="idml2xml:StyleNameEscape(@Self)" />
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-properties2atts -->
@@ -524,22 +525,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:attribute name="role" select="$role"/>
           </xsl:if>
           <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath union @idml2xml:*)" as="attribute(*)*" />
-          <xsl:choose>
-            <xsl:when test="exists($atts)">
-              <!--
-              <xsl:if test="matches(., '^Tab\.&#xa0;')">
-ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), '=', $a), ', ')"/>
-              </xsl:if>
-              -->
-              <emphasis srcpath="{@srcpath}">
-                <xsl:apply-templates select="$atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
-              </emphasis>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:copy-of select="@srcpath" />
-              <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:apply-templates select="@srcpath, $atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
         </phrase>
       </xsl:otherwise>
     </xsl:choose>
@@ -753,13 +739,11 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   <!-- figures -->
   <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <para>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="{.//@LinkResourceURI}"/>
-        </imageobject>
-      </mediaobject>
-    </para>
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="{.//@LinkResourceURI}"/>
+      </imageobject>
+    </mediaobject>
   </xsl:template>
 
   <xsl:template match="Rectangle" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
@@ -818,12 +802,6 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
-  <!-- what's this supposed to do? There's no p element (and no dbk:p) here. What if there's text around the phrase? -->
-  <xsl:template match="phrase[ parent::p[count(*) eq 1 ] ]" 
-		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:apply-templates mode="#current"/>
-  </xsl:template>
-  
   <xsl:template match="text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:value-of select="replace(., '&#xfeff;', '')"/>
   </xsl:template>
@@ -839,9 +817,30 @@ ATTS: <xsl:sequence select="string-join(for $a in $atts return concat(name($a), 
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <!-- §§§ GI 2012-09-30 Needs review.
+       Are there any dbk:phrase[@role='br'], or is it dbk:br now?
+       Should it apply to dbk:br?
+       -->
   <xsl:template match="dbk:phrase[@role='br'][ following-sibling::*[ self::dbk:para ] ] |
 		       dbk:phrase[@role='br'][ not(following-sibling::*) and parent::dbk:para ]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
+  <!-- Unwrap tables in a character style region if there's no other content in that region than the tables.
+       Reason: tables in phrases are not permitted by the document model.
+       If there are documents with tables *and* other text in phrases, we need to implement an anchoring
+       mechanism such as the one for text frames. -->
+  <xsl:template match="dbk:phrase[count(node()) eq count(dbk:informaltable)]" 		
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:apply-templates mode="#current" />
+  </xsl:template>
+
+  <xsl:template match="dbk:mediaobject[not(parent::dbk:para or parent::dbk:phrase)]" 		
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <para>
+      <xsl:next-match/>
+    </para>
+  </xsl:template>
+
 
   <xsl:template match="dbk:para[parent::dbk:para]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">

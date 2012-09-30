@@ -119,7 +119,7 @@
     <xsl:attribute name="aid:trows" select="count( Row )"/>
     <xsl:attribute name="aid:header-row-count" select="@HeaderRowCount"/>
     <xsl:attribute name="aid:body-row-count" select="if (@FooterRowCount) then number(@BodyRowCount) + number(@FooterRowCount) else @BodyRowCount"/>
-    <xsl:attribute name="aid5:tablestyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedTableStyle)"/>
+    <xsl:attribute name="aid5:tablestyle" select="idml2xml:StyleName(@AppliedTableStyle)"/>
     <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:AppliedObjectStyle" />
   </xsl:template>
 
@@ -131,7 +131,7 @@
     <xsl:attribute name="aid:rowname" select="tokenize(@Name,':')[2]"/>
     <xsl:attribute name="aid:ccolwidth" 
       select="preceding::Column[ @Name eq tokenize( current()/@Name, ':' )[1] ][1]/@SingleColumnWidth"/>
-    <xsl:attribute name="aid5:cellstyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedCellStyle)"/>
+    <xsl:attribute name="aid5:cellstyle" select="idml2xml:StyleName(@AppliedCellStyle)"/>
   </xsl:template>
   
   

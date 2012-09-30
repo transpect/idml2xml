@@ -63,7 +63,7 @@
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
         <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
-        <XMLAttribute Name="aid:pstyle" Value="{replace(@AppliedParagraphStyle, '^ParagraphStyle/', '')}"/>
+        <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp2'), ' ')}" />
       </XMLElement>
     </xsl:copy>
@@ -87,7 +87,7 @@
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
         <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
-        <XMLAttribute Name="aid:pstyle" Value="{replace(@AppliedParagraphStyle, '^ParagraphStyle/', '')}"/>
+        <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp4'), ' ')}" />
       </XMLElement>
     </xsl:copy>
