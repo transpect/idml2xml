@@ -47,7 +47,9 @@
                        | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
     mode="idml2xml:Document">
     <xsl:copy>
-      <xsl:attribute name="srcpath" select="idml2xml:srcpath(.)" />
+      <xsl:if test="$srcpaths = 'yes'">
+        <xsl:attribute name="srcpath" select="idml2xml:srcpath(.)" />
+      </xsl:if>
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </xsl:copy>
   </xsl:template>
@@ -73,6 +75,7 @@
     <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml"/>
     <XMLAttribute Name="xmlns:aid" Value="http://ns.adobe.com/AdobeInDesign/4.0/"/>
     <XMLAttribute Name="xmlns:aid5" Value="http://ns.adobe.com/AdobeInDesign/5.0/"/>
+    <XMLAttribute Name="xmlns:ac" Value="http://ns.acolada.de/InDesignPlugIn/1.0/"/>
   </idml2xml:default-namespaces>
 
   <!--== mode: DocumentStoriesSorted ==-->
