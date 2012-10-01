@@ -73,7 +73,7 @@
   <xsl:param name="src-dir-uri" as="xs:string"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
-  <xsl:param name="srcpaths" as="xs:string"/>
+  <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
 
   <!-- Comma separated list of inline element names (e.g., 'span,html:span')
        which to split when they stretch across layout paragraphs: -->
