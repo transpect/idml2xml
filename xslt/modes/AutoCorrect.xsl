@@ -57,10 +57,14 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+  <!-- GI 2012-10-02
+       I suppose this template is for dealing with tagging extraction. We had a case when an idml2xml:genTable was 
+       unwrapped from the parastylerange and got an attached aid:pstyle attribute. This prolly doesn’t hurt, but
+       we better leave the genTable in the genPara. -->
   <xsl:template
-    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][count(*) eq 1][not(*/@aid:cstyle)]" 
+    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][count(*) eq 1][not(*/@aid:cstyle)][not(idml2xml:genTable)]" 
     mode="idml2xml:AutoCorrect" priority="2">
-    <xsl:element name="{local-name(*)}">
+    <xsl:element name="{name(*)}">
       <xsl:apply-templates select="*/@*" mode="#current"/>
       <xsl:attribute name="aid:pstyle" select="@AppliedParagraphStyle" />
       <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac2'), ' ')" />
