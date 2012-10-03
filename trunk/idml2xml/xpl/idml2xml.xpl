@@ -42,8 +42,8 @@
   </p:output>
   <p:serialization port="XML-Hubformat-cleanup-paras-and-br" indent="true" omit-xml-declaration="false"/>
 
-  <p:import href="../calabash/lib/xproc-extensions.xpl" />
-  <p:import href="../calabash/lib/ltx-unzip/ltx-lib.xpl" />
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
+  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-unzip/ltx-lib.xpl" />
 
   <p:string-replace match="/c:query/*/text()" name="idmlfilename">
     <p:input port="source">

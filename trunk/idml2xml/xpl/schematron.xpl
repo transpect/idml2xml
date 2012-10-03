@@ -12,7 +12,7 @@
   version="1.0"
   >
 
-  <p:import href="../calabash/lib/library-1.0.xpl" />
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
 
   <p:declare-step type="idml2xml:patch-hub" name="patch-hub">
 
