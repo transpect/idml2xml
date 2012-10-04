@@ -212,7 +212,7 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, '\$ID/\[No character style\]')]
+  <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, 'No.character.style')]
 		                       [parent::idml2xml:genPara[count(descendant::idml2xml:genSpan) = 1]]" 
 		mode="idml2xml:AutoCorrect-clean-up">
     <xsl:apply-templates mode="#current"/>
