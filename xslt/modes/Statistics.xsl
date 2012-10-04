@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0"
-    xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
-    xmlns:aid		= "http://ns.adobe.com/AdobeInDesign/4.0/"
-    xmlns:aid5	= "http://ns.adobe.com/AdobeInDesign/5.0/"
-    xmlns:idPkg	=	"http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:idml2xml	= "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs"
+<xsl:stylesheet 
+  version="2.0"
+  xmlns:xsl = "http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs = "http://www.w3.org/2001/XMLSchema"
+  xmlns:aid = "http://ns.adobe.com/AdobeInDesign/4.0/"
+  xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
+  xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+  xmlns:idml2xml = "http://www.le-tex.de/namespace/idml2xml"
+  exclude-result-prefixes = "xs"
 >
   <xsl:template match="/" mode="idml2xml:Statistics">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -75,8 +76,12 @@
                 count( //Column ) div ( if( $cntTables = 0 ) then 1 else $cntTables ), 'Columns'"/>)</td>
             </tr>
             <tr>
-              <th>Images</th>
-              <td><xsl:value-of select="count( //Image )"/></td>
+              <th>Images (linked)<br /> – EPS<br /> – PDF<br /> – WMF<br /> – Image</th>
+              <td><xsl:value-of select="count( //Rectangle )"/> (<xsl:value-of select="count( //Rectangle[descendant::Link/@LinkResourceURI] )"/>)<br />
+	          <xsl:value-of select="count( //Rectangle[exists(EPS)] )"/><br />
+	          <xsl:value-of select="count( //Rectangle[exists(PDF)] )"/><br />
+	          <xsl:value-of select="count( //Rectangle[exists(WMF)] )"/><br />
+	          <xsl:value-of select="count( //Rectangle[exists(Image)] )"/></td>
             </tr>
             <tr>
               <th>Paragraphs</th>
