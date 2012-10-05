@@ -35,6 +35,8 @@
   <xsl:import href="modes/Statistics.xsl"/>
   <!-- IndexTerms: unsorted indexterms (with page numers, if available as pseudo links) -->
   <xsl:import href="modes/Index.xsl"/>
+  <!-- Images: extract image properties (width, height, resizing and other) -->
+  <xsl:import href="modes/Images.xsl"/>
 
   <!--== XSL OUTPUT ==-->
   <!-- removed saxon:suppress-indentation (and indent="yes") in order to make this vendor-neutral: -->
@@ -202,6 +204,13 @@
     <xsl:apply-templates select="$idml2xml:IndexTerms-extract" mode="idml2xml:IndexTerms"/>
   </xsl:variable>
 
+  <!--== Images ==-->
+  <xsl:variable name="idml2xml:Images">
+    <idml2xml:images>
+      <xsl:apply-templates select="$idml2xml:Document//Rectangle" mode="idml2xml:Images"/>
+    </idml2xml:images>
+  </xsl:variable>
+
   <!--== MAIN TEMPLATE ==-->
   <xsl:template name="tagged">
     <xsl:call-template name="debug-common" />
@@ -221,10 +230,10 @@
   <xsl:template name="indexterms">
     <xsl:sequence select="$idml2xml:IndexTerms"/>
     <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '05.Document.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '05.Document.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:Document"/>
       </xsl:result-document>
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, $idml2xml:basename, '20.DocumentStoriesSorted.xml')}" format="debug">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '20.DocumentStoriesSorted.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:DocumentStoriesSorted"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '81.IndexTerms-extract.xml')}" format="debug">
@@ -232,6 +241,15 @@
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '83.IndexTerms.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:IndexTerms"/>
+      </xsl:result-document>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="images">
+    <xsl:sequence select="$idml2xml:Images"/>
+    <xsl:if test="$debug = ('1','yes')">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '')}" format="debug">
+        <xsl:copy-of select="$idml2xml:Document"/>
       </xsl:result-document>
     </xsl:if>
   </xsl:template>

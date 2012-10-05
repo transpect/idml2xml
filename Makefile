@@ -14,7 +14,7 @@ SRCPATHS = no
 
 default: idml2xml_usage
 
-%.hub.xml %.indexterms.xml %.tagged.xml:	%.idml $(IDML2XML_MAKEFILEDIR)/Makefile $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/modes/*.xsl)
+%.hub.xml %.indexterms.xml %.tagged.xml %.images.xml:	%.idml $(IDML2XML_MAKEFILEDIR)/Makefile $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/*.xsl) $(wildcard $(IDML2XML_MAKEFILEDIR)/xslt/modes/*.xsl)
 	umask 002; mkdir -p "$<.tmp" && unzip -u -o -q -d "$<.tmp" "$<"
 	umask 002; $(SAXON) \
       $(SAXONOPTS) \
@@ -43,7 +43,7 @@ idml2xml_usage:
 	@echo ""
 	@echo "Usage:"
 	@echo "  Place a file xyz.idml anywhere, then run 'make -f $(IDML2XML_MAKEFILEDIR)/Makefile path/to/xyz.targetfmt.xml',"
-	@echo "    where targetfmt is one of tagged, hub, or indexterms. Use make's -C option (instead of the -f option)"
+	@echo "    where targetfmt is one of tagged, hub, indexterms or images. Use make's -C option (instead of the -f option)"
 	@echo "    only if the file name contains an absolute directory."
 	@echo "  Optional parameter SPLIT for the .tagged.xml target: comma-separated list of tags that"
 	@echo "    should be split if they cross actual InDesign paragraph boundaries (e.g., SPLIT=span,p)."

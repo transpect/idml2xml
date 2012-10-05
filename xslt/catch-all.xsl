@@ -27,6 +27,7 @@
           idml2xml:GenerateTagging
           idml2xml:IndexTerms-Topics
           idml2xml:IndexTerms-SeeAlso
+          idml2xml:Images
           idml2xml:Statistics
           idml2xml:XML-Hubformat-add-properties
           idml2xml:XML-Hubformat-extract-frames
