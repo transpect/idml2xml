@@ -45,20 +45,13 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-unzip/ltx-lib.xpl" />
 
-  <p:string-replace match="/c:query/*/text()" name="idmlfilename">
-    <p:input port="source">
-      <p:inline>
-        <c:query>
-          <source>idmlfile</source>
-          <destination remove-first="yes">idmlfile.tmp</destination>
-        </c:query>
-      </p:inline>
-    </p:input>
-    <!-- gotta love this shit (cf. the first item on http://xproc.org/faq/): -->
-    <p:with-option name="replace" select="concat('replace(., ''idmlfile'', ''', $idmlfile, ''')')"/>
-  </p:string-replace>
-
-  <ltx:unzip-files name="unzip"/>
+  <letex:unzip name="unzip">
+    <p:with-option name="zip" select="$idmlfile" />
+    <p:with-option name="dest-dir" select="concat($idmlfile, '.tmp')">
+      <p:pipe step="idml2xml" port="source"/>
+    </p:with-option>
+    <p:with-option name="overwrite" select="'yes'" />
+  </letex:unzip>
 
   <p:sink/>
 

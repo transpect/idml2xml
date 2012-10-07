@@ -9,6 +9,15 @@
     exclude-result-prefixes = "xs idPkg"
 >
   
+  <xsl:variable
+    name="idml2xml:idml-content-element-names" 
+    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor', 'TextFrame')" 
+    as="xs:string+" />
+  <xsl:variable 
+    name="idml2xml:idml-scope-terminal-names"
+    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'CharacterStyleRange')" 
+    as="xs:string+" />
+
   <xsl:function name="idml2xml:substr">
     <xsl:param name="direction" as="xs:string"/> <!-- before: b, after: a -->
     <xsl:param name="Token"/>
@@ -113,13 +122,19 @@
   <xsl:function name="idml2xml:same-scope" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
     <xsl:param name="ancestor-elt" as="element(*)" />
-    <xsl:sequence select="not($elt/ancestor::*[self::Cell 
-                                               or @aid:table eq 'cell' 
-                                               or self::Footnote
-                                               or self::Story
-                                               or self::XmlStory 
-                                               or @idml2xml:story]
+    <xsl:sequence select="not($elt/ancestor::*[idml2xml:is-scope-origin(.)]
                                               [some $a in ancestor::* satisfies ($a is $ancestor-elt)])" />
+  </xsl:function>
+
+  <xsl:function name="idml2xml:is-scope-origin" as="xs:boolean">
+    <xsl:param name="elt" as="element(*)" />
+    <xsl:sequence select="   $elt/self::Cell 
+                          or $elt/@aid:table eq 'cell' 
+                          or $elt/self::Footnote
+                          or $elt/self::Story
+                          or $elt/self::XmlStory 
+                          or $elt/@idml2xml:story
+                          " />
   </xsl:function>
 
   <xsl:function name="idml2xml:br-first" as="xs:boolean">

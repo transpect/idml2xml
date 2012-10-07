@@ -88,19 +88,6 @@
   <!--== VARIABLES ==-->
 
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
-  <xsl:variable
-    name="idml2xml:idml-content-element-names" 
-    select="('TextVariableInstance', 'Content', 'Rectangle', 'PageReference', 'idml2xml:genAnchor', 'TextFrame')" 
-    as="xs:string+" />
-  <xsl:variable 
-    name="idml2xml:idml-scope-terminal-names"
-    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'CharacterStyleRange')" 
-    as="xs:string+" />
-  <xsl:variable
-    name="idml2xml:split-these-elements-if-they-stretch-across-paragraphs" 
-    select="for $eltname in tokenize($split, ',')
-            return concat('XMLTag/', replace($eltname, ':', '%3a'))" 
-    as="xs:string*" />
   <xsl:variable 
     name="idml2xml:basename" 
     select="replace($src-dir-uri, '^(.*/)([^.]+?)(\..+)?$', '$2')"
@@ -109,6 +96,11 @@
     name="designmap-root"
     select="$designmap-doc"
     as="document-node(element(Document))" />
+  <xsl:variable
+    name="idml2xml:split-these-elements-if-they-stretch-across-paragraphs" 
+    select="for $eltname in tokenize($split, ',')
+            return concat('XMLTag/', replace($eltname, ':', '%3a'))" 
+    as="xs:string*" />
 
   <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
        It's irrelevant to XProc processing (the variables won't be computed because
