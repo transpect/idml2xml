@@ -51,10 +51,19 @@
               </tr>
             </xsl:if>
             <tr>
-              <th>Pages<br />Master pages<br />Spreads<br />Stories<br />Textframes</th>
+              <th>Pages
+	          <br />Master spreads (pages)
+		  <br /> – Names (usage)<xsl:for-each select="//MasterSpread"><br/></xsl:for-each>
+	          Spreads
+	          <br />Stories
+	          <br />Textframes
+	      </th>
               <td>
                 <xsl:value-of select="count( //Page[ not( parent::MasterSpread ) ] )"/><br />
-                <xsl:value-of select="count( //MasterSpread/Page )"/><br />
+                <xsl:value-of select="concat( count( //MasterSpread ), ' (', count( //MasterSpread/Page) ,')')"/><br />
+		<xsl:for-each select="//MasterSpread">
+		  <xsl:value-of select="concat( ' - ', @Name, ' (', count(//Page[ not( parent::MasterSpread ) ][@AppliedMaster eq current()/@Self]), ')')"/><br />
+		</xsl:for-each>
                 <xsl:value-of select="count( //Spread )"/><br />
                 <xsl:value-of select="count( //Story )"/><br />
                 <xsl:value-of select="count( //TextFrame )"/></td>
