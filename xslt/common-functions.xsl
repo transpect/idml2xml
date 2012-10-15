@@ -218,21 +218,21 @@
 
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
-    <xsl:message select="'=== ITEM ==='"/>
-    <xsl:message select="local-name($item),$item/@Self, xs:string($item/@ItemTransform), ' | TEXT: ', $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>
+<!--    <xsl:message select="'=== ITEM ==='"/>
+    <xsl:message select="local-name($item),$item/@Self, xs:string($item/@ItemTransform), ' | TEXT: ', $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>-->
     <xsl:choose>
       <xsl:when test="local-name($item) eq 'TextFrame'">
 
 <!--	<xsl:variable name="corresponding-spread" select="idml2xml:get-workspace-for-item($item)" as="element(Spread)"/>-->
-	<xsl:message select="'page/spread coords:', ''"/>
-
+<!--	<xsl:message select="'page/spread coords:', ''"/>-->
+<!--
         <xsl:variable name="frame" select="($item, $item/TextFrame)[@ParentStory][1]" as="element(TextFrame)" />
         <xsl:variable name="PathPoints" select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" as="node()*"/>
         <xsl:variable name="CoordinateLeft" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" as="xs:double"/>
         <xsl:variable name="CoordinateTop" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" as="xs:double"/>
         <xsl:variable name="CoordinateRight" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" as="xs:double"/>
         <xsl:variable name="CoordinateBottom" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>	
+        <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>	-->
         <!--
         <xsl:message select="key( 'story', current()/@ParentStory )//Content/text()"/>
         <xsl:message select="@ItemTransform, @ParentStory"/>
