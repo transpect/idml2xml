@@ -214,6 +214,60 @@
   </xsl:function>
 
 
+  <!-- Document functions -->
+
+  <xsl:function name="idml2xml:item-is-on-workspace">
+    <xsl:param name="item" as="element(*)"/>
+    <xsl:message select="'=== ITEM ==='"/>
+    <xsl:message select="local-name($item),$item/@Self, xs:string($item/@ItemTransform), ' | TEXT: ', $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>
+    <xsl:choose>
+      <xsl:when test="local-name($item) eq 'TextFrame'">
+
+<!--	<xsl:variable name="corresponding-spread" select="idml2xml:get-workspace-for-item($item)" as="element(Spread)"/>-->
+	<xsl:message select="'page/spread coords:', ''"/>
+
+        <xsl:variable name="frame" select="($item, $item/TextFrame)[@ParentStory][1]" as="element(TextFrame)" />
+        <xsl:variable name="PathPoints" select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" as="node()*"/>
+        <xsl:variable name="CoordinateLeft" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" as="xs:double"/>
+        <xsl:variable name="CoordinateTop" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" as="xs:double"/>
+        <xsl:variable name="CoordinateRight" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" as="xs:double"/>
+        <xsl:variable name="CoordinateBottom" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" as="xs:double"/>
+        <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>	
+        <!--
+        <xsl:message select="key( 'story', current()/@ParentStory )//Content/text()"/>
+        <xsl:message select="@ItemTransform, @ParentStory"/>
+        <xsl:message select="''"/>
+        -->
+          <!-- Coordinations of TextFrame:
+          <PathPointArray>
+            <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
+            <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
+            <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
+            <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
+          </PathPointArray>
+        -->
+        <!--
+        Increasing a vertical coordinate (y) moves the specified location down in pasteboard
+coordinates. This is the same as ruler coordinates, but is ?lipped?relative to the x and y axes of
+traditional geometry (i.e., what you learned in geometry and trigonometry classes), PostScript,
+and PDF.
+        -->
+        <!-- @ItemTransform: (standard is 1 0 0  1 0 0) last two are x and y -->
+
+	<xsl:sequence select="true()"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:message select="'WARNING: Element', local-name($item), 'not yet supported in function idml2xml:item-is-on-workspace'"/>
+	<xsl:sequence select="true()"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:get-workspace-for-item">
+    <xsl:param name="item" as="element(*)"/>
+    <xsl:message select="$item"/>
+    <xsl:sequence select="$item"/>
+  </xsl:function>
 
   <!--  function replaces 
         - just replaces text -
