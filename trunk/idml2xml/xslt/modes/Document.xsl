@@ -105,56 +105,9 @@
       <idml2xml:lang>
         <xsl:copy-of select="Language" />
       </idml2xml:lang>
-      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame
-                                  | idPkg:Spread/Spread/Group[TextFrame]" 
+      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame[idml2xml:item-is-on-workspace(.)]
+                                  | idPkg:Spread/Spread/Group[TextFrame][idml2xml:item-is-on-workspace(.)]" 
         group-by="(@ParentStory, TextFrame/@ParentStory)">
-        <xsl:variable name="frame" select="(., TextFrame)[@ParentStory][1]" as="element(TextFrame)" />
-        <xsl:if test="count( $frame/Properties/PathGeometry/GeometryPathType ) gt 1">
-          <xsl:message select="'WARNING: more than one GeometryPathType element in', $frame/@Self"/>
-        </xsl:if>
-        <!--
-        <xsl:variable name="PathPoints" select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" as="node()*"/>
-        <xsl:variable name="CoordinateLeft" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" as="xs:double"/>
-        <xsl:variable name="CoordinateTop" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <xsl:variable name="CoordinateRight" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" as="xs:double"/>
-        <xsl:variable name="CoordinateBottom" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>
-        <xsl:message select="key( 'story', current()/@ParentStory )//Content/text()"/>
-        <xsl:message select="@ItemTransform, @ParentStory"/>
-        <xsl:message select="''"/>
-        -->
-          <!-- Coordinations of TextFrame:
-          <PathPointArray>
-            <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
-            <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
-            <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
-            <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
-          </PathPointArray>
-        -->
-        <!--
-        Increasing a vertical coordinate (y) moves the specified location down in pasteboard
-coordinates. This is the same as ruler coordinates, but is ?lipped?relative to the x and y axes of
-traditional geometry (i.e., what you learned in geometry and trigonometry classes), PostScript,
-and PDF.
-        -->
-        <!-- @ItemTransform: (standard is 1 0 0  1 0 0) last two are x and y -->
-        <!-- childs of Spread:
-        FlattenerPreference_
-        Object?&
-        Page_Object*&
-        Oval_Object*&
-        Rectangle_Object*&
-        GraphicLine_
-        Object*&
-        TextFrame_
-        Object*&
-        Polygon_Object*&
-        Group_Object*&
-        EPSText_Object*&
-        FormField_
-        Object*&
-        Button_Object*
-        -->
         <xsl:apply-templates
           select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
           mode="idml2xml:DocumentResolveTextFrames" />

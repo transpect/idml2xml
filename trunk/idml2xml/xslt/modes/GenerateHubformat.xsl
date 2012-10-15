@@ -135,6 +135,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 <!--     <xsl:apply-templates select="$raw-output" mode="idml2xml:XML-Hubformat-add-properties2"/> -->
   </xsl:template>
 
+  <xsl:template match="Rectangle/@Self" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:copy/>
+  </xsl:template>
+
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-add-properties">
     <idml2xml:attribute name="srcpath"><xsl:value-of select="substring-after(., replace($src-dir-uri, '^file:/+', 'file:/'))" /></idml2xml:attribute>
   </xsl:template>
@@ -741,7 +745,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <mediaobject>
       <imageobject>
-        <imagedata fileref="{.//@LinkResourceURI}"/>
+        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}"/>
       </imageobject>
     </mediaobject>
   </xsl:template>
