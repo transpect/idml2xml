@@ -63,7 +63,7 @@
       <xsl:attribute name="dpi-y" select="$dpi-y" />
       <xsl:attribute name="dpi-x-original" select="$dpi-x-original" />
       <xsl:attribute name="dpi-y-original" select="$dpi-y-original" />
-      <xsl:attribute name="xml:id" select="img_{$idml2xml:basename}_{@Self}" />
+      <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self)" />
       <xsl:message select="concat('Processing Image, @Self: ', @Self)"/>
     </image>
   </xsl:template>
