@@ -80,7 +80,6 @@
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>
   <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
-  <xsl:param name="extract-text" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
 
@@ -281,15 +280,6 @@
         <xsl:copy-of select="$idml2xml:ExtractTagging"/>
       </xsl:result-document>
     </xsl:if>
-    <xsl:if test="$extract-text = ('1','yes', 'true')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.99.XML-Hubformat-extract-text.txt')}" format="text">
-        <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-extract-text"/>
-      </xsl:result-document>
-      <xsl:message>
-      INFO: Extracted text written to <xsl:value-of select="concat( $debugdir, '/idml2xml.HUB.99.XML-Hubformat-extract-text.txt')"/>
-
-      </xsl:message>
-    </xsl:if>
   </xsl:template>
 
 
@@ -323,6 +313,9 @@
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.20.XML-Hubformat-without-srcpath.xml')}" format="debug">
         <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-without-srcpath"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.99.XML-Hubformat-extract-text.txt')}" format="text">
+        <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-extract-text"/>
       </xsl:result-document>
     </xsl:if>
   </xsl:template>
