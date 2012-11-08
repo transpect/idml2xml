@@ -11,6 +11,7 @@ SAXON := saxon
 DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
+EXTRACT_TEXT = no
 
 default: idml2xml_usage
 
@@ -24,6 +25,7 @@ default: idml2xml_usage
       src-dir-uri=$(call uri,$(abspath $<)).tmp \
       split=$(SPLIT) \
       srcpaths=$(SRCPATHS) \
+      extract-text=$(EXTRACT_TEXT) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
       2> "$@".idml2hub.log \
