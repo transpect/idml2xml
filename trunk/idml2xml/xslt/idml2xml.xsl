@@ -38,6 +38,7 @@
   <!-- Images: extract image properties (width, height, resizing and other) -->
   <xsl:import href="modes/Images.xsl"/>
 
+
   <!--== XSL OUTPUT ==-->
   <!-- removed saxon:suppress-indentation (and indent="yes") in order to make this vendor-neutral: -->
   <xsl:output 
@@ -62,6 +63,11 @@
       method="xml" 
       name="xml"/>
   <xsl:output 
+      encoding="UTF-8" 
+      byte-order-mark="yes" 
+      method="text" 
+      name="text"/>
+  <xsl:output 
       name="debug" 
       method="xml" 
       encoding="utf-8" 
@@ -73,9 +79,10 @@
 
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>
+  <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
+  <xsl:param name="extract-text" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
-  <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
 
   <!-- Comma separated list of inline element names (e.g., 'span,html:span')
        which to split when they stretch across layout paragraphs: -->
@@ -239,11 +246,6 @@
 
   <xsl:template name="images">
     <xsl:sequence select="$idml2xml:Images"/>
-    <xsl:if test="$debug = ('1','yes')">
-      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '')}" format="debug">
-        <xsl:copy-of select="$idml2xml:Document"/>
-      </xsl:result-document>
-    </xsl:if>
   </xsl:template>
 
   <xsl:template name="debug-common">
@@ -278,6 +280,15 @@
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '30.ExtractTagging.xml')}" format="debug">
         <xsl:copy-of select="$idml2xml:ExtractTagging"/>
       </xsl:result-document>
+    </xsl:if>
+    <xsl:if test="$extract-text = ('1','yes', 'true')">
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.99.XML-Hubformat-extract-text.txt')}" format="text">
+        <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-extract-text"/>
+      </xsl:result-document>
+      <xsl:message>
+      INFO: Extracted text written to <xsl:value-of select="concat( $debugdir, '/idml2xml.HUB.99.XML-Hubformat-extract-text.txt')"/>
+
+      </xsl:message>
     </xsl:if>
   </xsl:template>
 

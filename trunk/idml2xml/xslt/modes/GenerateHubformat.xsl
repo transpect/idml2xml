@@ -876,5 +876,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-without-srcpath" />
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- mode: idml2xml:Hubformat-extract-text -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template match="dbk:info" mode="idml2xml:XML-Hubformat-extract-text" />
+  <xsl:template match="dbk:indexterm" mode="idml2xml:XML-Hubformat-extract-text" />
+
+  <xsl:template 
+    match="dbk:para[
+             node() and
+             not(count(node()) eq 1 and *[local-name() = ('mediaobject','anchor')])
+           ]" 
+    mode="idml2xml:XML-Hubformat-extract-text">
+    <xsl:apply-templates mode="#current"/>
+    <xsl:value-of select="'&#xa;'"/>
+  </xsl:template>
 
 </xsl:stylesheet>
