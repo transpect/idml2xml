@@ -214,55 +214,113 @@
 
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
-<!--    <xsl:message select="'=== ITEM ==='"/>
-    <xsl:message select="local-name($item),$item/@Self, xs:string($item/@ItemTransform), ' | TEXT: ', $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>-->
+
+    <xsl:variable name="corresponding-spread" as="element(Spread)"
+      select="$item/ancestor::Spread" />
+
+    <!-- @ItemTransform: (standard is 1 0 0 1 0 0) last two are x and y
+         matrix: see idml-specification.pdf
+    -->
+    <!-- Coordinations of items with PathPointArray:
+	 <PathPointArray>
+	   <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
+	   <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
+	   <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
+	   <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
+	 </PathPointArray>
+    -->
     <xsl:choose>
-      <xsl:when test="local-name($item) eq 'TextFrame'">
-
-<!--	<xsl:variable name="corresponding-spread" select="idml2xml:get-workspace-for-item($item)" as="element(Spread)"/>-->
-<!--	<xsl:message select="'page/spread coords:', ''"/>-->
-<!--
-        <xsl:variable name="frame" select="($item, $item/TextFrame)[@ParentStory][1]" as="element(TextFrame)" />
-        <xsl:variable name="PathPoints" select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" as="node()*"/>
-        <xsl:variable name="CoordinateLeft" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" as="xs:double"/>
-        <xsl:variable name="CoordinateTop" select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <xsl:variable name="CoordinateRight" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" as="xs:double"/>
-        <xsl:variable name="CoordinateBottom" select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" as="xs:double"/>
-        <xsl:message select="'top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>	-->
-        <!--
-        <xsl:message select="key( 'story', current()/@ParentStory )//Content/text()"/>
-        <xsl:message select="@ItemTransform, @ParentStory"/>
-        <xsl:message select="''"/>
-        -->
-          <!-- Coordinations of TextFrame:
-          <PathPointArray>
-            <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
-            <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
-            <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
-            <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
-          </PathPointArray>
-        -->
-        <!--
-        Increasing a vertical coordinate (y) moves the specified location down in pasteboard
-coordinates. This is the same as ruler coordinates, but is ?lipped?relative to the x and y axes of
-traditional geometry (i.e., what you learned in geometry and trigonometry classes), PostScript,
-and PDF.
-        -->
-        <!-- @ItemTransform: (standard is 1 0 0  1 0 0) last two are x and y -->
-
+      <!-- unsupported Spread/@ItemTransform value -->
+      <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
+	<xsl:message select="'WARNING: Spread for', local-name($item), 'does not fit standard settings. Item will be exported.'"/>
 	<xsl:sequence select="true()"/>
       </xsl:when>
+      
+      <!-- item is a textframe -->
+      <xsl:when test="local-name($item) eq 'TextFrame'">
+	<xsl:choose>
+	  <!-- unsupported TextFrame/@ItemTransform value -->
+	  <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
+	    <xsl:message select="'WARNING: Textframe does not fit standard settings. Item will be exported.'"/>
+	    <xsl:sequence select="true()"/>
+	  </xsl:when>
+
+	  <!-- 'x' in ItemTransform is set to 0, point x zero is binding right or binding left -->
+	  <!-- point zero 'y' is half size of spread height -->
+	  <xsl:otherwise>
+
+	    <!-- spread and page info -->
+	    <xsl:variable name="spread-binding" as="xs:string"
+              select="if($corresponding-spread/@BindingLocation = 0) then 'left' else 'right'" />
+	    <xsl:variable name="spread-x" as="xs:double"
+              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])" />
+<!--	    <xsl:variable name="spread-y" as="xs:double"
+              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
+-->
+	    <xsl:variable name="corresponding-page" as="element(Page)"
+              select="$item/preceding-sibling::Page[1]" />
+	    <xsl:variable name="page-width" as="xs:double"
+              select="if( $corresponding-page/@GeometricBounds ) 
+		      then xs:double(tokenize($corresponding-page/@GeometricBounds, ' ')[4])
+		      else root($item)//DocumentPreference/@PageWidth" />
+
+	    <!-- item non-transformed coordinations -->
+            <xsl:variable name="item-pathpoints" as="node()*"
+              select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
+            <xsl:variable name="item-x" as="xs:double"
+              select="xs:double(tokenize($item/@ItemTransform, ' ')[5])" />
+            <xsl:variable name="item-y" as="xs:double"
+              select="xs:double(tokenize($item/@ItemTransform, ' ')[6])" />
+            <xsl:variable name="item-left"  as="xs:double"
+              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] )" />
+            <xsl:variable name="item-top" as="xs:double"
+              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] )" />
+            <xsl:variable name="item-right" as="xs:double"
+              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] )"  />
+            <xsl:variable name="item-bottom" as="xs:double"
+              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] )"  />
+<!--            <xsl:message select="'top:', $item-top, ' left:',
+		$item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
+
+	    <xsl:variable name="indesign-real-item-topleft-x-coordinate" as="xs:double"
+              select="$spread-x + $item-x + $item-left" />
+
+	    <!-- choose wether the item is on the workspace or not -->
+	    <xsl:choose>
+	      
+	      <!-- Item not on workspace -->
+	      <xsl:when test="$spread-binding eq 'left' and 
+			        ($item-x + $item-left) le $spread-x
+			      or
+			      $spread-binding eq 'left' and 
+			        ($indesign-real-item-topleft-x-coordinate) gt $spread-x + $page-width">
+		<xsl:message select="'INFO: Removed TextFrame', xs:string($item/@Self), 
+				     '(not on workspace). TEXT: ', 
+				     $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>
+		<xsl:sequence select="false()"/>
+	      </xsl:when>
+
+	      <!-- item is above or below spread -->
+	      <!--
+	      <xsl:when test="">
+		<xsl:sequence select="false()"/>
+	      </xsl:when>
+	      -->
+
+	      <!-- Item is on workspace-->
+	      <xsl:otherwise>
+		<xsl:sequence select="true()"/>
+	      </xsl:otherwise>
+	    </xsl:choose>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:when>
       <xsl:otherwise>
-	<xsl:message select="'WARNING: Element', local-name($item), 'not yet supported in function idml2xml:item-is-on-workspace'"/>
+	<xsl:message select="'WARNING: Element', local-name($item), 
+			     'not yet supported in function idml2xml:item-is-on-workspace. Item will be exported.'"/>
 	<xsl:sequence select="true()"/>
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:function>
-
-  <xsl:function name="idml2xml:get-workspace-for-item">
-    <xsl:param name="item" as="element(*)"/>
-    <xsl:message select="$item"/>
-    <xsl:sequence select="$item"/>
   </xsl:function>
 
   <!--  function replaces 
