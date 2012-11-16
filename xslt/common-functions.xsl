@@ -215,9 +215,6 @@
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
 
-    <xsl:variable name="corresponding-spread" as="element(Spread)"
-      select="$item/ancestor::Spread" />
-
     <!-- @ItemTransform: (standard is 1 0 0 1 0 0) last two are x and y
          matrix: see idml-specification.pdf
     -->
@@ -229,19 +226,42 @@
 	   <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
 	 </PathPointArray>
     -->
+
+    <!-- workspace / spread -->
+    <xsl:variable name="corresponding-spread" as="element(Spread)"
+      select="$item/ancestor::Spread" />
+
     <xsl:choose>
       <!-- unsupported Spread/@ItemTransform value -->
       <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
-	<xsl:message select="'WARNING: Spread for', local-name($item), 'does not fit standard settings. Item will be exported.'"/>
+	<xsl:message select="'      WARNING: Spread for', local-name($item), 'does not fit standard settings. Item will be exported.'"/>
 	<xsl:sequence select="true()"/>
+      </xsl:when>
+
+      <!-- item is a Group and the group got no transformation, 
+	   then look for each child if its on workspace -->
+      <xsl:when test="$item/self::Group          (: and $item/@ItemTransform eq '1 0 0 1 0 0'  :)">
+	<xsl:variable name="group-childs" as="node()*"
+          select="$item/*[not(matches(local-name(), 'Preference|Option'))]"/>
+	<xsl:choose>
+	  <xsl:when test="every $item 
+                          in $group-childs 
+                          satisfies not(idml2xml:item-is-on-workspace($item))">
+	    <xsl:sequence select="false()"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:sequence select="true()"/>
+	  </xsl:otherwise>
+	</xsl:choose>
       </xsl:when>
       
       <!-- item is a textframe -->
-      <xsl:when test="local-name($item) eq 'TextFrame'">
+      <xsl:when test="local-name($item) = ('GraphicLine', 'Rectangle', 'TextFrame')">
 	<xsl:choose>
 	  <!-- unsupported TextFrame/@ItemTransform value -->
 	  <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
-	    <xsl:message select="'WARNING: Textframe does not fit standard settings. Item will be exported.'"/>
+	    <xsl:message select="'      WARNING:', local-name($item), 
+				 'does not fit standard settings (in func idml2xml:item-is-on-workspace). Item will be exported.'"/>
 	    <xsl:sequence select="true()"/>
 	  </xsl:when>
 
@@ -258,7 +278,9 @@
               select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
 -->
 	    <xsl:variable name="corresponding-page" as="element(Page)"
-              select="$item/preceding-sibling::Page[1]" />
+              select="if ($item/ancestor::Group)
+		      then $item/ancestor::Group[last()]/preceding-sibling::Page[1]
+		      else $item/preceding-sibling::Page[1]" />
 	    <xsl:variable name="page-width" as="xs:double"
               select="if( $corresponding-page/@GeometricBounds ) 
 		      then xs:double(tokenize($corresponding-page/@GeometricBounds, ' ')[4])
@@ -284,19 +306,36 @@
 
 	    <xsl:variable name="indesign-real-item-topleft-x-coordinate" as="xs:double"
               select="$spread-x + $item-x + $item-left" />
-
+<!--
+<xsl:if test="$item/@Self eq 'uc96'">
+  <xsl:message select="'indesign-real-item-topleft-x-coordinate:', $spread-x + $item-x + $item-left"/>
+  <xsl:message select="'spread-binding:', $spread-binding, $spread-x"/>
+  <xsl:message select="$indesign-real-item-topleft-x-coordinate, $spread-x + ($page-width *-1)"/>
+</xsl:if>
+-->
 	    <!-- choose wether the item is on the workspace or not -->
 	    <xsl:choose>
 	      
 	      <!-- Item not on workspace -->
-	      <xsl:when test="$spread-binding eq 'left' and 
+	      <xsl:when test="$spread-binding eq 'right' and 
+			        $indesign-real-item-topleft-x-coordinate lt $spread-x + ($page-width * -1 )
+                              or
+                              $spread-binding eq 'left' and 
 			        ($item-x + $item-left) le $spread-x
 			      or
 			      $spread-binding eq 'left' and 
 			        ($indesign-real-item-topleft-x-coordinate) gt $spread-x + $page-width">
-		<xsl:message select="'INFO: Removed TextFrame', xs:string($item/@Self), 
-				     '(not on workspace). TEXT: ', 
-				     $idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text()"/>
+		<xsl:variable name="text-content" as="xs:string?"
+                  select="substring(
+                            string-join($idml2xml:Document//Story[@Self eq $item/@ParentStory]//Content/text(),''),
+                            0,
+                            200
+                          )"/>
+		  <xsl:message 
+                    select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). ',
+		  	    if (normalize-space($text-content)) 
+			      then concat('TEXT: ', $text-content) 
+			    else ''"/>
 		<xsl:sequence select="false()"/>
 	      </xsl:when>
 
@@ -316,7 +355,7 @@
 	</xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-	<xsl:message select="'WARNING: Element', local-name($item), 
+	<xsl:message select="'      WARNING: Element', local-name($item),
 			     'not yet supported in function idml2xml:item-is-on-workspace. Item will be exported.'"/>
 	<xsl:sequence select="true()"/>
       </xsl:otherwise>

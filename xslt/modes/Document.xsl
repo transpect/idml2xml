@@ -86,6 +86,18 @@
   </xsl:template>
 
   <xsl:template match="/Document" mode="idml2xml:DocumentStoriesSorted">
+    <!-- debug messages -->
+<!--
+    <xsl:message select="'PageHeight:', xs:string(//@PageHeight)"/>
+    <xsl:message select="'PageWidth:', xs:string(//@PageWidth)"/>
+    <xsl:for-each select="//Spread">
+      <xsl:message select="' === SPREAD', xs:string(@Self), xs:string(@ItemTransform), @BindingLocation"/>
+      <xsl:for-each select=".//TextFrame">
+	<xsl:message select="' ... TEXTFR', xs:string(@Self), xs:string(@ItemTransform), string-join(PathPointType/@*,'#'), 'TEXT:', substring(string-join($idml2xml:Document//Story[@Self eq current()/@ParentStory]//Content/text(),''), 0, 42)"/>	
+      </xsl:for-each>
+    </xsl:for-each>
+-->
+
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:attribute name="TOCStyle_Title" select="//TOCStyle[@Title ne ''][1]/@Title"/>
@@ -112,7 +124,7 @@
           select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
           mode="idml2xml:DocumentResolveTextFrames" />
       </xsl:for-each-group>
-      <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="#current"/>
+      <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
 
@@ -128,7 +140,13 @@
   <xsl:template match="TextFrame/@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:attribute name="idml2xml:{local-name()}" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
   </xsl:template>
-  
+
+  <!-- remove items not on workspace other than Group and TextFrame -->
+  <xsl:template 
+    match="Rectangle[
+	     not(idml2xml:item-is-on-workspace(.))
+	   ]" 
+    mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = /Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
