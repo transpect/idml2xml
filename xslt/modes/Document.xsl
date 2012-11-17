@@ -143,7 +143,9 @@
 
   <!-- remove items not on workspace other than Group and TextFrame -->
   <xsl:template 
-    match="Rectangle[
+    match="*[local-name() = ('Rectangle','GraphicLine')]
+            [
+             ancestor::Spread and
 	     not(idml2xml:item-is-on-workspace(.))
 	   ]" 
     mode="idml2xml:DocumentResolveTextFrames" />
