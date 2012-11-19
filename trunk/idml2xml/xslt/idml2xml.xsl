@@ -91,6 +91,9 @@
        comma-separated list of element names -->
   <xsl:param name="hub-other-elementnames-whitelist" select="''" as="xs:string"/>
 
+  <xsl:param name="output-items-not-on-workspace" select="'no'" as="xs:string"/>
+  <xsl:param name="output-deleted-text" select="'no'" as="xs:string"/>
+
   <!--== VARIABLES ==-->
 
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
