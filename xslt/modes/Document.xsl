@@ -117,8 +117,8 @@
       <idml2xml:lang>
         <xsl:copy-of select="Language" />
       </idml2xml:lang>
-      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame[idml2xml:item-is-on-workspace(.)]
-                                  | idPkg:Spread/Spread/Group[TextFrame][idml2xml:item-is-on-workspace(.)]" 
+      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame[$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
+                                  | idPkg:Spread/Spread/Group[TextFrame][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]" 
         group-by="(@ParentStory, TextFrame/@ParentStory)">
         <xsl:apply-templates
           select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
@@ -145,9 +145,16 @@
   <xsl:template 
     match="*[local-name() = ('Rectangle','GraphicLine')]
             [
-             ancestor::Spread and
-	     not(idml2xml:item-is-on-workspace(.))
+             (
+               ancestor::Spread and
+	       not(idml2xml:item-is-on-workspace(.))
+             ) 
+             or $output-items-not-on-workspace = ('yes','1','true')
 	   ]" 
+    mode="idml2xml:DocumentResolveTextFrames" />
+
+  <xsl:template 
+    match="Change[ not($output-deleted-text = ('yes','1','true')) and @ChangeType eq 'DeletedText']" 
     mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
