@@ -7,7 +7,7 @@
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  xmlns:ltx="http://le-tex.de/tools/unzip"
+  xmlns:letex="http://www.le-tex.de/namespace"
   version="1.0"
   name="idml2xml"
   type="idml2xml:hub"
@@ -48,6 +48,7 @@
   <letex:unzip name="unzip">
     <p:with-option name="zip" select="$idmlfile" />
     <p:with-option name="dest-dir" select="concat($idmlfile, '.tmp')">
+      <!-- following line necessary? -->
       <p:pipe step="idml2xml" port="source"/>
     </p:with-option>
     <p:with-option name="overwrite" select="'yes'" />
