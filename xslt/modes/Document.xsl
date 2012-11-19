@@ -153,9 +153,19 @@
 	   ]" 
     mode="idml2xml:DocumentResolveTextFrames" />
 
+
+  <!-- element Change: textual changes -->
+
   <xsl:template 
     match="Change[ not($output-deleted-text = ('yes','1','true')) and @ChangeType eq 'DeletedText']" 
     mode="idml2xml:DocumentResolveTextFrames" />
+
+  <xsl:template 
+    match="Change[ @ChangeType = ('InsertedText', 'MovedText') ]" 
+    mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = /Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
