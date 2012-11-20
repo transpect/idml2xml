@@ -501,18 +501,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
     <xsl:choose>
-      <xsl:when test="$role eq 'No_character_style' 
+      <xsl:when test="$role eq 'No character style' 
                       and not(text()[matches(., '\S')]) 
                       and count(*) gt 0 and 
                       count(*) eq count(PageReference union HyperlinkTextSource)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role eq 'No_character_style' 
+      <xsl:when test="$role eq 'No character style' 
                       and not(text()[matches(., '\S')]) 
                       and count(* except idml2xml:genAnchor) eq 0">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
-      <xsl:when test="$role eq 'No_character_style' 
+      <xsl:when test="$role eq 'No character style' 
                       and text() 
                       and count(* except idml2xml:genAnchor) eq 0
                       and count(@* except (@aid:cstyle union @srcpath union @idml2xml:*)) eq 0
