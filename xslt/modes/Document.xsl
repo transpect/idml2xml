@@ -145,8 +145,8 @@
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
       <xsl:apply-templates select="node()" mode="#current" />
+      <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
     </xsl:copy>
-    <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
