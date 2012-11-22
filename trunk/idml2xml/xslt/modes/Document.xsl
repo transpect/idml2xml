@@ -86,17 +86,18 @@
   </xsl:template>
 
   <xsl:template match="/Document" mode="idml2xml:DocumentStoriesSorted">
-    <!-- debug messages -->
-<!--
+
+    <!-- debug messages: list informations about spread childs -->
+    <!--
     <xsl:message select="'PageHeight:', xs:string(//@PageHeight)"/>
     <xsl:message select="'PageWidth:', xs:string(//@PageWidth)"/>
     <xsl:for-each select="//Spread">
       <xsl:message select="' === SPREAD', xs:string(@Self), xs:string(@ItemTransform), @BindingLocation"/>
-      <xsl:for-each select=".//TextFrame">
-	<xsl:message select="' ... TEXTFR', xs:string(@Self), xs:string(@ItemTransform), string-join(PathPointType/@*,'#'), 'TEXT:', substring(string-join($idml2xml:Document//Story[@Self eq current()/@ParentStory]//Content/text(),''), 0, 42)"/>	
+      <xsl:for-each select=".//TextFrame union .//Group union .//Rectangle">
+	<xsl:message select="' ...', local-name(.), xs:string(@Self), xs:string(@ItemTransform), string-join(PathPointType/@*,'#'), 'TEXT:', substring(string-join($idml2xml:Document//Story[@Self eq current()/@ParentStory]//Content/text(),''), 0, 42)"/>	
       </xsl:for-each>
     </xsl:for-each>
--->
+    -->
 
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
@@ -124,6 +125,7 @@
           select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
           mode="idml2xml:DocumentResolveTextFrames" />
       </xsl:for-each-group>
+      <!-- idApplyNoTextOrGrp: see also template with comment 'idRemOtherTempl' in this document -->
       <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
@@ -141,9 +143,10 @@
     <xsl:attribute name="idml2xml:{local-name()}" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
   </xsl:template>
 
-  <!-- remove items not on workspace other than Group and TextFrame -->
+  <!-- idRemOtherTempl: remove items not on workspace other than Group and TextFrame -->
   <xsl:template 
-    match="*[local-name() = ('Rectangle','GraphicLine')]
+    match="*[local-name() = ('Rectangle','GraphicLine', 'Oval') 
+	     or Group[not(TextFrame)](: does not match, see idApplyNoTextOrGrp :)]
             [
              (
                ancestor::Spread and
