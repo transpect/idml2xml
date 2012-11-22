@@ -133,8 +133,20 @@
   <xsl:template match="TextFrame" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current"/>
+      <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current">
+	<xsl:with-param name="textframe" select="." tunnel="yes"/>
+      </xsl:apply-templates>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="Story" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:param name="textframe" tunnel="yes"/>
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current" />
+      <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
+      <xsl:apply-templates select="node()" mode="#current" />
+    </xsl:copy>
+    <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
