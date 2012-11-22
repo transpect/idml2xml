@@ -245,7 +245,6 @@
       <xsl:when test="$item/self::Group and substring($item/@ItemTransform, 0, 8) eq '1 0 0 1'">
 	<xsl:variable name="group-childs" as="node()*"
           select="$item/*[not(matches(local-name(), 'Preference|Option'))]"/>
-<xsl:message select="'ITEM IS GROUP:', xs:string($item/@Self), 'with', for $i in $group-childs return xs:string($i/@Self)"/>
 	<xsl:choose>
           <xsl:when test="every $item
                           in $group-childs
