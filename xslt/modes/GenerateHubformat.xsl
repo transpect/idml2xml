@@ -186,6 +186,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:choose>
 
+      <xsl:when test=". eq 'bullet-char'">
+        <idml2xml:attribute name="{../@target-name}">
+          <xsl:value-of select="codepoints-to-string(xs:integer($val/@BulletCharacterValue))" />
+        </idml2xml:attribute>
+      </xsl:when>
+      
       <xsl:when test=". eq 'color'">
         <xsl:variable name="context-name" select="$val/../name()" as="xs:string" />
         <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
@@ -216,10 +222,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:choose>
       </xsl:when>
 
-      <xsl:when test=". eq 'percentage'">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="if (xs:integer($val) eq -1) then 1 else xs:double($val) * 0.01" /></idml2xml:attribute>
-      </xsl:when>
-
       <xsl:when test=". eq 'lang'">
         <idml2xml:attribute name="{../@target-name}">
           <!-- provisional -->
@@ -244,6 +246,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:attribute name="{../@name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:when>
 
+      <xsl:when test=". eq 'percentage'">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="if (xs:integer($val) eq -1) then 1 else xs:double($val) * 0.01" /></idml2xml:attribute>
+      </xsl:when>
+      
       <xsl:when test=". eq 'position'">
         <xsl:choose>
           <xsl:when test="$val eq 'Normal'" />
@@ -554,12 +560,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </link>
   </xsl:template>
 
+  <xsl:function name="idml2xml:normalize-name" as="xs:Name">
+    <xsl:param name="input" as="xs:string" />
+    <xsl:sequence select="xs:Name(replace($input, '\C', ''))"/>
+  </xsl:function>
+
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <anchor xml:id="{$id-prefix}{@*:id}" />
+    <anchor xml:id="{$id-prefix}{idml2xml:normalize-name(@*:id)}" />
   </xsl:template>
 
   <xsl:template match="@linkend" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:attribute name="linkend" select="concat ($id-prefix, .)" />
+    <xsl:attribute name="linkend" select="concat ($id-prefix, idml2xml:normalize-name(.))" />
   </xsl:template>
 
   <xsl:template match="@aid:cstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
