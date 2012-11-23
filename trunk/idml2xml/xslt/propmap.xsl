@@ -43,13 +43,14 @@
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
         <prop name="BulletsAndNumberingListType" target-name="list-type" type="linear"/>
+        <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/> 
         <prop name="Capitalization">
           <val eq="SmallCaps" target-name="css:font-variant" target-value="small-caps"/>
           <val eq="AllCaps" target-name="css:text-transform" target-value="uppercase"/>
           <val eq="CapToSmallCap" target-name="css:text-transform" target-value="uppercase"/><!-- ? -->
         </prop>
         <prop name="aid:ccolwidth" type="length" target-name="css:width"/>
-        <prop name="CharacterDirection" target-name="css:text-direction">
+        <prop name="CharacterDirection" target-name="css:direction">
           <!-- string "DefaultDirection" | string "LeftToRightDirection" | 
                string "RightToLeftDirection" -->
           <val eq="LeftToRightDirection" target-value="ltr"/>

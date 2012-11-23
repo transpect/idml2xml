@@ -111,6 +111,10 @@
             return concat('XMLTag/', replace($eltname, ':', '%3a'))" 
     as="xs:string*" />
 
+  <xsl:variable name="idml2xml:hub-xml-model" as="processing-instruction(xml-model)">
+    <xsl:processing-instruction name="xml-model">href="http://www.le-tex.de/schema/hub/hub.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+  </xsl:variable>
+
   <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
        It's irrelevant to XProc processing (the variables won't be computed because
        they will be referenced nowhere -->
@@ -225,6 +229,8 @@
     <xsl:call-template name="debug-common" />
     <xsl:call-template name="debug-tagged" />
     <xsl:call-template name="debug-hub" />
+    <xsl:sequence select="$idml2xml:hub-xml-model" />
+    <xsl:text>&#xa;</xsl:text>
     <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   </xsl:template>
 
@@ -312,9 +318,13 @@
         <xsl:sequence select="$idml2xml:XML-Hubformat-remap-para-and-span"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.15.XML-Hubformat-cleanup-paras-and-br.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:hub-xml-model" />
+        <xsl:text>&#xa;</xsl:text>
         <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.20.XML-Hubformat-without-srcpath.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:hub-xml-model" />
+        <xsl:text>&#xa;</xsl:text>
         <xsl:apply-templates select="$idml2xml:XML-Hubformat-cleanup-paras-and-br" mode="idml2xml:XML-Hubformat-without-srcpath"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', 'HUB.99.XML-Hubformat-extract-text.txt')}" format="text">
