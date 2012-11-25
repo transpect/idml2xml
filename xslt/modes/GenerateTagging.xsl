@@ -47,13 +47,27 @@
       </xsl:for-each-group>
     </xsl:element>
   </xsl:template>
+  
+  <xsl:function name="idml2xml:contains-significant-content" as="xs:boolean">
+    <xsl:param name="style-range" as="element(*)"/>
+    <xsl:sequence select="(
+                            some $c in $style-range/descendant::Content[idml2xml:same-scope(., $style-range)] 
+                            satisfies (
+                              matches($c, '[^\s&#xfeff;]')
+                              or $c/processing-instruction(ACE)
+                            )
+                          )
+                          or
+                          $style-range/descendant::TextVariableInstance[idml2xml:same-scope(., $style-range)]/@ResultText 
+                          "/>
+  </xsl:function>
 
   <!-- Matches a ParagraphStyleRange that contains both (at least) one tagged para *and* some out-of-para text -->
   <xsl:template match="*:ParagraphStyleRange
                          [.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle']
                          [ some $a in (. | .//XMLElement[idml2xml:same-scope(., current())][not(XMLAttribute/@Name = 'aid:pstyle')])
                            /*[self::CharacterStyleRange or self::HyperlinkTextSource[CharacterStyleRange]][
-                             some $c in .//Content[idml2xml:same-scope(., current())] satisfies (matches($c, '[^\s&#xfeff;]'))
+                             idml2xml:contains-significant-content(.)
                            ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
                          ]" mode="idml2xml:GenerateTagging">
@@ -76,9 +90,10 @@
   <xsl:template match="*:ParagraphStyleRange
                          [ancestor::Story]
                          [not(.//XMLElement[idml2xml:same-scope(., current())]/XMLAttribute/@Name = 'aid:pstyle')]
-                         [ some $a in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange)[
-                               some $c in (.//Content | .//TextVariableInstance/@ResultText) satisfies (matches($c, '[^&#xfeff;]'))
-                             ]/@AppliedCharacterStyle 
+                         [ 
+                           some $a in (CharacterStyleRange | HyperlinkTextSource/CharacterStyleRange)[
+                             idml2xml:contains-significant-content(.)
+                           ]/@AppliedCharacterStyle 
                            satisfies (matches($a, '^CharacterStyle/'))
                          ]" mode="idml2xml:GenerateTagging" priority="0.3">
     <xsl:copy>
