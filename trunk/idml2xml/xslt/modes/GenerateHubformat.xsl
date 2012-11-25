@@ -590,8 +590,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="TextVariableInstance" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
-
 
 <!--  <xsl:template match="idml2xml:CharacterStyleRange[ ( idml2xml:Br  and  count(*) eq 1 )  or  
 		       ( idml2xml:Br  and  idml2xml:Content 	and  not( idml2xml:Content/node() )
@@ -649,6 +647,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </tab>
   </xsl:template>
   
+  <xsl:template match="idml2xml:control"
+    mode="idml2xml:XML-Hubformat-remap-para-and-span" >
+    <phrase remap="idml2xml:control">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </phrase>
+  </xsl:template>
+
   <xsl:template match="	Root |
 		       idml2xml:Content | 
 		       idml2xml:Document | 
@@ -844,7 +849,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        Reason: tables in phrases are not permitted by the document model.
        If there are documents with tables *and* other text in phrases, we need to implement an anchoring
        mechanism such as the one for text frames. -->
-  <xsl:template match="dbk:phrase[count(node()) eq count(dbk:informaltable)]" 		
+  <xsl:template match="dbk:phrase[not(@remap)][count(node()) eq count(dbk:informaltable)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
