@@ -112,7 +112,7 @@
     as="xs:string*" />
 
   <xsl:variable name="idml2xml:hub-xml-model" as="processing-instruction(xml-model)">
-    <xsl:processing-instruction name="xml-model">href="http://www.le-tex.de/schema/hub/hub.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+    <xsl:processing-instruction name="xml-model">href="http://le-tex.de/schema/hub/1.0/hub.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
   </xsl:variable>
 
   <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
