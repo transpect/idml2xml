@@ -32,6 +32,8 @@
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
               )"/>
 
+  <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -759,9 +761,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- figures -->
   <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', @Self)" as="element(Rectangle)+" />
+    <xsl:variable name="my-number" as="xs:integer"
+      select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id(.))" />
+    <xsl:variable name="suffix" as="xs:string"
+      select="if ($my-number gt 1)
+              then concat('_', string($my-number))
+              else ''"/>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}"/>
+        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}"/>
       </imageobject>
     </mediaobject>
   </xsl:template>
