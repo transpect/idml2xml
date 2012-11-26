@@ -141,38 +141,47 @@
 
   <xsl:template match="Story" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:param name="textframe" tunnel="yes"/>
-    <xsl:copy>
-      <xsl:apply-templates select="@*" mode="#current" />
-      <xsl:choose>
-        <xsl:when test="$textframe/preceding-sibling::TextFrame">
-          <xsl:variable name="last-preceding-textframe" as="element(TextFrame)"
-            select="$textframe/preceding-sibling::TextFrame[1]"/>
-          <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-            <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-              <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle[ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
-            </CharacterStyleRange>
-            <Br/>
-          </ParagraphStyleRange>
-        </xsl:when>
-        <xsl:otherwise>
-          <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-            <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-              <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
-            </CharacterStyleRange>
-            <Br/>
-          </ParagraphStyleRange>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:apply-templates select="node()" mode="#current" />
-      <xsl:if test="not($textframe/following-sibling::TextFrame)">
-        <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-          <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">        
-            <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
-          </CharacterStyleRange>
-          <Br/>
-        </ParagraphStyleRange>
-      </xsl:if>
-    </xsl:copy>
+    <xsl:choose>
+      <xsl:when test="$textframe/parent::Group and ($textframe/preceding-sibling::Rectangle or $textframe/following-sibling::Rectangle)">
+        <xsl:copy>
+          <xsl:apply-templates select="@*" mode="#current" />
+          <Group>
+            <xsl:choose>
+              <xsl:when test="$textframe/preceding-sibling::TextFrame">
+                <xsl:variable name="last-preceding-textframe" as="element(TextFrame)"
+                  select="$textframe/preceding-sibling::TextFrame[1]"/>
+                <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+                  <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+                    <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle[ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
+                  </CharacterStyleRange>
+                  <Br/>
+                </ParagraphStyleRange>
+              </xsl:when>
+              <xsl:otherwise>
+                <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+                  <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+                    <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
+                  </CharacterStyleRange>
+                  <Br/>
+                </ParagraphStyleRange>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:apply-templates select="node()" mode="#current" />
+            <xsl:if test="not($textframe/following-sibling::TextFrame)">
+              <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+                <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">        
+                  <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
+                </CharacterStyleRange>
+                <Br/>
+              </ParagraphStyleRange>
+            </xsl:if>
+          </Group>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
