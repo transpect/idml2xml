@@ -143,9 +143,35 @@
     <xsl:param name="textframe" tunnel="yes"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
-      <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
+      <xsl:choose>
+        <xsl:when test="$textframe/preceding-sibling::TextFrame">
+          <xsl:variable name="last-preceding-textframe" as="element(TextFrame)"
+            select="$textframe/preceding-sibling::TextFrame[1]"/>
+          <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+            <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+              <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle[ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
+            </CharacterStyleRange>
+            <Br/>
+          </ParagraphStyleRange>
+        </xsl:when>
+        <xsl:otherwise>
+          <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+            <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+              <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
+            </CharacterStyleRange>
+            <Br/>
+          </ParagraphStyleRange>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:apply-templates select="node()" mode="#current" />
-      <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
+      <xsl:if test="not($textframe/following-sibling::TextFrame)">
+        <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+          <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">        
+            <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
+          </CharacterStyleRange>
+          <Br/>
+        </ParagraphStyleRange>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
