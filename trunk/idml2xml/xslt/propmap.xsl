@@ -9,7 +9,27 @@
     exclude-result-prefixes = "xs idPkg"
 >
 
-  <xsl:key name="idml2xml:prop" match="prop" use="@name" />
+  <!-- The predicate prop[…] is needed when there are multiple entries with different @hubversion
+    attributes. The key picks, of all prop declarations that are compatible with the requested $hub-version, 
+    the prop declaration for the most recent version. Versions numbers are expected to be dot-separated integers.
+    -->  
+  <xsl:key 
+    name="idml2xml:prop" 
+    match="prop[
+      if(@hubversion)
+      then (
+        compare($hub-version, @hubversion, 'http://saxon.sf.net/collation?alphanumeric=yes') ge 0
+        and @hubversion = max(
+          ../prop
+            [@name = current()/@name]
+            [compare($hub-version, @hubversion, 'http://saxon.sf.net/collation?alphanumeric=yes') ge 0]
+              /@hubversion, 
+          'http://saxon.sf.net/collation?alphanumeric=yes'
+        )
+      )
+      else true()
+    ]"
+    use="@name" />
 
   <xsl:variable name="idml2xml:propmap" as="document-node(element(propmap))">
     <xsl:document xmlns="">
@@ -42,7 +62,8 @@
         <prop name="AppliedLanguage" type="lang" target-name="xml:lang" />
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
-        <prop name="BulletsAndNumberingListType" target-name="list-type" type="linear"/>
+        <prop name="BulletsAndNumberingListType" target-name="list-type" type="linear" hubversion="1.0"/>
+        <prop name="BulletsAndNumberingListType" target-name="css:list-style-type" type="list-type-declaration" hubversion="1.1"/>
         <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/> 
         <prop name="Capitalization">
           <val eq="SmallCaps" target-name="css:font-variant" target-value="small-caps"/>
@@ -51,8 +72,7 @@
         </prop>
         <prop name="aid:ccolwidth" type="length" target-name="css:width"/>
         <prop name="CharacterDirection" target-name="css:direction">
-          <!-- string "DefaultDirection" | string "LeftToRightDirection" | 
-               string "RightToLeftDirection" -->
+          <val eq="DefaultDirection" target-value="ltr"/>
           <val eq="LeftToRightDirection" target-value="ltr"/>
           <val eq="RightToLeftDirection" target-value="rtl"/>
         </prop>

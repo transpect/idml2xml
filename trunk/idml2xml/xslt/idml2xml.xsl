@@ -94,6 +94,8 @@
   <xsl:param name="output-items-not-on-workspace" select="'no'" as="xs:string"/>
   <xsl:param name="output-deleted-text" select="'no'" as="xs:string"/>
 
+  <xsl:param name="hub-version" select="'1.0'" as="xs:string"/>
+  
   <!--== VARIABLES ==-->
 
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
@@ -111,9 +113,16 @@
             return concat('XMLTag/', replace($eltname, ':', '%3a'))" 
     as="xs:string*" />
 
-  <xsl:variable name="idml2xml:hub-xml-model" as="processing-instruction(xml-model)">
-    <xsl:processing-instruction name="xml-model">href="http://le-tex.de/schema/hub/1.0/hub.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+  <xsl:variable name="idml2xml:hub-xml-model" as="node()+">
+    <xsl:processing-instruction name="xml-model" 
+      select="concat('href=&#x22;http://www.le-tex.de/schema/hub/', $hub-version, 
+                     '/hub.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://relaxng.org/ns/structure/1.0&#x22;')"/>
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:processing-instruction name="xml-model" 
+      select="concat('href=&#x22;http://www.le-tex.de/schema/hub/', $hub-version, 
+      '/hub.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://purl.oclc.org/dsdl/schematron&#x22;')"/>
   </xsl:variable>
+  
 
   <!-- The remainder of this file is only for an XSLT-only transformation pipeline.
        It's irrelevant to XProc processing (the variables won't be computed because
@@ -230,7 +239,6 @@
     <xsl:call-template name="debug-tagged" />
     <xsl:call-template name="debug-hub" />
     <xsl:sequence select="$idml2xml:hub-xml-model" />
-    <xsl:text>&#xa;</xsl:text>
     <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   </xsl:template>
 
