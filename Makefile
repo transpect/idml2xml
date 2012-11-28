@@ -11,6 +11,7 @@ SAXON := saxon
 DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
+HUBVERSION = 1.0
 
 default: idml2xml_usage
 
@@ -23,6 +24,7 @@ default: idml2xml_usage
       hub-other-elementnames-whitelist=$(HUB-OTHER-ELNAMES-WHITELIST) \
       src-dir-uri=$(call uri,$(abspath $<)).tmp \
       split=$(SPLIT) \
+      hub-version=$(HUBVERSION) \
       srcpaths=$(SRCPATHS) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \

@@ -23,14 +23,15 @@
 
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
-      select="('anchor', 'book', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
+      select="('anchor', 'book', 'hub', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
                'superscript', 'subscript', 'link', 'xref', 'footnote',
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso',
+               'css:rules', 'css:rule', 'linked-style',
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
-              )"/>
+              )" as="xs:string+"/>
 
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
 
@@ -40,8 +41,14 @@
 
   <!-- see ../propmap.xsl -->
 
-  <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties">
-    <Body xmlns="http://docbook.org/ns/docbook" version="5.1-variant le-tex_Hub-1.0" css:version="3.0-variant le-tex_Hub-1.0">
+  <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties"
+    xmlns="http://docbook.org/ns/docbook">
+    <xsl:element name="{if ($hub-version eq '1.0') then 'Body' else 'hub'}">
+      <xsl:attribute name="version" select="concat('5.1-variant le-tex_Hub-', $hub-version)"/>
+      <xsl:attribute name="css:version" select="concat('3.0-variant le-tex_Hub-', $hub-version)" />
+      <xsl:if test="not($hub-version eq '1.0')">
+        <xsl:attribute name="css:host-vocabulary-rule-selection-attribute" select="'role'" />
+      </xsl:if>
       <info>
         <keywordset role="hub">
           <keyword role="source-basename"><xsl:value-of select="$idml2xml:basename"/></keyword>
@@ -55,36 +62,84 @@
             </keyword>
           </xsl:if>
         </keywordset>
-        <styles>
-          <parastyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
-              <xsl:sort select="@Name" />
-            </xsl:apply-templates>
-          </parastyles>
-          <inlinestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
-              <xsl:sort select="@Name" />
-            </xsl:apply-templates>
-          </inlinestyles>
-          <tablestyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current">
-              <xsl:sort select="@Name" />
-            </xsl:apply-templates>
-
-          </tablestyles>
-          <cellstyles>
-            <xsl:apply-templates select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))" mode="#current" >
-              <xsl:sort select="@Name" />
-            </xsl:apply-templates>
-          </cellstyles>
-        </styles>
+        <xsl:choose>
+          <xsl:when test="$hub-version eq '1.0'">
+            <xsl:call-template name="idml2xml:hub-1.0-styles">
+              <xsl:with-param name="version" select="$hub-version" tunnel="yes"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="$hub-version eq '1.1'">
+            <xsl:call-template name="idml2xml:hub-1.1-styles">
+              <xsl:with-param name="version" select="$hub-version" tunnel="yes"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
       </info>
       <xsl:apply-templates mode="#current"/>
-    </Body>
+    </xsl:element>
   </xsl:template>
 
+  <xsl:template name="idml2xml:hub-1.0-styles">
+    <styles>
+      <parastyles>
+        <xsl:apply-templates
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))"
+          mode="#current">
+          <xsl:sort select="@Name"/>
+        </xsl:apply-templates>
+      </parastyles>
+      <inlinestyles>
+        <xsl:apply-templates
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))"
+          mode="#current">
+          <xsl:sort select="@Name"/>
+        </xsl:apply-templates>
+      </inlinestyles>
+      <tablestyles>
+        <xsl:apply-templates
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))"
+          mode="#current">
+          <xsl:sort select="@Name"/>
+        </xsl:apply-templates>
+      </tablestyles>
+      <cellstyles>
+        <xsl:apply-templates
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
+          mode="#current">
+          <xsl:sort select="@Name"/>
+        </xsl:apply-templates>
+      </cellstyles>
+    </styles>
+  </xsl:template>
+
+  <xsl:template name="idml2xml:hub-1.1-styles">
+    <css:rules>
+      <xsl:apply-templates
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))"
+        mode="#current">
+        <xsl:sort select="@Name"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))"
+        mode="#current">
+        <xsl:sort select="@Name"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))"
+        mode="#current">
+        <xsl:sort select="@Name"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
+        mode="#current">
+        <xsl:sort select="@Name"/>
+      </xsl:apply-templates>
+    </css:rules>
+  </xsl:template>
+  
   <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
+    <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
       <xsl:apply-templates select="if (Properties/BasedOn) 
                                    then key('idml2xml:style', Properties/BasedOn) 
@@ -101,14 +156,32 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$wrap-in-style-element">
-        <style role="{idml2xml:StyleName(@Name)}">
+        <xsl:element name="{if($version eq '1.0') then 'style' else 'css:rule'}">
+          <xsl:attribute name="{if($version eq '1.0') then 'role' else 'name'}" select="idml2xml:StyleName(@Name)"/>
+          <xsl:apply-templates select="." mode="idml2xml:XML-Hubformat-add-properties_layout-type"/>
           <xsl:sequence select="$atts"/>
-        </style>
+        </xsl:element>
       </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="$atts"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle | ObjectStyle"
+    mode="idml2xml:XML-Hubformat-add-properties_layout-type">
+    <xsl:param name="version" tunnel="yes" as="xs:string"/>
+    <xsl:if test="not($version eq '1.0')">
+      <xsl:attribute name="layout-type" select="if (self::ParagraphStyle)
+                                                then 'para'
+                                                else if (self::CharacterStyle)
+                                                  then 'inline'
+                                                  else if (self::TableStyle)
+                                                    then 'table'
+                                                    else if (self::CellStyle)
+                                                      then 'cell'
+                                                      else 'object'"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="Properties" mode="idml2xml:XML-Hubformat-add-properties">
@@ -244,6 +317,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:when>
 
+      <xsl:when test=". eq 'list-type-declaration'">
+        <xsl:if test="not($val = 'NoList')">
+          <xsl:variable name="pstyle-or-p" select="$val/.." as="element(*)" />
+          <idml2xml:attribute name="css:display"><xsl:value-of select="'list-item'" /></idml2xml:attribute>
+          <xsl:choose>
+            <xsl:when test="$val = 'BulletList'">
+              <!-- preliminary -->
+              <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="'idml2xml:bullet'" /></idml2xml:attribute>
+            </xsl:when>
+            <xsl:when test="$val = 'NumberedList'">
+              <!-- preliminary -->
+              <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="'idml2xml:numbered'" /></idml2xml:attribute>
+            </xsl:when>
+          </xsl:choose>
+        </xsl:if>
+      </xsl:when>
+
       <xsl:when test=". eq 'passthru'">
         <idml2xml:attribute name="{../@name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:when>
@@ -266,7 +356,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'tablist'">
-        <tabs>
+        <tabs xmlns="http://docbook.org/ns/docbook">
           <xsl:apply-templates select="$val/*" mode="#current"/>
         </tabs>
       </xsl:when>
@@ -346,8 +436,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="content" as="node()*">
-      <xsl:apply-templates select="idml2xml:style-link" mode="#current" />
       <xsl:apply-templates select="idml2xml:attribute[not(@name = following-sibling::idml2xml:remove-attribute/@name)]" mode="#current" />
+      <xsl:apply-templates select="idml2xml:style-link" mode="#current" />
       <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
     </xsl:variable>
     <xsl:choose>
@@ -415,10 +505,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:remove-attribute" mode="idml2xml:XML-Hubformat-properties2atts" />
 
   <xsl:template match="idml2xml:style-link" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:attribute name="{if (@type eq 'AppliedParagraphStyle')
-                          then 'parastyle'
-                          else @type}" 
-      select="@target" />
+    <xsl:choose>
+      <xsl:when test="$hub-version eq '1.0'">
+        <xsl:attribute name="{if (@type eq 'AppliedParagraphStyle')
+                              then 'parastyle'
+                              else @type}" 
+          select="@target" />
+      </xsl:when>
+      <xsl:when test="$hub-version eq '1.1'">
+        <xsl:element name="linked-style">
+          <xsl:attribute name="layout-type" select="if (@type eq 'AppliedParagraphStyle')
+                                                    then 'para'
+                                                    else @type" />
+          <xsl:attribute name="name" select="@target"/>
+        </xsl:element>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
   <!-- workaround: how to handle this in ConsolidateParagraphStyleRanges?
@@ -512,7 +614,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="$role eq 'No character style' 
                       and not(text()[matches(., '\S')]) 
                       and count(*) gt 0 and 
-                      count(*) eq count(PageReference union HyperlinkTextSource)">
+                      count(*) eq count(PageReference union HyperlinkTextSource union idml2xml:tab)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
       <xsl:when test="$role eq 'No character style' 
@@ -815,7 +917,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
   <!-- handle imported/tagged elements -->
-  <xsl:template match="*[local-name() = tokenize($hub-other-elementnames-whitelist,',') and not(.//idml2xml:genFrame[idml2xml:same-scope(., current())])]" 
+  <xsl:template match="*[name() = tokenize($hub-other-elementnames-whitelist,',') and not(.//idml2xml:genFrame[idml2xml:same-scope(., current())])]" 
     mode="idml2xml:XML-Hubformat-remap-para-and-span"
     priority="-0.5">
     <xsl:copy>
@@ -883,7 +985,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
-      match="node()[local-name() ne '' and not( local-name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
+      match="node()[local-name() ne '' and not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="content" select="string-join(.,'')"/>
     <xsl:message>
