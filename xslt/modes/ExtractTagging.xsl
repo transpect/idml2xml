@@ -164,6 +164,14 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="ParagraphStyleRange[@AppliedParagraphStyle eq 'ParagraphStyle/Rectangle']" mode="idml2xml:ExtractTagging">
+    <idml2xml:genPara>
+      <xsl:attribute name="AppliedParagraphStyle" select="idml2xml:RemoveTypeFromStyleName(@AppliedParagraphStyle)" />
+      <xsl:attribute name="idml2xml:reason" select="'rec1'" />
+      <xsl:apply-templates mode="#current"/>
+    </idml2xml:genPara>
+  </xsl:template>
+
   <xsl:template match="Cell[not(node())]" mode="idml2xml:ExtractTagging">
     <idml2xml:genPara>
       <xsl:apply-templates select="." mode="idml2xml:ExtractAttributes"/>
