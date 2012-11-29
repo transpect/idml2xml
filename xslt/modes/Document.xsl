@@ -216,6 +216,8 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <!-- remove (binary) metadata to reduce debugging file size: can be resolved from variable Document -->
+  <xsl:template match="MetadataPacketPreference" mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = /Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
