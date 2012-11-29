@@ -125,24 +125,62 @@
           select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
           mode="idml2xml:DocumentResolveTextFrames" />
       </xsl:for-each-group>
-      <!-- idApplyNoTextOrGrp: see also template with comment 'idRemOtherTempl' in this document -->
-      <xsl:apply-templates select="//XmlStory, //Spread/Rectangle" mode="idml2xml:DocumentResolveTextFrames"/>
+      <!-- apply content not in @select-term of preceding for-each-group -->
+      <xsl:apply-templates mode="idml2xml:DocumentResolveTextFrames"
+        select="//Spread//Group[
+		  not(
+		    ancestor::TextFrame[parent::Spread] or 
+		    ancestor-or-self::Group[TextFrame][parent::Spread]
+		  ) and (: do not include sub Groups in these Groups :)
+		  not(
+		    ancestor::Group[
+		      not(
+		        ancestor::TextFrame[parent::Spread] or 
+			ancestor-or-self::Group[TextFrame][parent::Spread]
+                      )
+		    ]
+		  )
+		]
+		, 
+		//Spread/Rectangle,
+		//XmlStory" />
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="TextFrame" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template match="TextFrame[
+                         parent::Spread or 
+			 parent::Group[parent::Spread]
+                       ]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current">
+	<xsl:with-param name="is-a-grouped-spread-textframe" select="true()" tunnel="yes"/>
 	<xsl:with-param name="textframe" select="." tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
+  <xsl:template match="TextFrame[
+                         not(
+			   parent::Spread or 
+			   parent::Group[parent::Spread]
+			 )
+                       ]" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | *" mode="#current" />
+      <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current" />
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template match="Story" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:param name="textframe" tunnel="yes"/>
+    <xsl:param name="textframe" as="node()?" tunnel="yes"/>
+    <xsl:param name="is-a-grouped-spread-textframe" tunnel="yes"/>
     <xsl:choose>
-      <xsl:when test="$textframe/parent::Group and ($textframe/preceding-sibling::Rectangle or $textframe/following-sibling::Rectangle)">
+      <xsl:when test="$is-a-grouped-spread-textframe and
+		      $textframe/parent::Group and 
+		      (
+		        $textframe/preceding-sibling::Rectangle or 
+			$textframe/following-sibling::Rectangle
+                      )">
         <xsl:copy>
           <xsl:apply-templates select="@*" mode="#current" />
           <Group>
@@ -190,10 +228,10 @@
     <xsl:attribute name="idml2xml:{local-name()}" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
   </xsl:template>
 
-  <!-- idRemOtherTempl: remove items not on workspace other than Group and TextFrame -->
+  <!-- remove items not on workspace other than Spread/Group[TextFrame] and Spread/TextFrame -->
   <xsl:template 
     match="*[local-name() = ('Rectangle','GraphicLine', 'Oval') 
-	     or Group[not(TextFrame)](: does not match, see idApplyNoTextOrGrp :)]
+	     or Group[not(TextFrame)]]
             [
              (
                ancestor::Spread and
