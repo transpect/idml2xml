@@ -535,7 +535,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                          count(idml2xml:genPara)]/*[local-name()=('style-link','attribute')]" 
                 mode="idml2xml:XML-Hubformat-properties2atts" />
 
-
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -587,14 +586,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:genPara" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable 
-        name="style" select="if (@aid:pstyle ne '') then @aid:pstyle else 'Standard'"
-        as="xs:string"/>
-    <para>
-      <xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+    <xsl:element name="para">
+      <xsl:if test="@aid:pstyle">
+	<xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+      </xsl:if>
       <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
-    </para>
+    </xsl:element>
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[
@@ -774,14 +772,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                          preceding-sibling::*[1][self::idml2xml:parsep] and
                          following-sibling::*[1][self::idml2xml:parsep]
                        ]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <para>
+    <xsl:element name="para">
       <xsl:attribute 
           name="role" 
           select="if (preceding::*[self::idml2xml:genPara])
                   then preceding::*[self::idml2xml:genPara][1]/@aid:pstyle
                   else following::*[self::idml2xml:genPara][1]/@aid:pstyle"/>
       <xsl:apply-templates mode="#current"/>
-    </para>
+    </xsl:element>
   </xsl:template>
 
   <xsl:template match="idml2xml:ParagraphStyleRange[
@@ -967,9 +965,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="dbk:mediaobject[not(parent::dbk:para or parent::dbk:phrase)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <para>
+    <xsl:element name="para">
       <xsl:next-match/>
-    </para>
+    </xsl:element>
   </xsl:template>
 
 
@@ -979,6 +977,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="@* except @role | node()" mode="#current"/>
     </phrase>
   </xsl:template>
+
+  <xsl:template match="@parastyle" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
       match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle" 
