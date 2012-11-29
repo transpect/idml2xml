@@ -129,7 +129,7 @@
 
   <xsl:template match="Table/idml2xml:Br" mode="idml2xml:ConsolidateParagraphStyleRanges" />
 
-  <xsl:template match="*[not(self::Table)][idml2xml:Br]" mode="idml2xml:ConsolidateParagraphStyleRanges">
+  <xsl:template match="*[not(self::Table or self::Group)][idml2xml:Br]" mode="idml2xml:ConsolidateParagraphStyleRanges">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:copy-of select="StoryPreference union InCopyExportOption" />
