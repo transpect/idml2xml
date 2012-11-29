@@ -127,7 +127,9 @@
       </xsl:for-each-group>
       <!-- apply content not in @select-term of preceding for-each-group -->
       <xsl:apply-templates mode="idml2xml:DocumentResolveTextFrames"
-        select="//Spread//Group[
+        select="//Spread/TextFrame/Group,
+		//Spread/Group[TextFrame]/Group,
+		//Spread//Group[
 		  not(
 		    ancestor::TextFrame[parent::Spread] or 
 		    ancestor-or-self::Group[TextFrame][parent::Spread]
