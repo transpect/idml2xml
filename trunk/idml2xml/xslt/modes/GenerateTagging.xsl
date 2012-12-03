@@ -124,6 +124,20 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Fallback, i.e. empty (no text) paragraph with (resolved) anchored textframe in it -->
+  <xsl:template match="ParagraphStyleRange" mode="idml2xml:GenerateTagging" priority="-0.9">
+    <xsl:copy>
+      <xsl:copy-of select="@*" />
+      <xsl:copy-of select="Properties" />
+      <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
+        <xsl:apply-templates select="* except Properties" mode="#current" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
+        <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp5'), ' ')}" />
+      </XMLElement>
+    </xsl:copy>
+  </xsl:template>
+
 
   <!-- If there is exactly 1 XMLElement immediately below a Cell, it is supposed that this element
        represents a table cell. In all other cases, an idml2xml:genCell XMLElement will be created: -->
