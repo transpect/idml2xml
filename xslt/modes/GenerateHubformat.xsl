@@ -103,6 +103,7 @@
         </xsl:apply-templates>
       </tablestyles>
       <cellstyles>
+        <style role="None"/>
         <xsl:apply-templates
           select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
           mode="#current">
@@ -129,6 +130,7 @@
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
+      <css:rule name="None" layout-type="cell"/>
       <xsl:apply-templates
         select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
         mode="#current">
@@ -441,13 +443,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="exists(idml2xml:wrap) and exists(self::dbk:style)">
+      <xsl:when test="exists(idml2xml:wrap) and exists(self::dbk:style | self::css:rule)">
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="remap" select="idml2xml:wrap/@element" />
         </xsl:copy>
       </xsl:when>
-      <xsl:when test="exists(idml2xml:wrap) and not(self::dbk:style)">
+      <xsl:when test="exists(idml2xml:wrap) and empty(self::dbk:style | self::css:rule)">
         <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap))" />
       </xsl:when>
       <xsl:otherwise>
@@ -795,6 +797,31 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-remap-para-and-span" >
     <xsl:copy-of select="." />
+  </xsl:template>
+
+  <!-- Apply default cell style (which is solid, black, 0.5pt) -->
+  <xsl:template match="dbk:style[parent::dbk:cellstyles] | css:rule[@layout-type eq 'cell']"
+    mode="idml2xml:XML-Hubformat-remap-para-and-span" >
+    <xsl:variable name="context" select="." as="element(*)"/>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each select="('top', 'right', 'bottom', 'left')">
+        <xsl:variable name="direction" select="." as="xs:string"/>
+        <xsl:for-each select="('color', 'width', 'style')">
+          <xsl:variable name="attname" select="concat('css:border-', $direction, '-', .)"/>
+          <xsl:if test="not($context/@*[name() eq $attname])
+            and not($context/@*[name() eq concat('css:border-', $direction, '-width')] eq '0pt')"> 
+            <xsl:attribute name="{$attname}">
+              <xsl:choose>
+                <xsl:when test=". eq 'color'"><xsl:sequence select="'device-cmyk(0,0,0,1)'"/></xsl:when>
+                <xsl:when test=". eq 'width'"><xsl:sequence select="'0.5pt'"/></xsl:when>
+                <xsl:when test=". eq 'style'"><xsl:sequence select="'solid'"/></xsl:when>
+              </xsl:choose>
+            </xsl:attribute>
+          </xsl:if>
+        </xsl:for-each>
+      </xsl:for-each>
+    </xsl:copy>
   </xsl:template>
 
 
