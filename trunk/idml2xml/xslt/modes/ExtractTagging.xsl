@@ -152,6 +152,7 @@
     <idml2xml:parsep/>
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
+  <xsl:template match="*[local-name() eq 'Br'][preceding-sibling::ParagraphStyleRange and following-sibling::ParagraphStyleRange]" mode="idml2xml:ExtractTagging" />
 
   <xsl:template match="	TextFrame |
 		       Story |
