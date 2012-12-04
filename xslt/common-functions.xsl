@@ -338,7 +338,7 @@
 		      satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) ge 0"/>
 
 <!--
-	    <xsl:if test="$item/@Self = ('uf4','u13c')">
+	    <xsl:if test="$item/@Self = ('u152')">
 	      <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
 	      <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
 	      <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
@@ -354,11 +354,11 @@
 	      
 	      <!-- Item not on workspace -->
 	      <xsl:when test="( (: no page on left side :)
-			        $item-real-right-x lt 0 and not($left-page-available)
+			        $item-real-right-x lt 0 and not($left-page-available) and $right-page-available
 		              )
 			      or
 			      ( (: no page on right side :)
-			        $item-real-left-x gt 0 and not($right-page-available)
+			        $item-real-left-x gt 0 and not($right-page-available) and $left-page-available
 		              )
 			      or
 			      ( (: item placed outside of page left :)
