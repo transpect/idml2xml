@@ -145,7 +145,7 @@
         <prop name="TopInset" type="length" target-name="css:padding-top" />
         <prop name="Underline" target-name="css:text-decoration-line">
           <val eq="true" target-value="underline"/>
-          <val eq="false"/>
+          <val eq="false"  target-value="none"/>
         </prop>
         <prop name="UnderlineType" implement="use text-decoration-style must look at Stroke/..." />
         <prop name="VerticalJustification">
