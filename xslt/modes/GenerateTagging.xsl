@@ -53,7 +53,7 @@
     <xsl:sequence select="(
                             some $c in $style-range/descendant::Content[idml2xml:same-scope(., $style-range)] 
                             satisfies (
-                              matches($c, '[^\s&#xfeff;]')
+                              matches($c, '[^&#xfeff;]')
                               or $c/processing-instruction(ACE)
                             )
                           )
