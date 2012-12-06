@@ -14,11 +14,6 @@
     xmlns="http://docbook.org/ns/docbook"
     >
 
-  <!-- 
-       xmlns:hub	= "http://www.le-tex.de/namespace/hubformat"
-       xmlns="http://www.le-tex.de/namespace/hubformat"
-  -->
-
   <xsl:import href="../propmap.xsl"/>
 
   <xsl:variable 
@@ -40,7 +35,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- see ../propmap.xsl -->
-
+  
   <xsl:template match="idml2xml:doc" mode="idml2xml:XML-Hubformat-add-properties"
     xmlns="http://docbook.org/ns/docbook">
     <xsl:element name="{if ($hub-version eq '1.0') then 'Body' else 'hub'}">
@@ -664,9 +659,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </link>
   </xsl:template>
 
-  <xsl:function name="idml2xml:normalize-name" as="xs:Name">
+  <xsl:function name="idml2xml:normalize-name" as="xs:string">
     <xsl:param name="input" as="xs:string" />
-    <xsl:sequence select="xs:Name(replace($input, '\C', ''))"/>
+    <xsl:sequence select="replace($input, '\C', '')"/>
   </xsl:function>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -870,7 +865,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
           </xsl:if>
           <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:cellstyle)"/>
-          <xsl:apply-templates mode="#current"/>
+          <xsl:apply-templates select="@xml:*, @css:*, node()" mode="#current"/>
         </entry>
       </xsl:for-each>
     </row>

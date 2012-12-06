@@ -132,6 +132,7 @@
     <xsl:attribute name="aid:ccolwidth" 
       select="preceding::Column[ @Name eq tokenize( current()/@Name, ':' )[1] ][1]/@SingleColumnWidth"/>
     <xsl:attribute name="aid5:cellstyle" select="idml2xml:StyleName(@AppliedCellStyle)"/>
+    <xsl:apply-templates select="@*" mode="#current"/>
   </xsl:template>
   
   
