@@ -240,7 +240,6 @@
     <xsl:call-template name="debug-common" />
     <xsl:call-template name="debug-tagged" />
     <xsl:call-template name="debug-hub" />
-    <xsl:sequence select="$idml2xml:hub-xml-model" />
     <xsl:sequence select="$idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   </xsl:template>
 
@@ -305,10 +304,10 @@
   <xsl:template name="debug-tagged">
     <xsl:if test="$debug = ('1','yes')">
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '50.AutoCorrect.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:AutoCorrect"/>
+        <xsl:sequence select="$idml2xml:AutoCorrect"/>
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '52.AutoCorrect-clean-up.xml')}" format="debug">
-	<xsl:sequence select="$idml2xml:AutoCorrect-clean-up"/>
+        <xsl:sequence select="$idml2xml:AutoCorrect-clean-up"/>
       </xsl:result-document>
     </xsl:if>
   </xsl:template>
