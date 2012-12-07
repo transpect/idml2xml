@@ -351,7 +351,7 @@
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '8']" mode="idml2xml:ExtractTagging">
-    <idml2xml:tab role="right-indent" />
+    <idml2xml:tab role="right" />
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '18']" mode="idml2xml:ExtractTagging">
