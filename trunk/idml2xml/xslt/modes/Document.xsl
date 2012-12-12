@@ -243,6 +243,15 @@
 	   ]" 
     mode="idml2xml:DocumentResolveTextFrames" />
 
+  <!-- anchored image: need an extra paragraph -->
+  <xsl:template mode="idml2xml:DocumentResolveTextFrames"
+    match="Rectangle[not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" >
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </xsl:copy>
+    <Br reason="Rectangle_anchored" />
+  </xsl:template>
+
 
   <!-- element Change: textual changes -->
 
