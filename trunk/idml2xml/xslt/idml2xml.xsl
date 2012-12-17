@@ -9,6 +9,7 @@
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
     xmlns:xhtml = "http://www.w3.org/1999/xhtml"
+    xmlns:dbk="http://docbook.org/ns/docbook"
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
@@ -74,7 +75,7 @@
       indent="yes" />
 
   <xsl:strip-space elements="*"/>
-  <xsl:preserve-space elements="Content"/>
+  <xsl:preserve-space elements="Content idml2xml:tab dbk:*"/>
 
 
   <!--== PARAMS ==-->

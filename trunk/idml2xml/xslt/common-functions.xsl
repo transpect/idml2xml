@@ -11,7 +11,7 @@
   
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame', 'TextVariableInstance')" 
+    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame', 'TextVariableInstance', 'idml2xml:tab')" 
     as="xs:string+" />
   <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
