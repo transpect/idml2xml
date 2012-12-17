@@ -52,6 +52,11 @@
     </p:input>
   </p:xslt>
 
+  <letex:store-debug pipeline-step="idml2xml/idml2xml.20.DocumentStoriesSorted">
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="$debug-dir-uri"/>
+  </letex:store-debug>
+
   <p:xslt name="SeparateParagraphs-pull-down-psrange" initial-mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <p:input port="parameters">
       <p:pipe step="single2tagged" port="xslt-params" />
