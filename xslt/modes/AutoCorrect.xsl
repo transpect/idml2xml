@@ -163,7 +163,6 @@
                        idml2xml:genSpan" mode="idml2xml:AutoCorrect">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
-
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: idml2xml:AutoCorrect-clean-up -->
