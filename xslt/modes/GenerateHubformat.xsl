@@ -262,12 +262,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:attribute name="{../@target-name}">
           <xsl:choose>
             <xsl:when test="$val/@BulletCharacterType eq 'GlyphWithFont'">
-              <xsl:message>WARNING: Unsupported bullet character type 'GlyphWithFont' for char <xsl:value-of select="$val/@BulletCharacterValue"/>. Falling back to &#8226;
+              <xsl:message>WARNING: Unsupported bullet character type 'GlyphWithFont' for char <xsl:value-of select="$val/@BulletCharacterValue"/>. Falling back to U+2022
               </xsl:message>
-              <xsl:value-of select="'&#8226;'" />
+              <xsl:value-of select='"&apos;&#x2022;&apos;"' />
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="codepoints-to-string(xs:integer($val/@BulletCharacterValue))" />
+              <xsl:value-of select='concat("&apos;", codepoints-to-string(xs:integer($val/@BulletCharacterValue)), "&apos;")' />
             </xsl:otherwise>
           </xsl:choose>
         </idml2xml:attribute>
