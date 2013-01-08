@@ -263,7 +263,12 @@
       <xsl:otherwise>
         <xsl:variable name="dest-id" select="$hyperlink/Properties/Destination" as="xs:string" />
         <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
-        <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)?" />
+        <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)*" />
+        <xsl:if test="count($dest) gt 1">
+          <xsl:message>WRN: More than one link resolution for destination <xsl:value-of select="$dest-id" />:
+          <xsl:value-of select="$dest"/>
+            </xsl:message>
+        </xsl:if>
         <xsl:choose>
           <xsl:when test="empty($dest)">
             <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
