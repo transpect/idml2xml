@@ -90,7 +90,7 @@
 
   <xsl:template match="@MarkupTag" mode="idml2xml:ExtractAttributes" />
 
-  <xsl:template match="CharacterStyleRange[@AppliedCharacterStyle eq 'CharacterStyle/$ID/[No character style]']" mode="idml2xml:ExtractAttributes" />
+  <xsl:template match="CharacterStyleRange/@AppliedCharacterStyle[. eq 'CharacterStyle/$ID/[No character style]']" mode="idml2xml:ExtractAttributes" />
 
   <xsl:template match="@AppliedParagraphStyle | @AppliedCharacterStyle" mode="idml2xml:ExtractAttributes">
     <xsl:attribute name="idml2xml:{local-name()}" select="idml2xml:RemoveTypeFromStyleName( . )"/>

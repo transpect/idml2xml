@@ -91,6 +91,17 @@
     <xsl:sequence select="replace($input, '[/ ]', '_' )"/>
   </xsl:function>
 
+  <!-- Re-attach the removed style name strings, so that lookups work: -->
+  <xsl:function name="idml2xml:generate-style-name-variants" as="xs:string+">
+    <xsl:param name="style-type" as="xs:string"/>
+    <xsl:param name="style-name" as="xs:string"/>
+    <xsl:sequence select="concat($style-type, '/', idml2xml:StyleNameEscape($style-name)),
+                          concat($style-type, '/$ID/', idml2xml:StyleNameEscape($style-name)),
+                          concat($style-type, '/$ID/[', idml2xml:StyleNameEscape($style-name), ']')
+                         "/>
+  </xsl:function>
+  
+
 
   <xsl:function name="idml2xml:countIndexterms">
     <!-- type '1' = primary; type '2' = secondary; type '3' = tertiary; type '4' = quaternary -->
