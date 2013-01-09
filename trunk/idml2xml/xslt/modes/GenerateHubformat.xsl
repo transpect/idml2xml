@@ -78,21 +78,21 @@
     <styles>
       <parastyles>
         <xsl:apply-templates
-          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))"
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return idml2xml:generate-style-name-variants('ParagraphStyle', $s) )"
           mode="#current">
           <xsl:sort select="@Name"/>
         </xsl:apply-templates>
       </parastyles>
       <inlinestyles>
         <xsl:apply-templates
-          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))"
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return idml2xml:generate-style-name-variants('CharacterStyle', $s) )"
           mode="#current">
           <xsl:sort select="@Name"/>
         </xsl:apply-templates>
       </inlinestyles>
       <tablestyles>
         <xsl:apply-templates
-          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))"
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return idml2xml:generate-style-name-variants('TableStyle', $s) )"
           mode="#current">
           <xsl:sort select="@Name"/>
         </xsl:apply-templates>
@@ -100,7 +100,7 @@
       <cellstyles>
         <style role="None"/>
         <xsl:apply-templates
-          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
+          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
           mode="#current">
           <xsl:sort select="@Name"/>
         </xsl:apply-templates>
@@ -111,23 +111,23 @@
   <xsl:template name="idml2xml:hub-1.1-styles">
     <css:rules>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return concat('ParagraphStyle', '/', idml2xml:StyleNameEscape($s)))"
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return idml2xml:generate-style-name-variants('ParagraphStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return concat('CharacterStyle', '/', idml2xml:StyleNameEscape($s)))"
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return idml2xml:generate-style-name-variants('CharacterStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return concat('TableStyle', '/', idml2xml:StyleNameEscape($s)))"
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return idml2xml:generate-style-name-variants('TableStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <css:rule name="None" layout-type="cell"/>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return concat('CellStyle', '/', idml2xml:StyleNameEscape($s)))"
+        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
@@ -1016,7 +1016,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
-      match="node()[local-name() ne '' and not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
+      match="*[local-name() ne '' and not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="content" select="string-join(.,'')"/>
     <xsl:message>
