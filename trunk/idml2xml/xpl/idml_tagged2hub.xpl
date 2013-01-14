@@ -7,6 +7,7 @@
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:bc="http://transpect.le-tex.de/book-conversion"
   xmlns:letex="http://www.le-tex.de/namespace"
   version="1.0"
   name="tagged2hub"
@@ -25,87 +26,46 @@
     <p:pipe step="XML-Hubformat-cleanup-paras-and-br" port="result" />
   </p:output>
   <p:serialization port="result" omit-xml-declaration="false"/>
-  <p:output port="add-properties">
-    <p:pipe step="XML-Hubformat-add-properties" port="result" />
-  </p:output>
-  <p:serialization port="add-properties" indent="true" omit-xml-declaration="false"/>
-
-  <p:import href="http://transpect.le-tex.de/xproc-util/store-debug/store-debug.xpl"/>
-  <p:import href="idml_lib.xpl"/>
   
-  <p:xslt name="XML-Hubformat-add-properties" initial-mode="idml2xml:XML-Hubformat-add-properties">
-    <p:input port="parameters">
-      <p:pipe step="tagged2hub" port="xslt-params" />
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe step="tagged2hub" port="xslt-stylesheet" />
-    </p:input>
-  </p:xslt>
+  <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/xslt-mode.xpl"/>
   
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.HUB.07.XML-Hubformat-add-properties">
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </letex:store-debug>
+  <bc:xslt-mode prefix="idml2xml/idml2xml.HUB.07" mode="idml2xml:XML-Hubformat-add-properties">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </bc:xslt-mode>
   
-  <p:xslt name="XML-Hubformat-properties2atts" initial-mode="idml2xml:XML-Hubformat-properties2atts">
-    <p:input port="parameters">
-      <p:pipe step="tagged2hub" port="xslt-params" />
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe step="tagged2hub" port="xslt-stylesheet" />
-    </p:input>
-  </p:xslt>
+  <bc:xslt-mode prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </bc:xslt-mode>
   
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.HUB.07a.XML-Hubformat-properties2atts">
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </letex:store-debug>
+  <bc:xslt-mode prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </bc:xslt-mode>
   
-  <p:xslt name="XML-Hubformat-extract-frames" initial-mode="idml2xml:XML-Hubformat-extract-frames">
-    <p:input port="parameters">
-      <p:pipe step="tagged2hub" port="xslt-params" />
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe step="tagged2hub" port="xslt-stylesheet" />
-    </p:input>
-  </p:xslt>
-  
-  <p:xslt name="XML-Hubformat-remap-para-and-span" initial-mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <p:input port="parameters">
-      <p:pipe step="tagged2hub" port="xslt-params" />
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe step="tagged2hub" port="xslt-stylesheet" />
-    </p:input>
-  </p:xslt>
-  
-  <idml2xml:prepend-hub-xml-model>
+  <bc:xslt-mode prefix="idml2xml/idml2xml.HUB.10" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>
-  </idml2xml:prepend-hub-xml-model>
-
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.HUB.10.XML-Hubformat-remap-para-and-span">
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </letex:store-debug>
+  </bc:xslt-mode>
   
-  <p:xslt name="XML-Hubformat-cleanup-paras-and-br" initial-mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <p:input port="parameters">
-      <p:pipe step="tagged2hub" port="xslt-params" />
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe step="tagged2hub" port="xslt-stylesheet" />
-    </p:input>
-  </p:xslt>
-  
-  <idml2xml:prepend-hub-xml-model>
+  <bc:xslt-mode prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="XML-Hubformat-cleanup-paras-and-br">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>
-  </idml2xml:prepend-hub-xml-model>
+  </bc:xslt-mode>
   
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.HUB.15.XML-Hubformat-cleanup-paras-and-br">
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </letex:store-debug>
-
   <p:sink/>
 
 </p:declare-step>
