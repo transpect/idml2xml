@@ -229,6 +229,9 @@
       <!-- No xsl:otherwise: Implicitly discard everything that is not among the common ancestors of our leaves. -->
     </xsl:choose>
   </xsl:template>
-
+  
+  <xsl:template match="Properties" mode="idml2xml:SeparateParagraphs-slice">
+    <xsl:copy-of select="."/>
+  </xsl:template>
 
 </xsl:stylesheet>

@@ -324,20 +324,28 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'list-type-declaration'">
-        <xsl:if test="not($val = 'NoList')">
-          <xsl:variable name="pstyle-or-p" select="$val/.." as="element(*)" />
-          <idml2xml:attribute name="css:display"><xsl:value-of select="'list-item'" /></idml2xml:attribute>
-          <xsl:choose>
-            <xsl:when test="$val = 'BulletList'">
-              <!-- preliminary -->
-              <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="'idml2xml:bullet'" /></idml2xml:attribute>
-            </xsl:when>
-            <xsl:when test="$val = 'NumberedList'">
-              <!-- preliminary -->
-              <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="'idml2xml:numbered'" /></idml2xml:attribute>
-            </xsl:when>
-          </xsl:choose>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="$val = 'NoList'">
+            <idml2xml:attribute name="{name($val)}">NoList</idml2xml:attribute>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:variable name="pstyle-or-p" select="$val/.." as="element(*)"/>
+            <idml2xml:attribute name="css:display">list-item</idml2xml:attribute>
+            <xsl:choose>
+              <xsl:when test="$val = 'BulletList'">
+                <idml2xml:attribute name="{../@target-name}">
+                  <xsl:value-of select="idml2xml:bullet-list-style-type($pstyle-or-p)"/>
+                </idml2xml:attribute>
+              </xsl:when>
+              <xsl:when test="$val = 'NumberedList'">
+                <!-- preliminary -->
+                <idml2xml:attribute name="{../@target-name}">
+                  <xsl:value-of select="'idml2xml:numbered'"/>
+                </idml2xml:attribute>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 
       <xsl:when test=". eq 'passthru'">
@@ -373,6 +381,44 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
+  <xsl:function name="idml2xml:bullet-list-style-type" as="xs:string" >
+    <xsl:param name="styled-element" as="element(*)"/><!-- ParagraphStyle, idml2xml:genPara, etc. -->
+    <!-- To do: provide the reserved names from http://www.w3.org/TR/css3-lists/#ua-stylesheet for the corresponding chars --> 
+    <xsl:variable name="char-elt" select="$styled-element/Properties/BulletChar" as="element(BulletChar)?"/>
+    <xsl:variable name="is-unicode" select="$styled-element/Properties/BulletChar/@BulletCharacterType = 'UnicodeOnly'" as="xs:boolean"/>
+    <xsl:choose>
+      <xsl:when test="
+        not($char-elt) 
+        or ( 
+          $is-unicode
+          and $char-elt/@BulletCharacterValue = '8226'
+        )">
+        <xsl:sequence select="'disc'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('8211', '8212', '8722')"><!-- U+2013, U+2014, U+2212 -->
+        <xsl:sequence select="'dash'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('10003')"><!-- U+2713 -->
+        <xsl:sequence select="'check'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9702')"><!-- U+25E6 -->
+        <xsl:sequence select="'circle'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9670')"><!-- U+25C6 -->
+        <xsl:sequence select="'diamond'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9725')"><!-- U+25FD -->
+        <xsl:sequence select="'box'"/>
+      </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9726')"><!-- U+25FE -->
+        <xsl:sequence select="'square'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select='concat("&apos;", $styled-element/@BulletChar, "&apos;")' />    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
     <xsl:sequence select="concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')" />
@@ -487,9 +533,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
     <xsl:attribute name="{@name}" select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
   </xsl:template>
-
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-
+  
+  <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="last-numbering-style" select="../idml2xml:attribute[@name = 'BulletsAndNumberingListType'][last()]" as="element(idml2xml:attribute)?" />
+    <xsl:if test="not($last-numbering-style = 'NoList')">
+      <xsl:next-match/>  
+    </xsl:if>
+  </xsl:template>
+  <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType']" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />

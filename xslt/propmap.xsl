@@ -62,9 +62,19 @@
         <prop name="AppliedLanguage" type="lang" target-name="xml:lang" />
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
+        <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/>
         <prop name="BulletsAndNumberingListType" target-name="list-type" type="linear" hubversion="1.0"/>
         <prop name="BulletsAndNumberingListType" target-name="css:list-style-type" type="list-type-declaration" hubversion="1.1"/>
-        <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/> 
+        <prop name="BulletsFont" target-name="css:pseudo-marker_font-family" type="linear"/> 
+        <prop name="BulletsFontStyle">
+          <val match="(^|\W)Bold" target-name="css:pseudo-marker_font-weight" target-value="bold" />
+          <val match="SemiBold" target-name="css:pseudo-marker_font-weight" target-value="600" />
+          <val match="Italic" target-name="css:pseudo-marker_font-style" target-value="italic" />
+          <val match="Oblique" target-name="css:pseudo-marker_font-style" target-value="oblique" />
+          <val match="Medium" target-name="css:pseudo-marker_font-weight" target-value="normal" />
+          <val match="Regular" target-name="css:pseudo-marker_font-weight" target-value="normal" />
+          <val match="Roman" target-name="css:pseudo-marker_font-weight" target-value="normal" />
+        </prop>
         <prop name="Capitalization">
           <val eq="SmallCaps" target-name="css:font-variant" target-value="small-caps"/>
           <val eq="AllCaps" target-name="css:text-transform" target-value="uppercase"/>
