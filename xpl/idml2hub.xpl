@@ -3,6 +3,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
+  xmlns:letex="http://www.le-tex.de/namespace"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
@@ -38,8 +39,9 @@
   <p:import href="idml_single-doc.xpl"/>
   <p:import href="idml_single2tagged.xpl"/>
   <p:import href="idml_tagged2hub.xpl"/>
-  <p:import href="idml_lib.xpl"/>
+  <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-hub-xml-model.xpl" />
   
+
   <idml2xml:single-doc name="single">
     <p:with-option name="idmlfile" select="$idmlfile"/>  
     <p:with-option name="debug" select="$debug"/>  
@@ -71,9 +73,8 @@
     </p:input>
   </idml2xml:tagged2hub>
 
-  <idml2xml:prepend-hub-xml-model name="pi">
+  <letex:prepend-hub-xml-model name="pi">
     <p:with-option name="hub-version" select="$hub-version"/>
-  </idml2xml:prepend-hub-xml-model>
-
+  </letex:prepend-hub-xml-model>
 
 </p:declare-step>
