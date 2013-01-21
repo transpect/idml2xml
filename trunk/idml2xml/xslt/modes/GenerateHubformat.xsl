@@ -1089,7 +1089,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- Make @role and css:rule/@name compliant with the rules for CSS identifiers
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 
-  <xsl:template match="@role | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{name()}" select="replace(., '[^_a-zA-Z0-9-]', '_')"/>
   </xsl:template>
 
