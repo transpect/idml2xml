@@ -154,7 +154,11 @@
     <xsl:choose>
       <xsl:when test="$wrap-in-style-element">
         <xsl:element name="{if($version eq '1.0') then 'style' else 'css:rule'}">
+          <!-- In order to get CSS-compliant style names, we’ll have to replace
+            some characters such as space and colon later on. We’ll leave it 
+            as idml2xml:StyleName for the time being. -->
           <xsl:attribute name="{if($version eq '1.0') then 'role' else 'name'}" select="idml2xml:StyleName(@Name)"/>
+          <xsl:attribute name="native-name" select="@Name"/>
           <xsl:apply-templates select="." mode="idml2xml:XML-Hubformat-add-properties_layout-type"/>
           <xsl:sequence select="$atts"/>
         </xsl:element>
@@ -1080,6 +1084,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         Text content: <xsl:value-of select="$content"/>
         ===</xsl:if>
     </xsl:message>
+  </xsl:template>
+
+  <!-- Make @role and css:rule/@name compliant with the rules for CSS identifiers
+       http://www.w3.org/TR/CSS21/syndata.html#characters --> 
+
+  <xsl:template match="@role | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:attribute name="{name()}" select="replace(., '[^_a-zA-Z0-9-]', '_')"/>
   </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
