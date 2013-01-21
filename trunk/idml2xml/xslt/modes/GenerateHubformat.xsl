@@ -125,7 +125,7 @@
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
-      <css:rule name="None" layout-type="cell"/>
+      <!--<css:rule name="None" layout-type="cell"/>-->
       <xsl:apply-templates
         select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
         mode="#current">
