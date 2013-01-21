@@ -42,7 +42,7 @@
       <xsl:attribute name="version" select="concat('5.1-variant le-tex_Hub-', $hub-version)"/>
       <xsl:attribute name="css:version" select="concat('3.0-variant le-tex_Hub-', $hub-version)" />
       <xsl:if test="not($hub-version eq '1.0')">
-        <xsl:attribute name="css:host-vocabulary-rule-selection-attribute" select="'role'" />
+        <xsl:attribute name="css:rule-selection-attribute" select="'role'" />
       </xsl:if>
       <info>
         <keywordset role="hub">
