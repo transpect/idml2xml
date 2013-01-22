@@ -796,13 +796,33 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </indexterm>
   </xsl:template>
 
-  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="page_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
-  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="pageend_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
+
+  <xsl:template match="idml2xml:genPara[count(node()) eq 1 and *:HiddenText]" 
+		mode="idml2xml:XML-Hubformat-remap-para-and-span">
+      <xsl:apply-templates select="node()" mode="#current" />
+  </xsl:template>
+
+  <xsl:template match="*:HiddenText" 
+		mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <sidebar remap="HiddenText" condition="{substring-after((.//@idml2xml:AppliedConditions)[1], 'Condition/')}">
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </sidebar>
+  </xsl:template>
+
+  <xsl:template match="*:HiddenText[
+                         not(.//@AppliedConditions) and 
+                         count(node()) eq 1 and 
+                         idml2xml:genPara[not(node())]
+                       ] |
+                       *:HiddenText[not(node())]" 
+		mode="idml2xml:XML-Hubformat-remap-para-and-span" />
   
   <xsl:template match="idml2xml:parsep"
     mode="idml2xml:XML-Hubformat-remap-para-and-span" />
