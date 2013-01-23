@@ -2,5 +2,9 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 
   <rewriteURI uriStartString="http://transpect.le-tex.de/idml2xml/" rewritePrefix="../"/>
-  <nextCatalog catalog="../store-debug/xmlcatalog/catalog.xml"/>  
+
+  <nextCatalog catalog="../store-debug/xmlcatalog/catalog.xml"/> 
+  <nextCatalog catalog="../xslt-mode/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xml-model/xmlcatalog/catalog.xml"/>
+
 </catalog>

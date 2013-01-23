@@ -148,7 +148,7 @@
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
         <prop name="StrikeThru" target-name="css:text-decoration-line">
           <val eq="true" target-value="line-through"/>
-          <val eq="false"/>
+          <val eq="false" target-value="none"/>
         </prop>
         <prop name="TabList" type="tablist"/>
         <prop name="TintValue" type="percentage" target-name="fill-value"/>
