@@ -218,5 +218,6 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-
+  <xsl:template match="HiddenText[empty(node())]" mode="idml2xml:AutoCorrect-clean-up" />
+  
 </xsl:stylesheet>

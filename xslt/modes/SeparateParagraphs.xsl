@@ -119,7 +119,6 @@
     priority="3">
     <xsl:sequence select="idml2xml:split-at-br(.)" />
   </xsl:template>
-<!--     match="ParagraphStyleRange[.//*[self::ParagraphStyleRange or not(*)][not(ancestor::ParagraphStyleRange[some $a in ancestor::* satisfies ($a is current())])]]"  -->
 
   <!-- Dealing with erroneous inline elements (of the payload XML format; e.g., span or p). The typesetter
        inserted a paragraph break in the layout and forgot to adjust the tagging. -->
@@ -136,7 +135,6 @@
       <xsl:choose>
         <xsl:when test="$elt/self::ParagraphStyleRange">
           <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
-<!--           <xsl:sequence select="$elt//*[self::ParagraphStyleRange or not(*)][not(ancestor::ParagraphStyleRange[some $a in ancestor::* satisfies ($a is $elt)])]" /> -->
         </xsl:when>
         <xsl:when test="$elt/self::XMLElement">
           <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
@@ -187,7 +185,7 @@
           <xsl:when test="exists($charstylerange) and name() = $idml2xml:idml-content-element-names">
             <xsl:variable name="new-charstylerange" as="element(CharacterStyleRange)">
               <CharacterStyleRange>
-                <xsl:copy-of select="$charstylerange/@*" />
+                <xsl:copy-of select="$charstylerange/(@*, Properties)" />
                 <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
               </CharacterStyleRange>
             </xsl:variable>
@@ -209,7 +207,6 @@
           <!-- Plain copy: -->
           <xsl:otherwise>
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs"/>
-<!--             <xsl:copy-of select="." /> -->
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -230,8 +227,11 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="Properties" mode="idml2xml:SeparateParagraphs-slice">
+  <xsl:template match="Properties[not(parent::CharacterStyleRange)]" mode="idml2xml:SeparateParagraphs-slice">
     <xsl:copy-of select="."/>
   </xsl:template>
 
+  <!-- will be dealt with separately, when pulling down cstyleranges -->
+  <xsl:template match="CharacterStyleRange/Properties" mode="idml2xml:SeparateParagraphs-slice"/>
+  
 </xsl:stylesheet>
