@@ -72,6 +72,10 @@ idml2xml_usage:
 	@echo "  Another example:"
 	@echo '  > for f in somedir/*idml; do make $$(dirname $$f)/$$(basename $$f idml)indexterms.xml; done'
 	@echo ""
+	@echo "XProc invocation example:"
+	@echo '  calabash/calabash.sh xpl/idml2hub.xpl idmlfile=$(cygpath -ma sample/testdokument.idml) debug=yes'
+	@echo "  (do 'make fetchdeps' first, once)"
+	@echo ""
 	@echo "Prerequisites:"
 	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
 	@echo ""
