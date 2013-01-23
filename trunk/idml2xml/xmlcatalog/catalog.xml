@@ -6,5 +6,6 @@
   <nextCatalog catalog="../store-debug/xmlcatalog/catalog.xml"/> 
   <nextCatalog catalog="../xslt-mode/xmlcatalog/catalog.xml"/>
   <nextCatalog catalog="../xml-model/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xhtml1/catalog.xml"/>
 
 </catalog>
