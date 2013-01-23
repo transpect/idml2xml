@@ -75,3 +75,5 @@ idml2xml_usage:
 	@echo "Prerequisites:"
 	@echo "  Saxon 9.3 or newer, expected as a 'saxon' script in the path (override this with SAXON=...)"
 	@echo ""
+	@echo "Other targets: fetchdeps, updeps, rmdeps"
+	@echo "  For fetching, updating, and deleting XProc dependencies, including calabash/calabash.sh"
