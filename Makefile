@@ -12,6 +12,12 @@ DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
 HUBVERSION = 1.0
+# For the XProc pipelines to run standalone:
+DEPS = https://subversion.le-tex.de/common/xproc-util/xslt-mode \
+	https://subversion.le-tex.de/common/xproc-util/xml-model \
+	https://subversion.le-tex.de/common/xproc-util/store-debug \
+  https://subversion.le-tex.de/common/calabash \
+	https://subversion.le-tex.de/common/schema/xhtml1
 
 default: idml2xml_usage
 
@@ -35,6 +41,15 @@ ifeq ($(DEBUG),0)
 else
 	@cat "$@".idml2hub.log
 endif
+
+fetchdeps:
+	rm -r $(notdir $(DEPS)) || for dep in $(DEPS); do svn co $$dep; done
+
+rmdeps:
+	rm -r $(notdir $(DEPS))
+
+updeps:
+	for dep in $(notdir $(DEPS)); do svn up $$dep; done
 
 idml2xml_usage:
 	@echo ""

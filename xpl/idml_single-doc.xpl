@@ -17,7 +17,7 @@
   <p:option name="hub-version" required="false" select="'1.1'"/>
   <p:option name="srcpaths" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
-  <p:option name="debug-dir-uri" required="false" />
+  <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   
   <p:output port="result" primary="true" >
     <p:pipe step="Document" port="result"/>
