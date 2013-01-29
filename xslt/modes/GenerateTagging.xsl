@@ -10,7 +10,7 @@
 >
 
   <xsl:template match="Document[not(XmlStory)]" mode="idml2xml:GenerateTagging">
-    <xsl:variable name="max-story-length" select="max(for $s in Story return string-length($s))" as="xs:integer"/>
+    <xsl:variable name="max-story-length" select="max(for $s in TextFrame/Story return string-length($s))" as="xs:integer"/>
     <xsl:copy>
       <xsl:copy-of select="@*" />
       <xsl:apply-templates mode="#current" >
