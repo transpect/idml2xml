@@ -139,7 +139,7 @@
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
       <xsl:apply-templates select="if (Properties/BasedOn) 
-                                   then key('idml2xml:style', Properties/BasedOn) 
+                                   then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn)) 
                                    else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>

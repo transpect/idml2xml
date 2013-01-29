@@ -12,7 +12,7 @@
   <xsl:key name="story" match="Story" use="@Self"/>
 
   <!--== mode: Document ==-->
-  <xsl:template match=" idPkg:BackingStory |
+  <xsl:template match="
                         idPkg:Fonts |
                         idPkg:Graphic |
                         idPkg:Mapping |
@@ -26,6 +26,9 @@
     <xsl:apply-templates select="document(@src)" mode="#current"/>
   </xsl:template>
 
+  <!-- unplaced XML: -->
+  <xsl:template match=" idPkg:BackingStory" mode="idml2xml:Document" />
+    
   <xsl:template match="/processing-instruction()" mode="idml2xml:Document" />
 
   <xsl:template match="/" mode="idml2xml:Document">

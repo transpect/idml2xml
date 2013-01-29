@@ -95,7 +95,8 @@
   <xsl:function name="idml2xml:generate-style-name-variants" as="xs:string+">
     <xsl:param name="style-type" as="xs:string"/>
     <xsl:param name="style-name" as="xs:string"/>
-    <xsl:sequence select="concat($style-type, '/', idml2xml:StyleNameEscape($style-name)),
+    <xsl:sequence select="idml2xml:StyleNameEscape($style-name),
+                          concat($style-type, '/', idml2xml:StyleNameEscape($style-name)),
                           concat($style-type, '/$ID/', idml2xml:StyleNameEscape($style-name)),
                           concat($style-type, '/$ID/[', idml2xml:StyleNameEscape($style-name), ']')
                          "/>
