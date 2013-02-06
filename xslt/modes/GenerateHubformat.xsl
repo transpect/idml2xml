@@ -499,8 +499,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:choose>
       <xsl:when test="exists(idml2xml:wrap) and exists(self::dbk:style | self::css:rule)">
         <xsl:copy>
-          <xsl:copy-of select="@*, $content"/>
+          <xsl:sequence select="@*"/>
           <xsl:attribute name="remap" select="idml2xml:wrap/@element" />
+          <xsl:sequence select="$content"/>
         </xsl:copy>
       </xsl:when>
       <xsl:when test="exists(idml2xml:wrap) and empty(self::dbk:style | self::css:rule)">
