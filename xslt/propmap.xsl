@@ -163,6 +163,7 @@
           <val match="CenterAlign" target-name="css:vertical-align" target-value="middle" />
           <val match="BottomAlign" target-name="css:vertical-align" target-value="bottom" />
         </prop>
+        <prop name="xlink:href" type="passthru"/>
 
         <prop name="NumberingApplyRestartPolicy" implement="maybe later" />
         <prop name="BulletsAlignment" implement="maybe later" />
