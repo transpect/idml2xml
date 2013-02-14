@@ -12,6 +12,9 @@ DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
 HUBVERSION = 1.0
+# Whether to discard existing piggyback tagging:  
+DISCARD=yes
+
 # For the XProc pipelines to run standalone:
 DEPS = https://subversion.le-tex.de/common/xproc-util/xslt-mode \
 	https://subversion.le-tex.de/common/xproc-util/xml-model \
@@ -30,6 +33,7 @@ default: idml2xml_usage
       hub-other-elementnames-whitelist=$(HUB-OTHER-ELNAMES-WHITELIST) \
       src-dir-uri=$(call uri,$(abspath $<)).tmp \
       split=$(SPLIT) \
+      discard-tagging=$(DISCARD) \
       hub-version=$(HUBVERSION) \
       srcpaths=$(SRCPATHS) \
       debug=$(DEBUG) \
