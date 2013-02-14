@@ -16,6 +16,7 @@
   <p:option name="idmlfile" />
   <p:option name="hub-version" required="false" select="'1.1'"/>
   <p:option name="srcpaths" required="false" select="'no'"/>
+  <p:option name="discard-tagging" required="false" select="'yes'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
@@ -47,6 +48,7 @@
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="srcpaths" select="$srcpaths"/>  
+    <p:with-option name="discard-tagging" select="$discard-tagging"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
   </idml2xml:single-doc>
   
