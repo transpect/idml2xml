@@ -799,6 +799,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </indexterm>
   </xsl:template>
 
+  <xsl:template match="idml2xml:genSpan[@idml2xml:AppliedConditions]" priority="100" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <phrase remap="HiddenText" condition="{tokenize(substring-after(.//@idml2xml:AppliedConditions, 'Condition/'), '\s*Condition/')}">
+      <xsl:if test="$hub-version eq '1.1'">
+        <xsl:attribute name="css:display" select="'none'"/>
+      </xsl:if>
+      <xsl:next-match/>
+    </phrase>
+  </xsl:template>
+
   <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="page_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
