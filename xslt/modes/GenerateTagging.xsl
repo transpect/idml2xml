@@ -9,6 +9,12 @@
   exclude-result-prefixes=" aid5 aid xs"
 >
 
+  <!-- 
+    Generates XMLElements and the like for generated paragraphs (idml2xml:genPara)
+    and the like. These will be converted to proper XML elements in the next pass 
+    (which is ExtractTagging).
+  -->
+
   <xsl:template match="Document[not(XmlStory)]" mode="idml2xml:GenerateTagging">
     <xsl:variable name="max-story-length" select="max(for $s in TextFrame/Story return string-length($s))" as="xs:integer"/>
     <xsl:copy>
