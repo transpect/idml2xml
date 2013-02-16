@@ -1,20 +1,45 @@
 # Makefile invocation (XSLT-only pipeline):
-make -B sample/testdokument.idml.HUB
- 
+make -f /path/to/idml2xml/Makefile sample/testdokument.hub.xml
+# If you invoke the Makefile without other arguments, you'll get a usage message.
 
 # XProc invocation:
 
-# Sample checks; patch findings as processing instructions into the converted hub:
-calabash/calabash.sh -o result=- xpl/test.xpl idmlfile=sample/testdokument.idml conffile=../sch/sample-conf.xml
-# Other possible output ports: 
-#   svrl (all schematron reports), 
-#   xsl (for patching hub), 
-#   xpl (generated appl-schematrons pipeline)
+/path/to/calabash.sh file:/path/to/idml2xml/xpl/idml2hub.xpl idmlfile=/path/to/idml2xml/sample/testdokument.idml debug=yes
 
-# Plain idml to hub conversion:
-calabash/calabash.sh xpl/idml2xml.xpl idmlfile=sample/testdokument.idml
+# If you use cygwin and bash, you can use, for example,
+# file:/$(cygpath -ma xpl/idml2hub.xpl) for the XProc URI and
+# idmlfile=$(cygpath -ma sample/testdokument.idml) for the IDML file name.
 
-# Write indented debug output of the XML-Hubformat-cleanup-paras-and-br step to out.xml, discard std output:
-calabash/calabash.sh -o XML-Hubformat-cleanup-paras-and-br=out.xml xpl/idml2xml.xpl idmlfile=sample/testdokument.idml > /dev/null
+# You need a calabash version with the letex:unzip extension. 
+# A runnable calabash with .sh and .bat invocation for Unix-like systems, Cygwin
+# and Windows is available from https://subversion.le-tex.de/common/calabash/
+
+
+(C) 2011--2013, le-tex publising services GmbH.  All rights reserved.
+Published under Simplified BSD License:
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   1. Redistributions of source code must retain the above copyright 
+      notice, this list of conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright 
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY LE-TEX PUBLISING SERVICES ``AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL LE-TEX PUBLISING SERVICES OR CONTRIBUTORS 
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
 
