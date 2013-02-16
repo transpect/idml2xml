@@ -14,6 +14,12 @@ make -f /path/to/idml2xml/Makefile sample/testdokument.hub.xml
 # A runnable calabash with .sh and .bat invocation for Unix-like systems, Cygwin
 # and Windows is available from https://subversion.le-tex.de/common/calabash/
 
+# letex:unzip uses Java's unzipping capabilities to extract a zip file's contents
+# to a directory and return the list of files. So you don't have to retrieve
+# individual files as in pxp:unzip, and you can read text files (for example,
+# CSS) from XSLT without having to base64-decode them before. 
+# If you want to install it yourself on top of your Calabash, please go ahead:
+# https://subversion.le-tex.de/common/calabash/lib/ltx-unzip/
 
 (C) 2011--2013, le-tex publising services GmbH.  All rights reserved.
 Published under Simplified BSD License:
