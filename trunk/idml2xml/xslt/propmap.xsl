@@ -135,7 +135,7 @@
         <prop name="NumberingStartAt" target-name="numbering-starts-at" type="linear"/>
         <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
         <prop name="NumberingContinue" target-name="numbering-continue" type="linear"/>
-        <prop name="ParagraphDirection" target-name="css:text-direction">
+        <prop name="ParagraphDirection" target-name="css:direction">
           <!-- string | string "LeftToRightDirection" | string "RightToLeftDirection" -->
           <val eq="RightToLeftDirection" target-value="rtl"/>
         </prop>
