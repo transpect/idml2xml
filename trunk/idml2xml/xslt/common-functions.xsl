@@ -9,6 +9,8 @@
     exclude-result-prefixes = "xs idPkg"
 >
   
+  <xsl:include href="hex/hex.xsl"/>
+  
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
     select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame', 'TextVariableInstance', 'idml2xml:tab')" 

@@ -87,7 +87,7 @@
           <val eq="RightToLeftDirection" target-value="rtl"/>
         </prop>
         <prop name="FillColor" type="color" target-name="css:background-color">
-          <context match="Para|Char" target-name="css:color"/>
+          <context match="Para|Char|genSpan" target-name="css:color"/>
         </prop>
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
@@ -157,7 +157,12 @@
           <val eq="true" target-value="underline"/>
           <val eq="false"  target-value="none"/>
         </prop>
+        <prop name="UnderlineColor" type="color" target-name="css:text-decoration-color"/>
+        <prop name="UnderlineTint" implement="implicitly with UnderlineColor" />
         <prop name="UnderlineType" implement="use text-decoration-style must look at Stroke/..." />
+        <prop name="UnderlineWeight" type="length" target-name="css:text-decoration-width" /><!-- proposed here:
+          http://lists.w3.org/Archives/Public/www-style/2012Jul/0445.html but not yet in
+          http://dev.w3.org/csswg/css-text-decor-3/ as at 2013-02-08 -->
         <prop name="VerticalJustification">
           <val match="TopAlign" />
           <val match="CenterAlign" target-name="css:vertical-align" target-value="middle" />
@@ -283,8 +288,6 @@
         <prop name="UnderlineGapTint" implement="maybe later" />
         <prop name="UnderlineOffset" implement="maybe later" />
         <prop name="UnderlineOverprint" implement="maybe later" />
-        <prop name="UnderlineTint" implement="maybe later" />
-        <prop name="UnderlineWeight" implement="maybe later" />
         <prop name="StrikeThroughGapOverprint" implement="maybe later" />
         <prop name="StrikeThroughGapTint" implement="maybe later" />
         <prop name="StrikeThroughOffset" implement="maybe later" />
@@ -393,7 +396,6 @@
         <prop name="BalanceRaggedLines" implement="maybe later" />
         <prop name="RuleAboveGapColor" implement="maybe later" />
         <prop name="RuleBelowGapColor" implement="maybe later" />
-        <prop name="UnderlineColor" implement="maybe later" />
         <prop name="UnderlineGapColor" implement="maybe later" />
 
         <prop name="StrikeThroughColor" implement="maybe later" />
