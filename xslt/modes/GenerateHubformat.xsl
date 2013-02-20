@@ -9,6 +9,7 @@
     xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml = "http://www.le-tex.de/namespace/idml2xml"
+    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns="http://docbook.org/ns/docbook"
@@ -278,12 +279,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
       
       <xsl:when test=". eq 'color'">
-        <xsl:variable name="context-name" select="$val/../name()" as="xs:string" />
+        <xsl:variable name="context-name" select="if ($val/parent::Properties) 
+                                                  then $val/../../name() 
+                                                  else $val/../name()" as="xs:string" />
         <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
         <xsl:choose>
           <xsl:when test="matches($val, '^Color')">
             <idml2xml:attribute name="{$target-name}">
-              <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" />
+              <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" >
+                <xsl:with-param name="multiplier" select="if ($val/name() = 'UnderlineColor') 
+                                                          then number(($val/../../@UnderlineTint, 100)[1]) * 0.01
+                                                          else 1.0"/>
+              </xsl:apply-templates>
             </idml2xml:attribute>
           </xsl:when>
           <xsl:when test="matches($val, '^Tint')">
@@ -461,6 +468,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 ),
                                 ')'
                               )" />
+      </xsl:when>
+      <xsl:when test="@Space eq 'RGB'">
+        <xsl:variable name="vals" select="for $c in tokenize(@ColorValue, '\s+') return number($c)" as="xs:double+"/>
+        <xsl:variable name="tinted" select="for $c in $vals return round(255 - (255 - $c) * $multiplier) cast as xs:integer" 
+          as="xs:integer+"/>
+        <xsl:sequence select="string-join(('#', for $c in $tinted return letex:pad(letex:dec-to-hex($c), 2)), '')"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message>Unknown colorspace <xsl:value-of select="@Space"/>
