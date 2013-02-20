@@ -322,7 +322,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 else 
                                   if (matches($val, 'English'))
                                   then 'en'
-                                  else $val" />
+                                  else
+                                    if ($val = '[No Language]')
+                                    then ''
+                                    else $val" />
         </idml2xml:attribute>
       </xsl:when>
 
