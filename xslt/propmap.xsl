@@ -158,6 +158,7 @@
           <val eq="false"  target-value="none"/>
         </prop>
         <prop name="UnderlineColor" type="color" target-name="css:text-decoration-color"/>
+        <prop name="UnderlineOffset" type="length" target-name="css:text-decoration-offset"/>
         <prop name="UnderlineTint" implement="implicitly with UnderlineColor" />
         <prop name="UnderlineType" implement="use text-decoration-style must look at Stroke/..." />
         <prop name="UnderlineWeight" type="length" target-name="css:text-decoration-width" /><!-- proposed here:
@@ -286,7 +287,6 @@
         <prop name="OTFContextualAlternate" implement="maybe later" />
         <prop name="UnderlineGapOverprint" implement="maybe later" />
         <prop name="UnderlineGapTint" implement="maybe later" />
-        <prop name="UnderlineOffset" implement="maybe later" />
         <prop name="UnderlineOverprint" implement="maybe later" />
         <prop name="StrikeThroughGapOverprint" implement="maybe later" />
         <prop name="StrikeThroughGapTint" implement="maybe later" />
