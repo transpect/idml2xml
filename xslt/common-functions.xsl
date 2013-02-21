@@ -93,7 +93,9 @@
     <xsl:sequence select="replace($input, '[/ ]', '_' )"/>
   </xsl:function>
 
-  <!-- Re-attach the removed style name strings, so that lookups work: -->
+  <!-- Re-attach the removed style name strings, so that lookups work:
+       (this is certainly not the most elegant approach. This whole style name
+        normalization has to be redesigned) -->
   <xsl:function name="idml2xml:generate-style-name-variants" as="xs:string+">
     <xsl:param name="style-type" as="xs:string"/>
     <xsl:param name="style-name" as="xs:string"/>

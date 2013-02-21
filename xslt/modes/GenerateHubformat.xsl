@@ -1142,7 +1142,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 
   <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:attribute name="{name()}" select="replace(., '[^_a-zA-Z0-9-]', '_')"/>
+    <xsl:attribute name="{name()}" select="replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_')"/>
+    <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
+        that should be treated equivalently by adding a tilde, followed by arbitrary name components -->
   </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
