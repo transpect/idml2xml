@@ -152,6 +152,24 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- A Group that is in a Story (rather than in a Spread -->
+  <xsl:template match="Group[not(ancestor::Spread)]
+    [every $c in * satisfies ($c/name() = ('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference'))]"
+    mode="idml2xml:DocumentResolveTextFrames" priority="2">
+    <xsl:for-each-group select="TextFrame" group-by="(@ParentStory, TextFrame/@ParentStory)">
+      <xsl:apply-templates select="." mode="#current" />
+    </xsl:for-each-group>
+  </xsl:template>
+
+  <xsl:template match="Group[not(ancestor::Spread)]
+    [not(every $c in * satisfies ($c/name() = ('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference')))]"
+    mode="idml2xml:DocumentResolveTextFrames" >
+    <xsl:comment>HANDLE ME! (I'm in Document.xsl)</xsl:comment>
+    <xsl:message>HANDLE ME! (I'm in Document.xsl)</xsl:message>
+    <xsl:next-match/>    
+  </xsl:template>
+  
+
   <xsl:template match="TextFrame[
                          parent::Spread or 
                          parent::Group[parent::Spread]
