@@ -157,7 +157,7 @@
         <xsl:element name="{if($version eq '1.0') then 'style' else 'css:rule'}">
           <!-- In order to get CSS-compliant style names, we’ll have to replace
             some characters such as space and colon later on. We’ll leave it 
-            as idml2xml:StyleName for the time being. -->
+            as idml2xml:StyleName for the time being and take care of it in a later mode. -->
           <xsl:attribute name="{if($version eq '1.0') then 'role' else 'name'}" select="idml2xml:StyleName(@Name)"/>
           <xsl:attribute name="native-name" select="@Name"/>
           <xsl:apply-templates select="." mode="idml2xml:XML-Hubformat-add-properties_layout-type"/>
@@ -1145,7 +1145,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 
   <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:attribute name="{name()}" select="replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_')"/>
+    <xsl:attribute name="{name()}" 
+      select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
         that should be treated equivalently by adding a tilde, followed by arbitrary name components -->
   </xsl:template>
