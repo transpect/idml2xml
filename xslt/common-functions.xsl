@@ -90,7 +90,7 @@
 
   <xsl:function name="idml2xml:escape-id" as="xs:string">
     <xsl:param name="input" as="xs:string"/>
-    <xsl:sequence select="replace($input, '[/ ]', '_' )"/>
+    <xsl:sequence select="replace(replace($input, '\C', '_' ), '^(\I)', '_$1')"/>
   </xsl:function>
 
   <!-- Re-attach the removed style name strings, so that lookups work:
