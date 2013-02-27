@@ -567,7 +567,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType']" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
+  <xsl:template match="idml2xml:attribute[@name = 'css:text-decoration-line']" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="all-atts" select="preceding-sibling::idml2xml:attribute[@name = current()/@name], ."
+      as="element(idml2xml:attribute)+"/>
+    <xsl:variable name="tokenized" select="for $a in $all-atts return tokenize($a, '\s+')" as="xs:string+"/>
+    <xsl:variable name="line-through" select="$tokenized[starts-with(., 'line-through')][last()]"/>
+    <xsl:variable name="underline" select="$tokenized[starts-with(., 'underline')][last()]"/>
+    <xsl:choose>
+      <xsl:when test="every $t in ($line-through, $underline) satisfies (ends-with($t, 'none'))">
+        <xsl:attribute name="{@name}" select="'none'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:attribute name="{@name}" select="($line-through, $underline)[not(ends-with(., 'none'))]"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   
+
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />
@@ -656,7 +672,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
-      <xsl:attribute name="linkend" select="generate-id()" />
+      <xsl:if test="not(@idml2xml:elementName eq 'Group')">
+        <xsl:attribute name="linkend" select="generate-id()" />  
+      </xsl:if>
       <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
     </xsl:copy>
   </xsl:template>
@@ -1079,6 +1097,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:value-of select="replace(., '&#xfeff;', '')"/>
   </xsl:template>
 
+
+  <xsl:template match="@css:text-decoration-width[../@css:text-decoration-line = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:text-decoration-offset[../@css:text-decoration-line = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:text-decoration-color[../@css:text-decoration-line = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
   <xsl:template match="dbk:superscript
                          [dbk:footnote]
                          [every $c in (text()[normalize-space()], *) 
@@ -1102,7 +1128,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        Reason: tables in phrases are not permitted by the document model.
        If there are documents with tables *and* other text in phrases, we need to implement an anchoring
        mechanism such as the one for text frames. -->
-  <xsl:template match="dbk:phrase[not(@remap)][count(node()) eq count(dbk:informaltable)]" 		
+  <xsl:template match="*[self::dbk:phrase or self::dbk:subscript or self::dbk:superscript]
+                        [not(@remap)][count(node()) eq count(dbk:informaltable)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:apply-templates mode="#current" />
   </xsl:template>

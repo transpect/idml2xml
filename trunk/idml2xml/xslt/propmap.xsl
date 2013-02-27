@@ -148,14 +148,14 @@
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
         <prop name="StrikeThru" target-name="css:text-decoration-line">
           <val eq="true" target-value="line-through"/>
-          <val eq="false" target-value="none"/>
+          <val eq="false" target-value="line-through:none"/>
         </prop>
         <prop name="TabList" type="tablist"/>
         <prop name="TintValue" type="percentage" target-name="fill-value"/>
         <prop name="TopInset" type="length" target-name="css:padding-top" />
         <prop name="Underline" target-name="css:text-decoration-line">
           <val eq="true" target-value="underline"/>
-          <val eq="false"  target-value="none"/>
+          <val eq="false"  target-value="underline:none"/>
         </prop>
         <prop name="UnderlineColor" type="color" target-name="css:text-decoration-color"/>
         <prop name="UnderlineOffset" type="length" target-name="css:text-decoration-offset"/>
