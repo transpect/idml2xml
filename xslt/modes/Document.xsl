@@ -152,17 +152,21 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:variable name="content-group-children" as="xs:string+"
+    select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', 'Rectangle', 'GraphicLine', 'Oval')"/>
+  
   <!-- A Group that is in a Story (rather than in a Spread -->
   <xsl:template match="Group[not(ancestor::Spread)]
-    [every $c in * satisfies ($c/name() = ('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference'))]"
+    [every $c in * satisfies ($c/name() = $content-group-children)]"
     mode="idml2xml:DocumentResolveTextFrames" priority="2">
-    <xsl:for-each-group select="TextFrame" group-by="(@ParentStory, TextFrame/@ParentStory)">
+    <xsl:for-each-group select="TextFrame | Rectangle | GraphicLine | Oval" 
+      group-adjacent="self::TextFrame/@ParentStory, .[not(self::TextFrame)]/@Self">
       <xsl:apply-templates select="." mode="#current" />
     </xsl:for-each-group>
   </xsl:template>
 
   <xsl:template match="Group[not(ancestor::Spread)]
-    [not(every $c in * satisfies ($c/name() = ('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference')))]"
+    [not(every $c in * satisfies ($c/name() = content-group-children))]"
     mode="idml2xml:DocumentResolveTextFrames" >
     <xsl:comment>HANDLE ME! (I'm in Document.xsl)</xsl:comment>
     <xsl:message>HANDLE ME! (I'm in Document.xsl)</xsl:message>
@@ -251,13 +255,16 @@
     <xsl:attribute name="idml2xml:{local-name()}" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
   </xsl:template>
 
-  <!-- remove items not on workspace other than Spread/Group[TextFrame] and Spread/TextFrame -->
+  <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->
   <xsl:template 
-    match="*[local-name() = ('Rectangle','GraphicLine', 'Oval') 
-             or Group[not(TextFrame)]]
+    match="*[
+              local-name() = ('Rectangle','GraphicLine', 'Oval') 
+              or Group[not(TextFrame)]
+            ]
             [
              (
-               ancestor::Spread and
+               ancestor::Spread 
+               and
                not(idml2xml:item-is-on-workspace(.))
              ) 
              or $output-items-not-on-workspace = ('yes','1','true')
@@ -266,14 +273,22 @@
 
   <!-- anchored image: need an extra paragraph -->
   <xsl:template mode="idml2xml:DocumentResolveTextFrames"
-    match="Rectangle[not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" >
+    match="Rectangle[not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" priority="2">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current" />
     </xsl:copy>
     <Br reason="Rectangle_anchored" />
   </xsl:template>
 
-
+  <!-- -->
+  <xsl:template mode="idml2xml:DocumentResolveTextFrames"
+    match="Group[not(ancestor::Spread)]/*[name() = ('Rectangle','GraphicLine', 'Oval')]" >
+    <xsl:copy>
+      <xsl:attribute name="idml2xml:keep-object" select="'true'"/>
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </xsl:copy>
+  </xsl:template>
+  
   <!-- element Change: textual changes -->
 
   <xsl:template 

@@ -35,7 +35,7 @@
           idml2xml:XML-Hubformat-cleanup-paras-and-br
           idml2xml:XML-Hubformat-without-srcpath">
     <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*|*|text()|processing-instruction()|comment()" mode="#current"/>
+      <xsl:apply-templates select="@*|node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 

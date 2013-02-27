@@ -41,7 +41,7 @@
         <prop name="idml2xml:reason" />
         <prop name="AllGREPStyles" />
         <prop name="AllNestedStyles" />
-
+        
         <prop name="aid:cstyle" type="passthru" />
         <prop name="aid:pstyle" type="passthru" />
         <prop name="aid5:cellstyle" type="passthru" />
@@ -56,8 +56,10 @@
         <prop name="role" type="passthru" />
         <prop name="srcpath" type="passthru" />
         <prop name="idml2xml:elementName" type="passthru" />
+        <prop name="idml2xml:keep-object" type="passthru" />
+        <prop name="idml2xml:idml2xml:rectangle-embedded-source" type="passthru" />
         <prop name="LinkResourceURI" type="passthru" />
-
+        
         <prop name="AppliedFont" type="linear" target-name="css:font-family"/>
         <prop name="AppliedLanguage" type="lang" target-name="xml:lang" />
         <prop name="AppliedParagraphStyle" type="style-link" />
