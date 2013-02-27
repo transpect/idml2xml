@@ -287,6 +287,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:when test="matches($val, '^Color')">
             <idml2xml:attribute name="{$target-name}">
               <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" >
+                <!-- UnderlineColor has its tint value as a number in ../../@UnderlineTint,
+                  while other Colors are tinted by means of a Tint element -->
                 <xsl:with-param name="multiplier" select="if ($val/name() = 'UnderlineColor') 
                                                           then number(($val/../../@UnderlineTint, 100)[1]) * 0.01
                                                           else 1.0"/>
@@ -462,6 +464,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:if>
   </xsl:template>
 
+  <!-- Multiplier is given only in case of UnderlineColor, I guess. Not sure. -->
   <xsl:template match="Color" mode="idml2xml:XML-Hubformat-add-properties" as="xs:string">
     <xsl:param name="multiplier" as="xs:double" select="1.0" />
     <xsl:choose>
@@ -477,9 +480,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
       <xsl:when test="@Space eq 'RGB'">
         <xsl:variable name="vals" select="for $c in tokenize(@ColorValue, '\s+') return number($c)" as="xs:double+"/>
-        <xsl:variable name="tinted" select="for $c in $vals return round(255 - (255 - $c) * $multiplier) cast as xs:integer" 
-          as="xs:integer+"/>
-        <xsl:sequence select="string-join(('#', for $c in $tinted return letex:pad(letex:dec-to-hex($c), 2)), '')"/>
+        <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message>Unknown colorspace <xsl:value-of select="@Space"/>
@@ -488,6 +489,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:function name="idml2xml:tint-dec-rgb-triple" as="xs:string">
+    <xsl:param name="vals" as="xs:double+"/>
+    <xsl:param name="multiplier" as="xs:double"/>
+    <xsl:variable name="tinted" select="for $c in $vals return round(255 - (255 - $c) * $multiplier) cast as xs:integer" 
+      as="xs:integer+"/>
+    <xsl:sequence select="string-join(('#', for $c in $tinted return letex:pad(letex:dec-to-hex($c), 2)), '')"/>
+  </xsl:function>
 
   <xsl:template match="TabList/ListItem" mode="idml2xml:XML-Hubformat-add-properties" as="element(dbk:tab)">
     <tab>
@@ -555,7 +564,26 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
-    <xsl:attribute name="{@name}" select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
+    <xsl:variable name="tinted" as="xs:string">
+      <xsl:choose>
+        <xsl:when test="matches(., '^device-cmyk')">
+        <xsl:sequence select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
+      </xsl:when>
+        <xsl:when test="matches(., '^#[\da-f]{6}$', 'i')">
+          <xsl:sequence
+            select="idml2xml:tint-dec-rgb-triple(
+                                for $i in (letex:rgb-string-to-dec-triple(.)) return number($i), 
+                                ($last-fill-tint, 1.0)[1]
+                              )"
+          />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message>Cannot tint <xsl:value-of select="."/></xsl:message>
+          <xsl:sequence select="."/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:attribute name="{@name}" select="$tinted" />
   </xsl:template>
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
