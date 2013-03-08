@@ -12,6 +12,7 @@ DEBUG := 1
 DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
 HUBVERSION = 1.0
+ALLSTYLES = no
 # Whether to discard existing piggyback tagging:  
 DISCARD=yes
 
@@ -35,6 +36,7 @@ default: idml2xml_usage
       split=$(SPLIT) \
       discard-tagging=$(DISCARD) \
       hub-version=$(HUBVERSION) \
+      all-styles=$(ALLSTYLES) \
       srcpaths=$(SRCPATHS) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
@@ -85,3 +87,5 @@ idml2xml_usage:
 	@echo ""
 	@echo "Other targets: fetchdeps, updeps, rmdeps"
 	@echo "  For fetching, updating, and deleting XProc dependencies, including calabash/calabash.sh"
+	@echo ""
+	@echo "Option ALLSTYLES=yes|no (default: $(ALLSTYLES)): whether to export all styles (in contrast to: only the styles actually used)"

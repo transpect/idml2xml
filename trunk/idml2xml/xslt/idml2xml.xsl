@@ -81,6 +81,7 @@
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>
   <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
+  <xsl:param name="all-styles" as="xs:string" select="'no'"/>
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
