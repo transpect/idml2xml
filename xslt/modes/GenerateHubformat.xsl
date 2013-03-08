@@ -67,6 +67,7 @@
           <xsl:when test="$hub-version eq '1.1'">
             <xsl:call-template name="idml2xml:hub-1.1-styles">
               <xsl:with-param name="version" select="$hub-version" tunnel="yes"/>
+              <xsl:with-param name="all-styles" select="$all-styles" />
             </xsl:call-template>
           </xsl:when>
         </xsl:choose>
@@ -110,25 +111,34 @@
   </xsl:template>
 
   <xsl:template name="idml2xml:hub-1.1-styles">
+    <xsl:param name="all-styles" as="xs:string"/>
     <css:rules>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return idml2xml:generate-style-name-variants('ParagraphStyle', $s) )"
+        select="if ($all-styles eq 'yes')
+                then /*/idPkg:Styles//ParagraphStyle
+                else key('idml2xml:style', for $s in distinct-values(//*/@aid:pstyle) return idml2xml:generate-style-name-variants('ParagraphStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return idml2xml:generate-style-name-variants('CharacterStyle', $s) )"
+        select="if ($all-styles eq 'yes')
+                then /*/idPkg:Styles//CharacterStyle
+                else key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return idml2xml:generate-style-name-variants('CharacterStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return idml2xml:generate-style-name-variants('TableStyle', $s) )"
+        select="if ($all-styles eq 'yes')
+                then /*/idPkg:Styles//TableStyle
+                else key('idml2xml:style', for $s in distinct-values(//*/@aid5:tablestyle) return idml2xml:generate-style-name-variants('TableStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
       <!--<css:rule name="None" layout-type="cell"/>-->
       <xsl:apply-templates
-        select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
+        select="if ($all-styles eq 'yes')
+                then /*/idPkg:Styles//CellStyle
+                else key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
