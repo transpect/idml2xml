@@ -789,6 +789,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="matches(@idml2xml:href,'(end)?page')">
         <anchor xml:id="{@idml2xml:href}" />
       </xsl:when>
+      <xsl:when test="@remap='ExternalHyperlinkTextDestination'">
+        <link xlink:href="{@linkend}">
+          <xsl:apply-templates select="@* except @linkend" mode="#current" />
+          <xsl:apply-templates select="node()" mode="#current" />
+        </link>
+      </xsl:when>
       <xsl:otherwise>
         <link>
           <xsl:apply-templates select="@idml2xml:*, @* | node()" mode="#current" />
