@@ -800,7 +800,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <anchor xml:id="{@idml2xml:href}" />
       </xsl:when>
       <xsl:when test="@remap='ExternalHyperlinkTextDestination'">
-        <link xlink:href="{@linkend}">
+        <link xlink:href="{@linkend}" role="same-work-external">
           <xsl:apply-templates select="@* except @linkend" mode="#current" />
           <xsl:apply-templates select="node()" mode="#current" />
         </link>
