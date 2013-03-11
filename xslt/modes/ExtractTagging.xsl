@@ -266,7 +266,7 @@
         <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
         <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)*" />
         <xsl:variable name="name" select="replace($hyperlink/@Name, $idml2xml:indesign-link-name-suffix-regex, '')" as="xs:string" />
-        <xsl:variable name="external" select="empty($dest) and matches($dest-id, '.*\.indd')" as="xs:boolean" />
+        <xsl:variable name="external" select="empty($dest) and matches($dest-id, '[AMZ]_\d+_\d+\.indd')" as="xs:boolean" />
         <xsl:if test="count($dest) gt 1">
           <xsl:message>WRN: More than one link resolution for destination <xsl:value-of select="$dest-id" />:
           <xsl:value-of select="$dest"/>
@@ -277,7 +277,7 @@
             <xsl:variable name="external-dest" select="concat(replace($dest-id, '^.*?([^\\]+)$', '$1'), '/', $name)" as="xs:string" />
             <idml2xml:link linkend="{$external-dest}" remap="ExternalHyperlinkTextDestination">
               <xsl:apply-templates mode="#current" />
-            </idml2xml:link>            
+            </idml2xml:link>
           </xsl:when>
           <xsl:when test="empty($dest)">
             <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
