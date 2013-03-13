@@ -220,4 +220,21 @@
 
   <xsl:template match="HiddenText[empty(node())]" mode="idml2xml:AutoCorrect-clean-up" />
   
+  
+  <!-- make @srcpath unique: -->
+  
+  <xsl:key name="by-srcpath" match="*[@srcpath]" use="@srcpath"/>
+  
+  <xsl:template match="@srcpath" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:variable name="same-path-items" select="key('by-srcpath', .)/generate-id()" as="xs:string+"/>
+    <xsl:choose>
+      <xsl:when test="count($same-path-items) gt 1">
+        <xsl:attribute name="srcpath" select="concat(., ';n=', index-of($same-path-items, generate-id(..)))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:attribute name="srcpath" select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
 </xsl:stylesheet>
