@@ -721,9 +721,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
-      <xsl:if test="not(@idml2xml:elementName eq 'Group')">
-        <xsl:attribute name="linkend" select="generate-id()" />  
-      </xsl:if>
+      <xsl:attribute name="linkend" select="generate-id()" />
       <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
     </xsl:copy>
   </xsl:template>
@@ -1236,6 +1234,33 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         that should be treated equivalently by adding a tilde, followed by arbitrary name components -->
   </xsl:template>
 
+  <!-- for finding sidebar[@linkend] to a given anchor[@xml:id]: -->
+  <xsl:key name="idml2xml:linking-item-by-id" match="*[@linkend]" use="@linkend" />
+  <!-- for finding anchor[@xml:id] to a given sidebar[@linkend]: -->
+  <xsl:key name="idml2xml:linking-item-by-linkend" match="*[@*:id]" use="@*:id" />
+  
+  <!-- Replace anchors in groups with the items that they point to (typically, sidebar of the TextFrame type,
+       or Rectangles) --> 
+  <xsl:template 
+    match="dbk:sidebar[@remap eq 'Group']/dbk:anchor[exists(key('idml2xml:linking-item-by-id', @xml:id))]" 
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:for-each select="key('idml2xml:linking-item-by-id', @xml:id)">
+      <xsl:copy copy-namespaces="no">
+        <xsl:apply-templates select="@* except @linkend, node()" mode="#current"/>
+      </xsl:copy>
+    </xsl:for-each>
+  </xsl:template>
+  
+  <xsl:template 
+    match="*[@linkend][key('idml2xml:linking-item-by-linkend', @linkend)
+                        /self::dbk:anchor/parent::dbk:sidebar[@remap eq 'Group']
+                      ]" 
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+
+  <!-- remove @linked on Groups when they’re not anchored (there ARE anchored Groups) -->
+  <xsl:template match="dbk:sidebar[@remap eq 'Group']/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
+  
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-without-srcpath -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

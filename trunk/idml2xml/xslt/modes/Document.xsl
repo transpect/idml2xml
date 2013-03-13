@@ -157,10 +157,14 @@
   <xsl:template match="Group[not(ancestor::Spread)]
     [every $c in * satisfies ($c/name() = $content-group-children)]"
     mode="idml2xml:DocumentResolveTextFrames" priority="2">
-    <xsl:for-each-group select="TextFrame | Rectangle | GraphicLine | Oval" 
-      group-adjacent="self::TextFrame/@ParentStory, .[not(self::TextFrame)]/@Self">
-      <xsl:apply-templates select="." mode="#current" />
-    </xsl:for-each-group>
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="TextFrame | Rectangle | GraphicLine | Oval" 
+        group-adjacent="self::TextFrame/@ParentStory, .[not(self::TextFrame)]/@Self">
+        <xsl:apply-templates select="." mode="#current" />
+      </xsl:for-each-group>
+    </xsl:copy>
+    
   </xsl:template>
 
   <xsl:template match="Group[not(ancestor::Spread)]
