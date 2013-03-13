@@ -72,8 +72,6 @@
                           )"/>
   </xsl:function>
 
-
-
   <idml2xml:default-namespaces>
     <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml"/>
     <XMLAttribute Name="xmlns:aid" Value="http://ns.adobe.com/AdobeInDesign/4.0/"/>
