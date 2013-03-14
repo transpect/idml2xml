@@ -50,6 +50,9 @@
           <keyword role="source-basename"><xsl:value-of select="$idml2xml:basename"/></keyword>
           <keyword role="source-dir-uri"><xsl:value-of select="$src-dir-uri"/></keyword>
           <keyword role="source-paths"><xsl:value-of select="if ($srcpaths = 'yes') then 'true' else 'false'"/></keyword>
+          <keyword role="used-rules-only">
+            <xsl:value-of select="not($all-styles = 'yes')"/>
+          </keyword>
           <keyword role="formatting-deviations-only">true</keyword>
           <keyword role="source-type">idml</keyword>
           <xsl:if test="/*/@TOCStyle_Title">

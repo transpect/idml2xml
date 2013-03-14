@@ -16,6 +16,7 @@
   <p:option name="idmlfile" />
   <p:option name="hub-version" required="false" select="'1.1'"/>
   <p:option name="srcpaths" required="false" select="'no'"/>
+  <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
@@ -64,6 +65,7 @@
           <c:param name="src-dir-uri" />
           <c:param name="hub-version" />
           <c:param name="srcpaths" />
+          <c:param name="all-styles" />
           <c:param name="discard-tagging" />
         </c:param-set>
       </p:inline>
@@ -81,6 +83,10 @@
     <p:with-option name="attribute-value" select="$discard-tagging"/>
   </p:add-attribute>
 
+  <p:add-attribute match="/c:param-set/c:param[@name eq 'all-styles']" attribute-name="value">
+    <p:with-option name="attribute-value" select="$all-styles"/>
+  </p:add-attribute>
+  
   <p:add-attribute match="/c:param-set/c:param[@name eq 'srcpaths']" attribute-name="value" name="xslt-params">
     <p:with-option name="attribute-value" select="$srcpaths"/>
   </p:add-attribute>
