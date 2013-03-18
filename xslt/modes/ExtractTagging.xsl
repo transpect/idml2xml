@@ -369,7 +369,7 @@
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '18']" mode="idml2xml:ExtractTagging">
-    <idml2xml:control role="page-number" />
+    <idml2xml:control role="hub:page-number" />
   </xsl:template>
 
 </xsl:stylesheet>
