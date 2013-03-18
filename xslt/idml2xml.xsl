@@ -75,7 +75,7 @@
       indent="yes" />
 
   <xsl:strip-space elements="*"/>
-  <xsl:preserve-space elements="Content idml2xml:tab dbk:*"/>
+  <xsl:preserve-space elements="Content idml2xml:* dbk:*"/>
 
 
   <!--== PARAMS ==-->
