@@ -345,7 +345,7 @@
   </xsl:template>
 
 	<!-- sometimes there are processing-instructions, e.g. <?ACE 8?> -->
-	<xsl:template match="processing-instruction()" mode="idml2xml:ExtractTagging">
+	<xsl:template match="processing-instruction()[not(name() = 'xml-model')]" mode="idml2xml:ExtractTagging" priority="0.25">
     <xsl:message>PI
 		<xsl:copy-of select="."/>
     </xsl:message>
