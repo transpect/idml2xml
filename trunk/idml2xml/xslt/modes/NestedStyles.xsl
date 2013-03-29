@@ -8,11 +8,15 @@
 
   <xsl:key name="idml2xml:nested-style" match="AllNestedStyles" 
     use="idml2xml:style-descendants-and-self(../..)/@Self"/>
-  <!-- When using this key, it is important to know that it will also return all styles
-       that the style in question is based upon. So use the last() item of the sequence
-       that the key() function returns. This is the most specific one. (Is that true?
-       they’ll probably be returned in document order. But is it guaranteed that derivative
-       styles will alwayd be serialized after their base styles?) -->
+  <!-- When using this key, it is important to know that it will also return AllNestedStyles
+       for the styles that the style in question is based upon. This is because the nested
+       styles are not necessarily attached to the current paragraph style. They might as well
+       be declared for a style that the current one is based upon, or on one of their ancestor
+       styles. We are (safely?) assuming that derivative styles will always be serialized 
+       after their base styles. So use the last() item of the sequence that the key() function 
+       returns. This is the most specific one. If this document order / specificity assumption  
+       proves to be unwarranted, we’d have to evaluate the inheritance cascade more thoroughly. 
+  -->
 
   <!-- MODE: idml2xml:NestedStyles-create-separators 
         Make idml2xml:sep elements of the letters that may act as nested style separators -->
