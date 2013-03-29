@@ -13,7 +13,8 @@
   
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame', 'TextVariableInstance', 'idml2xml:tab')" 
+    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame',
+    'TextVariableInstance', 'idml2xml:tab', 'idml2xml:sep')" 
     as="xs:string+" />
   <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
@@ -102,11 +103,55 @@
     <xsl:sequence select="idml2xml:StyleNameEscape($style-name),
                           concat($style-type, '/', idml2xml:StyleNameEscape($style-name)),
                           concat($style-type, '/$ID/', idml2xml:StyleNameEscape($style-name)),
-                          concat($style-type, '/$ID/[', idml2xml:StyleNameEscape($style-name), ']')
+                          concat($style-type, '/$ID/[', idml2xml:StyleNameEscape($style-name), ']'),
+                          concat('$ID/[', idml2xml:StyleNameEscape($style-name), ']')
                          "/>
   </xsl:function>
   
-
+  
+  <!-- Based-on styles -->
+  
+  <xsl:key name="idml2xml:style-by-Name"
+    match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
+    use="@Name" />
+  
+  <xsl:function name="idml2xml:style-ancestors-and-self" as="element(*)+">
+    <xsl:param name="style" as="element(*)"/>
+    <xsl:choose>
+      <xsl:when test="$style/Properties/BasedOn">
+        <xsl:message>ST: <xsl:value-of select="$style/@Self"/></xsl:message>
+        <xsl:message >BO: <xsl:value-of select="$style/Properties/BasedOn"/></xsl:message>
+        <xsl:message>KEY:
+          <xsl:value-of select="key('idml2xml:style-by-Name', replace($style/Properties/BasedOn, '^ParagraphStyle/', ''), root($style))"/>
+        </xsl:message>
+        <xsl:sequence 
+          select="$style, 
+          idml2xml:style-ancestors-and-self(key('idml2xml:style-by-Name', replace($style/Properties/BasedOn, '^ParagraphStyle/', ''), root($style)))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$style"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:key name="idml2xml:BasedOn-by-value"
+    match="BasedOn" 
+    use="." />
+  
+  <xsl:function name="idml2xml:style-descendants-and-self" as="element(*)+">
+    <xsl:param name="style" as="element(*)+"/>
+    <xsl:variable name="based-on-this" select="key('idml2xml:BasedOn-by-value', $style/@Self, root($style[1]))"
+      as="element(BasedOn)*"/>
+    <xsl:choose>
+      <xsl:when test="exists($based-on-this)">
+        <xsl:sequence select="$style, idml2xml:style-descendants-and-self($based-on-this/../..)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$style"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
 
   <xsl:function name="idml2xml:countIndexterms">
     <!-- type '1' = primary; type '2' = secondary; type '3' = tertiary; type '4' = quaternary -->
@@ -132,7 +177,7 @@
        in the extracted XML.
        -->
   <xsl:function name="idml2xml:same-scope" as="xs:boolean">
-    <xsl:param name="elt" as="element(*)" />
+    <xsl:param name="elt" as="node()" />
     <xsl:param name="ancestor-elt" as="element(*)" />
     <xsl:sequence select="not($elt/ancestor::*[idml2xml:is-scope-origin(.)]
                                               [some $a in ancestor::* satisfies ($a is $ancestor-elt)])" />

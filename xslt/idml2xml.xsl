@@ -30,6 +30,8 @@
   <xsl:import href="modes/ExtractTagging.xsl"/>
   <!-- AutoCorrect: mode to correct aid:pstyle and aid:cstyle according to applied styles -->
   <xsl:import href="modes/AutoCorrect.xsl"/>
+  <xsl:import href="modes/NestedStyles.xsl"/>
+  <xsl:import href="modes/JoinSpans.xsl"/>
   <!-- GenerateHubformat: convert to le-tex Hub format -->
   <xsl:import href="modes/GenerateHubformat.xsl"/>
   <!-- Statistics: output summaries of the idml document to a separate html-file -->
@@ -186,11 +188,22 @@
   <xsl:variable name="idml2xml:AutoCorrect-clean-up">
     <xsl:apply-templates select="$idml2xml:AutoCorrect" mode="idml2xml:AutoCorrect-clean-up"/>
   </xsl:variable>
-
+  <xsl:variable name="idml2xml:NestedStyles-create-separators">
+    <xsl:apply-templates select="$idml2xml:AutoCorrect-clean-up" mode="idml2xml:NestedStyles-create-separators"/>
+  </xsl:variable>
+  <xsl:variable name="idml2xml:NestedStyles-pull-up-separators">
+    <xsl:apply-templates select="$idml2xml:NestedStyles-create-separators" mode="idml2xml:NestedStyles-pull-up-separators"/>
+  </xsl:variable>
+  <xsl:variable name="idml2xml:NestedStyles-apply">
+    <xsl:apply-templates select="$idml2xml:NestedStyles-pull-up-separators" mode="idml2xml:NestedStyles-apply"/>
+  </xsl:variable>
+  <xsl:variable name="idml2xml:JoinSpans">
+    <xsl:apply-templates select="$idml2xml:NestedStyles-apply" mode="idml2xml:JoinSpans"/>
+  </xsl:variable>
   <!--== HUB variables ==-->
   <!-- add properties to block and inline tags -->
   <xsl:variable name="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates select="$idml2xml:AutoCorrect-clean-up" mode="idml2xml:XML-Hubformat-add-properties"/>
+    <xsl:apply-templates select="$idml2xml:JoinSpans" mode="idml2xml:XML-Hubformat-add-properties"/>
   </xsl:variable>
   <!-- make proper attributes out of intermediate ones -->
   <xsl:variable name="idml2xml:XML-Hubformat-properties2atts">
@@ -311,6 +324,18 @@
       </xsl:result-document>
       <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '52.AutoCorrect-clean-up.xml')}" format="debug">
         <xsl:sequence select="$idml2xml:AutoCorrect-clean-up"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '54.NestedStyles-create-separators.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:NestedStyles-create-separators"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '55.NestedStyles-pull-up-separators.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:NestedStyles-pull-up-separators"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '56.NestedStyles-apply.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:NestedStyles-apply"/>
+      </xsl:result-document>
+      <xsl:result-document href="{idml2xml:debug-uri($debugdir, 'idml2xml', '60.JoinSpans.xml')}" format="debug">
+        <xsl:sequence select="$idml2xml:JoinSpans"/>
       </xsl:result-document>
     </xsl:if>
   </xsl:template>
