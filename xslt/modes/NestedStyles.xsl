@@ -101,7 +101,8 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="*[$idml2xml:idml-scope-terminal-names]" mode="idml2xml:upward-project-tab">
+  <xsl:template match="*[name() = $idml2xml:idml-scope-terminal-names]" mode="idml2xml:NestedStyles-upward-project"
+    priority="-0.75">
     <xsl:apply-templates select="." mode="idml2xml:NestedStyles-pull-up-separators" />
   </xsl:template>
 
