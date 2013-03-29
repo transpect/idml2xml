@@ -101,6 +101,7 @@
     </xsl:if>
   </xsl:template>
 
+  <!-- Deal with tables, footnotes etc. that are contained in the para or its spans -->
   <xsl:template match="*[name() = $idml2xml:idml-scope-terminal-names]" mode="idml2xml:NestedStyles-upward-project"
     priority="-0.75">
     <xsl:apply-templates select="." mode="idml2xml:NestedStyles-pull-up-separators" />
