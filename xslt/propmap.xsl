@@ -415,8 +415,6 @@
         <prop name="KentenStrokeColor" implement="maybe later" />
         <prop name="BulletChar" implement="maybe later" />
         <prop name="NumberingFormat" implement="maybe later" />
-        <prop name="BulletsFont" implement="maybe later" />
-        <prop name="BulletsFontStyle" implement="maybe later" />
         <prop name="AppliedNumberingList" implement="maybe later" />
         <prop name="NumberingRestartPolicies" implement="maybe later" />
         <prop name="BulletsCharacterStyle" implement="maybe later" />

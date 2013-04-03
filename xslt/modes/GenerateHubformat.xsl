@@ -152,9 +152,12 @@
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
-      <xsl:apply-templates select="if (Properties/BasedOn) 
-                                   then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn)) 
-                                   else ()" mode="#current">
+      <xsl:apply-templates select="if (Properties/BasedOn/@type = 'object') 
+                                   then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn))
+                                   else 
+                                     if (Properties/BasedOn/@type = 'string')
+                                     then key('idml2xml:style-by-Name', Properties/BasedOn)
+                                     else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>
       <xsl:variable name="mergeable-atts" as="element(*)*">
@@ -411,12 +414,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:style-link type="{../@name}" target="{idml2xml:StyleName($val)}"/>
       </xsl:when>
 
-      <xsl:when test=". eq 'tablist'">
+      <xsl:when test=". eq 'tablist' and exists($val/*)">
         <tabs xmlns="http://docbook.org/ns/docbook">
           <xsl:apply-templates select="$val/*" mode="#current"/>
         </tabs>
       </xsl:when>
-
+      <xsl:when test=". eq 'tablist' and not(exists($val/*))"/>
+      
       <xsl:otherwise>
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:otherwise>
@@ -610,9 +614,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
-  <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template match="idml2xml:attribute[matches(@name, '^(css:pseudo-marker|numbering-)')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="last-numbering-style" select="../idml2xml:attribute[@name = 'BulletsAndNumberingListType'][last()]" as="element(idml2xml:attribute)?" />
-    <xsl:if test="not($last-numbering-style = 'NoList')">
+    <xsl:if test="not($last-numbering-style = 'NoList')
+                  and
+                  not(@name = 'css:pseudo-marker_font-family' and . = '$ID/')">
       <xsl:next-match/>  
     </xsl:if>
   </xsl:template>
