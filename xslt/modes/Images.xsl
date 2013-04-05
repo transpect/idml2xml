@@ -21,13 +21,13 @@
   <xsl:template match="Rectangle" mode="idml2xml:Images">
     <xsl:variable name="metadata" as="xs:string"
       select="replace(Image/MetadataPacketPreference/Properties/Contents/text(), '\s|\n', '')" />
-    <xsl:variable name="dpi-x" as="xs:integer"
+    <xsl:variable name="dpi-x" as="xs:integer?"
       select="xs:integer(tokenize(Image/@EffectivePpi, ' ')[1])" />
-    <xsl:variable name="dpi-y" as="xs:integer"
+    <xsl:variable name="dpi-y" as="xs:integer?"
       select="xs:integer(tokenize(Image/@EffectivePpi, ' ')[2])" />
-    <xsl:variable name="dpi-x-original" as="xs:integer"
+    <xsl:variable name="dpi-x-original" as="xs:integer?"
       select="xs:integer(tokenize(Image/@ActualPpi, ' ')[1])" />
-    <xsl:variable name="dpi-y-original" as="xs:integer"
+    <xsl:variable name="dpi-y-original" as="xs:integer?"
       select="xs:integer(tokenize(Image/@ActualPpi, ' ')[2])" />
     <xsl:variable name="PathPoints" as="node()*"
       select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />

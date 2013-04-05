@@ -82,6 +82,7 @@
 
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>
+  <xsl:param name="archive-dir-uri" as="xs:string"/>
   <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
   <xsl:param name="all-styles" as="xs:string" select="'no'"/>
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
@@ -101,6 +102,7 @@
 
   <xsl:param name="hub-version" select="'1.0'" as="xs:string"/>
   
+
   <!--== VARIABLES ==-->
 
   <xsl:variable name="designmap-doc" select="document(concat($src-dir-uri, '/', 'designmap.xml'))" as="document-node(element(Document))" />
