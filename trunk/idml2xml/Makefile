@@ -32,6 +32,7 @@ default: idml2xml_usage
       -xsl:$(call uri,$(IDML2XML_MAKEFILEDIR)/xslt/idml2xml.xsl) \
       -it:$(subst .,,$(suffix $(basename $@))) \
       hub-other-elementnames-whitelist=$(HUB-OTHER-ELNAMES-WHITELIST) \
+      archive-dir-uri=$(call uri,$(dir $(abspath $<))) \
       src-dir-uri=$(call uri,$(abspath $<)).tmp \
       split=$(SPLIT) \
       discard-tagging=$(DISCARD) \

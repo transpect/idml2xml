@@ -49,6 +49,7 @@
         <keywordset role="hub">
           <keyword role="source-basename"><xsl:value-of select="$idml2xml:basename"/></keyword>
           <keyword role="source-dir-uri"><xsl:value-of select="$src-dir-uri"/></keyword>
+          <keyword role="archive-dir-uri"><xsl:value-of select="$archive-dir-uri"/></keyword>
           <keyword role="source-paths"><xsl:value-of select="if ($srcpaths = 'yes') then 'true' else 'false'"/></keyword>
           <keyword role="used-rules-only">
             <xsl:value-of select="not($all-styles = 'yes')"/>
@@ -293,7 +294,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:attribute name="{../@target-name}">
           <xsl:choose>
             <xsl:when test="$val/@BulletCharacterType eq 'GlyphWithFont'">
-              <xsl:message>WARNING: Unsupported bullet character type 'GlyphWithFont' for char <xsl:value-of select="$val/@BulletCharacterValue"/>. Falling back to U+2022
+              <xsl:message>INFO: Unsupported bullet character type 'GlyphWithFont' for char <xsl:value-of select="$val/@BulletCharacterValue"/>. Falling back to U+2022
               </xsl:message>
               <xsl:value-of select='"&apos;&#x2022;&apos;"' />
             </xsl:when>
