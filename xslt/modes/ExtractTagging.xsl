@@ -316,7 +316,8 @@
 
 
   <xsl:template match="ParagraphDestination | HyperlinkTextDestination" mode="idml2xml:ExtractTagging">
-    <idml2xml:genAnchor xml:id="{idml2xml:escape-id(@Self)}" remap="{local-name()}"/>
+    <idml2xml:genAnchor xml:id="{idml2xml:escape-id(@Self)}" remap="{local-name()}" 
+      annotations="{replace(@Name, '^.+?/', '')}"/>
   </xsl:template>
 
   <xsl:template match="TextVariableInstance" mode="idml2xml:ExtractTagging">

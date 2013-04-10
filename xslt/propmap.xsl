@@ -53,6 +53,7 @@
         <prop name="aid:trows" type="passthru" />
         <prop name="linkend" type="passthru" />
         <prop name="remap" type="passthru" />
+        <prop name="annotations" type="passthru" />
         <prop name="role" type="passthru" />
         <prop name="srcpath" type="passthru" />
         <prop name="idml2xml:elementName" type="passthru" />
@@ -377,11 +378,20 @@
         <prop name="TreatIdeographicSpaceAsSpace" implement="maybe later" />
         <prop name="AllowArbitraryHyphenation" implement="maybe later" />
 
+        <prop name="SpanSplitColumnCount" implement="maybe later" />
+        <prop name="KeepWithPrevious" implement="maybe later" />
+        <prop name="SpanColumnMinSpaceBefore" implement="maybe later" />
+        <prop name="SpanColumnMinSpaceAfter" implement="maybe later" />
+        <prop name="SpanColumnType" implement="maybe later" />
+        <prop name="SplitColumnInsideGutter" implement="maybe later" />
+        <prop name="SplitColumnOutsideGutter" implement="maybe later" />
+        
         <prop name="Kashidas" implement="maybe later" />
         <prop name="DiacriticPosition" implement="maybe later" />
         <prop name="ParagraphDirection" implement="maybe later" />
         <prop name="ParagraphJustification" implement="maybe later" />
-
+        <prop name="ParagraphKashidaWidth" implement="maybe later" />
+        
         <prop name="XOffsetDiacritic" implement="maybe later" />
         <prop name="YOffsetDiacritic" implement="maybe later" />
         <prop name="OTFOverlapSwash" implement="maybe later" />
