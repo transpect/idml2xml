@@ -165,7 +165,10 @@
         <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn)]" mode="#current" />
       </xsl:variable>
       <xsl:for-each-group select="$mergeable-atts[self::idml2xml:attribute]" group-by="@name">
-        <idml2xml:attribute name="{current-grouping-key()}"><xsl:value-of select="current-group()" /></idml2xml:attribute>
+        <xsl:variable name="att" as="element(idml2xml:attribute)">
+          <idml2xml:attribute name="{current-grouping-key()}"><xsl:value-of select="current-group()" /></idml2xml:attribute>  
+        </xsl:variable>
+        <xsl:copy-of select="$att" copy-namespaces="no"/>
       </xsl:for-each-group>
       <xsl:sequence select="$mergeable-atts[not(self::idml2xml:attribute)]"/>
     </xsl:variable>
@@ -428,11 +431,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
-  <xsl:function name="idml2xml:bullet-list-style-type" as="xs:string" >
+  <xsl:function name="idml2xml:bullet-list-style-type" as="xs:string">
     <xsl:param name="styled-element" as="element(*)"/><!-- ParagraphStyle, idml2xml:genPara, etc. -->
     <!-- To do: provide the reserved names from http://www.w3.org/TR/css3-lists/#ua-stylesheet for the corresponding chars --> 
     <xsl:variable name="char-elt" select="$styled-element/Properties/BulletChar" as="element(BulletChar)?"/>
-    <xsl:variable name="is-unicode" select="$styled-element/Properties/BulletChar/@BulletCharacterType = 'UnicodeOnly'" as="xs:boolean"/>
+    <xsl:variable name="is-unicode" as="xs:boolean"
+      select="$styled-element/Properties/BulletChar/@BulletCharacterType = ('UnicodeOnly', 'UnicodeWithFont')"/>
     <xsl:choose>
       <xsl:when test="
         not($char-elt) 
@@ -623,7 +627,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:next-match/>  
     </xsl:if>
   </xsl:template>
-  <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType']" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <!-- As style (will be dealt with when processing other attributes -->
+  <xsl:template match="css:rule/idml2xml:attribute[@name = 'BulletsAndNumberingListType']" 
+    priority="2" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <!-- As local override: -->
+  <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType'][. = 'NoList']" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="css:display" select="'block'"/>
+  </xsl:template>
   
   <xsl:template match="idml2xml:attribute[@name = 'css:text-decoration-line']" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="all-atts" select="preceding-sibling::idml2xml:attribute[@name = current()/@name], ."
@@ -835,13 +846,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:function>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <anchor xml:id="{$id-prefix}{idml2xml:normalize-name(@*:id)}" />
+    <anchor xml:id="{$id-prefix}{idml2xml:normalize-name(@*:id)}" >
+      <xsl:apply-templates select="@annotations" mode="#current"/>
+    </anchor>
   </xsl:template>
 
   <xsl:template match="@linkend" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="linkend" select="concat ($id-prefix, idml2xml:normalize-name(.))" />
   </xsl:template>
-
+  
   <xsl:template match="@aid:cstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="role" select="." />
   </xsl:template>

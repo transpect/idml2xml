@@ -82,7 +82,7 @@
 
   <!--== PARAMS ==-->
   <xsl:param name="src-dir-uri" as="xs:string"/>
-  <xsl:param name="archive-dir-uri" as="xs:string"/>
+  <xsl:param name="archive-dir-uri" as="xs:string" select="replace($src-dir-uri, '[^/]+/?$', '')"/>
   <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
   <xsl:param name="all-styles" as="xs:string" select="'no'"/>
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
