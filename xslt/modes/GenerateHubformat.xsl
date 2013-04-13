@@ -172,6 +172,7 @@
       </xsl:for-each-group>
       <xsl:sequence select="$mergeable-atts[not(self::idml2xml:attribute)]"/>
     </xsl:variable>
+    <xsl:comment select="@Self"/>
     <xsl:choose>
       <xsl:when test="$wrap-in-style-element">
         <xsl:element name="{if($version eq '1.0') then 'style' else 'css:rule'}">
@@ -594,8 +595,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="{@name}" select="." />
   </xsl:template>
 
+  <xsl:key name="idml2xml:css-rule-by-name" match="css:rule" use="@name"/>
+
   <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:variable name="last-fill-tint" select="../idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
+    <!-- Even if we’re processing local override colors here: 
+         a fill tint that comes from a style has to be applied here. 
+         If it isn’t superseded by a local override tint, of course. -->
+    <xsl:variable name="style" select="key('idml2xml:css-rule-by-name', 
+                                           ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])"
+                  as="element(css:rule)?"/>
+    <xsl:variable name="last-fill-tint" select="($style | ..)/idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
