@@ -233,13 +233,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 <!--     <xsl:apply-templates select="$raw-output" mode="idml2xml:XML-Hubformat-add-properties2"/> -->
   </xsl:template>
 
-  <xsl:template match="Rectangle/@Self" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]/@Self" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <idml2xml:attribute name="{name()}">
       <xsl:value-of select="."/>
     </idml2xml:attribute>
   </xsl:template>
     
-  <xsl:template match="Rectangle" mode="idml2xml:XML-Hubformat-add-properties_" priority="4">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-add-properties_" priority="4">
     <xsl:copy>
       <xsl:copy-of select="@Self"/>
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -777,7 +777,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genSpan[
                          not(
                            (
-                             exists(Rectangle)
+                             exists(*[name() = $idml2xml:shape-element-names])
                              or
                              exists(idml2xml:genFrame)
                            ) 
@@ -1106,9 +1106,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
   <!-- figures -->
-  <xsl:template match="Rectangle[not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
-    <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', @Self)" as="element(Rectangle)+" />
+    <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', @Self)" as="element(*)+" />
     <xsl:variable name="my-number" as="xs:integer"
       select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id(.))" />
     <xsl:variable name="suffix" as="xs:string"
@@ -1122,9 +1122,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </mediaobject>
   </xsl:template>
 
-  <xsl:template match="Rectangle[not(@idml2xml:keep-object eq 'true')]" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(@idml2xml:keep-object eq 'true')]" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
 
-  <xsl:template match="Rectangle[@idml2xml:keep-object eq 'true']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][@idml2xml:keep-object eq 'true']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:next-match/><!-- identity -->
   </xsl:template>
   
@@ -1135,7 +1135,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </footnote>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[Rectangle]"
+  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>

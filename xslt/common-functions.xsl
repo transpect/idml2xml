@@ -11,9 +11,11 @@
   
   <xsl:include href="hex/hex.xsl"/>
   
+  <xsl:variable name="idml2xml:shape-element-names" as="xs:string+"
+    select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon')"/>
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'Rectangle', 'TextFrame',
+    select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', $idml2xml:shape-element-names, 'TextFrame',
     'TextVariableInstance', 'idml2xml:tab', 'idml2xml:sep')" 
     as="xs:string+" />
   <xsl:variable 

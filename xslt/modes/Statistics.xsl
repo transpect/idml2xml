@@ -86,11 +86,11 @@
             </tr>
             <tr>
               <th>Images (linked)<br /> – EPS<br /> – PDF<br /> – WMF<br /> – Image</th>
-              <td><xsl:value-of select="count( //Rectangle )"/> (<xsl:value-of select="count( //Rectangle[descendant::Link/@LinkResourceURI] )"/>)<br />
-	          <xsl:value-of select="count( //Rectangle[exists(EPS)] )"/><br />
-	          <xsl:value-of select="count( //Rectangle[exists(PDF)] )"/><br />
-	          <xsl:value-of select="count( //Rectangle[exists(WMF)] )"/><br />
-	          <xsl:value-of select="count( //Rectangle[exists(Image)] )"/></td>
+              <td><xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names] )"/> (<xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names][descendant::Link/@LinkResourceURI] )"/>)<br />
+	          <xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names][exists(EPS)] )"/><br />
+	          <xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names][exists(PDF)] )"/><br />
+	          <xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names][exists(WMF)] )"/><br />
+	          <xsl:value-of select="count( //*[name() = $idml2xml:shape-element-names][exists(Image)] )"/></td>
             </tr>
             <tr>
               <th>Paragraphs</th>
