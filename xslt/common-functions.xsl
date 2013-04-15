@@ -322,7 +322,7 @@
       </xsl:when>
 
       <!-- item is a textframe or an image -->
-      <xsl:when test="local-name($item) = ('Rectangle', 'TextFrame')">
+      <xsl:when test="local-name($item) = ($idml2xml:shape-element-names, 'TextFrame')">
 	<xsl:choose>
 	  <!-- unsupported TextFrame/@ItemTransform value -->
 	  <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
