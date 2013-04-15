@@ -21,7 +21,7 @@
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
       </xsl:variable>
       <xsl:apply-templates select="  TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
-                                   | Rectangle 
+                                   | *[name() = $idml2xml:shape-element-names] 
                                    | XMLElement" mode="#current"/>
     </idml2xml:doc>
   </xsl:template>
@@ -184,18 +184,18 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="Rectangle[exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
       <xsl:attribute name="idml2xml:rectangle-embedded-source" select="'true'"/>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="Rectangle[not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))][not(empty(descendant::Link/@LinkResourceURI))]" mode="idml2xml:ExtractTagging">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))][not(empty(descendant::Link/@LinkResourceURI))]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
       <xsl:apply-templates select="@*|descendant::Link/@LinkResourceURI" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-  <xsl:template match="Rectangle[not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
     <xsl:message select="concat('IDML2XML WRN in ExtractTagging: Image ', @Self, ' with unknown xml structure.')"/>
   </xsl:template>
 

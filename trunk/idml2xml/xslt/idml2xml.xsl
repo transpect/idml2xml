@@ -241,7 +241,7 @@
   <!--== Images ==-->
   <xsl:variable name="idml2xml:Images">
     <idml2xml:images unit="px">
-      <xsl:apply-templates select="$idml2xml:Document//Rectangle" mode="idml2xml:Images"/>
+      <xsl:apply-templates select="$idml2xml:Document//*[name() = $idml2xml:shape-element-names]" mode="idml2xml:Images"/>
     </idml2xml:images>
   </xsl:variable>
 

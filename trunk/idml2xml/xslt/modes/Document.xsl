@@ -145,21 +145,21 @@
                   )
                 ]
                 , 
-                //Spread/Rectangle,
+                //Spread/*[name() = $idml2xml:shape-element-names],
                 //XmlStory" />
     </xsl:copy>
   </xsl:template>
 
-  <xsl:variable name="content-group-children" as="xs:string+"
-    select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', 'Rectangle', 'GraphicLine', 'Oval')"/>
+  <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
+    select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
   
   <!-- A Group that is in a Story (rather than in a Spread -->
   <xsl:template match="Group[not(ancestor::Spread)]
-    [every $c in * satisfies ($c/name() = $content-group-children)]"
+    [every $c in * satisfies ($c/name() = $idml2xml:content-group-children)]"
     mode="idml2xml:DocumentResolveTextFrames" priority="2">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="TextFrame | Rectangle | GraphicLine | Oval" 
+      <xsl:for-each-group select="TextFrame | *[name() = $idml2xml:shape-element-names]" 
         group-adjacent="self::TextFrame/@ParentStory, .[not(self::TextFrame)]/@Self">
         <xsl:apply-templates select="." mode="#current" />
       </xsl:for-each-group>
@@ -207,8 +207,8 @@
       <xsl:when test="$is-a-grouped-spread-textframe and
                       $textframe/parent::Group and 
                       (
-                        $textframe/preceding-sibling::Rectangle or 
-                        $textframe/following-sibling::Rectangle
+                        $textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names] or 
+                        $textframe/following-sibling::*[name() = $idml2xml:shape-element-names]
                       )">
         <xsl:copy>
           <xsl:apply-templates select="@*" mode="#current" />
@@ -219,7 +219,7 @@
                   select="$textframe/preceding-sibling::TextFrame[1]"/>
                 <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
                   <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                    <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle[ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
+                    <xsl:apply-templates select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names][ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
                   </CharacterStyleRange>
                   <Br/>
                 </ParagraphStyleRange>
@@ -227,7 +227,7 @@
               <xsl:otherwise>
                 <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
                   <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                    <xsl:apply-templates select="$textframe/preceding-sibling::Rectangle" mode="#current"/>
+                    <xsl:apply-templates select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names]" mode="#current"/>
                   </CharacterStyleRange>
                   <Br/>
                 </ParagraphStyleRange>
@@ -237,7 +237,7 @@
             <xsl:if test="not($textframe/following-sibling::TextFrame)">
               <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
                 <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">        
-                  <xsl:apply-templates select="$textframe/following-sibling::Rectangle" mode="#current"/>
+                  <xsl:apply-templates select="$textframe/following-sibling::*[name() = $idml2xml:shape-element-names]" mode="#current"/>
                 </CharacterStyleRange>
                 <Br/>
               </ParagraphStyleRange>
@@ -260,7 +260,7 @@
   <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->
   <xsl:template 
     match="*[
-              local-name() = ('Rectangle','GraphicLine', 'Oval') 
+              name() = $idml2xml:shape-element-names 
               or Group[not(TextFrame)]
             ]
             [
@@ -275,7 +275,7 @@
 
   <!-- anchored image: need an extra paragraph -->
   <xsl:template mode="idml2xml:DocumentResolveTextFrames"
-    match="Rectangle[not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" priority="2">
+    match="*[name() = $idml2xml:shape-element-names][not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" priority="2">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current" />
     </xsl:copy>
@@ -284,7 +284,7 @@
 
   <!-- -->
   <xsl:template mode="idml2xml:DocumentResolveTextFrames"
-    match="Group[not(ancestor::Spread)]/*[name() = ('Rectangle','GraphicLine', 'Oval')]" >
+    match="Group[not(ancestor::Spread)]/*[name() = $idml2xml:shape-element-names]" >
     <xsl:copy>
       <xsl:attribute name="idml2xml:keep-object" select="'true'"/>
       <xsl:apply-templates select="@*, node()" mode="#current" />
@@ -312,7 +312,7 @@
   </xsl:template>
 
   <!-- Remove existing tagging (recommended when generating Hub XML) -->
-  <xsl:template match="XMLElement[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template match="XMLElement[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames" priority="2">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   

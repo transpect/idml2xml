@@ -18,7 +18,7 @@
 
   <!--== mode: Images ==-->
 
-  <xsl:template match="Rectangle" mode="idml2xml:Images">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:Images">
     <xsl:variable name="metadata" as="xs:string"
       select="replace(Image/MetadataPacketPreference/Properties/Contents/text(), '\s|\n', '')" />
     <xsl:variable name="dpi-x" as="xs:integer?"
@@ -31,22 +31,27 @@
       select="xs:integer(tokenize(Image/@ActualPpi, ' ')[2])" />
     <xsl:variable name="PathPoints" as="node()*"
       select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
-    <xsl:variable name="CoordinateLeft" as="xs:double"
-      select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )" />
-    <xsl:variable name="CoordinateTop" as="xs:double"
-      select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )" />
-    <xsl:variable name="CoordinateRight" as="xs:double"
-      select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )" />
-    <xsl:variable name="CoordinateBottom" as="xs:double"
-      select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )" />
-    <xsl:message select="'                top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>
     <image>
       <xsl:if test="descendant::Link/@LinkResourceURI">
         <xsl:attribute name="src" select="descendant::Link/@LinkResourceURI"/>
       </xsl:if>
       <xsl:attribute name="type" select="replace(.//@ImageTypeName,'\$ID/','')"/>
-      <xsl:attribute name="width" select="(abs($CoordinateLeft) + abs($CoordinateRight)) * $dpi-x-original div 72"/>
-      <xsl:attribute name="height" select="(abs($CoordinateTop) + abs($CoordinateBottom)) * $dpi-y-original div 72"/>
+      <xsl:if test="self::Rectangle">
+        <xsl:variable name="CoordinateLeft" as="xs:double"
+          select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )"/>
+        <xsl:variable name="CoordinateTop" as="xs:double"
+          select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )"/>
+        <xsl:variable name="CoordinateRight" as="xs:double"
+          select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )"/>
+        <xsl:variable name="CoordinateBottom" as="xs:double"
+          select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )"/>
+        <xsl:message
+          select="'                top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>
+        <xsl:attribute name="width"
+          select="(abs($CoordinateLeft) + abs($CoordinateRight)) * $dpi-x-original div 72"/>
+        <xsl:attribute name="height"
+          select="(abs($CoordinateTop) + abs($CoordinateBottom)) * $dpi-y-original div 72"/>
+      </xsl:if>
       <xsl:if test="matches(Image/MetadataPacketPreference/Properties/Contents,'exif:PixelXDimension')">
         <xsl:attribute name="width-original" 
           select="replace(
