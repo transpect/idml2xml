@@ -5,6 +5,10 @@
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
   exclude-result-prefixes="aid xs idml2xml">
+  
+  <!-- Please note that this mode has side effects. For example, it will split links that contain 
+       nested style candidates, or it may put spaces that are at the beginning or end of a span 
+       out of that span. -->
 
   <xsl:key name="idml2xml:nested-style" match="AllNestedStyles" 
     use="idml2xml:style-descendants-and-self(../..)/@Self"/>
@@ -15,7 +19,7 @@
        styles. We are (safely?) assuming that derivative styles will always be serialized 
        after their base styles. So use the last() item of the sequence that the key() function 
        returns. This is the most specific one. If this document order / specificity assumption  
-       proves to be unwarranted, we’d have to evaluate the inheritance cascade more thoroughly. 
+       proves to be unwarranted, we’d have to evaluate the inheritance cascade more thoroughly.
   -->
 
   <!-- MODE: idml2xml:NestedStyles-create-separators 
@@ -24,11 +28,23 @@
   <xsl:template mode="idml2xml:NestedStyles-create-separators"
     match="*[@aid:pstyle]
             [key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))]">
+    <xsl:variable name="instructions" as="element(ListItem)+" 
+      select="key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))[last()]/ListItem"/>
+    <xsl:variable name="separator-regex-chars" as="xs:string?"
+      select="string-join(for $i in $instructions return idml2xml:NestedStyles-Delimiter-to-regex-chars($i), '')"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" 
-          select=".//text()[idml2xml:same-scope(., current())]"/>
+          select=".//text()[idml2xml:same-scope(., current())]
+                           [if ($separator-regex-chars) 
+                            then matches(., concat('[', $separator-regex-chars, ']'))
+                            else false()
+                           ]"/>
+        <xsl:with-param name="regex" tunnel="yes" 
+          select="if ($separator-regex-chars)
+                  then concat('[', $separator-regex-chars, ']')
+                  else ()"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
@@ -38,14 +54,14 @@
     We do support:
     Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord
     -->
-  <xsl:variable name="idml2xml:NestedStyles-separator-regex" as="xs:string"
-    select="'[\p{Zs}&#x2028;]'"/>
   
   <xsl:template match="text()" mode="idml2xml:NestedStyles-create-separators">
     <xsl:param name="potentially-sep-containing-text-nodes" as="text()*" tunnel="yes"/>
+    <xsl:param name="regex" as="xs:string?" tunnel="yes"/>
     <xsl:choose>
-      <xsl:when test="some $t in $potentially-sep-containing-text-nodes satisfies ($t is .)">
-        <xsl:analyze-string select="." regex="{$idml2xml:NestedStyles-separator-regex}">
+      <xsl:when test="$regex and
+                      (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
+        <xsl:analyze-string select="." regex="{$regex}">
           <xsl:matching-substring>
             <idml2xml:sep>
               <xsl:sequence select="."/>
@@ -165,27 +181,40 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  <xsl:function name="idml2xml:NestedStyles-Delimiter-to-regex-chars" as="xs:string?">
+    <xsl:param name="instruction" as="element(ListItem)"/>
+    <xsl:choose>
+      <xsl:when test="$instruction/Delimiter = 'EnSpace'">
+        <xsl:sequence select="'&#x2002;'"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = 'EmSpace'">
+        <xsl:sequence select="'&#x2003;'"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = 'ForcedLineBreak'">
+        <xsl:sequence select="'&#x2028;'"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = 'NonbreakingSpace'">
+        <xsl:sequence select="'&#xa0;&#x202f;'"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = 'AnyWord'">
+        <xsl:sequence select="'\p{Zs}'"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:function>
+  
   <xsl:function name="idml2xml:NestedStyles-splitting-point-candidates" as="element(*)*">
     <xsl:param name="nodes" as="node()*"/>
     <xsl:param name="instruction" as="element(ListItem)"/>
     <xsl:choose>
-      <xsl:when test="$instruction/Delimiter = 'EnSpace'">
-        <xsl:sequence select="$nodes/self::idml2xml:sep[. = '&#x2002;']"/>
-      </xsl:when>
-      <xsl:when test="$instruction/Delimiter = 'EmSpace'">
-        <xsl:sequence select="$nodes/self::idml2xml:sep[. = '&#x2003;']"/>
+      <xsl:when test="$instruction/Delimiter = ('EnSpace', 'EmSpace', 'ForcedLineBreak', 'NonbreakingSpace')">
+        <xsl:sequence 
+          select="$nodes/self::idml2xml:sep[matches(., concat('^[', idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), ']$'))]"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'Tabs'">
         <xsl:sequence select="$nodes/self::idml2xml:tab"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'IndentHereTab'">
         <xsl:sequence select="$nodes/self::idml2xml:tab[@ole = 'indent-to-here']"/>
-      </xsl:when>
-      <xsl:when test="$instruction/Delimiter = 'ForcedLineBreak'">
-        <xsl:sequence select="$nodes/self::idml2xml:sep[. = '&#x2028;']"/>
-      </xsl:when>
-      <xsl:when test="$instruction/Delimiter = 'NonbreakingSpace'">
-        <xsl:sequence select="$nodes/self::idml2xml:sep[. = ('&#xa0;', '&#x202f;')]"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
         <xsl:sequence select="$nodes/(self::idml2xml:sep | self::idml2xml:tab)
