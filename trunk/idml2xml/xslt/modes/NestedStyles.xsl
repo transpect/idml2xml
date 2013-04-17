@@ -61,9 +61,13 @@
     <xsl:choose>
       <xsl:when test="$regex and
                       (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
+        <xsl:variable name="context" select="." as="text()"/>
         <xsl:analyze-string select="." regex="{$regex}">
           <xsl:matching-substring>
-            <idml2xml:sep>
+            <!-- Record ancestors that are not plain character style ranges so that we can report them later 
+                 if they are split at this separator’s position: -->
+            <idml2xml:sep ancestors="{$context/(ancestor::* intersect ancestor::*[@aid:pstyle][1]/descendant::*)
+                                                  [not(self::idml2xml:genSpan[not(@AppliedConditions)])]/name()}">
               <xsl:sequence select="."/>
             </idml2xml:sep>
           </xsl:matching-substring>
@@ -161,6 +165,10 @@
             mode="idml2xml:NestedStyles-apply"/>
         </idml2xml:genSpan>
         <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
+        <xsl:if test="$splitting-point/@ancestors != ''">
+          <xsl:message>NestedStyles: Separator after '<xsl:value-of select="$nodes[. &lt;&lt; $splitting-point]"/>' 
+  has split the following elements: <xsl:value-of select="$splitting-point/@ancestors"/>. Please check.</xsl:message>
+        </xsl:if>
         <xsl:choose>
           <xsl:when test="exists($instructions[2])">
             <xsl:sequence
