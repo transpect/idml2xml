@@ -830,7 +830,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         </xsl:if>
         <phrase>
-          <xsl:if test="$role ne ''">
+          <xsl:if test="not($role = ('', 'No character style'))">
             <xsl:attribute name="role" select="$role"/>
           </xsl:if>
           <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath union @idml2xml:*)" as="attribute(*)*" />
