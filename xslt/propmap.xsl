@@ -61,6 +61,7 @@
         <prop name="idml2xml:idml2xml:rectangle-embedded-source" type="passthru" />
         <prop name="LinkResourceURI" type="passthru" />
         
+        <prop name="AppliedConditions" type="condition" />
         <prop name="AppliedFont" type="linear" target-name="css:font-family"/>
         <prop name="AppliedLanguage" type="lang" target-name="xml:lang" />
         <prop name="AppliedParagraphStyle" type="style-link" />
@@ -107,6 +108,11 @@
         <prop name="Hidden" target-name="css:display">
           <val eq="true" target-value="none"/>
           <val eq="false"/>
+        </prop>
+        <!-- For Condition elements: -->
+        <prop name="Visible" target-name="css:display" hubversion="1.1">
+          <val eq="false" target-value="none"/>
+          <val eq="true"/>
         </prop>
         <prop name="Justification">
           <!-- string "LeftAlign" | string "CenterAlign" | string "RightAlign" | 
