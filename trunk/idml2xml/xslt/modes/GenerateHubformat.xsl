@@ -68,12 +68,12 @@
               <xsl:with-param name="version" select="$hub-version" tunnel="yes"/>
             </xsl:call-template>
           </xsl:when>
-          <xsl:when test="$hub-version eq '1.1'">
+          <xsl:otherwise>
             <xsl:call-template name="idml2xml:hub-1.1-styles">
               <xsl:with-param name="version" select="$hub-version" tunnel="yes"/>
               <xsl:with-param name="all-styles" select="$all-styles" />
             </xsl:call-template>
-          </xsl:when>
+          </xsl:otherwise>
         </xsl:choose>
       </info>
       <xsl:apply-templates mode="#current"/>
@@ -230,7 +230,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:if>
     </xsl:variable>
     <xsl:sequence select="$raw-output" />
-<!--     <xsl:apply-templates select="$raw-output" mode="idml2xml:XML-Hubformat-add-properties2"/> -->
   </xsl:template>
 
   <xsl:template match="*[name() = $idml2xml:shape-element-names]/@Self" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
@@ -345,6 +344,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <idml2xml:attribute name="{../@target-name}">?</idml2xml:attribute>
           </xsl:otherwise>
         </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test=". eq 'condition'">
+        <idml2xml:attribute name="remap">HiddenText</idml2xml:attribute>
+        <idml2xml:attribute name="condition">
+          <xsl:value-of select="replace($val, 'Condition/', '')"/>
+        </idml2xml:attribute>
+        <xsl:apply-templates select="key('idml2xml:by-Self', tokenize($val, '\s+'), root($val))/@Visible" mode="#current"/>
       </xsl:when>
 
       <xsl:when test=". eq 'lang'">
@@ -537,7 +544,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </tab>
   </xsl:template>
 
-  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper | idml2xml:lang" mode="idml2xml:XML-Hubformat-add-properties" />
+  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper | idml2xml:lang | idml2xml:cond" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:copy-of select="." />
@@ -592,7 +599,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:function>
 
   <xsl:template match="idml2xml:attribute" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:attribute name="{@name}" select="." />
+    <xsl:choose>
+      <xsl:when test="matches(@name, '^\i\c*$')">
+        <xsl:attribute name="{@name}" select="." />    
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message>Cannot create attribute: <xsl:copy-of select="." copy-namespaces="no"/></xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
+    
   </xsl:template>
 
   <xsl:key name="idml2xml:css-rule-by-name" match="css:rule" use="@name"/>
@@ -690,14 +705,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                               else @type}" 
           select="@target" />
       </xsl:when>
-      <xsl:when test="$hub-version eq '1.1'">
+      <xsl:otherwise>
         <xsl:element name="linked-style">
           <xsl:attribute name="layout-type" select="if (@type eq 'AppliedParagraphStyle')
                                                     then 'para'
                                                     else @type" />
           <xsl:attribute name="name" select="@target"/>
         </xsl:element>
-      </xsl:when>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
@@ -789,18 +804,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
     <xsl:choose>
       <xsl:when test="$role eq 'No character style' 
+                      and not(@condition) 
                       and not(text()[matches(., '\S')]) 
                       and count(*) gt 0 and 
                       count(*) eq count(PageReference union HyperlinkTextSource union idml2xml:tab)">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
       <xsl:when test="$role eq 'No character style' 
+                      and not(@condition) 
                       and not(text()[matches(., '\S')]) 
                       and count(* except idml2xml:genAnchor) eq 0">
         <xsl:apply-templates mode="#current"/>
       </xsl:when>
       <xsl:when test="$role eq 'No character style' 
                       and text() 
+                      and not(@condition) 
                       and count(* except idml2xml:genAnchor) eq 0
                       and count(@* except (@aid:cstyle union @srcpath union @idml2xml:*)) eq 0
                       ">
@@ -921,15 +939,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </indexterm>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[@idml2xml:AppliedConditions]" priority="100" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <phrase remap="HiddenText" condition="{tokenize(substring-after(.//@idml2xml:AppliedConditions, 'Condition/'), '\s*Condition/')}">
-      <xsl:if test="$hub-version eq '1.1'">
-        <xsl:attribute name="css:display" select="'none'"/>
-      </xsl:if>
-      <xsl:next-match/>
-    </phrase>
-  </xsl:template>
-
+  <!-- §§§ does this still work? -->
   <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="page_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>

@@ -119,6 +119,9 @@
       <idml2xml:lang>
         <xsl:copy-of select="Language" />
       </idml2xml:lang>
+      <idml2xml:cond>
+        <xsl:copy-of select="Condition" />
+      </idml2xml:cond>
       <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame[$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
                                   | idPkg:Spread/Spread/Group[TextFrame][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]" 
         group-by="(@ParentStory, TextFrame/@ParentStory)">
