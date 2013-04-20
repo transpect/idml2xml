@@ -254,7 +254,8 @@
 
 	<xsl:template match="HyperlinkTextSource | CrossReferenceSource" mode="idml2xml:ExtractTagging">
     <xsl:variable name="hyperlink" select="key('hyperlink-by-source-id', @Self)" as="element(Hyperlink)?" />
-    <xsl:choose>
+    <!-- /!\ Cyclomatic complexity ahead -->
+	  <xsl:choose>
       <xsl:when test="empty($hyperlink)">
         <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
         No Hyperlink element found for source with @Self <xsl:value-of select="@Self"/>
@@ -262,52 +263,60 @@
         <xsl:apply-templates mode="#current" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="dest-id" select="$hyperlink/Properties/Destination//text()[not(parent::*/@type='long')]" as="xs:string" />
-        <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
-        <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)*" />
-        <xsl:variable name="name" select="replace($hyperlink/@Name, $idml2xml:indesign-link-name-suffix-regex, '')" as="xs:string" />
-        <xsl:variable name="external" select="empty($dest) and matches($dest-id, '[AMZ]_\d+_\d+\.indd')" as="xs:boolean" />
-        <xsl:if test="count($dest) gt 1">
-          <xsl:message>WRN: More than one link resolution for destination <xsl:value-of select="$dest-id" />:
-          <xsl:value-of select="$dest"/>
-            </xsl:message>
-        </xsl:if>
         <xsl:choose>
-          <xsl:when test="$external">
-            <xsl:variable name="external-dest" select="concat(replace($dest-id, '^.*?([^\\]+)$', '$1'), '/', $name)" as="xs:string" />
-            <idml2xml:link linkend="{$external-dest}" remap="ExternalHyperlinkTextDestination">
-              <xsl:apply-templates mode="#current" />
-            </idml2xml:link>
-          </xsl:when>
-          <xsl:when test="empty($dest)">
-            <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
-            No target found for hyperlink <xsl:value-of select="$dest-id"/>
-            </xsl:message>
+          <xsl:when test="not($hyperlink/Properties/Destination/@type = 'object')">
+            <xsl:message>Hyperlink <xsl:value-of select="$hyperlink/@Self"/> does not point to a destination in the document. (Source text: <xsl:value-of select="."/>)</xsl:message>  
             <xsl:apply-templates mode="#current" />
           </xsl:when>
           <xsl:otherwise>
+            <xsl:variable name="dest-id" select="$hyperlink/Properties/Destination//text()[not(parent::*/@type='long')]" as="xs:string" />
+            <xsl:variable name="target-element-name" select="substring-before($dest-id, '/')" as="xs:string" />
+            <xsl:variable name="dest" select="key('hyperlink-dest-by-self', $dest-id)" as="element(*)*" />
+            <xsl:variable name="name" select="replace($hyperlink/@Name, $idml2xml:indesign-link-name-suffix-regex, '')" as="xs:string" />
+            <xsl:variable name="external" select="empty($dest) and matches($dest-id, '[AMZ]_\d+_\d+\.indd')" as="xs:boolean" />
+            <xsl:if test="count($dest) gt 1">
+              <xsl:message>WRN: More than one link resolution for destination <xsl:value-of select="$dest-id" />:
+                <xsl:value-of select="$dest"/>
+              </xsl:message>
+            </xsl:if>
             <xsl:choose>
-              <xsl:when test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
-                <idml2xml:link linkend="{idml2xml:escape-id($dest-id)}" remap="{$target-element-name}">
+              <xsl:when test="$external">
+                <xsl:variable name="external-dest" select="concat(replace($dest-id, '^.*?([^\\]+)$', '$1'), '/', $name)" as="xs:string" />
+                <idml2xml:link linkend="{$external-dest}" remap="ExternalHyperlinkTextDestination">
                   <xsl:apply-templates mode="#current" />
                 </idml2xml:link>
               </xsl:when>
-              <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
-                <idml2xml:link linkend="id_{@Name}"  remap="{$target-element-name}">
-                  <xsl:apply-templates mode="#current" />
-                </idml2xml:link>
-              </xsl:when>
-              <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
-                <idml2xml:link xlink:href="{$dest/@DestinationURL}">
-                  <xsl:apply-templates mode="#current" />
-                </idml2xml:link>
+              <xsl:when test="empty($dest)">
+                <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
+                  No target found for hyperlink <xsl:value-of select="$dest-id"/>
+                </xsl:message>
+                <xsl:apply-templates mode="#current" />
               </xsl:when>
               <xsl:otherwise>
-                <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
-                Don't know how to handle <xsl:value-of select="$target-element-name"/> 
-                </xsl:message>
+                <xsl:choose>
+                  <xsl:when test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
+                    <idml2xml:link linkend="{idml2xml:escape-id($dest-id)}" remap="{$target-element-name}">
+                      <xsl:apply-templates mode="#current" />
+                    </idml2xml:link>
+                  </xsl:when>
+                  <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
+                    <idml2xml:link linkend="id_{@Name}"  remap="{$target-element-name}">
+                      <xsl:apply-templates mode="#current" />
+                    </idml2xml:link>
+                  </xsl:when>
+                  <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
+                    <idml2xml:link xlink:href="{$dest/@DestinationURL}">
+                      <xsl:apply-templates mode="#current" />
+                    </idml2xml:link>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
+                      Don't know how to handle <xsl:value-of select="$target-element-name"/> 
+                    </xsl:message>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:otherwise>
-            </xsl:choose>
+            </xsl:choose>    
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
