@@ -305,7 +305,7 @@
                     </idml2xml:link>
                   </xsl:when>
                   <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
-                    <idml2xml:link xlink:href="{$dest/@DestinationURL}">
+                    <idml2xml:link xlink:href="{$dest[1]/@DestinationURL}"><!-- only use first item, sometimes the link url appears twice, MK 2013-04-23 -->
                       <xsl:apply-templates mode="#current" />
                     </idml2xml:link>
                   </xsl:when>
