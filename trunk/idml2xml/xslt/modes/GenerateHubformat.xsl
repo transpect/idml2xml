@@ -653,7 +653,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
   <xsl:template match="idml2xml:attribute[matches(@name, '^(css:pseudo-marker|numbering-)')]" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:variable name="last-numbering-style" select="../idml2xml:attribute[@name = 'BulletsAndNumberingListType'][last()]" as="element(idml2xml:attribute)?" />
+    <!-- list-type: Hub 1.0 -->
+    <xsl:variable name="last-numbering-style" select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type')][last()]" as="element(idml2xml:attribute)?" />
     <xsl:if test="not($last-numbering-style = 'NoList')
                   and
                   not(@name = 'css:pseudo-marker_font-family' and . = '$ID/')">
