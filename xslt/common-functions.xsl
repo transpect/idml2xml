@@ -294,9 +294,12 @@
     <!-- Message, that an item will be removed will also be output for textframes containing continued stories -->
 
     <!-- workspace / spread -->
-    <xsl:variable name="corresponding-spread" as="element(Spread)" select="$item/ancestor::Spread"/>
+    <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
 
     <xsl:choose>
+      <xsl:when test="empty($corresponding-spread)">
+        <xsl:sequence select="false()"/>
+      </xsl:when>
       <!-- unsupported Spread/@ItemTransform value -->
       <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
         <xsl:message

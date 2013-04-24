@@ -87,19 +87,6 @@
   </xsl:template>
 
   <xsl:template match="/Document" mode="idml2xml:DocumentStoriesSorted">
-
-    <!-- debug messages: list informations about spread childs -->
-    <!--
-    <xsl:message select="'PageHeight:', xs:string(//@PageHeight)"/>
-    <xsl:message select="'PageWidth:', xs:string(//@PageWidth)"/>
-    <xsl:for-each select="//Spread">
-      <xsl:message select="' === SPREAD', xs:string(@Self), xs:string(@ItemTransform), @BindingLocation"/>
-      <xsl:for-each select=".//TextFrame union .//Group union .//Rectangle">
-        <xsl:message select="' ...', local-name(.), xs:string(@Self), xs:string(@ItemTransform), string-join(PathPointType/@*,'#'), 'TEXT:', substring(string-join($idml2xml:Document//Story[@Self eq current()/@ParentStory]//Content/text(),''), 0, 42)"/>    
-      </xsl:for-each>
-    </xsl:for-each>
-    -->
-
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:attribute name="TOCStyle_Title" select="//TOCStyle[@Title ne ''][1]/@Title"/>
@@ -122,34 +109,8 @@
       <idml2xml:cond>
         <xsl:copy-of select="Condition" />
       </idml2xml:cond>
-      <xsl:for-each-group select="  idPkg:Spread/Spread/TextFrame[$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
-                                  | idPkg:Spread/Spread/Group[TextFrame][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]" 
-        group-by="(@ParentStory, TextFrame/@ParentStory)">
-        <xsl:apply-templates
-          select="(current-group()/(self::TextFrame, self::Group/TextFrame)[@ParentStory eq current-grouping-key()])[1]"
-          mode="idml2xml:DocumentResolveTextFrames" />
-      </xsl:for-each-group>
-      <!-- apply content not in @select-term of preceding for-each-group -->
-      <xsl:apply-templates mode="idml2xml:DocumentResolveTextFrames"
-        select="//Spread/TextFrame/Group,
-                //Spread/Group[TextFrame]/Group,
-                //Spread//Group[
-                  not(
-                    ancestor::TextFrame[parent::Spread] or 
-                    ancestor-or-self::Group[TextFrame][parent::Spread]
-                  ) and (: do not include sub Groups in these Groups :)
-                  not(
-                    ancestor::Group[
-                      not(
-                        ancestor::TextFrame[parent::Spread] or 
-                        ancestor-or-self::Group[TextFrame][parent::Spread]
-                      )
-                    ]
-                  )
-                ]
-                , 
-                //Spread/*[name() = $idml2xml:shape-element-names],
-                //XmlStory" />
+      <xsl:apply-templates select=".//TextFrame[@PreviousTextFrame eq 'n'][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]" 
+        mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
 
@@ -177,7 +138,8 @@
     <xsl:message>HANDLE ME! (I'm in Document.xsl)</xsl:message>
     <xsl:next-match/>    
   </xsl:template>
-  
+
+    
 
   <xsl:template match="TextFrame[
                          parent::Spread or 
