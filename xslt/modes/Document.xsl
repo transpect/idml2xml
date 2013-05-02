@@ -239,7 +239,10 @@
     mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- anchored image: need an extra paragraph -->
-  <xsl:template mode="idml2xml:DocumentResolveTextFrames"
+  <!-- GI 2013-05-02: Why? Counterexample: SR 118, caption of Table 11.2. Inline image 
+    in a Rectangle with  <AnchoredObjectSetting AnchorYoffset="-3.1590519067328278"/>
+    There shouldn’t be a paragraph break after it. --> 
+  <xsl:template mode="idml2xml:DocumentResolveTextFrames_DISABLED"
     match="*[name() = $idml2xml:shape-element-names][not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" priority="2">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current" />
