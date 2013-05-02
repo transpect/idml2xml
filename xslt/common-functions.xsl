@@ -20,7 +20,7 @@
     as="xs:string+" />
   <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
-    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'CharacterStyleRange')" 
+    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'idml2xml:genCell', 'CharacterStyleRange')" 
     as="xs:string+" />
 
   <xsl:function name="idml2xml:substr">
