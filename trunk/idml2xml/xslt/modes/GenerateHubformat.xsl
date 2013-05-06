@@ -3,7 +3,6 @@
     version="2.0"
     xmlns:xsl = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs = "http://www.w3.org/2001/XMLSchema"
-    xmlns:xhtml = "http://www.w3.org/1999/xhtml"
     xmlns:css="http://www.w3.org/1996/css"
     xmlns:aid = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
@@ -13,6 +12,7 @@
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns="http://docbook.org/ns/docbook"
+    exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css"
     >
 
   <xsl:import href="../propmap.xsl"/>
