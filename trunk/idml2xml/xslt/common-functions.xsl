@@ -283,15 +283,15 @@
          matrix: see idml-specification.pdf
     -->
     <!-- Coordinations of items with PathPointArray:
-	 <PathPointArray>
-	   <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
-	   <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
-	   <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
-	   <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
-	 </PathPointArray>
+     <PathPointArray>
+       <PathPoint Anchor="{$left} {$top}" LeftDirection="{$left} {$top}" RightDirection="{$left} {$top}"/>
+       <PathPoint Anchor="{$left} {$bottom}" LeftDirection="{$left} {$bottom}" RightDirection="{$left} {$bottom}"/>
+       <PathPoint Anchor="{$right} {$bottom}" LeftDirection="{$right} {$bottom}" RightDirection="{$right} {$bottom}"/>
+       <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
+     </PathPointArray>
     -->
 
-    <!-- Message, that an item will be removed will also be output for textframes containing continued stories -->
+    <!-- Message that an item will be removed will also be output for textframes containing continued stories -->
 
     <!-- workspace / spread -->
     <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
@@ -303,19 +303,19 @@
       <!-- unsupported Spread/@ItemTransform value -->
       <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
         <xsl:message
-          select="'      WARNING: Spread for', local-name($item), 'does not fit standard settings. Item will be exported.'"/>
+          select="'      WARNING: Spread for', local-name($item), string($item/@Self), 'does not fit standard settings. Item will be exported.'"/>
         <xsl:sequence select="true()"/>
       </xsl:when>
 
       <!-- item is a Group and the group got no transformation,
            then look for each child if its on workspace -->
       <xsl:when test="$item/self::Group and substring($item/@ItemTransform, 0, 8) eq '1 0 0 1'">
-        <xsl:variable name="group-childs" as="node()*"
+        <xsl:variable name="group-children" as="node()*"
           select="$item/*[not(matches(local-name(), 'Preference|Option'))]"/>
         <xsl:choose>
           <xsl:when
             test="every $item
-                          in $group-childs
+                          in $group-children
                           satisfies not(idml2xml:item-is-on-workspace($item))">
             <xsl:sequence select="false()"/>
           </xsl:when>
@@ -332,7 +332,7 @@
           <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
             <xsl:message
               select="'      WARNING:', local-name($item), 
-				 'does not fit standard settings (in func idml2xml:item-is-on-workspace). Item will be exported.'"/>
+                 'does not fit standard settings (in func idml2xml:item-is-on-workspace). Item will be exported.'"/>
             <xsl:sequence select="true()"/>
           </xsl:when>
 
@@ -345,7 +345,7 @@
               select="if($corresponding-spread/@BindingLocation = 0) then 'left' else 'right'"/>
             <xsl:variable name="spread-x" as="xs:double"
               select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])"/>
-            <!--	    <xsl:variable name="spread-y" as="xs:double"
+            <!--        <xsl:variable name="spread-y" as="xs:double"
               select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
 -->
 
@@ -368,13 +368,12 @@
             <xsl:variable name="group-x" as="xs:double"
               select="if($item/ancestor::Group) 
                       then sum(
-			                  for $group in $item/ancestor::Group
-			                   return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
-			                )
+                              for $group in $item/ancestor::Group
+                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
+                            )
                       else 0"/>
 
-            <!--            <xsl:message select="'top:', $item-top, ' left:',
-		$item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
+<!--            <xsl:message select="'top:', $item-top, ' left:', $item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
 
             <xsl:variable name="item-real-center-x" as="xs:double"
               select="$spread-x + $item-x-center + $group-x"/>
@@ -385,59 +384,52 @@
             <xsl:variable name="item-real-right-x" as="xs:double"
               select="$item-real-center-x + $item-right"/>
 
-            <!--	    <xsl:variable name="corresponding-page" as="element(Page)?"
+            <!--        <xsl:variable name="corresponding-page" as="element(Page)?"
               select="if ($item/ancestor::Group)
-		      then $item/ancestor::Group[last()]/preceding-sibling::Page[1]
-		      else $item/preceding-sibling::Page[1]" />-->
+              then $item/ancestor::Group[last()]/preceding-sibling::Page[1]
+              else $item/preceding-sibling::Page[1]" />-->
             <xsl:variable name="page-width" as="xs:double"
               select="if( $corresponding-spread/Page[1]/@GeometricBounds ) 
-		      then xs:double(tokenize($corresponding-spread/Page[1]/@GeometricBounds, ' ')[4])
-		      else root($item)//DocumentPreference/@PageWidth"/>
+              then xs:double(tokenize($corresponding-spread/Page[1]/@GeometricBounds, ' ')[4])
+              else root($item)//DocumentPreference/@PageWidth"/>
 
             <xsl:variable name="left-page-available" as="xs:boolean"
               select="some $page 
-		      in $corresponding-spread/Page
-		      satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) lt 0"/>
+              in $corresponding-spread/Page
+              satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) lt 0.00001"/>
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
-		      in $corresponding-spread/Page
-		      satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) ge 0"/>
+              in $corresponding-spread/Page
+              satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) ge -0.00001"/>
 
             <!--
-	    <xsl:if test="$item/@Self = ('u152')">
-	      <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
-	      <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
-	      <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
-	      <xsl:message select="'DEBUG item-real-right-x:', $item-real-right-x"/>
-	      <xsl:message select="'DEBUG spread-binding:', $spread-binding, 'spread-x:', $spread-x"/>
-	      <xsl:message select="'DEBUG page width:', $page-width"/>
-	      <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
-	    </xsl:if>
+        <xsl:if test="$item/@Self = ('u152')">
+          <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
+          <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
+          <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
+          <xsl:message select="'DEBUG item-real-right-x:', $item-real-right-x"/>
+          <xsl:message select="'DEBUG spread-binding:', $spread-binding, 'spread-x:', $spread-x"/>
+          <xsl:message select="'DEBUG page width:', $page-width"/>
+          <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
+        </xsl:if>
 -->
+            <xsl:variable name="causes" as="element(cause)+">
+              <cause name="no page on left side" 
+                present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available}"/>
+              <cause name="no page on right side" 
+                present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available}"/>
+              <cause name="item placed outside of page left" 
+                present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + abs($page-width)}"/>
+              <cause name="item placed outside of page right" 
+                present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) gt $spread-x + ($page-width)}"/>
+            </xsl:variable>
 
             <!-- choose wether the item is on the workspace or not -->
             <xsl:choose>
 
               <!-- Item not on workspace -->
-              <xsl:when
-                test="( (: no page on left side :)
-			        $item-real-right-x lt 0 and not($left-page-available) and $right-page-available
-		              )
-			      or
-			      ( (: no page on right side :)
-			        $item-real-left-x gt 0 and not($right-page-available) and $left-page-available
-		              )
-			      or
-			      ( (: item placed outside of page left :)
-                                $item-real-center-x lt 0 and
-                                abs($item-real-right-x) gt $spread-x + abs($page-width)
-                              )
-			      or
-			      ( (: item placed outside of page right :)
-                                $item-real-center-x gt 0 and
-                                abs($item-real-left-x) gt $spread-x + ($page-width)
-                              )">
+              <xsl:when test="$causes[@present = 'true']">
                 <xsl:variable name="text-content" as="xs:string?"
                   select="substring(
                             string-join(root($item)//Story[@Self eq $item/@ParentStory]//Content/text(),''),
@@ -445,19 +437,20 @@
                             200
                           )"/>
                 <xsl:message
-                  select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). ',
-		  	    if (normalize-space($text-content)) 
-			      then concat('TEXT: ', $text-content) 
-			    else ''"/>
+                  select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON:', 
+                          string($causes[@present = 'true']/@name),
+                          if (normalize-space($text-content)) 
+                          then concat('TEXT: ', $text-content) 
+                          else ''"/>
                 <xsl:sequence select="false()"/>
               </xsl:when>
 
               <!-- item is above or below spread -->
               <!--
-	      <xsl:when test="">
-		<xsl:sequence select="false()"/>
-	      </xsl:when>
-	      -->
+          <xsl:when test="">
+        <xsl:sequence select="false()"/>
+          </xsl:when>
+          -->
 
               <!-- Item is on workspace-->
               <xsl:otherwise>
@@ -471,7 +464,7 @@
       <xsl:otherwise>
         <xsl:message
           select="'      WARNING: Element', local-name($item),
-			     'not yet supported in function idml2xml:item-is-on-workspace. Item will be exported.'"/>
+                 'not yet supported in function idml2xml:item-is-on-workspace. Item will be exported.'"/>
         <xsl:sequence select="true()"/>
       </xsl:otherwise>
     </xsl:choose>
