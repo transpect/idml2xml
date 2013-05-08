@@ -743,7 +743,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-  <xsl:template match="*[@aid:pstyle][.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" mode="idml2xml:XML-Hubformat-extract-frames">
+  <xsl:template match="*[@aid:pstyle]
+                        [.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" mode="idml2xml:XML-Hubformat-extract-frames">
     <xsl:variable name="frames" as="element(idml2xml:genFrame)+">
       <xsl:sequence select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
     </xsl:variable>
@@ -764,7 +765,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="elt" as="element(*)" />
     <xsl:param name="ancestor" as="element(*)" />
     <xsl:sequence select="matches(
-                            string-join($ancestor//text()[. &gt;&gt; $elt] except $ancestor//idml2xml:genFrame//text(), ''),
+                            string-join(
+                              $ancestor//text()[. &gt;&gt; $elt] 
+                              except $ancestor//idml2xml:genFrame//text(),
+                              ''
+                            ),
                             '\S'
                           )" />
   </xsl:function>
@@ -772,6 +777,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames">
     <idml2xml:genAnchor xml:id="{generate-id()}"/>
   </xsl:template>
+
+  <!-- Frames in Groups that are anchored in inline text. These groups don’t have a child
+       with an @aid:pstyle. Therefore, the genFrame extraction template above (first in mode)
+       doesn’t match. But the immediately preceding template would match indeed, effectively
+       throwing away the figure caption in case of Hogrefe 101026_02142_FPT Abbildung 1. §§§ Create a test case -->
+  <xsl:template match="idml2xml:genFrame[ancestor::idml2xml:genFrame[@idml2xml:elementName eq 'Group'][*/@aid:cstyle]]" 
+    mode="idml2xml:XML-Hubformat-extract-frames">
+    <idml2xml:genAnchor xml:id="{generate-id()}"/>
+    <xsl:apply-templates select="." mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
+  </xsl:template>
+  
 
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
     <xsl:copy>
