@@ -109,7 +109,10 @@
       <idml2xml:cond>
         <xsl:copy-of select="Condition" />
       </idml2xml:cond>
-      <xsl:apply-templates select=".//TextFrame[@PreviousTextFrame eq 'n'][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]" 
+      <xsl:apply-templates 
+        select=".//TextFrame[@PreviousTextFrame eq 'n'][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)],
+                //Spread/*[name() = $idml2xml:shape-element-names],
+                //XmlStory" 
         mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
