@@ -628,8 +628,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="style" select="key('idml2xml:css-rule-by-name', 
                                            ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])"
                   as="element(css:rule)?"/>
-    <xsl:variable name="last-fill-tint" select="($style | ..)/idml2xml:attribute[@name = ('fill-tint','fill-value')][last()]" as="element(idml2xml:attribute)?" />
-    <xsl:variable name="tinted" as="xs:string">
+	<xsl:variable name="last-fill-tint" select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint','fill-value')])[last()]" as="element(idml2xml:attribute)?" />    <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
         <xsl:sequence select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
