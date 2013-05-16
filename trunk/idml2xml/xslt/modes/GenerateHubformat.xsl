@@ -1085,10 +1085,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
     <informaltable>
+      <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
         <xsl:for-each select="1 to xs:integer(@aid:tcols)">
-          <colspec>
+          <colspec colname="c{position()}" width="">
             <xsl:attribute name="colname" select="concat('c',position())"/>
           </colspec>
         </xsl:for-each>
