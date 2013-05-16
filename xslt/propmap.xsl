@@ -85,6 +85,7 @@
           <val eq="CapToSmallCap" target-name="css:text-transform" target-value="uppercase"/><!-- ? -->
         </prop>
         <prop name="aid:ccolwidth" type="length" target-name="css:width"/>
+        <prop name="idml2xml:width" type="length" target-name="css:width"/>
         <prop name="CharacterDirection" target-name="css:direction">
           <val eq="DefaultDirection" target-value="ltr"/>
           <val eq="LeftToRightDirection" target-value="ltr"/>
