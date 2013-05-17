@@ -41,7 +41,7 @@
   </p:output>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
-  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-unzip/ltx-lib.xpl" />
+  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />
   <p:import href="http://transpect.le-tex.de/xproc-util/store-debug/store-debug.xpl"/>
   
   <letex:unzip name="unzip">
