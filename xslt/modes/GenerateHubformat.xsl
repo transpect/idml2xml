@@ -1158,7 +1158,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:variable>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" css:width="{$image-info/@width}" css:height="{$image-info/@height}"/>
+        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px"/>
       </imageobject>
     </mediaobject>
   </xsl:template>
