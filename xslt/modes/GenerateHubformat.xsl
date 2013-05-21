@@ -212,6 +212,10 @@
   </xsl:template>
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
 
+  <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:apply-templates mode="#current"/>
+    <xsl:copy-of select="."/>
+  </xsl:template>
 
   <!-- 
 remap and output indesign attribute+property settings to hub format
@@ -1148,12 +1152,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="my-number" as="xs:integer"
       select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id(.))" />
     <xsl:variable name="suffix" as="xs:string"
-      select="if ($my-number gt 1)
-              then concat('_', string($my-number))
-              else ''"/>
+      select="letex:identical-self-object-suffix(.)"/>
+    <xsl:variable name="image-info" as="element(image)">
+      <xsl:apply-templates select="." mode="idml2xml:Images"/>
+    </xsl:variable>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}"/>
+        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" width="{$image-info/@width}" depth="{$image-info/@height}"/>
       </imageobject>
     </mediaobject>
   </xsl:template>

@@ -2,6 +2,7 @@
 <xsl:stylesheet version="2.0"
   xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
   xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
+  xmlns:letex    = "http://www.le-tex.de/namespace"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
@@ -31,6 +32,9 @@
       select="xs:integer(tokenize(Image/@ActualPpi, ' ')[2])" />
     <xsl:variable name="PathPoints" as="node()*"
       select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
+    <xsl:variable name="suffix" as="xs:string"
+      select="letex:identical-self-object-suffix(.)"/>
+
     <image>
       <xsl:if test="descendant::Link/@LinkResourceURI">
         <xsl:attribute name="src" select="descendant::Link/@LinkResourceURI"/>
@@ -45,8 +49,6 @@
           select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )"/>
         <xsl:variable name="CoordinateBottom" as="xs:double"
           select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )"/>
-        <xsl:message
-          select="'                top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>
         <xsl:attribute name="width"
           select="(abs($CoordinateLeft) + abs($CoordinateRight)) * $dpi-x-original div 72"/>
         <xsl:attribute name="height"
@@ -68,8 +70,9 @@
       <xsl:attribute name="dpi-y" select="$dpi-y" />
       <xsl:attribute name="dpi-x-original" select="$dpi-x-original" />
       <xsl:attribute name="dpi-y-original" select="$dpi-y-original" />
-      <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self)" />
-      <xsl:message select="concat('Processing Image, @Self: ', @Self)"/>
+      <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, letex:identical-self-object-suffix(.))" />
+<!--      <xsl:message select="concat('Processing Image, @Self: ', @Self)"/>-->
+<!--      <xsl:message select="'  #- top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>-->
     </image>
   </xsl:template>
 

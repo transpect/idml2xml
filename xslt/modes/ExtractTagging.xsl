@@ -363,7 +363,7 @@
 
 
 	<!-- delete the following elements and their children-->
-	<xsl:template match=" Properties |
+	<xsl:template match=" Properties[not(parent::*[name() = $idml2xml:shape-element-names])] |
                         StoryPreference |
 												InCopyExportOption"
 		mode="idml2xml:ExtractTagging"/>
