@@ -2,11 +2,12 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
+    xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs idPkg"
+    exclude-result-prefixes = "xs idPkg letex"
 >
   
   <xsl:include href="hex/hex.xsl"/>
@@ -22,6 +23,17 @@
     name="idml2xml:idml-scope-terminal-names"
     select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'idml2xml:genCell', 'CharacterStyleRange')" 
     as="xs:string+" />
+
+  <xsl:function name="letex:identical-self-object-suffix" as="xs:string">
+    <xsl:param name="self-object" />
+    <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', $self-object/@Self, root($self-object))" as="element(*)+" />
+    <xsl:variable name="my-number" as="xs:integer"
+      select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id($self-object))" />
+    <xsl:sequence
+      select="if ($my-number gt 1)
+              then concat('_', string($my-number))
+              else ''"/>
+  </xsl:function>
 
   <xsl:function name="idml2xml:substr">
     <xsl:param name="direction" as="xs:string"/> <!-- before: b, after: a -->
