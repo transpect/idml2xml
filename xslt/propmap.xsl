@@ -55,6 +55,7 @@
         <prop name="remap" type="passthru" />
         <prop name="annotations" type="passthru" />
         <prop name="role" type="passthru" />
+        <prop name="SingleColumnWidth" type="passthru"/>
         <prop name="srcpath" type="passthru" />
         <prop name="idml2xml:elementName" type="passthru" />
         <prop name="idml2xml:keep-object" type="passthru" />
