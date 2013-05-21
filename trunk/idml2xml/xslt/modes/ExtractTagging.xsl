@@ -161,11 +161,15 @@
 		       XmlStory | 
 		       ParagraphStyleRange |
 		       CharacterStyleRange |
-		       Table | Row | Column | Cell[node()]
+		       Table | Row | Cell[node()]
 		       "
 		mode="idml2xml:ExtractTagging">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
+
+  <!--<xsl:template match="Column" mode="idml2xml:ExtractTagging">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>-->
 
   <xsl:template match="ParagraphStyleRange[@AppliedParagraphStyle eq 'ParagraphStyle/Rectangle']" mode="idml2xml:ExtractTagging">
     <idml2xml:genPara>

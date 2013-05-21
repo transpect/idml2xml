@@ -1086,17 +1086,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- BEGIN: tables -->
 
+  <xsl:template match="Column" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <colspec colname="c{position()}" colwidth="{idml2xml:pt-length(@SingleColumnWidth)}">
+      <xsl:attribute name="colname" select="concat('c',position())"/>
+    </colspec>
+  </xsl:template>
+
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
     <informaltable>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
-        <xsl:for-each select="1 to xs:integer(@aid:tcols)">
-          <colspec colname="c{position()}" width="">
-            <xsl:attribute name="colname" select="concat('c',position())"/>
-          </colspec>
-        </xsl:for-each>
+        <xsl:apply-templates select="Column" mode="#current"/>
         <xsl:if test="number(@idml2xml:header-row-count) gt 0">
           <thead>
             <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
@@ -1117,10 +1119,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <row>
       <xsl:for-each select="current-group()">
         <entry>
+          <xsl:apply-templates select="@xml:*, @css:*" mode="#current"/>
+          <xsl:variable name="col" select="xs:integer(@idml2xml:colname)+1" as="xs:integer"/>
+          <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" as="xs:integer"/>
           <xsl:choose>
             <xsl:when test="number(@aid:ccols) gt 1">
-              <xsl:attribute name="namest" select="concat('c',number(@idml2xml:colname)+1)"/>
-              <xsl:attribute name="nameend" select="concat('c',number(@idml2xml:colname)+number(@aid:ccols))"/>
+              <xsl:attribute name="namest" select="concat('c',$col)"/>
+              <xsl:attribute name="nameend" select="concat('c',$col + $colspan - 1)"/>
+              <xsl:attribute name="css:width" 
+                select="idml2xml:pt-length(string(sum(../Column/@SingleColumnWidth[position() = ($col to $col + $colspan - 1)])))"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
@@ -1130,7 +1137,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
           </xsl:if>
           <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:cellstyle)"/>
-          <xsl:apply-templates select="@xml:*, @css:*, node()" mode="#current"/>
+          <xsl:apply-templates mode="#current"/>
         </entry>
       </xsl:for-each>
     </row>
