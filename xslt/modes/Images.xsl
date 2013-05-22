@@ -7,7 +7,7 @@
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  exclude-result-prefixes = "idPkg aid5 aid xs"
+  exclude-result-prefixes = "idPkg aid5 aid xs letex"
 >
 
   <!--== KEYs ==-->
@@ -22,14 +22,22 @@
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:Images">
     <xsl:variable name="metadata" as="xs:string"
       select="replace(Image/MetadataPacketPreference/Properties/Contents/text(), '\s|\n', '')" />
-    <xsl:variable name="dpi-x" as="xs:integer?"
-      select="xs:integer(tokenize(Image/@EffectivePpi, ' ')[1])" />
-    <xsl:variable name="dpi-y" as="xs:integer?"
-      select="xs:integer(tokenize(Image/@EffectivePpi, ' ')[2])" />
-    <xsl:variable name="dpi-x-original" as="xs:integer?"
-      select="xs:integer(tokenize(Image/@ActualPpi, ' ')[1])" />
-    <xsl:variable name="dpi-y-original" as="xs:integer?"
-      select="xs:integer(tokenize(Image/@ActualPpi, ' ')[2])" />
+    <xsl:variable name="dpi-x" as="xs:integer"
+      select="if(Image/@EffectivePpi) 
+              then xs:integer(tokenize(Image/@EffectivePpi, ' ')[1])
+              else 150" />
+    <xsl:variable name="dpi-y" as="xs:integer"
+      select="if(Image/@EffectivePpi)
+              then xs:integer(tokenize(Image/@EffectivePpi, ' ')[2])
+              else 150" />
+    <xsl:variable name="dpi-x-original" as="xs:string"
+      select="if(Image/@ActualPpi)
+              then xs:string(tokenize(Image/@ActualPpi, ' ')[1])
+              else 'NaN'" />
+    <xsl:variable name="dpi-y-original" as="xs:string"
+      select="if(Image/@ActualPpi)
+              then xs:string(tokenize(Image/@ActualPpi, ' ')[2])
+              else 'NaN'" />
     <xsl:variable name="PathPoints" as="node()*"
       select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
     <xsl:variable name="suffix" as="xs:string"
@@ -49,10 +57,53 @@
           select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )"/>
         <xsl:variable name="CoordinateBottom" as="xs:double"
           select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )"/>
+        <xsl:variable name="width" as="xs:double">
+          <xsl:choose>
+            <xsl:when test="$CoordinateLeft gt 0 and $CoordinateRight gt 0">
+              <xsl:sequence select="$CoordinateRight - $CoordinateLeft"/>
+            </xsl:when>
+            <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight lt 0">
+              <xsl:sequence select="abs($CoordinateLeft - $CoordinateRight)"/>
+            </xsl:when>
+            <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight gt 0">
+              <xsl:sequence select="abs($CoordinateLeft) + $CoordinateRight"/>
+            </xsl:when>
+            <!-- shape transformed, unsupported -->
+            <xsl:otherwise>
+              <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name(.), ' (', @Self, ') with not yet implemented transformation settings.')"/>
+              <xsl:sequence select="xs:double('0')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="height" as="xs:double">
+          <xsl:choose>
+            <xsl:when test="$CoordinateLeft">
+              <xsl:sequence select="$CoordinateBottom - $CoordinateTop"/>
+            </xsl:when>
+            <!-- shape transformed, unsupported -->
+            <xsl:otherwise>
+              <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name(.), ' (', @Self, ') with not yet implemented transformation settings.')"/>
+              <xsl:sequence select="xs:double('0')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
         <xsl:attribute name="width"
-          select="(abs($CoordinateLeft) + abs($CoordinateRight)) * $dpi-x-original div 72"/>
+          select="$width * $dpi-x div 72"/>
         <xsl:attribute name="height"
-          select="(abs($CoordinateTop) + abs($CoordinateBottom)) * $dpi-y-original div 72"/>
+          select="$height"/>
+<!--
+      <xsl:message select="concat('Processing shape ', local-name(), ', @Self: ', @Self, 
+                                  ', Linked image filename: ', tokenize(descendant::Link[1]/@LinkResourceURI, '/')[last()])"/>
+      <xsl:message select="'       top:', $CoordinateTop, 
+                           '&#xa;      left:', $CoordinateLeft, 
+                           '&#xa;     right:', $CoordinateRight, 
+                           '&#xa;    bottom:', $CoordinateBottom, 
+                           '&#xa;width (pt):', $width,
+                           '&#xa;height(pt):', $height,
+                           '&#xa;width (px):', $width * $dpi-x div 72, ' (= width in pt * actual dpi-x div 72; dpi-x =', $dpi-x, ')',
+                           '&#xa;height(px):', $height * $dpi-y div 72, ' (= height in pt * actual dpi-y div 72; dpi-y =', $dpi-y, ')', '&#xa;'"/>
+-->
       </xsl:if>
       <xsl:if test="matches(Image/MetadataPacketPreference/Properties/Contents,'exif:PixelXDimension')">
         <xsl:attribute name="width-original" 
@@ -71,8 +122,6 @@
       <xsl:attribute name="dpi-x-original" select="$dpi-x-original" />
       <xsl:attribute name="dpi-y-original" select="$dpi-y-original" />
       <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, letex:identical-self-object-suffix(.))" />
-<!--      <xsl:message select="concat('Processing Image, @Self: ', @Self)"/>-->
-<!--      <xsl:message select="'  #- top:', $CoordinateTop, ' left:',$CoordinateLeft, ' right:', $CoordinateRight, ' bottom:',$CoordinateBottom"/>-->
     </image>
   </xsl:template>
 
