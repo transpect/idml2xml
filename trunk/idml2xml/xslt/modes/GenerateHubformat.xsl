@@ -1163,7 +1163,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="image-info" as="element(image)">
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
     </xsl:variable>
-    <mediaobject>
+    <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <imageobject>
         <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px"/>
       </imageobject>
