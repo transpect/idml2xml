@@ -408,7 +408,7 @@
             <xsl:variable name="left-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) lt 0.00001"/>
+              satisfies (xs:double(tokenize($page/@ItemTransform, ' ')[5]) lt 0.00001 and not($spread-binding eq 'left'))"/>
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
