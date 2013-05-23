@@ -22,22 +22,22 @@
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:Images">
     <xsl:variable name="metadata" as="xs:string"
       select="replace(Image/MetadataPacketPreference/Properties/Contents/text(), '\s|\n', '')" />
-    <xsl:variable name="dpi-x" as="xs:integer"
+    <xsl:variable name="dpi-x" as="xs:double"
       select="if(Image/@EffectivePpi) 
-              then xs:integer(tokenize(Image/@EffectivePpi, ' ')[1])
+              then xs:double(tokenize(Image/@EffectivePpi, ' ')[1])
               else 150" />
-    <xsl:variable name="dpi-y" as="xs:integer"
+    <xsl:variable name="dpi-y" as="xs:double"
       select="if(Image/@EffectivePpi)
-              then xs:integer(tokenize(Image/@EffectivePpi, ' ')[2])
+              then xs:double(tokenize(Image/@EffectivePpi, ' ')[2])
               else 150" />
-    <xsl:variable name="dpi-x-original" as="xs:string"
+    <xsl:variable name="dpi-x-original" as="xs:double"
       select="if(Image/@ActualPpi)
-              then xs:string(tokenize(Image/@ActualPpi, ' ')[1])
-              else 'NaN'" />
-    <xsl:variable name="dpi-y-original" as="xs:string"
+              then xs:double(tokenize(Image/@ActualPpi, ' ')[1])
+              else 150" />
+    <xsl:variable name="dpi-y-original" as="xs:double"
       select="if(Image/@ActualPpi)
-              then xs:string(tokenize(Image/@ActualPpi, ' ')[2])
-              else 'NaN'" />
+              then xs:double(tokenize(Image/@ActualPpi, ' ')[2])
+              else 150" />
     <xsl:variable name="PathPoints" as="node()*"
       select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
     <xsl:variable name="suffix" as="xs:string"
@@ -89,9 +89,14 @@
         </xsl:variable>
 
         <xsl:attribute name="width"
-          select="$width * $dpi-x div 72"/>
+          select="$width * $dpi-x-original div 72"/>
         <xsl:attribute name="height"
-          select="$height"/>
+          select="$height * $dpi-y-original div 72"/>
+
+        <xsl:attribute name="shape-width"
+          select="concat($width, 'pt')"/>
+        <xsl:attribute name="shape-height"
+          select="concat($height, 'pt')"/>
 <!--
       <xsl:message select="concat('Processing shape ', local-name(), ', @Self: ', @Self, 
                                   ', Linked image filename: ', tokenize(descendant::Link[1]/@LinkResourceURI, '/')[last()])"/>
@@ -99,10 +104,10 @@
                            '&#xa;      left:', $CoordinateLeft, 
                            '&#xa;     right:', $CoordinateRight, 
                            '&#xa;    bottom:', $CoordinateBottom, 
-                           '&#xa;width (pt):', $width,
-                           '&#xa;height(pt):', $height,
-                           '&#xa;width (px):', $width * $dpi-x div 72, ' (= width in pt * actual dpi-x div 72; dpi-x =', $dpi-x, ')',
-                           '&#xa;height(px):', $height * $dpi-y div 72, ' (= height in pt * actual dpi-y div 72; dpi-y =', $dpi-y, ')', '&#xa;'"/>
+                           '&#xa;width (pt):', $width, '(shape)',
+                           '&#xa;height(pt):', $height, '(shape)',
+                           '&#xa;width (px):', ($width * $dpi-x-original) div 72, ' (image; = height in pt * original dpi-y div 72; dpi-x =', $dpi-x-original, ')',
+                           '&#xa;height(px):', ($height * $dpi-y-original) div 72, ' (image; = height in pt * original dpi-y div 72; dpi-y =', $dpi-y-original, ')', '&#xa;'"/>
 -->
       </xsl:if>
       <xsl:if test="matches(Image/MetadataPacketPreference/Properties/Contents,'exif:PixelXDimension')">
@@ -117,10 +122,10 @@
                     '^.*exif:PixelYDimension.(\d+).*$',
                     '$1')"/>
       </xsl:if>
-      <xsl:attribute name="dpi-x" select="$dpi-x" />
-      <xsl:attribute name="dpi-y" select="$dpi-y" />
-      <xsl:attribute name="dpi-x-original" select="$dpi-x-original" />
-      <xsl:attribute name="dpi-y-original" select="$dpi-y-original" />
+      <xsl:attribute name="dpi-x" select="if(Image/@EffectivePpi) then $dpi-x else 'nil'" />
+      <xsl:attribute name="dpi-y" select="if(Image/@EffectivePpi) then $dpi-y else 'nil'" />
+      <xsl:attribute name="dpi-x-original" select="if(Image/@EffectivePpi) then $dpi-x-original else 'nil'" />
+      <xsl:attribute name="dpi-y-original" select="if(Image/@EffectivePpi) then $dpi-y-original else 'nil'" />
       <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, letex:identical-self-object-suffix(.))" />
     </image>
   </xsl:template>
