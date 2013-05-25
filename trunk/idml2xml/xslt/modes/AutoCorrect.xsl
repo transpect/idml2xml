@@ -85,7 +85,15 @@
     </xsl:copy>
   </xsl:template>
 
-
+  <!-- default handler, with the slight modification that it collects its ancestor ParagraphStyleRange’s @srcpath attribute -->
+  <xsl:template match="idml2xml:genPara" mode="idml2xml:AutoCorrect">
+    <xsl:copy>
+      <xsl:apply-templates select="parent::idml2xml:ParagraphStyleRange/@srcpath, @*" mode="#current"/>
+      <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac13'), ' ')" />
+      <xsl:apply-templates mode="#current" />
+    </xsl:copy>
+  </xsl:template>
+  
   <xsl:template 
     match="idml2xml:genPara[count(distinct-values(for $p in *[@aid:pstyle] return name($p))) eq 1]" 
     mode="idml2xml:AutoCorrect">
