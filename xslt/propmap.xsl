@@ -158,7 +158,7 @@
         <prop name="SpaceAfter" type="length" target-name="css:margin-bottom" />
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
         <prop name="StartParagraph" target-name="css:page-break-before">
-          <val match="Anywhere|NextColumn|NextFrame|NextPage" target-value="always"/>
+          <val match="NextColumn|NextFrame|NextPage" target-value="always"/>
           <val eq="NextOddPage" target-value="left"/>
           <val eq="NextEvenPage" target-value="right"/>
         </prop>
