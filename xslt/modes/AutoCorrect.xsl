@@ -149,7 +149,7 @@
   <xsl:template match="  idml2xml:pstylerange[ not( node() ) ] 
                        | idml2xml:cstylerange[ not( node() ) ]
                        | idml2xml:genPara[ not( node() ) ]
-                       | para[ not( node() ) ]" mode="idml2xml:AutoCorrect" priority="0" />
+                       | para[ not( node() ) ]" mode="idml2xml:AutoCorrect" priority="0.25" />
 
 
 
