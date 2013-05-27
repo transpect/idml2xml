@@ -109,13 +109,59 @@
       <idml2xml:cond>
         <xsl:copy-of select="Condition" />
       </idml2xml:cond>
+      <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
+        value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
+        don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 
+        ancestor. 
+        In addition, if $use-StoryID-conditional-text-for-anchoring is true, processing of TextFrames will be suppressed if
+        they contain a Story whose StoryID conditional text matches a StoryRef somewhere else. The first TextFrame that contains
+        such a StoryID will be processed in lieu of any StoryRef conditional text with the same content. -->
       <xsl:apply-templates 
-        select=".//TextFrame[@PreviousTextFrame eq 'n'][$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)],
+        select=".//TextFrame[@PreviousTextFrame eq 'n']
+                            [$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
+                            [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))],
                 //Spread/*[name() = $idml2xml:shape-element-names],
                 //XmlStory" 
         mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
+
+  <!-- there may be multiple StoryRefs in a Story, but only one StoryID -->
+  <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
+    use=".//*[@AppliedConditions eq 'Condition/StoryRef']"/>
+  
+  <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. eq 'Condition/StoryID']]"
+    use="string-join(.//*[@AppliedConditions eq 'Condition/StoryID'], '')"/>
+  
+  <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
+  <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
+  
+  <xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
+    <xsl:param name="frame" as="element(TextFrame)"/>
+    <xsl:variable name="id" as="xs:string?" select="string-join(key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions eq 'Condition/StoryID'], '')"/>
+    <xsl:sequence select="exists(key('referencing-Story-by-StoryID', $id, root($frame)))"/>
+  </xsl:function>
+
+  <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:variable name="story" select="key('Story-by-StoryID', .)" as="element(Story)?"/>
+      <TextFrame>
+        <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
+        <xsl:apply-templates select="$story" mode="#current"/>
+      </TextFrame>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="HiddenText[.//@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="HiddenText[.//@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
+
+  <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
+  
+  <xsl:template match="@AppliedConditions[. eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
@@ -156,6 +202,7 @@
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
+
   <xsl:template match="TextFrame[
                          not(
                            parent::Spread or 

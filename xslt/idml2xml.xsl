@@ -98,6 +98,11 @@
   <xsl:param name="hub-other-elementnames-whitelist" select="''" as="xs:string"/>
 
   <xsl:param name="output-items-not-on-workspace" select="'no'" as="xs:string"/>
+  <!-- Text with the condition StoryID for attaching IDs to Stories. 
+       Text with the condition StoryRef for anchoring these Stories. 
+       (We’re not talking about anchoring TextFrames here because this
+       mechanism actually works on Story Level) -->
+  <xsl:param name="use-StoryID-conditional-text-for-anchoring" select="'yes'" as="xs:string"/>
   <xsl:param name="output-deleted-text" select="'no'" as="xs:string"/>
 
   <xsl:param name="hub-version" select="'1.0'" as="xs:string"/>
