@@ -969,11 +969,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- §§§ does this still work? -->
-  <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="HiddenText[matches((.//@condition)[1], 'PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="page_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
-  <xsl:template match="HiddenText[matches((.//@*:AppliedConditions)[1], 'Condition/PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="HiddenText[matches((.//@condition)[1], 'PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <anchor xml:id="pageend_{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
@@ -994,7 +994,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="*:HiddenText[
-                         not(.//@AppliedConditions) and 
+                      not(.//@condition) and 
                          count(node()) eq 1 and 
                          idml2xml:genPara[not(node())]
                        ] |
