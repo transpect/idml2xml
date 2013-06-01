@@ -984,8 +984,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="*:HiddenText" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <sidebar remap="HiddenText" 
-      condition="{tokenize(substring-after(.//@idml2xml:AppliedConditions, 'Condition/'), '\s*Condition/')}">
+    <sidebar remap="HiddenText">
+      <xsl:apply-templates select=".//@condition" mode="#current"/>
       <xsl:if test="$hub-version eq '1.1'">
         <xsl:attribute name="css:display" select="'none'"/>
       </xsl:if>
