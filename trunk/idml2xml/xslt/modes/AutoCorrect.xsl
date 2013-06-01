@@ -78,13 +78,6 @@
     </idml2xml:genPara>
   </xsl:template>
 
-  <!-- let stay empty cells -->
-  <xsl:template match="idml2xml:genPara[@aid:table = 'cell' and not(node())]" mode="idml2xml:AutoCorrect">
-    <xsl:copy>
-      <xsl:apply-templates select="@*" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
-
   <!-- default handler, with the slight modification that it collects its ancestor ParagraphStyleRange’s @srcpath attribute -->
   <xsl:template match="idml2xml:genPara" mode="idml2xml:AutoCorrect">
     <xsl:copy>
@@ -145,12 +138,6 @@
     </xsl:if>
     <xsl:attribute name="aid:pstyle" select="." />
   </xsl:template>
-
-  <xsl:template match="  idml2xml:pstylerange[ not( node() ) ] 
-                       | idml2xml:cstylerange[ not( node() ) ]
-                       | idml2xml:genPara[ not( node() ) ]
-                       | para[ not( node() ) ]" mode="idml2xml:AutoCorrect" priority="0.25" />
-
 
 
 
