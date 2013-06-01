@@ -214,7 +214,7 @@
       <xsl:when test="exists(. intersect $local-leaves-ancestors)">
 <!--         <c6/> -->
         <xsl:copy>
-          <xsl:copy-of select="@*" />
+          <xsl:copy-of select="$local-leaves[self::Br]/../@ParagraphBreakType, @*" />
           <xsl:apply-templates mode="#current" />
         </xsl:copy>
       </xsl:when>
