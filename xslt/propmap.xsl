@@ -146,6 +146,11 @@
         <prop name="NumberingStartAt" target-name="numbering-starts-at" type="linear"/>
         <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
         <prop name="NumberingContinue" target-name="numbering-continue" type="linear"/>
+        <prop name="ParagraphBreakType"  target-name="css:page-break-after">
+          <val match="NextColumn|NextFrame|NextPage" target-value="always"/>
+          <val eq="NextOddPage" target-value="right"/>
+          <val eq="NextEvenPage" target-value="left"/>
+        </prop>
         <prop name="ParagraphDirection" target-name="css:direction">
           <!-- string | string "LeftToRightDirection" | string "RightToLeftDirection" -->
           <val eq="RightToLeftDirection" target-value="rtl"/>
@@ -159,8 +164,8 @@
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
         <prop name="StartParagraph" target-name="css:page-break-before">
           <val match="NextColumn|NextFrame|NextPage" target-value="always"/>
-          <val eq="NextOddPage" target-value="left"/>
-          <val eq="NextEvenPage" target-value="right"/>
+          <val eq="NextOddPage" target-value="right"/>
+          <val eq="NextEvenPage" target-value="left"/>
         </prop>
         <prop name="StrikeThru" target-name="css:text-decoration-line">
           <val eq="true" target-value="line-through"/>
@@ -278,7 +283,6 @@
         <prop name="RuleBelow" implement="maybe later" />
         <prop name="LastLineIndent" implement="maybe later" />
         <prop name="HyphenateLastWord" implement="maybe later" />
-        <prop name="ParagraphBreakType" implement="maybe later" />
         <prop name="SingleWordJustification" implement="maybe later" />
         <prop name="OTFOrdinal" implement="maybe later" />
         <prop name="OTFFraction" implement="maybe later" />
