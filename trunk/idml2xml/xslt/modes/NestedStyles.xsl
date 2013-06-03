@@ -25,11 +25,9 @@
   <!-- MODE: idml2xml:NestedStyles-create-separators 
         Make idml2xml:sep elements of the letters that may act as nested style separators -->
 
-  <xsl:template mode="idml2xml:NestedStyles-create-separators"
-    match="*[@aid:pstyle]
-            [key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))]">
-    <xsl:variable name="instructions" as="element(ListItem)+" 
-      select="key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))[last()]/ListItem"/>
+  <xsl:template mode="idml2xml:NestedStyles-create-separators" match="*[@aid:pstyle]">
+    <xsl:variable name="instructions" as="element(ListItem)*" 
+      select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
     <xsl:variable name="separator-regex-chars" as="xs:string?"
       select="string-join(for $i in $instructions return idml2xml:NestedStyles-Delimiter-to-regex-chars($i), '')"/>
     <xsl:copy copy-namespaces="no">
@@ -89,7 +87,7 @@
        immediately below the paragraph element, effectively splitting the spans. -->
   
   <xsl:template match="*[@aid:pstyle]
-                        [key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))]"
+                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
                         mode="idml2xml:NestedStyles-pull-up-separators">
     <xsl:variable name="context" select="." as="element(*)" />
     <xsl:copy copy-namespaces="no">
@@ -136,10 +134,10 @@
   <!-- Wrap stretches of text with character styles spans according to the nested style instructions. -->
   
   <xsl:template match="*[@aid:pstyle]
-    [key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))]"
+    [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
     mode="idml2xml:NestedStyles-apply">
     <xsl:variable name="instructions" as="element(ListItem)+" 
-      select="key('idml2xml:nested-style', concat('ParagraphStyle/', idml2xml:StyleNameEscape(@aid:pstyle)))[last()]/ListItem"/>
+      select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
     <xsl:copy copy-namespaces="no">
       <xsl:copy-of select="@*, Properties"/>
       <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, $instructions)"/>
