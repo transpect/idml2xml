@@ -16,13 +16,18 @@
   <xsl:template match="idml2xml:genSpan[not(node())]"
 		mode="idml2xml:AutoCorrect" priority="1.5" />
 
+  <xsl:template match="idml2xml:genSpan[idml2xml:genFrame][every $n in node() satisfies ($n/self::idml2xml:genFrame)]"
+    mode="idml2xml:AutoCorrect">
+    <xsl:apply-templates mode="#current" />
+  </xsl:template>
+
   <xsl:template match="idml2xml:genSpan
                          [string-length(.) eq 0]
                          [
                            not(*[local-name()=$idml2xml:idml-content-element-names])
                            and 
                            not(.//EPS or .//PDF or .//Image or .//WMF)
-                         ]" mode="idml2xml:AutoCorrect" />
+                         ]" mode="idml2xml:AutoCorrect" priority="1.25" />
 
 
   <xsl:template match="idml2xml:genSpan[@aid:pstyle][not(../@aid:cstyle)]" mode="idml2xml:AutoCorrect">
@@ -214,6 +219,12 @@
   </xsl:template>
 
   <xsl:template match="HiddenText[empty(node())]" mode="idml2xml:AutoCorrect-clean-up" />
+  
+  
+  <xsl:template match="idml2xml:genFrame[@idml2xml:elementName eq 'Group']
+                                        [count(node()) eq 1]" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
   
   
   <!-- make @srcpath unique: -->

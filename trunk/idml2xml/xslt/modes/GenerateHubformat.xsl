@@ -778,7 +778,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:function>
 
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames">
-    <idml2xml:genAnchor xml:id="{generate-id()}"/>
+    <idml2xml:genAnchor xml:id="{generate-id()}"/>    
   </xsl:template>
 
   <!-- Frames in Groups that are anchored in inline text. These groups don’t have a child
