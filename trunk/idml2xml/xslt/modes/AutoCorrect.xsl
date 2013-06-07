@@ -16,7 +16,8 @@
   <xsl:template match="idml2xml:genSpan[not(node())]"
 		mode="idml2xml:AutoCorrect" priority="1.5" />
 
-  <xsl:template match="idml2xml:genSpan[idml2xml:genFrame][every $n in node() satisfies ($n/self::idml2xml:genFrame)]"
+  <xsl:template match="idml2xml:genSpan[*[name() = ($idml2xml:shape-element-names, 'idml2xml:genFrame')]]
+                                       [every $n in node() satisfies (name($n) = ($idml2xml:shape-element-names, 'idml2xml:genFrame'))]"
     mode="idml2xml:AutoCorrect">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
