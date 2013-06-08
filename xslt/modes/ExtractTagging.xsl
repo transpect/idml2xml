@@ -121,7 +121,7 @@
     <xsl:attribute name="aid:body-row-count" select="if (@FooterRowCount) then number(@BodyRowCount) + number(@FooterRowCount) else @BodyRowCount"/>
     <xsl:attribute name="aid5:tablestyle" select="idml2xml:StyleName(@AppliedTableStyle)"/>
     <xsl:attribute name="idml2xml:width" select="sum(Column/@SingleColumnWidth/number())"/>
-    <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:AppliedObjectStyle" />
+    <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:objectstyle" />
   </xsl:template>
 
   <xsl:template match="Cell" mode="idml2xml:ExtractAttributes">

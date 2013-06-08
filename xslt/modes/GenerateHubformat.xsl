@@ -146,10 +146,17 @@
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
+      <xsl:apply-templates
+        select="if ($all-styles eq 'yes')
+        then /*/idPkg:Styles//ObjectStyle
+        else key('idml2xml:style', for $s in distinct-values(//*/@idml2xml:objectstyle) return idml2xml:generate-style-name-variants('ObjectStyle', $s) )"
+        mode="#current">
+        <xsl:sort select="@Name"/>
+      </xsl:apply-templates>
     </css:rules>
   </xsl:template>
   
-  <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle" mode="idml2xml:XML-Hubformat-add-properties">
+  <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle | ObjectStyle" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
@@ -811,7 +818,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:element name="para">
       <xsl:if test="@aid:pstyle">
-	<xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+	      <xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
       </xsl:if>
       <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
@@ -920,6 +927,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <sidebar remap="{@idml2xml:elementName}">
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </sidebar>
+  </xsl:template>
+
+  <xsl:template match="@idml2xml:objectstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:attribute name="role" select="idml2xml:StyleName(.)"/>
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text()] ) ]" 
@@ -1164,6 +1175,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
     </xsl:variable>
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
+      <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
       <imageobject>
         <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px"/>
       </imageobject>

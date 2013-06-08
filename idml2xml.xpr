@@ -9,6 +9,10 @@
                         <String>enable.project.master.files.support</String>
                         <Boolean>true</Boolean>
                     </entry>
+                    <entry>
+                        <String>validation.scenarios</String>
+                        <validationScenario-array/>
+                    </entry>
                 </map>
             </serialized>
         </options>
