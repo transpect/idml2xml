@@ -267,9 +267,9 @@
   </xsl:template>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
-  <xsl:template match="TextFrame/@*" mode="idml2xml:DocumentResolveTextFrames" priority="0" />
-  <xsl:template match="TextFrame/@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:attribute name="idml2xml:{local-name()}" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
+  <xsl:template match="TextFrame/@*" mode="idml2xml:DocumentResolveTextFrames" priority="-0.125" />
+  <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
   </xsl:template>
 
   <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->

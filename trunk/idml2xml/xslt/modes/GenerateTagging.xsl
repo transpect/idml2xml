@@ -214,16 +214,11 @@
       <xsl:apply-templates select="* except Properties" mode="#current" />
       <XMLAttribute Name="idml2xml:elementName" Value="{name()}" />
       <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
-      <xsl:apply-templates select="@*:AppliedObjectStyle" mode="#current" />
+      <xsl:apply-templates select="@*:objectstyle" mode="#current" />
     </XMLElement>
   </xsl:template>
 
-  <xsl:template match="@*:AppliedObjectStyle[not(. = ('$ID/[None]', 'ObjectStyle/$ID/[Normal Text Frame]'))]"
-    mode="idml2xml:GenerateTagging">
-    <XMLAttribute Name="xmlns:idml2xml" Value="{replace(., '^ObjectStyle/', '')}" />
-  </xsl:template>
-
-  <xsl:template match="@*:AppliedObjectStyle" mode="idml2xml:GenerateTagging" priority="2"/>
+  <xsl:template match="@*:objectstyle[. = ('$ID/[None]', '$ID/[Normal Text Frame]')]" mode="idml2xml:GenerateTagging"/>
 
   
 </xsl:stylesheet>
