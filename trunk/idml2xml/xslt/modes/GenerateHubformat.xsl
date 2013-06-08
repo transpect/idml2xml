@@ -725,7 +725,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:remove-attribute | idml2xml:no-style-link" mode="idml2xml:XML-Hubformat-properties2atts" />
 
   <xsl:template match="idml2xml:style-link" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:message select="count(following-sibling::idml2xml:no-style-link[@type = current()/@type])"/>
     <xsl:choose>
       <xsl:when test="$hub-version eq '1.0'">
         <xsl:attribute name="{if (@type eq 'AppliedParagraphStyle')
