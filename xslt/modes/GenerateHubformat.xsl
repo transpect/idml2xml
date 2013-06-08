@@ -443,7 +443,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'style-link'">
-        <idml2xml:style-link type="{../@name}" target="{idml2xml:StyleName($val)}"/>
+        <xsl:choose>
+          <xsl:when test="$val = 'n'">
+            <idml2xml:no-style-link type="{../@name}"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <idml2xml:style-link type="{../@name}" target="{idml2xml:StyleName($val)}"/>    
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 
       <xsl:when test=". eq 'tablist' and exists($val/*)">
@@ -581,7 +588,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="content" as="node()*">
       <xsl:apply-templates select="idml2xml:attribute[not(@name = following-sibling::idml2xml:remove-attribute/@name)]" mode="#current" />
-      <xsl:apply-templates select="idml2xml:style-link" mode="#current" />
+      <xsl:apply-templates select="idml2xml:style-link[last()][not(@type = following-sibling::idml2xml:no-style-link/@type)]" mode="#current" />
       <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
     </xsl:variable>
     <xsl:choose>
@@ -715,9 +722,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:sequence select="string-join($tmp, '')" />
   </xsl:function>
 
-  <xsl:template match="idml2xml:remove-attribute" mode="idml2xml:XML-Hubformat-properties2atts" />
+  <xsl:template match="idml2xml:remove-attribute | idml2xml:no-style-link" mode="idml2xml:XML-Hubformat-properties2atts" />
 
   <xsl:template match="idml2xml:style-link" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:message select="count(following-sibling::idml2xml:no-style-link[@type = current()/@type])"/>
     <xsl:choose>
       <xsl:when test="$hub-version eq '1.0'">
         <xsl:attribute name="{if (@type eq 'AppliedParagraphStyle')

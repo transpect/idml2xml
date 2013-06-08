@@ -52,7 +52,7 @@
   <xsl:template match="*[@idml2xml:AppliedCellStyle ne @aid5:cellstyle]/@aid5:cellstyle" mode="idml2xml:AutoCorrect">
     <xsl:attribute name="aid5:cellstyle" select="../@idml2xml:AppliedCellStyle" />
   </xsl:template>
-
+  
   <xsl:template match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'et1')]" mode="idml2xml:AutoCorrect">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
