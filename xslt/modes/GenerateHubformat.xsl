@@ -499,6 +499,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9726')"><!-- U+25FE -->
         <xsl:sequence select="'square'"/>
       </xsl:when>
+      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue">
+        <xsl:sequence select='concat("&apos;", codepoints-to-string($char-elt/@BulletCharacterValue), "&apos;")' />    
+      </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select='concat("&apos;", $styled-element/@BulletChar, "&apos;")' />    
       </xsl:otherwise>
