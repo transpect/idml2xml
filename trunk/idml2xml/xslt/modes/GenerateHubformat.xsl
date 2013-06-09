@@ -737,7 +737,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:attribute name="layout-type" select="if (@type eq 'AppliedParagraphStyle')
                                                     then 'para'
                                                     else @type" />
-          <xsl:attribute name="name" select="@target"/>
+          <xsl:attribute name="name" select="idml2xml:StyleName(@target)"/>
         </xsl:element>
       </xsl:otherwise>
     </xsl:choose>
@@ -1326,7 +1326,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- Make @role and css:rule/@name compliant with the rules for CSS identifiers
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 
-  <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | dbk:linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{name()}" 
       select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
