@@ -214,11 +214,15 @@
       <xsl:apply-templates select="* except Properties" mode="#current" />
       <XMLAttribute Name="idml2xml:elementName" Value="{name()}" />
       <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
-      <xsl:apply-templates select="@*:objectstyle" mode="#current" />
+      <xsl:apply-templates select="@*:objectstyle" mode="idml2xml:GenerateTagging-attr" />
     </XMLElement>
   </xsl:template>
 
-  <xsl:template match="@*:objectstyle[. = ('$ID/[None]', '$ID/[Normal Text Frame]')]" mode="idml2xml:GenerateTagging"/>
+  <xsl:template match="@*:objectstyle[. = ('$ID/[None]', '$ID/[Normal Text Frame]')]" 
+    mode="idml2xml:GenerateTagging idml2xml:GenerateTagging-attr"/>
 
+  <xsl:template match="@*:objectstyle" mode="idml2xml:GenerateTagging-attr">
+    <XMLAttribute Name="{name()}" Value="{.}" />
+  </xsl:template>
   
 </xsl:stylesheet>
