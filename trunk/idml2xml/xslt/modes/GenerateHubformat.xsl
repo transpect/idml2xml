@@ -220,7 +220,8 @@
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates mode="#current"/>
+    <!-- what is this for? Had to exclude Link bc otherwise the URI would be duplicated --> 
+    <xsl:apply-templates select="node() except Link" mode="#current"/>
     <xsl:copy-of select="."/>
   </xsl:template>
 

@@ -135,7 +135,7 @@
   
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
-  
+
   <xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
     <xsl:param name="frame" as="element(TextFrame)"/>
     <xsl:variable name="id" as="xs:string?" select="string-join(key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions eq 'Condition/StoryID'], '')"/>
@@ -153,10 +153,30 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="HiddenText[.//@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:copy-of select="//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(current()))]"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
+                                 satisfies (ends-with(current()//@LinkResourceURI, normalize-space($ref)))]"
+    mode="idml2xml:DocumentResolveTextFrames"/>
+
+  <xsl:template match="HiddenText[.//@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef')]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <!-- dissolve pstyleranges in hidden text that serves a pseudo-anchoring purpose 
+        and that doesn’t contain a paragraph break -->
+  <xsl:template match="ParagraphStyleRange[every $br in .//Br[idml2xml:same-scope(., current())]
+                                           satisfies ($br/ancestor::*/@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef'))]
+                                          [not( (ancestor::Story[1]//ParagraphStyleRange)[last()] )]" 
+                mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
   <xsl:template match="HiddenText[.//@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
