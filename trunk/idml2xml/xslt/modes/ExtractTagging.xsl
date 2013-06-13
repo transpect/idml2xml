@@ -315,25 +315,25 @@
       <xsl:when
         test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
         <idml2xml:link linkend="{idml2xml:escape-id(.)}" remap="{$target-element-name}">
-          <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
         <!-- is $document-context/@Name intended? -->
         <idml2xml:link linkend="id_{$document-context/@Name}" remap="{$target-element-name}">
-          <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
         <idml2xml:link xlink:href="{$dest[1]/@DestinationURL}">
           <!-- only use first item, sometimes the link url appears twice, MK 2013-04-23 -->
-          <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
         </idml2xml:link>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource |
-          CrossReferenceSource": Don't know how to handle <xsl:value-of
-            select="$target-element-name"/>
+        <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource": Don't know how to handle <xsl:value-of
+            select="."/>
         </xsl:message>
       </xsl:otherwise>
     </xsl:choose>
@@ -361,7 +361,7 @@
                                               )
                                             )" as="xs:string"/>
     <idml2xml:link xlink:href="{$file-uri}?name={$name}" remap="ExternalHyperlinkTextDestination">
-      <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+      <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
     </idml2xml:link>
   </xsl:template>
 
@@ -370,7 +370,9 @@
     priority="2" mode="idml2xml:ExtractTagging_Linking">
     <xsl:param name="document-context" as="element(*)"/>
     <xsl:message>Hyperlink <xsl:value-of select="ancestor::Hyperlink/@Self"/> does not point to a destination in the document. (Source text: <xsl:value-of select="$document-context"/>)</xsl:message>  
-    <xsl:apply-templates mode="#current" />
+    <idml2xml:link xlink:href="" remap="InDesignClipboardScrap">
+      <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
+    </idml2xml:link>
   </xsl:template>
   
 
