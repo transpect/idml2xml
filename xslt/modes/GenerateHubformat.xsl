@@ -1272,7 +1272,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <phrase>
       <xsl:apply-templates select="@*, node()" mode="#current" />
     </phrase>
-    <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
   <!-- §§§ GI 2012-09-30 Needs review.
