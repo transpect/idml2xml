@@ -128,43 +128,56 @@
 
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
-    use=".//*[@AppliedConditions eq 'Condition/StoryRef']"/>
+    use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef'] return idml2xml:text-content($r)"/>
   
   <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. eq 'Condition/StoryID']]"
-    use="string-join(.//*[@AppliedConditions eq 'Condition/StoryID'], '')"/>
+    use="idml2xml:text-content(.//*[@AppliedConditions eq 'Condition/StoryID'])"/>
   
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
 
   <xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
     <xsl:param name="frame" as="element(TextFrame)"/>
-    <xsl:variable name="id" as="xs:string?" select="string-join(key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions eq 'Condition/StoryID'], '')"/>
-    <xsl:sequence select="exists(key('referencing-Story-by-StoryID', $id, root($frame)))"/>
+    <xsl:variable name="id" as="xs:string?" select="idml2xml:text-content(key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions eq 'Condition/StoryID'])"/>
+    <xsl:variable name="referencing-story" as="element(Story)?" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
+    <xsl:sequence select="if ($id and $id != '') 
+                          then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
+                          else false()"/>
   </xsl:function>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:variable name="story" select="key('Story-by-StoryID', .)" as="element(Story)?"/>
-      <TextFrame>
-        <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
-        <xsl:apply-templates select="$story" mode="#current"/>
-      </TextFrame>
+      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(.))" as="element(Story)?"/>
+      <xsl:if test="not($story/@Self = ancestor::Story/@Self)">
+        <TextFrame>
+          <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
+          <xsl:apply-templates select="$story" mode="#current"/>
+        </TextFrame>  
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(current()))]"/>
+      <xsl:copy-of select="//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(idml2xml:text-content(current())))]"/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
-                                 satisfies (ends-with(current()//@LinkResourceURI, normalize-space($ref)))]"
+                                 satisfies (ends-with(current()//@LinkResourceURI, normalize-space(idml2xml:text-content($ref))))]"
     mode="idml2xml:DocumentResolveTextFrames"/>
 
-  <xsl:template match="HiddenText[.//@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef')]" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:function name="idml2xml:text-content" as="xs:string?">
+    <xsl:param name="elt" as="element(*)?"/>
+    <xsl:sequence select="string-join($elt//Content, '')"/>
+  </xsl:function>
+  
+
+  <xsl:template match="  HiddenText[.//@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef')]
+                       | HiddenText[.//@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef')]/ParagraphStyleRange[not(@AppliedConditions)]" 
+    mode="idml2xml:DocumentResolveTextFrames" priority="2">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
