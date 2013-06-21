@@ -62,7 +62,7 @@ idml2xml_usage:
 	@echo ""
 	@echo "This is idml2xml, an IDML to XML converter"
 	@echo "written by Philipp Glatza and Gerrit Imsieke"
-	@echo "(C) 2010--2012 le-tex publishing services GmbH"
+	@echo "(C) 2010--2013 le-tex publishing services GmbH"
 	@echo "All rights reserved"
 	@echo ""
 	@echo "Usage:"
