@@ -21,6 +21,9 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
+  <p:input port="dependency" primary="true" sequence="true">
+    <p:documentation>Bogus port. Connect it to an output port of steps that should be executed before this.</p:documentation>
+  </p:input>
   <p:output port="Document">
     <p:pipe step="single" port="result" />
   </p:output>
