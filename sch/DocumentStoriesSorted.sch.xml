@@ -28,14 +28,14 @@
            )"/>
   <s:pattern id="unanchored">
     <s:rule context="/Document">
-      <s:report test="$multiple-top-level-frames eq 'true'" id="DocumentStoriesSorted_001" role="WRN">
+      <s:report test="$multiple-top-level-frames eq 'true'" id="DocumentStoriesSorted_001" role="warning">
         The document contains <s:value-of select="count(TextFrame)"/> top-level TextFrames. Please check anchoring.</s:report>
     </s:rule>
 	
 		  
     <s:rule context="TextFrame[@Self = $top-level-frames]">
       <s:report test="$multiple-top-level-frames eq 'true' and ./Story[@AppliedTOCStyle = 'n']" 
-        id="DocumentStoriesSorted_001" role="WRN">
+        id="DocumentStoriesSorted_001" role="warning">
         <s:span class="srcpath"><xsl:value-of select="(.//*/@srcpath)[1]"/></s:span>
         This frame is not anchored. You can ignore this message if it contains the main story.</s:report>
     </s:rule>
@@ -45,7 +45,7 @@
    <s:pattern id="empty-line">
    		<s:rule context="Br">
 		<s:let name="test" value="following-sibling::*[1]"/>
-		<s:report test="following-sibling::*[1] eq ." id="DocumentStoriesSorted_002" role="WRN">
+		<s:report test="following-sibling::*[1] eq ." id="DocumentStoriesSorted_002" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="./parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Empty lines are not implemented via paragraph styles!
 		</s:report>
@@ -57,12 +57,12 @@
     <s:rule context="Content[not(./parent::HyperlinkTextSource[1])]">
 
 		
-		<s:report test="(contains(., 'www'))" id="DocumentStoriesSorted_003a" role="WRN">
+		<s:report test="(contains(., 'www'))" id="DocumentStoriesSorted_003a" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="(parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath)[1]"/></s:span>
 			www without Hyperlink!
 		</s:report>
 	 
- 		<s:report test="(contains(.,'http://'))" id="DocumentStoriesSorted_003b" role="WRN">
+ 		<s:report test="(contains(.,'http://'))" id="DocumentStoriesSorted_003b" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="(parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath)[1]"/></s:span>
 			http without Hyperlink:
 		</s:report>
@@ -85,32 +85,32 @@
 		<s:let name="tab-content" value="parent::CharacterStyleRange[1]/following-sibling::CharacterStyleRange[2]"/>
 		<s:let name="tab-content2" value="replace( parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/following-sibling::ParagraphStyleRange[1]/CharacterStyleRange[1]/Content[1], '(^[\s]+).*','$1')"/>
 
-		<s:report test="(starts-with(., '1.') and (starts-with($listcontent, '2.')))" id="DocumentStoriesSorted_005" role="WRN">
+		<s:report test="(starts-with(., '1.') and (starts-with($listcontent, '2.')))" id="DocumentStoriesSorted_005" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static list item, please use numerated lists!</s:report>
-		<s:report test="(starts-with(., '1.') and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005b" role="WRN">
+		<s:report test="(starts-with(., '1.') and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005b" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static tabbed list, please use numerated lists!</s:report>	  
 		
-	    <s:report test="(starts-with(., 'a)') and (starts-with($listcontent, 'b)')))" id="DocumentStoriesSorted_005c" role="WRN">
+	    <s:report test="(starts-with(., 'a)') and (starts-with($listcontent, 'b)')))" id="DocumentStoriesSorted_005c" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static list item, please use numerated lists!</s:report>
-		<s:report test="(starts-with(., 'a)') and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005d" role="WRN">
+		<s:report test="(starts-with(., 'a)') and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005d" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static tabbed list item, please use numerated lists!</s:report>
 		
-		<s:report test="(starts-with(., '•') and (starts-with($listcontent, '•')))" id="DocumentStoriesSorted_005e" role="WRN">
+		<s:report test="(starts-with(., '•') and (starts-with($listcontent, '•')))" id="DocumentStoriesSorted_005e" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static unordered list item, please use real unordered lists!</s:report>
-		<s:report test="(starts-with(., '•')and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005f" role="WRN">
+		<s:report test="(starts-with(., '•')and ($tab eq 'CharacterStyle/tab'))" id="DocumentStoriesSorted_005f" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static tabbed unordered list item, please use real unordered lists!</s:report>
  
-		<s:report test="(starts-with(., $listsymbol) and ($tab eq 'CharacterStyle/tab') and not(starts-with(., '•')) and ($listsymbol eq $tab-content2) and ($listsymbol-type eq 1))" id="DocumentStoriesSorted_005g" role="WRN">
+		<s:report test="(starts-with(., $listsymbol) and ($tab eq 'CharacterStyle/tab') and not(starts-with(., '•')) and ($listsymbol eq $tab-content2) and ($listsymbol-type eq 1))" id="DocumentStoriesSorted_005g" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static tabbed unordered list item, please use real unordered lists!</s:report>
 	
-		<s:report test="(starts-with(., $listsymbol) and (starts-with($listcontent, $listsymbol)) and ($listsymbol-type eq 1) and not(processing-intruction))" id="DocumentStoriesSorted_005h" role="WRN">
+		<s:report test="(starts-with(., $listsymbol) and (starts-with($listcontent, $listsymbol)) and ($listsymbol-type eq 1) and not(processing-intruction))" id="DocumentStoriesSorted_005h" role="warning">
 			<s:span class="srcpath"><xsl:value-of select="parent::CharacterStyleRange[1]/parent::ParagraphStyleRange[1]/@srcpath"/></s:span>
 			Static tabbed unordered list item, please use real unordered lists!</s:report>
 	</s:rule>
@@ -119,19 +119,19 @@
   <s:pattern id="graphic-object">
        <s:rule context="PathGeometry[parent::Properties[1]/parent::*[1][local-name() = ('Polygon', 'Rectangle', 'Oval')]]">
 	   	<s:let name="test" value="parent::Properties[1]/parent::*[1][local-name() = ('Polygon', 'Rectangle', 'Oval')]"/>
-		<s:report test="true()" id="DocumentStoriesSorted_006" role="WRN">Graphic Object: <s:value-of select="name($test)"/> can't be exported to HTML.</s:report>
-	  	<s:report test="exists(parent::Properties[1]/parent::Polygon[1]/preceding-sibling::Properties[1]/AppliedFont)" id="DocumentStoriesSorted_006b" role="WRN">Text was converted to a path and will not be displayed in Epub. Font used: <s:value-of select="parent::Properties[1]/parent::Polygon[1]/preceding-sibling::Properties[1]/AppliedFont"/></s:report>
+		<s:report test="true()" id="DocumentStoriesSorted_006" role="warning">Graphic Object: <s:value-of select="name($test)"/> can't be exported to HTML.</s:report>
+	  	<s:report test="exists(parent::Properties[1]/parent::Polygon[1]/preceding-sibling::Properties[1]/AppliedFont)" id="DocumentStoriesSorted_006b" role="warning">Text was converted to a path and will not be displayed in Epub. Font used: <s:value-of select="parent::Properties[1]/parent::Polygon[1]/preceding-sibling::Properties[1]/AppliedFont"/></s:report>
 	  <s:span class="srcpath"><xsl:value-of select="(.//*/@srcpath)[1]"/></s:span>
     </s:rule>
 	<s:rule context="GraphicLine">
-      <s:report test="true()" id="DocumentStoriesSorted_007" role="WRN">Graphic Lines can't be exported to HTML <xsl:value-of select="(.//*/@srcpath)[1]"/></s:report>
+      <s:report test="true()" id="DocumentStoriesSorted_007" role="warning">Graphic Lines can't be exported to HTML <xsl:value-of select="(.//*/@srcpath)[1]"/></s:report>
 	</s:rule>
  </s:pattern>
   
 
     <s:pattern id="unanchored-image">
        <s:rule context="Image">
-	        <s:report test="not(parent::XmlStory)" id="DocumentStoriesSorted_007" role="WRN">
+	        <s:report test="not(parent::XmlStory)" id="DocumentStoriesSorted_007" role="warning">
 				<s:span class="srcpath"><xsl:value-of select="./parent::*[1]/parent::*[1]/parent::*[1]/@srcpath"/></s:span>
 				Not anchored image: <xsl:value-of select="./Link/@LinkResourceURI"/>
 			</s:report>
