@@ -32,7 +32,7 @@
   <s:pattern id="para-without-role">
     <s:rule context="dbk:para[matches(., '\S')]">
      	<s:report test="@role eq 'No_paragraph_style'"
-        id="XML-Hubformat-cleanup-paras-and-br_002" role="WRN">
+        id="XML-Hubformat-cleanup-paras-and-br_002" role="warning">
         <s:span class="srcpath"><xsl:value-of select="@srcpath"/></s:span>
         Para doesn't have a unique role!
 		</s:report>
@@ -43,7 +43,7 @@
   <s:pattern id="nested-sidebar">
     <s:rule context="dbk:sidebar">
       <s:report test="exists(dbk:sidebar)"
-        id="XML-Hubformat-cleanup-paras-and-br_003" role="WRN">
+        id="XML-Hubformat-cleanup-paras-and-br_003" role="warning">
         <s:span class="srcpath"><xsl:value-of select="@srcpath"/></s:span>
         Sidebar is contained in another sidebar: <s:value-of select="substring(., 1, 40)"/>…</s:report>
     </s:rule>
