@@ -1,4 +1,0 @@
-<schematron-checks for-step="idml2xml" name="sample-schematron-reports">
-  <check port="DocumentStoriesSorted" sch="DocumentStoriesSorted.sch.xml" />
-  <check port="XML-Hubformat-cleanup-paras-and-br" sch="XML-Hubformat-cleanup-paras-and-br.sch.xml" />
-</schematron-checks>
