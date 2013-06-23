@@ -220,7 +220,7 @@
   <xsl:template match="*[name() = $idml2xml:shape-element-names]
                         [not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
                         [empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
-    <xsl:message select="concat('IDML2XML WRN in ExtractTagging: Image ', @Self, ' with unknown xml structure.')"/>
+    <xsl:message select="concat('IDML2XML warning in ExtractTagging: Image ', @Self, ' with unknown xml structure.')"/>
   </xsl:template>
 
   <!-- Shouldn't happen if paragraph tagging and styling are coherent -->
@@ -281,20 +281,20 @@
 	  <xsl:variable name="destination" select="$hyperlink/Properties/Destination" as="element(Destination)?" />
 	  <xsl:choose>
       <xsl:when test="empty($hyperlink)">
-        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
+        <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
         No Hyperlink element found for source with @Self <xsl:value-of select="@Self"/>
         </xsl:message>
         <xsl:apply-templates mode="#current" />
       </xsl:when>
 	    <xsl:when test="empty($destination)">
-	      <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
+	      <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
 	        No Destination element found for source with @Self <xsl:value-of select="@Self"/>, Hyperlink with @Self <xsl:value-of select="$hyperlink/@Self"/>
 	      </xsl:message>
 	      <xsl:apply-templates mode="#current" />
 	    </xsl:when>
 	    <xsl:otherwise>
 	      <xsl:if test="count($destination) gt 1">
-	        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
+	        <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource":
 	          Multiple Destination elements found for source with @Self <xsl:value-of select="@Self"/>, Hyperlink with @Self <xsl:value-of select="$hyperlink/@Self"/>.
 	          Processing only the first one.
 	        </xsl:message>
@@ -332,7 +332,7 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
-        <xsl:message>WRN: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource": Don't know how to handle <xsl:value-of
+        <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource": Don't know how to handle <xsl:value-of
             select="."/>
         </xsl:message>
       </xsl:otherwise>
