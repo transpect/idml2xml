@@ -18,9 +18,6 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <!-- delete copied part from designmap -->
-  <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract" />
-
   <xsl:template match="text()" mode="idml2xml:IndexTerms-extract" />
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
