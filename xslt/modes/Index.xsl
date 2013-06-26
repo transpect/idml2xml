@@ -18,11 +18,14 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+  <!-- delete copied part from designmap -->
+  <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract" />
+
   <xsl:template match="text()" mode="idml2xml:IndexTerms-extract" />
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
     <xsl:variable name="embedded-story" select="ancestor::Story[parent::TextFrame]/@Self" as="xs:string*" />
-    <xsl:apply-templates select="key('topic', @ReferencedTopic, $designmap-root)" mode="#current">
+    <xsl:apply-templates select="key('topic', @ReferencedTopic)" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
       <xsl:with-param name="page-reference" select="@Self" tunnel="yes" />
     </xsl:apply-templates>
@@ -55,7 +58,7 @@
   </xsl:template>
   
   <xsl:template match="HyperlinkTextSource" mode="idml2xml:IndexTerms-extract">
-    <xsl:apply-templates select="key('hyperlink', @Self, $designmap-root)" mode="#current" />
+    <xsl:apply-templates select="key('hyperlink', @Self)" mode="#current" />
   </xsl:template>
 
 
@@ -63,7 +66,7 @@
 
   <!-- BEGIN: new indesign script -->
   <xsl:template match="Hyperlink" mode="idml2xml:IndexTerms-extract">
-    <xsl:apply-templates select="key('destination', Properties/Destination, $designmap-root)" mode="#current" />
+    <xsl:apply-templates select="key('destination', Properties/Destination)" mode="#current" />
   </xsl:template>
 
     <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
@@ -145,12 +148,14 @@
 
   <xsl:function name="idml2xml:index-crossrefs" as="element(*)*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />
-    <xsl:apply-templates select="key('topic', $topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic, $designmap-root)" mode="idml2xml:IndexTerms-SeeAlso"/>
+    <xsl:for-each select="$topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic">
+      <xsl:apply-templates select="key('topic', current(), root($topic))[1]" mode="idml2xml:IndexTerms-SeeAlso" />
+    </xsl:for-each>
     <xsl:variable name="see-refs" select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic" as="xs:string*"/>
     <xsl:if test="count(distinct-values($see-refs)) gt 0">
       <xsl:variable name="errors" as="element(error)*">
         <xsl:if test="count(distinct-values($see-refs)) gt 1">
-          <xsl:message>There are many see-like crossrefs in index topic <xsl:value-of select="$topic/@Self"/> where only one is permitted.
+          <xsl:message>There are many see-like crossrefs in index topic <xsl:value-of select="$topic/@Self"/> where only one is permitted. (<xsl:copy-of select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]"/>)
           </xsl:message>
           <error role="different-crossrefs" condition="{string-join($see-refs, '; ')}"/>
         </xsl:if>
@@ -162,7 +167,7 @@
           <error role="subtopics-with-see"/>
         </xsl:if>
       </xsl:variable>
-      <xsl:for-each select="key('topic', $see-refs, $designmap-root)/@Name">
+      <xsl:for-each select="key('topic', $see-refs, root($topic))/@Name">
         <see>
           <xsl:sequence select="$errors" />
           <xsl:value-of select="." />

@@ -79,6 +79,19 @@
     <XMLAttribute Name="xmlns:ac" Value="http://ns.acolada.de/InDesignPlugIn/1.0/"/>
   </idml2xml:default-namespaces>
 
+  <xsl:template match="@CrossReferenceType[. eq 'CustomCrossReferenceBefore']" mode="idml2xml:Document">
+    <xsl:attribute name="{local-name()}">
+      <xsl:choose>
+        <xsl:when test="matches(parent::*/@CustomTypeString, '(siehe[\s]auch|see[\s]also)', 'i')">SeeAlso</xsl:when>
+        <xsl:when test="matches(parent::*/@CustomTypeString, '(siehe|see)', 'i')">See</xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="." />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:template>
+
+
   <!--== mode: DocumentStoriesSorted ==-->
 
   <!-- root template -->
@@ -109,6 +122,9 @@
       <idml2xml:cond>
         <xsl:copy-of select="Condition" />
       </idml2xml:cond>
+      <idml2xml:index>
+        <xsl:copy-of select="Index" />
+      </idml2xml:index>
       <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
         value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
         don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 

@@ -230,13 +230,15 @@
   </xsl:variable>
 
   <!--== Index Terms ==-->
-  <xsl:variable name="idml2xml:IndexTerms-extract" as="element(idml2xml:indexterms)">
-    <idml2xml:indexterms>
-      <xsl:apply-templates select="$idml2xml:DocumentStoriesSorted" mode="idml2xml:IndexTerms-extract"/>
+  <xsl:variable name="idml2xml:IndexTerms-extract" as="document-node(element(idml2xml:indexterms))">
+    <xsl:document>
+      <idml2xml:indexterms>
+        <xsl:apply-templates select="$idml2xml:DocumentStoriesSorted" mode="idml2xml:IndexTerms-extract"/>
       <!-- Index cross-refs (see, see also) aren't typically included in the stories, 
            therefore we have to collect them from the designmap: -->
-      <xsl:apply-templates select="$designmap-root//Topic[CrossReference]" mode="idml2xml:IndexTerms-extract"/>
-    </idml2xml:indexterms>
+      <!-- <xsl:apply-templates select="$designmap-root//Topic[CrossReference]" mode="idml2xml:IndexTerms-extract"/> -->
+      </idml2xml:indexterms>
+    </xsl:document>
   </xsl:variable>
 
   <xsl:variable name="idml2xml:IndexTerms">
