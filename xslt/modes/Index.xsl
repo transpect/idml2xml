@@ -18,6 +18,8 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+  <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract" />
+
   <xsl:template match="text()" mode="idml2xml:IndexTerms-extract" />
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
@@ -146,7 +148,10 @@
   <xsl:function name="idml2xml:index-crossrefs" as="element(*)*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />
     <xsl:for-each select="$topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic">
-      <xsl:apply-templates select="key('topic', current(), root($topic))[1]" mode="idml2xml:IndexTerms-SeeAlso" />
+      <seealso>
+        <xsl:value-of select="substring-after(., 'Topicn')" />
+      </seealso>
+      <!-- <xsl:apply-templates select="key('topic', current(), root($topic))[1]" mode="idml2xml:IndexTerms-SeeAlso" /> -->
     </xsl:for-each>
     <xsl:variable name="see-refs" select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic" as="xs:string*"/>
     <xsl:if test="count(distinct-values($see-refs)) gt 0">
