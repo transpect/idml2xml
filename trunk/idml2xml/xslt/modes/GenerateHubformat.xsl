@@ -11,6 +11,7 @@
     xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
+    xmlns:hub = "http://docbook.org/ns/docbook"
     xmlns="http://docbook.org/ns/docbook"
     exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css"
     >
@@ -675,13 +676,65 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="idml2xml:attribute[matches(@name, '^(css:pseudo-marker|numbering-)')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
-    <xsl:variable name="last-numbering-style" select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type')][last()]" as="element(idml2xml:attribute)?" />
-    <xsl:if test="not($last-numbering-style = 'NoList')
-                  and
-                  not(@name = 'css:pseudo-marker_font-family' and . = '$ID/')">
-      <xsl:next-match/>  
+    <xsl:variable name="last-numbering-style" as="element(idml2xml:attribute)?"
+      select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]" />
+    <xsl:choose>
+      <xsl:when test="$last-numbering-style = 'NoList'"/>
+      <xsl:when test="$last-numbering-style = 'idml2xml:numbered'"/>
+      <xsl:when test="@name = 'css:pseudo-marker_font-family' and . = '$ID/'"/>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:attribute[@name eq 'css:list-style-type']
+                                         [. is ../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]]"
+                mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
+                                                        ../idml2xml:attribute[@name eq 'numbering-format'][last()],
+                                                        ../idml2xml:attribute[@name eq 'numbering-expression'][last()],
+                                                        ../idml2xml:attribute[@name eq 'numbering-level'][last()]
+                                                      )"></xsl:attribute>
+    <xsl:attribute name="hub:numbering-picture-string" select="../idml2xml:attribute[@name eq 'numbering-expression'][last()]"/>
+    <xsl:if test="not(../idml2xml:attribute[@name eq 'numbering-starts-at'][last()] = '1')">
+      <xsl:attribute name="hub:numbering-starts-at" select="../idml2xml:attribute[@name eq 'numbering-starts-at'][last()]"/>  
+    </xsl:if>
+    <xsl:attribute name="hub:numbering-level" select="../idml2xml:attribute[@name eq 'numbering-level'][last()]"/>
+    <xsl:if test="../idml2xml:attribute[@name eq 'numbering-continue'][last()] = 'true'">
+      <xsl:attribute name="hub:numbering-continue" select="../idml2xml:attribute[@name eq 'numbering-continue'][last()]"/>
     </xsl:if>
   </xsl:template>
+  
+  <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
+    <xsl:param name="type-example-string" as="xs:string"/>
+    <xsl:param name="picture-string" as="xs:string"/>
+    <xsl:param name="level" as="xs:string"/>
+    <!-- §§§ Please note that the picture string does not influence the result.
+         This is partly due do CSS3 lists not supporting interpunction and
+         inclusion of upper levels in a straightforward declarative way -->
+    <xsl:choose>
+      <xsl:when test="matches($type-example-string, '^0*1')">
+        <xsl:sequence select="'decimal'"/>
+      </xsl:when>
+      <xsl:when test="starts-with($type-example-string, 'a')">
+        <xsl:sequence select="'lower-alpha'"/>
+      </xsl:when>
+      <xsl:when test="starts-with($type-example-string, 'A')">
+        <xsl:sequence select="'upper-alpha'"/>
+      </xsl:when>
+      <xsl:when test="starts-with($type-example-string, 'i')">
+        <xsl:sequence select="'lower-roman'"/>
+      </xsl:when>
+      <xsl:when test="starts-with($type-example-string, 'I')">
+        <xsl:sequence select="'upper-roman'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="string-join(($type-example-string, $picture-string), '__')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
   <!-- As style (will be dealt with when processing other attributes -->
   <xsl:template match="css:rule/idml2xml:attribute[@name = 'BulletsAndNumberingListType']" 
     priority="2" mode="idml2xml:XML-Hubformat-properties2atts"/>
