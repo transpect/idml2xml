@@ -144,9 +144,11 @@
         </prop>
         <prop name="ListItem/AlignmentCharacter" type="linear" target-name="alignment-char" />
         <prop name="ListItem/Leader" type="linear" target-name="leader" />
-        <prop name="NumberingStartAt" target-name="numbering-starts-at" type="linear"/>
-        <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
         <prop name="NumberingContinue" target-name="numbering-continue" type="linear"/>
+        <prop name="NumberingExpression" target-name="numbering-expression" type="linear"/>
+        <prop name="NumberingFormat" target-name="numbering-format" type="linear"/>
+        <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
+        <prop name="NumberingStartAt" target-name="numbering-starts-at" type="linear"/>
         <prop name="ParagraphBreakType"  target-name="css:page-break-after">
           <val match="NextColumn|NextFrame|NextPage" target-value="always"/>
           <val eq="NextOddPage" target-value="right"/>
@@ -196,7 +198,6 @@
         <prop name="NumberingApplyRestartPolicy" implement="maybe later" />
         <prop name="BulletsAlignment" implement="maybe later" />
         <prop name="NumberingAlignment" implement="maybe later" />
-        <prop name="NumberingExpression" implement="maybe later" />
         <prop name="BulletsTextAfter" implement="maybe later" />
         <prop name="DigitsType" implement="maybe later" />
 
@@ -441,7 +442,6 @@
         <prop name="KentenFillColor" implement="maybe later" />
         <prop name="KentenStrokeColor" implement="maybe later" />
         <prop name="BulletChar" implement="maybe later" />
-        <prop name="NumberingFormat" implement="maybe later" />
         <prop name="AppliedNumberingList" implement="maybe later" />
         <prop name="NumberingRestartPolicies" implement="maybe later" />
         <prop name="BulletsCharacterStyle" implement="maybe later" />
