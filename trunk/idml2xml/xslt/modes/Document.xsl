@@ -241,7 +241,7 @@
 
   <xsl:template match="TextFrame[
                          parent::Spread or 
-                         parent::Group[parent::Spread]
+                         parent::Group
                        ]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@* | *" mode="#current" />
@@ -255,7 +255,7 @@
   <xsl:template match="TextFrame[
                          not(
                            parent::Spread or 
-                           parent::Group[parent::Spread]
+                           parent::Group
                          )
                        ]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
@@ -281,27 +281,43 @@
               <xsl:when test="$textframe/preceding-sibling::TextFrame">
                 <xsl:variable name="last-preceding-textframe" as="element(TextFrame)"
                   select="$textframe/preceding-sibling::TextFrame[1]"/>
+                <xsl:if
+                  test="exists($textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names][ . &gt;&gt; $last-preceding-textframe ])">
+                  <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
+                    <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+                      <xsl:apply-templates
+                        select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names][ . &gt;&gt; $last-preceding-textframe ]"
+                        mode="#current">
+                        <xsl:with-param name="in-group-frames" select="self::Group//TextFrame" as="element(TextFrame)*"
+                          tunnel="yes"/>
+                      </xsl:apply-templates>
+                    </CharacterStyleRange>
+                    <Br/>
+                  </ParagraphStyleRange>
+                </xsl:if>
+              </xsl:when>
+              <xsl:when test="exists($textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names])">
                 <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
                   <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                    <xsl:apply-templates select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names][ . &gt;&gt; $last-preceding-textframe ]" mode="#current"/>
+                    <xsl:apply-templates
+                      select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names]"
+                      mode="#current">
+                      <xsl:with-param name="in-group-frames" select="self::Group//TextFrame" as="element(TextFrame)*"
+                        tunnel="yes"/>
+                    </xsl:apply-templates>
                   </CharacterStyleRange>
                   <Br/>
                 </ParagraphStyleRange>
               </xsl:when>
-              <xsl:otherwise>
-                <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-                  <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                    <xsl:apply-templates select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names]" mode="#current"/>
-                  </CharacterStyleRange>
-                  <Br/>
-                </ParagraphStyleRange>
-              </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates select="node()" mode="#current" />
-            <xsl:if test="not($textframe/following-sibling::TextFrame)">
+            <xsl:if test="not($textframe/following-sibling::TextFrame)
+                          and exists($textframe/following-sibling::*[name() = $idml2xml:shape-element-names])">
               <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-                <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">        
-                  <xsl:apply-templates select="$textframe/following-sibling::*[name() = $idml2xml:shape-element-names]" mode="#current"/>
+                <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
+                  <xsl:apply-templates select="$textframe/following-sibling::*[name() = $idml2xml:shape-element-names]" mode="#current">
+                    <xsl:with-param name="in-group-frames" select="self::Group//TextFrame" as="element(TextFrame)*" tunnel="yes"/>
+                  </xsl:apply-templates>
                 </CharacterStyleRange>
                 <Br/>
               </ParagraphStyleRange>
