@@ -11,7 +11,7 @@
     xmlns:letex = "http://www.le-tex.de/namespace"
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
-    xmlns:hub = "http://docbook.org/ns/docbook"
+    xmlns:hub = "http://www.le-tex.de/namespace/hub"
     xmlns="http://docbook.org/ns/docbook"
     exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css"
     >
@@ -674,7 +674,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
-  <xsl:template match="idml2xml:attribute[matches(@name, '^(css:pseudo-marker|numbering-)')]" mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
     <xsl:variable name="last-numbering-style" as="element(idml2xml:attribute)?"
       select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]" />
@@ -705,6 +705,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:attribute name="hub:numbering-continue" select="../idml2xml:attribute[@name eq 'numbering-continue'][last()]"/>
     </xsl:if>
   </xsl:template>
+  
+  <xsl:template mode="idml2xml:XML-Hubformat-properties2atts" priority="2" 
+    match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'numbering-continue', 'numbering-level')]" />
   
   <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
     <xsl:param name="type-example-string" as="xs:string"/>
