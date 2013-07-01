@@ -25,7 +25,7 @@
     as="xs:string+" />
 
   <xsl:function name="letex:identical-self-object-suffix" as="xs:string">
-    <xsl:param name="self-object" />
+    <xsl:param name="self-object" as="element(*)"/>
     <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', $self-object/@Self, root($self-object))" as="element(*)+" />
     <xsl:variable name="my-number" as="xs:integer"
       select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id($self-object))" />
