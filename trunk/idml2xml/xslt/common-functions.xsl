@@ -427,6 +427,8 @@
         </xsl:if>
 -->
             <xsl:variable name="causes" as="element(cause)+">
+              <cause name="item outside single page (left side)" 
+                present="{$item-real-right-x lt 0.0001 and not($left-page-available) and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
               <cause name="no page on left side" 
                 present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available}"/>
               <cause name="no page on right side" 
