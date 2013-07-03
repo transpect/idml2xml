@@ -181,10 +181,10 @@
     <xsl:param name="frame" as="element(TextFrame)"/>
     <xsl:variable name="id" as="xs:string?"  
       select="string-join( 
-      for $e in key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions = 'Condition/StoryID'] 
-      return idml2xml:text-content($e), 
-      '' 
-      )"/>
+                            for $e in key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions = 'Condition/StoryID'] 
+                            return idml2xml:text-content($e), 
+                            '' 
+                          )"/>
     <xsl:variable name="referencing-story" as="element(Story)?" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
     <xsl:sequence select="if ($id and $id != '') 
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
@@ -195,12 +195,19 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(.))" as="element(Story)?"/>
-      <xsl:if test="not($story/@Self = ancestor::Story/@Self)">
-        <TextFrame>
-          <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
-          <xsl:apply-templates select="$story" mode="#current"/>
-        </TextFrame>  
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="not($story/@Self)"><!-- doesn’t resolve, reproduce applied conditions and content 
+          so that Schematron can report non-resolution -->
+          <xsl:copy-of select="@AppliedConditions, node()"/>
+        </xsl:when>
+        <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
+          <TextFrame bla="blup">
+            <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
+            <xsl:apply-templates select="$story" mode="#current"/>
+          </TextFrame>
+        </xsl:when>
+        <!-- otherwise: the story is anchored within itself, don’t do nothing -->
+      </xsl:choose>
     </xsl:copy>
   </xsl:template>
 
@@ -236,9 +243,13 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="HiddenText[.//@AppliedConditions = 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
+  <xsl:template match="HiddenText[.//@AppliedConditions = 'Condition/StoryID']
+                                 [exists(key('referencing-Story-by-StoryID', string-join(ancestor::Story//*[@AppliedConditions = 'Condition/StoryID'], '')))]" 
+                mode="idml2xml:DocumentResolveTextFrames"/>
 
-  <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
+  <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']
+                        [exists(key('referencing-Story-by-StoryID', string-join(ancestor::Story//*[@AppliedConditions = 'Condition/StoryID'], '')))]" 
+                mode="idml2xml:DocumentResolveTextFrames"/>
   
   <xsl:template match="@AppliedConditions[. eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames"/>
 
