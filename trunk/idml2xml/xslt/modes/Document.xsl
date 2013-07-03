@@ -171,15 +171,20 @@
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
     use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef'] return idml2xml:text-content($r)"/>
   
-  <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. eq 'Condition/StoryID']]"
-    use="idml2xml:text-content(.//*[@AppliedConditions eq 'Condition/StoryID'])"/>
+  <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]" 
+    use="string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
   
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
 
   <xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
     <xsl:param name="frame" as="element(TextFrame)"/>
-    <xsl:variable name="id" as="xs:string?" select="idml2xml:text-content(key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions eq 'Condition/StoryID'])"/>
+    <xsl:variable name="id" as="xs:string?"  
+      select="string-join( 
+      for $e in key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions = 'Condition/StoryID'] 
+      return idml2xml:text-content($e), 
+      '' 
+      )"/>
     <xsl:variable name="referencing-story" as="element(Story)?" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
     <xsl:sequence select="if ($id and $id != '') 
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
@@ -231,7 +236,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="HiddenText[.//@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
+  <xsl:template match="HiddenText[.//@AppliedConditions = 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']" mode="idml2xml:DocumentResolveTextFrames"/>
   
