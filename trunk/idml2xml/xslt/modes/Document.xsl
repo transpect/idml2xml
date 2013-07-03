@@ -84,11 +84,17 @@
       <xsl:choose>
         <xsl:when test="matches(parent::*/@CustomTypeString, '(siehe[\s]auch|see[\s]also)', 'i')">SeeAlso</xsl:when>
         <xsl:when test="matches(parent::*/@CustomTypeString, '(siehe|see)', 'i')">See</xsl:when>
+        <xsl:when test="matches(parent::*/@ReferencedTopic, '(siehe[\s]auch|see[\s]also)\s', 'i')">SeeAlso</xsl:when>
+        <xsl:when test="matches(parent::*/@ReferencedTopic, '(siehe|see)\s', 'i')">See</xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="." />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="CrossReference[@CrossReferenceType[. eq 'CustomCrossReferenceBefore']]/@ReferencedTopic[matches(., '(siehe|see)\s', 'i')]" mode="idml2xml:Document">
+    <xsl:attribute name="{local-name()}" select="replace(., '([Ss]iehe([\s]auch)?|[Ss]ee([\s]also)?)\s', '')" />
   </xsl:template>
 
 

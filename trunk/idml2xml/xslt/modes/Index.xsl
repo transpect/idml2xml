@@ -18,7 +18,9 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract" />
+  <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract">
+    <xsl:apply-templates select=".//Topic[CrossReference]" mode="#current" />
+  </xsl:template>
 
   <xsl:template match="text()" mode="idml2xml:IndexTerms-extract" />
 
@@ -68,7 +70,7 @@
     <xsl:apply-templates select="key('destination', Properties/Destination)" mode="#current" />
   </xsl:template>
 
-    <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
+  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
     <pagestart num="{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
@@ -169,7 +171,7 @@
           <error role="subtopics-with-see"/>
         </xsl:if>
       </xsl:variable>
-      <xsl:for-each select="key('topic', $see-refs, root($topic))/@Name">
+      <xsl:for-each select="key('topic', $see-refs, root($topic))[1]/@Name">
         <see>
           <xsl:sequence select="$errors" />
           <xsl:value-of select="." />
