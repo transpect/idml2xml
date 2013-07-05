@@ -149,7 +149,7 @@
       </xsl:apply-templates>
       <xsl:apply-templates
         select="if ($all-styles eq 'yes')
-        then /*/idPkg:Styles//ObjectStyle
+        then /*/idPkg:Styles//ObjectStyle[not(@Name = '$ID/[None]')] (: there is a name clash between cell style $ID/[None] and this one :)
         else key('idml2xml:style', for $s in distinct-values(//*/@idml2xml:objectstyle) return idml2xml:generate-style-name-variants('ObjectStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
