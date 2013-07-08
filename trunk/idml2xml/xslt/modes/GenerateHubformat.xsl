@@ -13,7 +13,7 @@
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns:hub = "http://www.le-tex.de/namespace/hub"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css"
+    exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css hub"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -21,7 +21,7 @@
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
       select="('anchor', 'book', 'hub', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
-               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'tab', 'tabs', 'br',
+               'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'inlinemediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
                'superscript', 'subscript', 'link', 'xref', 'footnote',
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
@@ -1349,13 +1349,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="dbk:mediaobject[not(parent::dbk:para or parent::dbk:phrase)]" 		
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2">
     <xsl:element name="para">
       <xsl:next-match/>
     </xsl:element>
   </xsl:template>
 
-
+  <xsl:template match="dbk:mediaobject[some $n in ancestor::dbk:para[1]//text() satisfies (matches($n, '\S'))]" 		
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <inlinemediaobject>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </inlinemediaobject> 
+  </xsl:template>
+  
   <xsl:template match="dbk:para[parent::dbk:para]" 
 		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <phrase role="idml2xml-para {@role}">
