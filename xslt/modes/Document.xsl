@@ -167,7 +167,8 @@
                           )"/>
   </xsl:function>
 
-  <!-- there may be multiple StoryRefs in a Story, but only one StoryID -->
+  <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
+       they’d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
     use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef'] return idml2xml:text-content($r)"/>
   
@@ -214,7 +215,7 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(idml2xml:text-content(current())))]"/>
+      <xsl:copy-of select="(//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(idml2xml:text-content(current())))])[1]"/>
     </xsl:copy>
   </xsl:template>
   
@@ -244,13 +245,27 @@
   </xsl:template>
   
   <xsl:template match="HiddenText[.//@AppliedConditions = 'Condition/StoryID']
-                                 [exists(key('referencing-Story-by-StoryID', string-join(ancestor::Story//*[@AppliedConditions = 'Condition/StoryID'], '')))]" 
+                                 [exists(
+                                    key(
+                                      'referencing-Story-by-StoryID', 
+                                      string-join(
+                                        for $ht in ancestor::Story//*[@AppliedConditions = 'Condition/StoryID']
+                                        return idml2xml:text-content($ht),
+                                        ''
+                                      )
+                                    )
+                                 )]" 
                 mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']
-                        [exists(key('referencing-Story-by-StoryID', string-join(ancestor::Story//*[@AppliedConditions = 'Condition/StoryID'], '')))]" 
+    [exists(key('referencing-Story-by-StoryID', string-join(
+                                                  for $ht in ancestor::Story//*[@AppliedConditions = 'Condition/StoryID']
+                                                  return idml2xml:text-content($ht),
+                                                  ''
+                                                )
+                                                ))]" 
                 mode="idml2xml:DocumentResolveTextFrames"/>
-  
+
   <xsl:template match="@AppliedConditions[. eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
