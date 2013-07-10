@@ -688,17 +688,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="idml2xml:attribute[@name eq 'css:list-style-type']
-                                         [. is ../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]]"
-                mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template
+    match="idml2xml:attribute[@name eq 'css:list-style-type']
+                             [. is ../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]]
+                             [. = 'idml2xml:numbered']"
+    mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="style" as="element(css:rule)?"
+      select="key('idml2xml:css-rule-by-name', idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']))"/>
+    <xsl:message select="idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']), count($style)"></xsl:message>
     <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
-                                                        ../idml2xml:attribute[@name eq 'numbering-format'][last()],
-                                                        ../idml2xml:attribute[@name eq 'numbering-expression'][last()],
-                                                        ../idml2xml:attribute[@name eq 'numbering-level'][last()]
-                                                      )"></xsl:attribute>
+                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-format'][last()],
+                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'][last()],
+                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-level'][last()]
+                                                      )"/>
     <xsl:attribute name="hub:numbering-picture-string" select="../idml2xml:attribute[@name eq 'numbering-expression'][last()]"/>
     <xsl:if test="not(../idml2xml:attribute[@name eq 'numbering-starts-at'][last()] = '1')">
-      <xsl:attribute name="hub:numbering-starts-at" select="../idml2xml:attribute[@name eq 'numbering-starts-at'][last()]"/>  
+      <xsl:attribute name="hub:numbering-starts-at" select="../idml2xml:attribute[@name eq 'numbering-starts-at'][last()]"/>
     </xsl:if>
     <xsl:attribute name="hub:numbering-level" select="../idml2xml:attribute[@name eq 'numbering-level'][last()]"/>
     <xsl:if test="../idml2xml:attribute[@name eq 'numbering-continue'][last()] = 'true'">
