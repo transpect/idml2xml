@@ -1406,7 +1406,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- Replace anchors in groups with the items that they point to (typically, sidebar of the TextFrame type,
        or Rectangles) --> 
   <xsl:template 
-    match="dbk:sidebar[@remap eq 'Group']/dbk:anchor[exists(key('idml2xml:linking-item-by-id', @xml:id))]" 
+    match="dbk:sidebar[@remap = ('TextFrame','Group')]/dbk:anchor[exists(key('idml2xml:linking-item-by-id', @xml:id))]" 
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:for-each select="key('idml2xml:linking-item-by-id', @xml:id)">
       <xsl:copy copy-namespaces="no">
@@ -1422,7 +1422,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
 
   <!-- remove @linked on Groups when they’re not anchored (there ARE anchored Groups) -->
-  <xsl:template match="dbk:sidebar[@remap eq 'Group']/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
+  <xsl:template match="dbk:sidebar[@remap = ('TextFrame', 'Group')]/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
