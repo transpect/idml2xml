@@ -873,6 +873,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
     </xsl:copy>
   </xsl:template>
+
   <xsl:template mode="idml2xml:XML-Hubformat-extract-frames-genFrame idml2xml:XML-Hubformat-extract-frames" priority="3"
     match="idml2xml:genFrame[not(node())]" />
 
