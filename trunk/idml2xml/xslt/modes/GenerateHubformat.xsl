@@ -697,9 +697,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="key('idml2xml:css-rule-by-name', idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']))"/>
     <xsl:message select="idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']), count($style)"></xsl:message>
     <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
-                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-format'][last()],
-                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'][last()],
-                                                        ($style, ..)/idml2xml:attribute[@name eq 'numbering-level'][last()]
+                                                        (($style, ..)/idml2xml:attribute[@name eq 'numbering-format'])[last()],
+                                                        (($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'])[last()],
+                                                        (($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()]
                                                       )"/>
     <xsl:attribute name="hub:numbering-picture-string" select="../idml2xml:attribute[@name eq 'numbering-expression'][last()]"/>
     <xsl:if test="not(../idml2xml:attribute[@name eq 'numbering-starts-at'][last()] = '1')">
