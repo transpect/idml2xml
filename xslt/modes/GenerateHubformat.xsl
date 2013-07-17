@@ -937,16 +937,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:apply-templates select="node() except idml2xml:genAnchor" mode="#current"/>
       </xsl:when>
       <xsl:otherwise>
+        <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath union @idml2xml:*)" as="attribute(*)*" />
         <xsl:if test="idml2xml:genAnchor">
           <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
         </xsl:if>
-        <phrase>
-          <xsl:if test="not($role = ('', 'No character style'))">
-            <xsl:attribute name="role" select="$role"/>
-          </xsl:if>
-          <xsl:variable name="atts" select="@* except (@aid:cstyle union @srcpath union @idml2xml:*)" as="attribute(*)*" />
-          <xsl:apply-templates select="@srcpath, $atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
-        </phrase>
+        <xsl:choose>
+          <xsl:when test="$atts or @srcpath">
+            <phrase>
+              <xsl:if test="not($role = ('', 'No character style'))">
+                <xsl:attribute name="role" select="$role"/>
+              </xsl:if>
+              <xsl:apply-templates select="@srcpath, $atts, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
+            </phrase>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
