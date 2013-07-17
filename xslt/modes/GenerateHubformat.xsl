@@ -694,9 +694,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                              [. = 'idml2xml:numbered']"
     mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="style" as="element(css:rule)?"
-      select="if (parent::css:rule) then ()
-              else key('idml2xml:css-rule-by-name', idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']))"/>
-    <xsl:message select="idml2xml:StyleNameEscape(../idml2xml:attribute[@name eq 'aid:pstyle']), count($style)"></xsl:message>
+      select="if (exists(parent::css:rule)) then ()
+              else key(
+                'idml2xml:css-rule-by-name', 
+                idml2xml:StyleNameEscape(
+                  ../idml2xml:attribute[@name eq 'aid:pstyle']
+                )
+              )"/>
     <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-format'])[last()],
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'])[last()],
