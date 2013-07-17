@@ -110,15 +110,18 @@
       </xsl:if>
       <xsl:variable name="crossrefs" select="CrossReference" />
       <xsl:choose>
+        <xsl:when test="exists($crossrefs) and not(Topic)" />
         <xsl:when test="exists($pagenum)">
           <xsl:attribute name="pagenum" select="$pagenum" />
         </xsl:when>
-        <xsl:when test="exists($crossrefs)" />
         <xsl:otherwise>
           <xsl:message>No page number for topic <xsl:sequence select="." />
           </xsl:message>
         </xsl:otherwise>
       </xsl:choose>
+      <xsl:if test="exists($crossrefs) and not(exists(idml2xml:index-crossrefs(.)))">
+        <xsl:attribute name="{if ($crossrefs[1]/@CrossReferenceType eq 'See') then 'see' else 'seealso'}-crossref-topics" select="distinct-values($crossrefs/@ReferencedTopic)" />
+      </xsl:if>
       <primary>
         <xsl:copy-of select="@in-embedded-story" />
         <xsl:value-of select="@Name"/>
@@ -144,6 +147,7 @@
       <xsl:sequence select="idml2xml:index-crossrefs(.)" />
     </tertiary>
   </xsl:template>
+
 
   <!-- see-like entries in the designmap will be extracted in idml2xml.xsl, variable idml2xml:IndexTerms-extract -->
 
