@@ -271,12 +271,20 @@
 
   <xsl:key name="hyperlink-by-source-id" match="Hyperlink" use="@Source" />
   <xsl:key name="hyperlink-dest-by-self" match="HyperlinkURLDestination | HyperlinkPageDestination | ParagraphDestination | HyperlinkTextDestination" use="@Self" />
-
+  <xsl:key name="hyperlinkPageItemSource-by-sourcePageItem" match="HyperlinkPageItemSource" use="@SourcePageItem"/>
+  
+  <xsl:template match="*[key('hyperlinkPageItemSource-by-sourcePageItem', @Self)]" mode="idml2xml:ExtractTagging">
+    <xsl:apply-templates select="key('hyperlinkPageItemSource-by-sourcePageItem', @Self)" mode="#current">
+      <xsl:with-param name="page-item" select="."/>
+    </xsl:apply-templates>
+  </xsl:template>
+  
 	<xsl:template match="HyperlinkTextSource[@Hidden eq 'true'] | CrossReferenceSource[@Hidden eq 'true']" mode="idml2xml:ExtractTagging">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-	<xsl:template match="HyperlinkTextSource | CrossReferenceSource" mode="idml2xml:ExtractTagging">
+  <xsl:template match="HyperlinkTextSource | CrossReferenceSource | HyperlinkPageItemSource" mode="idml2xml:ExtractTagging">
+    <xsl:param name="page-item" as="element(*)?"/><!-- only for HyperlinkPageItemSource -->
     <xsl:variable name="hyperlink" select="key('hyperlink-by-source-id', @Self)" as="element(Hyperlink)?" />
 	  <xsl:variable name="destination" select="$hyperlink/Properties/Destination" as="element(Destination)?" />
 	  <xsl:choose>
@@ -300,7 +308,7 @@
 	        </xsl:message>
 	      </xsl:if>
 	      <xsl:apply-templates select="$destination[1]" mode="idml2xml:ExtractTagging_Linking">
-          <xsl:with-param name="document-context" select="."/>
+          <xsl:with-param name="document-context" select="($page-item, .)[1]"/>
         </xsl:apply-templates>
       </xsl:otherwise>
 	  </xsl:choose>
@@ -315,26 +323,61 @@
       <xsl:when
         test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
         <idml2xml:link linkend="{idml2xml:escape-id(.)}" remap="{$target-element-name}">
-          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
+          <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
+            <xsl:with-param name="document-context" select="$document-context"/>
+          </xsl:call-template>
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
         <!-- is $document-context/@Name intended? -->
         <idml2xml:link linkend="id_{$document-context/@Name}" remap="{$target-element-name}">
-          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
+          <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
+            <xsl:with-param name="document-context" select="$document-context"/>
+          </xsl:call-template>
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
         <idml2xml:link xlink:href="{$dest[1]/@DestinationURL}">
           <!-- only use first item, sometimes the link url appears twice, MK 2013-04-23 -->
-          <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
+          <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
+            <xsl:with-param name="document-context" select="$document-context"/>
+          </xsl:call-template>
         </idml2xml:link>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
-        <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource": Don't know how to handle <xsl:value-of
+        <xsl:choose>
+          <xsl:when test="$document-context/self::HyperlinkTextSource or $document-context/self::CrossReferenceSource">
+            <xsl:apply-templates select="$document-context/node()" mode="idml2xml:ExtractTagging"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- Typically a Rectangle: -->
+            <xsl:for-each select="$document-context">
+              <xsl:copy>
+                <xsl:apply-templates select="@*, node()" mode="idml2xml:ExtractTagging"/>
+              </xsl:copy>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:message>warning: idml2xml ExtractTagging.xsl template match="HyperlinkTextSource | CrossReferenceSource| HyperlinkPageItemSource": Don't know how to handle <xsl:value-of
             select="."/>
         </xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="idml2xml:extract-tagging_render-link-document-context">
+    <xsl:param name="document-context" as="element(*)"/>
+    <xsl:choose>
+      <xsl:when test="$document-context/self::HyperlinkTextSource or $document-context/self::CrossReferenceSource">
+        <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Typically a Rectangle: -->
+        <xsl:for-each select="$document-context">
+          <xsl:copy>
+            <xsl:apply-templates select="@*, node()" mode="idml2xml:ExtractTagging"/>
+          </xsl:copy>
+        </xsl:for-each>    
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

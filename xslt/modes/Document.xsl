@@ -120,7 +120,7 @@
       <xsl:copy-of select="idPkg:Graphic" />
       <xsl:copy-of select="idPkg:Styles" />
       <idml2xml:hyper>
-        <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink" />
+        <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink | HyperlinkPageItemSource" />
       </idml2xml:hyper>
       <idml2xml:lang>
         <xsl:copy-of select="Language" />

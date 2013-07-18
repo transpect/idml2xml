@@ -13,7 +13,7 @@
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns:hub = "http://www.le-tex.de/namespace/hub"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid5 aid xs idml2xml dbk xlink letex css hub"
+    exclude-result-prefixes="idPkg aid5 aid xs idml2xml xlink dbk letex css hub"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -1368,14 +1368,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <xsl:template match="dbk:mediaobject[not(parent::dbk:para or parent::dbk:phrase)]" 		
+  <!-- Links around unanchored mediaobjects may occur on the top level --> 
+  <xsl:template match="*[self::dbk:mediaobject or self::dbk:link][not(parent::dbk:para or parent::dbk:phrase or parent::dbk:link)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2">
     <xsl:element name="para">
       <xsl:next-match/>
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="dbk:mediaobject[some $n in ancestor::dbk:para[1]//text() satisfies (matches($n, '\S'))]" 		
+  <xsl:template match="dbk:mediaobject[(some $n in ancestor::dbk:para[1]//text() satisfies (matches($n, '\S')))
+                                       or
+                                       (exists(parent::dbk:link))]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <inlinemediaobject>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
