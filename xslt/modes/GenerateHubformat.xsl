@@ -630,6 +630,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
+  <xsl:template match="TextWrapPreference | FrameFittingOption | ObjectExportOption | AnchoredObjectSetting"
+    mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
   <xsl:template match="idml2xml:attribute" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:choose>
       <xsl:when test="matches(@name, '^\i\c*$')">
