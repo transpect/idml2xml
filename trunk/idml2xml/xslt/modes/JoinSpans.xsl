@@ -20,7 +20,9 @@
             <xsl:if test="$inner">
               <xsl:copy>
                 <xsl:if test="$srcpaths = 'yes'">
-                  <xsl:attribute name="srcpath" select="current-group()/@srcpath"/>
+                  <xsl:call-template name="merge-srcpaths">
+                    <xsl:with-param name="srcpaths" select="current-group()/@srcpath"/>
+                  </xsl:call-template>
                 </xsl:if>
                 <xsl:copy-of select="@* except @srcpath"/>
                 <xsl:sequence select="$inner"/>
@@ -33,6 +35,18 @@
         </xsl:choose>
       </xsl:for-each-group>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template name="merge-srcpaths" as="attribute(srcpath)?">
+    <xsl:param name="srcpaths" as="attribute(srcpath)*"/>
+    <xsl:variable name="distinct" as="xs:string*">
+      <xsl:for-each-group select="$srcpaths" group-by="replace(., ';n=\d+$', '')">
+        <xsl:sequence select="string(.)"/>
+      </xsl:for-each-group>
+    </xsl:variable>
+    <xsl:if test="exists($distinct)">
+      <xsl:attribute name="srcpath" select="$distinct" separator=" "/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:function name="idml2xml:attr-hashes" as="xs:string*">
