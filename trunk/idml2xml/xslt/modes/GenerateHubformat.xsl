@@ -432,7 +432,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'percentage'">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="if (xs:integer($val) eq -1) then 1 else xs:double($val) * 0.01" /></idml2xml:attribute>
+        <idml2xml:attribute name="{../@target-name}">
+          <xsl:value-of select="if ($val castable as xs:integer and xs:integer($val) eq -1) then 1 else round(xs:double($val)*100) * 0.0001" />
+        </idml2xml:attribute>
       </xsl:when>
       
       <xsl:when test=". eq 'position'">
@@ -510,6 +512,33 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
   
+  <xsl:function name="idml2xml:generate-css-transform-expression" as="xs:string?" >
+    <xsl:param name="atts" as="attribute(*)*"/>
+    <xsl:variable name="scaleX" select="$atts[name() = 'css:_transform_scaleX']/number()" as="xs:double?"/>
+    <xsl:variable name="scaleY" select="$atts[name() = 'css:_transform_scaleY']/number()" as="xs:double?"/>
+    <!-- to do: rotate, translate -->
+    <xsl:choose>
+      <xsl:when test="exists($atts) and (every $a in $atts satisfies (matches(name($a), 'transform_scale[XY]')))">
+        <xsl:choose>
+          <xsl:when test="$scaleX = $scaleY and ($scaleY = 1)"/>
+          <xsl:when test="$scaleX = $scaleY and ($scaleY != 1)">
+            <xsl:sequence select="concat('scale(', $scaleX, ')')"/>
+          </xsl:when>
+          <xsl:when test="(not($scaleX) or $scaleX = 1) and ($scaleY != 1)">
+            <xsl:sequence select="concat('scaleY(', $scaleY, ')')"/>
+          </xsl:when>
+          <xsl:when test="(not($scaleY) or $scaleY = 1) and ($scaleX != 1)">
+            <xsl:sequence select="concat('scaleX(', $scaleX, ')')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="concat('scale(', $scaleX, ', ', $scaleY, ')')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:function>
+  
+
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
     <xsl:sequence select="concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')" />
@@ -591,9 +620,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
-    <xsl:variable name="content" as="node()*">
+    <xsl:variable name="atts" as="attribute(*)*">
       <xsl:apply-templates select="idml2xml:attribute[not(@name = following-sibling::idml2xml:remove-attribute/@name)]" mode="#current" />
-      <xsl:apply-templates select="idml2xml:style-link[last()][not(@type = following-sibling::idml2xml:no-style-link/@type)]" mode="#current" />
+    </xsl:variable>
+    <xsl:variable name="content" as="node()*">
+      <xsl:apply-templates select="$atts[not(matches(name(), '^css:_transform'))]" mode="idml2xml:XML-Hubformat-properties2atts-compound" />
+      <xsl:variable name="transform-expression" select=" idml2xml:generate-css-transform-expression($atts[matches(name(), '^css:_transform')])" />
+      <xsl:if test="$transform-expression">
+        <xsl:attribute name="css:transform" select="$transform-expression"/>
+      </xsl:if>
       <xsl:apply-templates select="node() except (idml2xml:attribute | idml2xml:wrap | idml2xml:style-link)" mode="#current" />
     </xsl:variable>
     <xsl:choose>
@@ -613,6 +648,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:copy>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="@*" mode="idml2xml:XML-Hubformat-properties2atts-compound">
+    <xsl:copy/>
   </xsl:template>
 
   <xsl:function name="idml2xml:wrap" as="node()*">

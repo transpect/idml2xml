@@ -112,11 +112,7 @@
           <val eq="true" target-value="none"/>
           <val eq="false"/>
         </prop>
-        <!-- For Condition elements: -->
-        <prop name="Visible" target-name="css:display" hubversion="1.1">
-          <val eq="false" target-value="none"/>
-          <val eq="true"/>
-        </prop>
+        <prop name="HorizontalScale" type="percentage" target-name="css:_transform_scaleX"/>
         <prop name="Justification">
           <!-- string "LeftAlign" | string "CenterAlign" | string "RightAlign" | 
                string "LeftJustified" | string "RightJustified" | 
@@ -193,6 +189,12 @@
           <val match="CenterAlign" target-name="css:vertical-align" target-value="middle" />
           <val match="BottomAlign" target-name="css:vertical-align" target-value="bottom" />
         </prop>
+        <prop name="VerticalScale" type="percentage" target-name="css:_transform_scaleY" />
+        <!-- For Condition elements: -->
+        <prop name="Visible" target-name="css:display" hubversion="1.1">
+          <val eq="false" target-value="none"/>
+          <val eq="true"/>
+        </prop>
         <prop name="xlink:href" type="passthru"/>
 
         <prop name="NumberingApplyRestartPolicy" implement="maybe later" />
@@ -207,7 +209,6 @@
         <prop name="Composer" implement="maybe later" />
         <prop name="DropCapCharacters" implement="maybe later" />
         <prop name="DropCapLines" implement="maybe later" />
-        <prop name="HorizontalScale" implement="maybe later"/>
         <prop name="Hyphenation" implement="maybe later" />
         <prop name="HyphenateAfterFirst" implement="maybe later" />
         <prop name="HyphenateBeforeLast" implement="maybe later" />
@@ -240,7 +241,6 @@
         <prop name="RightEdgeStrokeWeight" type="length" target-name="css:border-right-width"/>
         <prop name="RightEdgeStrokeColor" type="color" target-name="css:border-right-color"/>
         <prop name="Tracking" implement="maybe later" />
-        <prop name="VerticalScale" implement="maybe later" />
         <prop name="OTFFigureStyle" implement="maybe later" />
         <prop name="DesiredWordSpacing" implement="maybe later" />
         <prop name="MaximumWordSpacing" implement="maybe later" />

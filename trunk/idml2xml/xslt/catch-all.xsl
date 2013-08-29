@@ -32,6 +32,7 @@
           idml2xml:JoinSpans-unwrap
           idml2xml:Statistics
           idml2xml:XML-Hubformat-add-properties
+          idml2xml:XML-Hubformat-properties2atts-compound
           idml2xml:XML-Hubformat-extract-frames
           idml2xml:XML-Hubformat-remap-para-and-span
           idml2xml:XML-Hubformat-cleanup-paras-and-br
