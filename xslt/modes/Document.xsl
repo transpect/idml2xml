@@ -148,13 +148,19 @@
       <xsl:apply-templates 
         select="idPkg:Spread/Spread/(
                                          TextFrame[idml2xml:is-story-origin(.)]
-                                       | Group[.//(TextFrame[idml2xml:is-story-origin(.)] | *[name() = $idml2xml:shape-element-names])]
+                                       | Group[.//(  TextFrame[idml2xml:is-story-origin(.)] 
+                                                   | *[name() = $idml2xml:shape-element-names])]
                                        | *[name() = $idml2xml:shape-element-names]
                                     ),
                 //XmlStory" 
         mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
   </xsl:template>
+
+  <!-- Groups that contain text frames with a StoryID will be moved to the location 
+       of the corresponding StoryRef if such exists. They will be removed here -->
+  <xsl:template match="Group[.//TextFrame[idml2xml:conditional-text-anchored(.)]]"
+    mode="idml2xml:DocumentResolveTextFrames" priority="4"/>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
 
@@ -202,12 +208,27 @@
           <xsl:copy-of select="@AppliedConditions, node()"/>
         </xsl:when>
         <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
-          <TextFrame bla="blup">
-            <xsl:apply-templates select="key('TextFrame-by-ParentStory', $story/@Self)/(@*, *)" mode="#current"/>
-            <xsl:apply-templates select="$story" mode="#current"/>
-          </TextFrame>
+          <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(TextFrame)"/>
+          <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
+            as="element(*)"/>
+          <xsl:choose>
+            <xsl:when test="$potential-group/self::Group">
+              <xsl:for-each select="$potential-group">
+                <xsl:copy>
+                  <xsl:apply-templates select="@*, node()" mode="#current"/>
+                </xsl:copy>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:for-each select="$potential-group">
+                <xsl:copy>
+                  <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
+                </xsl:copy>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
-        <!-- otherwise: the story is anchored within itself, don’t do nothing -->
+        <!-- otherwise: the story is anchored within itself, don’t do anything -->
       </xsl:choose>
     </xsl:copy>
   </xsl:template>
@@ -270,43 +291,6 @@
 
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
-  
-  <!-- A Group that is in a Story (rather than in a Spread -->
-  <xsl:template match="Group[not(ancestor::Spread)]
-    [every $c in * satisfies ($c/name() = $idml2xml:content-group-children)]"
-    mode="idml2xml:DocumentResolveTextFrames_DISABLED2" priority="2">
-    <xsl:copy>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="TextFrame | *[name() = $idml2xml:shape-element-names]" 
-        group-adjacent="self::TextFrame/@ParentStory, .[not(self::TextFrame)]/@Self">
-        <xsl:apply-templates select="." mode="#current" />
-      </xsl:for-each-group>
-    </xsl:copy>
-    
-  </xsl:template>
-
-  <xsl:template match="Group[not(ancestor::Spread)]
-    [not(every $c in * satisfies ($c/name() = content-group-children))]"
-    mode="idml2xml:DocumentResolveTextFrames_DISABLED2" >
-    <xsl:comment>HANDLE ME! (I'm in Document.xsl)</xsl:comment>
-    <xsl:message>HANDLE ME! (I'm in Document.xsl)</xsl:message>
-    <xsl:next-match/>    
-  </xsl:template>
-
-    
-
-  <xsl:template match="TextFrame[
-                         parent::Spread or 
-                         parent::Group
-                       ]" mode="idml2xml:DocumentResolveTextFrames_DISABLED2">
-    <xsl:copy>
-      <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current">
-        <xsl:with-param name="is-a-grouped-spread-textframe" select="true()" tunnel="yes"/>
-        <xsl:with-param name="textframe" select="." tunnel="yes"/>
-      </xsl:apply-templates>
-    </xsl:copy>
-  </xsl:template>
 
   <xsl:template match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
@@ -319,75 +303,6 @@
     <xsl:param name="group" as="element(Group)"/>
     <xsl:sequence select="not($group/TextFrame[@PreviousTextFrame eq 'n'])"/>
   </xsl:function>
-
-  <xsl:template match="Story" mode="idml2xml:DocumentResolveTextFrames_DISABLED2">
-    <xsl:param name="textframe" as="node()?" tunnel="yes"/>
-    <xsl:param name="is-a-grouped-spread-textframe" tunnel="yes"/>
-    
-    <xsl:variable name="preceding-non-frames" as="element(*)*"
-      select="$textframe/preceding-sibling::*[name() = $idml2xml:shape-element-names or self::Group[idml2xml:is-group-without-frame(.)]]"/>
-    <xsl:variable name="following-non-frames" as="element(*)*"
-      select="$textframe/following-sibling::*[name() = $idml2xml:shape-element-names or self::Group[idml2xml:is-group-without-frame(.)]]"/>
-    <xsl:choose>
-      <xsl:when test="$is-a-grouped-spread-textframe and
-                      $textframe/parent::Group and 
-                      (
-                        $preceding-non-frames or 
-                        $following-non-frames
-                      )">
-        <xsl:copy>
-          <xsl:apply-templates select="@*" mode="#current" />
-          <Group>
-            <xsl:choose>
-              <xsl:when test="$textframe/preceding-sibling::TextFrame[@PreviousTextFrame eq 'n']">
-                <xsl:variable name="last-preceding-textframe" as="element(TextFrame)"
-                  select="$textframe/preceding-sibling::TextFrame[@PreviousTextFrame eq 'n'][1]"/>
-                <xsl:if
-                  test="exists($preceding-non-frames[ . &gt;&gt; $last-preceding-textframe ])">
-                  <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-                    <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                      <xsl:apply-templates
-                        select="$preceding-non-frames[ . &gt;&gt; $last-preceding-textframe ]"
-                        mode="#current"/>
-                    </CharacterStyleRange>
-                    <Br/>
-                  </ParagraphStyleRange>
-                </xsl:if>
-              </xsl:when>
-              <xsl:when test="exists($preceding-non-frames)">
-                <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-                  <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                    <xsl:apply-templates
-                      select="$preceding-non-frames"
-                      mode="#current">
-                      <xsl:with-param name="in-group-frames" select="self::Group//TextFrame" as="element(TextFrame)*"
-                        tunnel="yes"/>
-                    </xsl:apply-templates>
-                  </CharacterStyleRange>
-                  <Br/>
-                </ParagraphStyleRange>
-              </xsl:when>
-            </xsl:choose>
-            <xsl:apply-templates select="node()" mode="#current" />
-            <xsl:if test="not($textframe/following-sibling::TextFrame[@PreviousTextFrame eq 'n'])
-                          and exists($following-non-frames)">
-              <ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Rectangle">
-                <CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">
-                  <xsl:apply-templates select="$following-non-frames" mode="#current">
-                    <xsl:with-param name="in-group-frames" select="self::Group//TextFrame" as="element(TextFrame)*" tunnel="yes"/>
-                  </xsl:apply-templates>
-                </CharacterStyleRange>
-                <Br/>
-              </ParagraphStyleRange>
-            </xsl:if>
-          </Group>
-        </xsl:copy>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:next-match/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
   <xsl:template match="TextFrame/@*" mode="idml2xml:DocumentResolveTextFrames" priority="-0.125" />
@@ -423,15 +338,6 @@
     <Br reason="Rectangle_anchored" />
   </xsl:template>
 
-  <!-- -->
-  <xsl:template mode="idml2xml:DocumentResolveTextFrames_DISABLED2"
-    match="Group[not(ancestor::Spread)]/*[name() = $idml2xml:shape-element-names]" >
-    <xsl:copy>
-      <xsl:attribute name="idml2xml:keep-object" select="'true'"/>
-      <xsl:apply-templates select="@*, node()" mode="#current" />
-    </xsl:copy>
-  </xsl:template>
-  
   <!-- element Change: textual changes -->
 
   <xsl:template 
@@ -444,7 +350,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <!-- remove (binary) metadata to reduce debugging file size: can be resolved from variable Document -->
+  <!-- remove (binary) metadata to reduce debugging file size -->
   <xsl:template match="MetadataPacketPreference" mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
