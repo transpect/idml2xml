@@ -514,8 +514,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:function name="idml2xml:generate-css-transform-expression" as="xs:string?" >
     <xsl:param name="atts" as="attribute(*)*"/>
-    <xsl:variable name="scaleX" select="$atts[name() = 'css:_transform_scaleX']/number()" as="xs:double?"/>
-    <xsl:variable name="scaleY" select="$atts[name() = 'css:_transform_scaleY']/number()" as="xs:double?"/>
+    <xsl:variable name="scaleX" select="$atts[name() = 'css:_transform_scaleX'][last()]/number()" as="xs:double?"/>
+    <xsl:variable name="scaleY" select="$atts[name() = 'css:_transform_scaleY'][last()]/number()" as="xs:double?"/>
     <!-- to do: rotate, translate -->
     <xsl:choose>
       <xsl:when test="exists($atts) and (every $a in $atts satisfies (matches(name($a), 'transform_scale[XY]')))">
