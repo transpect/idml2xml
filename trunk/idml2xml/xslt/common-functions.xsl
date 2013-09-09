@@ -451,8 +451,8 @@
                             200
                           )"/>
                 <xsl:message
-                  select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON:', 
-                          string($causes[@present = 'true']/@name),
+                  select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON(s):', 
+                          string-join($causes[@present = 'true']/@name, ', '),
                           if (normalize-space($text-content)) 
                           then concat('TEXT: ', $text-content) 
                           else ''"/>
