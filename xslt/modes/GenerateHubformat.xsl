@@ -867,6 +867,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                          count(idml2xml:genPara)]/*[local-name()=('style-link','attribute')]" 
                 mode="idml2xml:XML-Hubformat-properties2atts" />
 
+  <xsl:template match="dbk:tabs[following-sibling::dbk:tabs]" mode="idml2xml:XML-Hubformat-properties2atts"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
