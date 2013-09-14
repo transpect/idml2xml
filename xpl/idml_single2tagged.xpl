@@ -47,6 +47,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.20" mode="idml2xml:DocumentStoriesSorted" name="DocumentStoriesSorted">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -54,6 +55,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.22" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -61,6 +63,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.24" mode="idml2xml:SeparateParagraphs">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -68,6 +71,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.26" mode="idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -75,6 +79,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.27" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -82,6 +87,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.28" mode="idml2xml:ConsolidateParagraphStyleRanges">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -89,6 +95,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.29" mode="idml2xml:GenerateTagging" name="GenerateTagging">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -96,6 +103,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.30" mode="idml2xml:ExtractTagging" name="ExtractTagging">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -103,6 +111,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.50" mode="idml2xml:AutoCorrect" name="AutoCorrect">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -110,6 +119,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.52" mode="idml2xml:AutoCorrect-clean-up">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -117,6 +127,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -124,6 +135,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -131,6 +143,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
@@ -138,6 +151,7 @@
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.60" mode="idml2xml:JoinSpans" name="JoinSpans">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
