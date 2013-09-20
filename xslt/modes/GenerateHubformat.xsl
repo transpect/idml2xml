@@ -1236,6 +1236,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
     <informaltable>
+      <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
