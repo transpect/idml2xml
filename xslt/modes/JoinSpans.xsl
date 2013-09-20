@@ -37,7 +37,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template name="merge-srcpaths">
+  <xsl:template name="merge-srcpaths" as="attribute()">
     <xsl:param name="srcpaths" as="attribute(srcpath)*"/>
     <xsl:variable name="distinct" as="xs:string*">
       <xsl:for-each-group select="$srcpaths" group-by="replace(., ';n=\d+$', '')">
