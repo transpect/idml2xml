@@ -10,7 +10,7 @@
     exclude-result-prefixes = "xs idPkg letex"
 >
   
-  <xsl:include href="http://transpect.le-tex.de/xslt-util/colors/colors.xsl"/>
+  <xsl:include href="colors/colors.xsl"/>
   
   <xsl:variable name="idml2xml:shape-element-names" as="xs:string+"
     select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon')"/>
