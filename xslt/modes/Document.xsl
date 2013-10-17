@@ -8,6 +8,9 @@
     xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
     exclude-result-prefixes = "idPkg aid5 aid xs"
 >
+
+  <xsl:import href="../common-functions.xsl"/>
+
   <!--== KEYs ==-->
   <xsl:key name="story" match="Story" use="@Self"/>
 
@@ -117,6 +120,40 @@
           <ns short="{substring-after( @Name, ':' )}" space="{@Value}" />
         </xsl:for-each-group>
       </idml2xml:namespaces>
+      <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)+"/>
+      <xsl:for-each select="$spreads">
+        <xsl:variable name="pos" select="position()" as="xs:integer" />
+        <idml2xml:sidebar remap="Spread" id="spread_{position()}">
+          <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', $idml2xml:shape-element-names)]">
+            <anchor linkend="{lower-case(local-name())}_{position()}"/>
+          </xsl:for-each>
+        </idml2xml:sidebar>
+        <xsl:for-each select="Page">
+          <idml2xml:sidebar remap="Page" id="page_{position()}">
+            <xsl:attribute name="idml2xml:width" 
+              select="concat(
+                      tokenize(
+                        (@GeometricBounds, //DocumentPreference/@PageWidth)[1],
+                        ' ')[4], 
+                      'pt'
+                    )"/>
+          <xsl:attribute name="idml2xml:height" 
+            select="concat(
+                      tokenize(
+                        (@GeometricBounds, //DocumentPreference/@PageWidth)[1],
+                        ' ')[3], 
+                      'pt'
+                    )"/>
+          <xsl:attribute name="idml2xml:margin" 
+            select="concat(
+                      (MarginPreference/@Top, //MarginPreference/@Top)[1], 'pt ',
+                      (MarginPreferenceMargin/@Right, //MarginPreference/@Right)[1], 'pt ',
+                      (MarginPreferenceMargin/@Bottom, //MarginPreference/@Bottom)[1], 'pt ',
+                      (MarginPreference/@Left, //MarginPreference/@Left)[1], 'pt'
+                    )"/>
+          </idml2xml:sidebar>
+        </xsl:for-each>
+      </xsl:for-each>
       <xsl:copy-of select="idPkg:Graphic" />
       <xsl:copy-of select="idPkg:Styles" />
       <idml2xml:hyper>

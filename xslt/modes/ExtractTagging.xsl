@@ -189,14 +189,14 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="*[name() = $idml2xml:shape-element-names][exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
       <xsl:attribute name="idml2xml:rectangle-embedded-source" select="'true'"/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="*[name() = $idml2xml:shape-element-names]
-                        [not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
+                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
                         [not(empty(descendant::Link/@LinkResourceURI))]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
       <xsl:apply-templates select="@*|descendant::Link/@LinkResourceURI" mode="#current"/>
@@ -218,8 +218,8 @@
   </xsl:template>
   
   <xsl:template match="*[name() = $idml2xml:shape-element-names]
-                        [not(exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
-                        [empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
+                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
+                        [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]" mode="idml2xml:ExtractTagging">
     <xsl:message select="concat('IDML2XML warning in ExtractTagging: Image ', @Self, ' with unknown xml structure.')"/>
   </xsl:template>
 
