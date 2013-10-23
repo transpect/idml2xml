@@ -341,8 +341,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" >
                 <!-- UnderlineColor has its tint value as a number in ../../@UnderlineTint,
                   while other Colors are tinted by means of a Tint element -->
-                <xsl:with-param name="multiplier" select="if ($val/name() = 'UnderlineColor') 
-                                                          then number(($val/../../@UnderlineTint, 100)[1]) * 0.01
+                <xsl:with-param name="multiplier" select="if (matches(($val/name(),'')[1], '(Stroke|Underline)Color')) 
+                                                          then number(($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')], 100)[1]) * 0.01
                                                           else 1.0"/>
               </xsl:apply-templates>
             </idml2xml:attribute>
