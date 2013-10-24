@@ -9,8 +9,6 @@
     exclude-result-prefixes = "idPkg aid5 aid xs"
 >
 
-  <xsl:import href="../common-functions.xsl"/>
-
   <!--== KEYs ==-->
   <xsl:key name="story" match="Story" use="@Self"/>
 
