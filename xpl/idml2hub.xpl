@@ -23,6 +23,7 @@
   
   <p:input port="dependency" primary="true" sequence="true">
     <p:documentation>Bogus port. Connect it to an output port of steps that should be executed before this.</p:documentation>
+    <p:empty/>
   </p:input>
   <p:output port="Document">
     <p:pipe step="single" port="result" />
