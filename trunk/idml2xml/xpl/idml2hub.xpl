@@ -42,8 +42,22 @@
   <p:import href="idml_single2tagged.xpl"/>
   <p:import href="idml_tagged2hub.xpl"/>
   <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-hub-xml-model.xpl" />
+  <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/simple-progress-msg.xpl"/>
   
-
+  <p:variable name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
+  
+  <letex:simple-progress-msg name="start-msg" file="idml2hub-start.txt">
+    <p:input port="msgs">
+      <p:inline>
+        <c:messages>
+          <c:message xml:lang="en">Starting IDML to flat Hub XML conversion</c:message>
+          <c:message xml:lang="de">Beginne Konvertierung von IDML zu flachem Hub XML</c:message>
+        </c:messages>
+      </p:inline>
+    </p:input>
+    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  </letex:simple-progress-msg>
+  
   <idml2xml:single-doc name="single">
     <p:with-option name="idmlfile" select="$idmlfile"/>  
     <p:with-option name="debug" select="$debug"/>  
@@ -81,4 +95,17 @@
     <p:with-option name="hub-version" select="$hub-version"/>
   </letex:prepend-hub-xml-model>
 
+  <letex:simple-progress-msg name="success-msg" file="idml2hub-success.txt">
+    <p:input port="msgs">
+      <p:inline>
+        <c:messages>
+          <c:message xml:lang="en">Successfully finished IDML to flat Hub XML conversion</c:message>
+          <c:message xml:lang="de">Konvertierung von IDML zu flachem Hub XML erfolgreich abgeschlossen</c:message>
+        </c:messages>
+      </p:inline>
+    </p:input>
+    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  </letex:simple-progress-msg>
+
+  <p:sink/>
 </p:declare-step>
