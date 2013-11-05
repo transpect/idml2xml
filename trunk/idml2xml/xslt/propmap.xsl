@@ -94,7 +94,7 @@
           <val eq="RightToLeftDirection" target-value="rtl"/>
         </prop>
         <prop name="FillColor" type="color" target-name="css:background-color">
-          <context match="Para|Char|genSpan" target-name="css:color"/>
+          <context match="Para|Char|genSpan|Cell" target-name="css:color"/>
         </prop>
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
