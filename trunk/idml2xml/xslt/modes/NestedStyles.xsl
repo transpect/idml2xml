@@ -187,6 +187,8 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  <xsl:template match="idml2xml:tab[@role eq 'end-nested-style']" mode="idml2xml:NestedStyles-apply" />
+
   <xsl:function name="idml2xml:NestedStyles-Delimiter-to-regex-chars" as="xs:string?">
     <xsl:param name="instruction" as="element(ListItem)"/>
     <xsl:choose>
@@ -215,6 +217,9 @@
       <xsl:when test="$instruction/Delimiter = ('EnSpace', 'EmSpace', 'ForcedLineBreak', 'NonbreakingSpace')">
         <xsl:sequence 
           select="$nodes/self::idml2xml:sep[matches(., concat('^[', idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), ']$'))]"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = 'EndNestedStyle'">
+        <xsl:sequence select="$nodes/self::idml2xml:tab[@role eq 'end-nested-style']"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'Tabs'">
         <xsl:sequence select="$nodes/self::idml2xml:tab"/>
