@@ -9,9 +9,6 @@
     exclude-result-prefixes = "idPkg aid5 aid xs"
 >
 
-  <!--== KEYs ==-->
-  <xsl:key name="story" match="Story" use="@Self"/>
-
   <!--== mode: Document ==-->
   <xsl:template match="
                         idPkg:Fonts |
@@ -227,8 +224,9 @@
                             return idml2xml:text-content($e), 
                             '' 
                           )"/>
-    <xsl:variable name="referencing-story" as="element(Story)?" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
-    <xsl:sequence select="if ($id and $id != '') 
+    <xsl:variable name="same-id-stories" as="element(Story)+" select="key('Story-by-StoryID', $id, root($frame))"/>
+    <xsl:variable name="referencing-story" as="element(Story)*" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
+    <xsl:sequence select="if ($id and $id != '' and count($same-id-stories) eq 1) 
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
                           else false()"/>
   </xsl:function>
@@ -236,13 +234,22 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(.))" as="element(Story)?"/>
+      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(.))" as="element(Story)*"/>
       <xsl:choose>
-        <xsl:when test="not($story/@Self)"><!-- doesn’t resolve, reproduce applied conditions and content 
+        <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
           so that Schematron can report non-resolution -->
+          <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
+          <xsl:copy-of select="@AppliedConditions, node()"/>
+        </xsl:when>
+        <xsl:when test="count($story) gt 1">
+          <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="idml2xml:text-content(.)"/>. 
+            Using only the first Story (with @Self <xsl:value-of select="$story/@Self"/>).
+          </xsl:message>
+          <xsl:attribute name="idml2xml:reason" select="'MULT_StoryID'"/>
           <xsl:copy-of select="@AppliedConditions, node()"/>
         </xsl:when>
         <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
+          <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
           <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(TextFrame)"/>
           <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
             as="element(*)"/>
@@ -311,7 +318,24 @@
                                       )
                                     )
                                  )]" 
-                mode="idml2xml:DocumentResolveTextFrames"/>
+                mode="idml2xml:DocumentResolveTextFrames">
+    <!-- Discard StoryIDs that are referenced somewhere. 
+      In order to look up referencing stories (with a correpsonding StoryRef in it), 
+      we concatenate all StoryIDs in this story. As a consequence, if there are multiple
+      StoryIDs in this story (which is an error), the concatenated IDs will probably not resolve,
+      therefore this StoryID will not be discarded by this template and may be later checked for
+      by a Schematron rule. -->
+    <!-- Another type of error is: there are identical StoryIDs in different Stories. Will keep StoryIDs then, too. -->
+    <xsl:variable name="concat-id" as="xs:string"
+      select="string-join(for $e in ancestor::Story//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
+    <xsl:variable name="same-id-stories" as="element(Story)+" select="key('Story-by-StoryID', $concat-id)"/>
+    <xsl:if test="count($same-id-stories) gt 1">
+      <xsl:copy>
+        <xsl:attribute name="idml2xml:reason" select="'MULT_StoryID'"/>
+        <xsl:copy-of select="@*, node()" />
+      </xsl:copy>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryID']
     [exists(key('referencing-Story-by-StoryID', string-join(
@@ -330,7 +354,7 @@
   <xsl:template match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="key( 'story', current()/@ParentStory )" mode="#current" />
+      <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
     </xsl:copy>
   </xsl:template>
 
@@ -360,18 +384,6 @@
              or $output-items-not-on-workspace = ('yes','1','true')
            ]" 
     mode="idml2xml:DocumentResolveTextFrames" />
-
-  <!-- anchored image: need an extra paragraph -->
-  <!-- GI 2013-05-02: Why? Counterexample: SR 118, caption of Table 11.2. Inline image 
-    in a Rectangle with  <AnchoredObjectSetting AnchorYoffset="-3.1590519067328278"/>
-    There shouldn’t be a paragraph break after it. --> 
-  <xsl:template mode="idml2xml:DocumentResolveTextFrames_DISABLED"
-    match="*[name() = $idml2xml:shape-element-names][not(ancestor::Spread)][AnchoredObjectSetting and not(AnchoredObjectSetting/@AnchoredPosition)]" priority="2">
-    <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current" />
-    </xsl:copy>
-    <Br reason="Rectangle_anchored" />
-  </xsl:template>
 
   <!-- element Change: textual changes -->
 
