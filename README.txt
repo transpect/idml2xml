@@ -1,25 +1,25 @@
-# Makefile invocation (XSLT-only pipeline):
-make -f /path/to/idml2xml/Makefile sample/testdokument.hub.xml
-# If you invoke the Makefile without other arguments, you'll get a usage message.
+idml2xml: An XSLT 2 / XProc based tool for converting IDML to
+Hub XML (https://github.com/gimsieke/Hub).
 
-# XProc invocation:
+It will typically be used in conversion pipelines that use other
+modules, such as https://subversion.le-tex.de/common/evolve-hub/
+or https://subversion.le-tex.de/common/epubtools/
+
+XProc invocation:
 
 /path/to/calabash.sh file:/path/to/idml2xml/xpl/idml2hub.xpl idmlfile=/path/to/idml2xml/sample/testdokument.idml debug=yes
 
-# If you use cygwin and bash, you can use, for example,
-# file:/$(cygpath -ma xpl/idml2hub.xpl) for the XProc URI and
-# idmlfile=$(cygpath -ma sample/testdokument.idml) for the IDML file name.
+If you use cygwin and bash, you can use, for example,
+file:/$(cygpath -ma xpl/idml2hub.xpl) for the XProc URI and
+idmlfile=$(cygpath -ma sample/testdokument.idml) for the IDML file name.
 
-# You need a calabash version with the letex:unzip extension. 
-# A runnable calabash with .sh and .bat invocation for Unix-like systems, Cygwin
-# and Windows is available from https://subversion.le-tex.de/common/calabash/
+You need a calabash version with the letex:unzip extension. 
+A runnable calabash with .sh and .bat invocation for Unix-like systems, Cygwin
+and Windows is available from https://subversion.le-tex.de/common/calabash/
 
-# letex:unzip uses Java's unzipping capabilities to extract a zip file's contents
-# to a directory and return the list of files. So you don't have to retrieve
-# individual files as in pxp:unzip, and you can read text files (for example,
-# CSS) from XSLT without having to base64-decode them before. 
-# If you want to install it yourself on top of your Calabash, please go ahead:
-# https://subversion.le-tex.de/common/calabash/lib/ltx-unzip/
+It depends on some external XProc / XSLT libraries. A ready-to-run standalone
+pipeline (https://subversion.le-tex.de/idmltools/trunk/idml2xml_frontend/) is
+in preparation.
 
 (C) 2011--2013, le-tex publising services GmbH.  All rights reserved.
 Published under Simplified BSD License:
