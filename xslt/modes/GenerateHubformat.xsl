@@ -441,7 +441,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:choose>
           <xsl:when test="$val eq 'Normal'" />
           <xsl:otherwise>
-            <idml2xml:wrap element="{lower-case($val)}" />
+            <idml2xml:wrap element="{lower-case(replace($val, '^OT', ''))}" />
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
