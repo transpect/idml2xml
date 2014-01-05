@@ -65,7 +65,58 @@
         
         <prop name="AppliedConditions" type="condition" />
         <prop name="AppliedFont" type="linear" target-name="css:font-family"/>
-        <prop name="AppliedLanguage" type="lang" target-name="xml:lang" />
+        <prop name="AppliedLanguage" type="lang" target-name="xml:lang">
+          <val match="(PlaceHolder_)?Arabic$|kWRIndexGroup_ArabicAlphabet" target-value="ar" />
+          <val match="bn_IN" target-value="bn-IN" />
+          <val match="(IDX_)?Bulgarian" target-value="bg" />
+          <val match="Catalan$" target-value="ca" />
+          <val match="(IDX_)?Croatian" target-value="hr" />
+          <val match="(IDX_)?Czech" target-value="cs" />
+          <val match="Danish$" target-value="da" />
+          <val match="nl_NL_2005" target-value="nl-NL" />
+          <val match="Dutch$" target-value="nl" />
+          <val match="English[:]\sCanadian" target-value="en-CA" />
+          <val match="English[:]\sUSA" target-value="en-US" />
+          <val match="English[:]\sUSA\sMedical" target-value="en-US" />
+          <val match="(IDX_)?Estonian" target-value="et" />
+          <val match="Finnish$" target-value="fi" />
+          <val match="French$" target-value="fr" />
+          <val match="French[:]\sCanadian" target-value="fr-CA" />
+          <val match="(PlaceHolder_)?Greek(\sMode)?|kWRIndexGroup_GreekAlphabet" target-value="el" />
+          <val match="French$" target-value="fr" />
+          <val match="German[:]\sReformed" target-value="de-DE-1996" />
+          <val match="de_DE_2006$" target-value="de-DE-2006" />
+          <val match="German[:]\sTraditional" target-value="de" />
+          <val match="gu_IN$" target-value="gu-IN" />
+          <val match="(PlaceHolder_)?Hebrew(\sMode)?|kWRIndexGroup_HebrewAlphabet" target-value="he" />
+          <val match="hi_IN$" target-value="hi-IN" />
+          <val match="Italian$" target-value="it" />
+          <val match="kn_IN$" target-value="kn-IN" />
+          <val match="(IDX_)?Latvian" target-value="lv" />
+          <val match="(IDX_)?Lithuanian" target-value="lt" />
+          <val match="ml_IN$" target-value="ml-IN" />
+          <val match="mr_IN$" target-value="mr-IN" />
+          <val match="Norwegian[:]\sBokmal" target-value="nb" />
+          <val match="Norwegian[:]\sNynorsk" target-value="nn" />
+          <val match="or_IN$" target-value="or-IN" />
+          <val match="pa_IN$" target-value="pa-IN" />
+          <val match="(IDX_)?Polish" target-value="pl" />
+          <val match="Portuguese$" target-value="pt" />
+          <val match="Portuguese[:]\sBrazilian" target-value="pt-BR" />
+          <val match="Portuguese[:]\sOrthographic Agreement" target-value="pt-PT" />
+          <val match="(IDX_)?Romanian" target-value="ro" />
+          <val match="(IDX_)?Russian" target-value="ru" />
+          <val match="Swedish$" target-value="sv" />
+          <val match="(IDX_)?Slovak" target-value="sk" />
+          <val match="(IDX_)?Slovenian" target-value="sl" />
+          <val match="(IDX_)?Spanish([:]\sCastilian)?" target-value="es-ES" />
+          <val match="ta_IN$" target-value="ta-IN" />
+          <val match="te_IN$" target-value="te-IN" />
+          <val match="(IDX_)?Turkish" target-value="tr" />
+          <val match="(IDX_)?Ukrainian" target-value="uk" />
+          <val match="(IDX_)?Hungarian" target-value="hu" />
+          <val match="\$ID/\[No [Ll]anguage\]$" target-value="" />
+        </prop>
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
         <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/>
