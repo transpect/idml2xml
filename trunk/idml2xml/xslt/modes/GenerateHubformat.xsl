@@ -376,23 +376,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:apply-templates select="key('idml2xml:by-Self', tokenize($val, '\s+'), root($val))/@Visible" mode="#current"/>
       </xsl:when>
 
-      <xsl:when test=". eq 'lang'">
-        <idml2xml:attribute name="{../@target-name}">
-          <!-- provisional -->
-          <xsl:value-of select="if (matches($val, 'German') or matches($val, '\Wde\W'))
-                                then 'de'
-                                else 
-                                  if (matches($val, 'English'))
-                                  then 'en'
-                                  else
-                                    if (matches($val, 'Arabic'))
-                                    then 'ar'
-                                    else
-                                      if ($val = '[No Language]')
-                                      then ''
-                                      else $val" />
-        </idml2xml:attribute>
-      </xsl:when>
+      <xsl:when test=". eq 'lang'"/>
 
       <xsl:when test=". eq 'length'">
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length($val)" /></idml2xml:attribute>
