@@ -76,8 +76,10 @@
           <val match="nl_NL_2005" target-value="nl-NL" />
           <val match="Dutch$" target-value="nl" />
           <val match="English[:]\sCanadian" target-value="en-CA" />
-          <val match="English[:]\sUSA" target-value="en-US" />
-          <val match="English[:]\sUSA\sMedical" target-value="en-US" />
+          <val match="English[:]\sUSA$" target-value="en-US" />
+          <val match="English[:]\sUSA\sLegal" target-value="en-US-Legal" />
+          <val match="English[:]\sUSA\sMedical" target-value="en-US-Medical" />
+          <val match="English[:]\sUK" target-value="en-GB" />
           <val match="(IDX_)?Estonian" target-value="et" />
           <val match="Finnish$" target-value="fi" />
           <val match="French$" target-value="fr" />
