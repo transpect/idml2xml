@@ -95,6 +95,14 @@
     <xsl:attribute name="{local-name()}" select="replace(., '([Ss]iehe([\s]auch)?|[Ss]ee([\s]also)?|[Ss]\.(a\.)?)\s', '')" />
   </xsl:template>
 
+  <!-- temporary workaround to save page source informations for indexterm`s in freely placed TextFrame`s -->
+  <xsl:template match="Story[@Self = //Spread/TextFrame[ @PreviousTextFrame eq 'n' or NextTextFrame eq 'n']/@ParentStory]//PageReference" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy>
+      <xsl:attribute name="idml2xml:sourcepage" select="//Spread/TextFrame[ @PreviousTextFrame eq 'n' or NextTextFrame eq 'n'][ current()/ancestor::Story/@Self eq @ParentStory ]/preceding-sibling::Page[last()]/@Name"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
 
   <!--== mode: DocumentStoriesSorted ==-->
 
@@ -118,13 +126,13 @@
       <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)+"/>
       <xsl:for-each select="$spreads">
         <xsl:variable name="pos" select="position()" as="xs:integer" />
-        <idml2xml:sidebar remap="Spread" id="spread_{position()}">
+        <idml2xml:sidebar remap="Spread" xml:id="spread_{position()}">
           <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', $idml2xml:shape-element-names)]">
-            <anchor linkend="{lower-case(local-name())}_{position()}"/>
+            <anchor linkend="{lower-case(local-name())}_{position()}" Self="{@Self}"/>
           </xsl:for-each>
         </idml2xml:sidebar>
         <xsl:for-each select="Page">
-          <idml2xml:sidebar remap="Page" id="page_{position()}">
+          <idml2xml:sidebar remap="Page" pos-in-book="{@Name}" pos-in-doc="{position()}" xml:id="page_{position()}" Self="{@Self}">
             <xsl:attribute name="idml2xml:width" 
               select="concat(
                       tokenize(

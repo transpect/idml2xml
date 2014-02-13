@@ -1090,6 +1090,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each>
+      <xsl:if test="@idml2xml:sourcepage">
+        <xsl:processing-instruction name="idml2xml-sourcepage" select="@idml2xml:sourcepage"/>
+      </xsl:if>
     </indexterm>
   </xsl:template>
 
