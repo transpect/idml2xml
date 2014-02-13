@@ -95,14 +95,6 @@
     <xsl:attribute name="{local-name()}" select="replace(., '([Ss]iehe([\s]auch)?|[Ss]ee([\s]also)?|[Ss]\.(a\.)?)\s', '')" />
   </xsl:template>
 
-  <!-- temporary workaround to save page source informations for indexterm`s in freely placed TextFrame`s -->
-  <xsl:template match="Story[@Self = //Spread/TextFrame[ @PreviousTextFrame eq 'n' or NextTextFrame eq 'n']/@ParentStory]//PageReference" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:copy>
-      <xsl:attribute name="idml2xml:sourcepage" select="//Spread/TextFrame[ @PreviousTextFrame eq 'n' or NextTextFrame eq 'n'][ current()/ancestor::Story/@Self eq @ParentStory ]/preceding-sibling::Page[last()]/@Name"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
-
 
   <!--== mode: DocumentStoriesSorted ==-->
 
@@ -194,6 +186,19 @@
                                     ),
                 //XmlStory" 
         mode="idml2xml:DocumentResolveTextFrames"/>
+    </xsl:copy>
+  </xsl:template>
+
+
+  <!-- temporary workaround to save page source informations for indexterm`s in freely placed TextFrame`s -->
+  <xsl:template match="PageReference" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy>
+      <xsl:if test="key('TextFrame-by-ParentStory', ancestor::Story/@Self)/@PreviousTextFrame eq 'n' and 
+                    key('TextFrame-by-ParentStory', ancestor::Story/@Self)/@NextTextFrame eq 'n'">
+        <xsl:attribute name="idml2xml:sourcepage" 
+          select="key('TextFrame-by-ParentStory', ancestor::Story/@Self)/preceding-sibling::Page[last()]/@Name"/>
+      </xsl:if>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
