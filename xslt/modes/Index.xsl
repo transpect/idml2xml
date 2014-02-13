@@ -29,6 +29,7 @@
     <xsl:apply-templates select="key('topic', @ReferencedTopic)" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
       <xsl:with-param name="page-reference" select="@Self" tunnel="yes" />
+      <xsl:with-param name="idml2xml:sourcepage" select="@idml2xml:sourcepage" tunnel="yes" />
     </xsl:apply-templates>
   </xsl:template>
 
@@ -42,6 +43,7 @@
     <xsl:param name="terminal" as="element(Topic)" tunnel="yes" />
     <xsl:param name="embedded-story" as="xs:string*" tunnel="yes" />
     <xsl:param name="page-reference" as="xs:string?" tunnel="yes" />
+    <xsl:param name="idml2xml:sourcepage" as="xs:string?" tunnel="yes" />
     <xsl:choose>
       <xsl:when test="some $t in descendant-or-self::Topic satisfies ($t is $terminal)">
         <xsl:copy>
@@ -51,6 +53,9 @@
           </xsl:if>
           <xsl:if test="exists($page-reference)">
             <xsl:attribute name="page-reference" select="$page-reference" />
+          </xsl:if>
+          <xsl:if test="$idml2xml:sourcepage ne ''">
+            <xsl:attribute name="idml2xml:pagenum-of-freely-placed-textframe" select="$idml2xml:sourcepage" />
           </xsl:if>
           <xsl:apply-templates mode="#current" />
         </xsl:copy>
@@ -95,7 +100,13 @@
       <xsl:for-each-group select="*" group-ending-with="*[self::pageend]">
         <xsl:if test="exists(current-group()/self::Topic)">
           <xsl:apply-templates select="current-group()/self::Topic" mode="#current">
-            <xsl:with-param name="pagenum" select="(current-group()/self::pageend/@num)" />
+            <xsl:with-param name="pagenum" 
+              select="(
+                        @idml2xml:pagenum-of-freely-placed-textframe, 
+                        current-group()/self::pageend/@num
+                      )[1]" />
+            <xsl:with-param name="pagenum-is-from-freely-placed-textframe" 
+              select="if(@idml2xml:pagenum-of-freely-placed-textframe ne '') then true() else false()" />
           </xsl:apply-templates>
         </xsl:if>
       </xsl:for-each-group>
@@ -104,9 +115,13 @@
 
   <xsl:template match="Topic[not(parent::Topic)]" mode="idml2xml:IndexTerms">
     <xsl:param name="pagenum" as="xs:string?" />
+    <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean" />
     <indexterm>
       <xsl:if test="@page-reference">
         <xsl:attribute name="xml:id" select="concat('ie_', $idml2xml:basename, '_', @page-reference)" />
+      </xsl:if>
+      <xsl:if test="$pagenum-is-from-freely-placed-textframe">
+        <xsl:attribute name="pagenum-is-from-freely-placed-textframe" select="'yes'"/>
       </xsl:if>
       <xsl:variable name="crossrefs" select="CrossReference" />
       <xsl:choose>
