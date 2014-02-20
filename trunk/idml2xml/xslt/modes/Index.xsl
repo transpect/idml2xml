@@ -146,21 +146,16 @@
     </indexterm>
   </xsl:template>
 
-  <xsl:template match="Topic[not(parent::Topic)]/Topic" mode="idml2xml:IndexTerms">
-    <secondary>
-      <xsl:copy-of select="@in-embedded-story" />
-      <xsl:value-of select="@Name"/>
-      <xsl:sequence select="idml2xml:index-crossrefs(.)" />
-    </secondary>
-    <xsl:apply-templates mode="#current" />
-  </xsl:template>
+  <xsl:variable name="level-element-name" as="xs:string+"
+    select="('primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary', 'octonary', 'nonary', 'denary')"/>
 
-  <xsl:template match="Topic[not(parent::Topic)]/Topic/Topic" mode="idml2xml:IndexTerms">
-    <tertiary>
+  <xsl:template match="Topic[not(parent::Topic)]//Topic" mode="idml2xml:IndexTerms">
+    <xsl:element name="{$level-element-name[count(current()/ancestor::Topic) + 1]}">
       <xsl:copy-of select="@in-embedded-story" />
       <xsl:value-of select="@Name"/>
       <xsl:sequence select="idml2xml:index-crossrefs(.)" />
-    </tertiary>
+    </xsl:element>
+    <xsl:apply-templates mode="#current" />
   </xsl:template>
 
 
