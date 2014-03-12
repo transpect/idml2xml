@@ -87,8 +87,11 @@
   <!-- default handler, with the slight modification that it collects its ancestor ParagraphStyleRange’s @srcpath attribute -->
   <xsl:template match="idml2xml:genPara" mode="idml2xml:AutoCorrect">
     <xsl:copy>
-      <xsl:apply-templates select="parent::idml2xml:ParagraphStyleRange/@srcpath, @*" mode="#current"/>
+      <xsl:apply-templates mode="#current"
+        select="parent::idml2xml:ParagraphStyleRange/@*[not(name() = ('AppliedParagraphStyle', 'idml2xml:reason'))], @*"/>
       <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac13'), ' ')" />
+      <xsl:apply-templates mode="#current"
+        select="parent::idml2xml:ParagraphStyleRange/Properties"/>
       <xsl:apply-templates mode="#current" />
     </xsl:copy>
   </xsl:template>
@@ -125,7 +128,7 @@
         <xsl:when test="current-grouping-key()">
           <xsl:element name="{name()}">
             <xsl:copy-of select="current-group()[last()]/@*" />
-            <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
+            <xsl:if test="$srcpaths = 'yes'"><xsl:attribute name="srcpath" select="current-group()/@srcpath" /></xsl:if>
             <xsl:attribute name="idml2xml:reason" select="'ac6'" />
             <xsl:apply-templates select="current-group()/node()" mode="idml2xml:AutoCorrect" />
           </xsl:element>
@@ -235,6 +238,7 @@
   <xsl:template match="@srcpath" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:variable name="same-path-items" select="key('by-srcpath', .)/generate-id()" as="xs:string+"/>
     <xsl:choose>
+      <xsl:when test="$srcpaths = 'no'"/>
       <xsl:when test="count($same-path-items) gt 1">
         <xsl:attribute name="srcpath" select="concat(., ';n=', index-of($same-path-items, generate-id(..)))"/>
       </xsl:when>
