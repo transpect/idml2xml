@@ -23,9 +23,9 @@
       select="('anchor', 'book', 'hub', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'inlinemediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
-               'superscript', 'subscript', 'link', 'xref', 'footnote',
+               'superscript', 'subscript', 'link', 'xref', 'footnote', 'note',
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
-               'see', 'seealso',
+               'see', 'seealso', 'date', 'author', 'personname',
                'css:rules', 'css:rule', 'linked-style',
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
               )" as="xs:string+"/>
@@ -1308,6 +1308,26 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <footnote>
       <xsl:apply-templates mode="#current"/>
     </footnote>
+  </xsl:template>
+
+  <!-- notes -->
+  <xsl:template match="Note" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <note>
+      <info>
+        <author>
+          <personname>
+            <xsl:value-of select="@idml2xml:UserName"/>
+          </personname>
+        </author>
+        <date role="created">
+          <xsl:value-of select="@idml2xml:CreationDate"/>
+        </date>
+        <date role="modified">
+          <xsl:value-of select="@idml2xml:ModificationDate"/>
+        </date>
+      </info>
+      <xsl:apply-templates mode="#current"/>
+    </note>
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]"
