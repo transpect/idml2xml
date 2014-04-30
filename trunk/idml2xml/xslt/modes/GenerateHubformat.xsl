@@ -1519,4 +1519,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:value-of select="'&#xa;'"/>
   </xsl:template>
 
+  <!-- remove SOFT HYPHEN (U+00AD) -->
+  <xsl:template match="text()" mode="idml2xml:XML-Hubformat-extract-text">
+    <xsl:value-of select="replace(., '&#xad;', '')"/>
+  </xsl:template>
+
 </xsl:stylesheet>
