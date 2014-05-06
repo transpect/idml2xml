@@ -483,6 +483,72 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:function name="idml2xml:get-shape-top-coordinate" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:variable name="PathPoints" as="node()*"
+      select="$shape-element/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+    <xsl:sequence select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )"/>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:get-shape-right-coordinate" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:variable name="PathPoints" as="node()*"
+      select="$shape-element/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+    <xsl:sequence select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )"/>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:get-shape-bottom-coordinate" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:variable name="PathPoints" as="node()*"
+      select="$shape-element/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+    <xsl:sequence select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )"/>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:get-shape-left-coordinate" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:variable name="PathPoints" as="node()*"
+      select="$shape-element/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+    <xsl:sequence select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )"/>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:get-shape-width" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:variable name="CoordinateLeft" select="idml2xml:get-shape-left-coordinate($shape-element)" as="xs:double"/>
+    <xsl:variable name="CoordinateRight" select="idml2xml:get-shape-right-coordinate($shape-element)" as="xs:double"/>
+    <xsl:message select="$CoordinateRight, ':::', 'CoordinateRight'"/>
+    <xsl:message select="$CoordinateLeft, ':::', 'CoordinateLeft'"/>
+    <xsl:choose>
+      <xsl:when test="$CoordinateLeft gt 0 and $CoordinateRight gt 0">
+        <xsl:sequence select="$CoordinateRight - $CoordinateLeft"/>
+      </xsl:when>
+      <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight lt 0">
+        <xsl:sequence select="abs($CoordinateLeft - $CoordinateRight)"/>
+      </xsl:when>
+      <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight gt 0">
+        <xsl:sequence select="abs($CoordinateLeft) + $CoordinateRight"/>
+      </xsl:when>
+      <!-- shape transformed, unsupported -->
+      <xsl:otherwise>
+        <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name($shape-element), ' (', $shape-element/@Self, ') with not yet implemented transformation settings.')"/>
+        <xsl:sequence select="xs:double('0')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:get-shape-height" as="xs:double">
+    <xsl:param name="shape-element" as="element()"/>
+    <xsl:choose>
+      <xsl:when test="idml2xml:get-shape-left-coordinate($shape-element)">
+        <xsl:sequence select="idml2xml:get-shape-bottom-coordinate($shape-element) - idml2xml:get-shape-top-coordinate($shape-element)"/>
+      </xsl:when>
+      <!-- shape transformed, unsupported -->
+      <xsl:otherwise>
+        <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name($shape-element), ' (', $shape-element/@Self, ') with not yet implemented transformation settings.')"/>
+        <xsl:sequence select="xs:double('0')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
   <!--  function replaces 
         - just replaces text -
