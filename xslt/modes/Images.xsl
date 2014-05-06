@@ -38,8 +38,6 @@
       select="if(Image/@ActualPpi)
               then xs:double(tokenize(Image/@ActualPpi, ' ')[2])
               else 150" />
-    <xsl:variable name="PathPoints" as="node()*"
-      select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType" />
     <xsl:variable name="suffix" as="xs:string"
       select="letex:identical-self-object-suffix(.)"/>
 
@@ -49,45 +47,9 @@
       </xsl:if>
       <xsl:attribute name="type" select="replace(.//@ImageTypeName,'\$ID/','')"/>
       <xsl:if test="self::Rectangle">
-        <xsl:variable name="CoordinateLeft" as="xs:double"
-          select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[1] )"/>
-        <xsl:variable name="CoordinateTop" as="xs:double"
-          select="xs:double( tokenize( $PathPoints[1]/@Anchor, ' ' )[2] )"/>
-        <xsl:variable name="CoordinateRight" as="xs:double"
-          select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[1] )"/>
-        <xsl:variable name="CoordinateBottom" as="xs:double"
-          select="xs:double( tokenize( $PathPoints[3]/@Anchor, ' ' )[2] )"/>
-        <xsl:variable name="width" as="xs:double">
-          <xsl:choose>
-            <xsl:when test="$CoordinateLeft gt 0 and $CoordinateRight gt 0">
-              <xsl:sequence select="$CoordinateRight - $CoordinateLeft"/>
-            </xsl:when>
-            <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight lt 0">
-              <xsl:sequence select="abs($CoordinateLeft - $CoordinateRight)"/>
-            </xsl:when>
-            <xsl:when test="$CoordinateLeft lt 0 and $CoordinateRight gt 0">
-              <xsl:sequence select="abs($CoordinateLeft) + $CoordinateRight"/>
-            </xsl:when>
-            <!-- shape transformed, unsupported -->
-            <xsl:otherwise>
-              <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name(.), ' (', @Self, ') with not yet implemented transformation settings.')"/>
-              <xsl:sequence select="xs:double('0')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="height" as="xs:double">
-          <xsl:choose>
-            <xsl:when test="$CoordinateLeft">
-              <xsl:sequence select="$CoordinateBottom - $CoordinateTop"/>
-            </xsl:when>
-            <!-- shape transformed, unsupported -->
-            <xsl:otherwise>
-              <xsl:message select="concat('IDML2XML WARNING: Shape ', local-name(.), ' (', @Self, ') with not yet implemented transformation settings.')"/>
-              <xsl:sequence select="xs:double('0')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-
+        <xsl:variable name="width" select="idml2xml:get-shape-width(.)" as="xs:double"/>
+        <xsl:variable name="height" select="idml2xml:get-shape-height(.)" as="xs:double"/>
+        
         <xsl:attribute name="width"
           select="$width * $dpi-x-original div 72"/>
         <xsl:attribute name="height"
@@ -100,10 +62,10 @@
 <!--
       <xsl:message select="concat('Processing shape ', local-name(), ', @Self: ', @Self, 
                                   ', Linked image filename: ', tokenize(descendant::Link[1]/@LinkResourceURI, '/')[last()])"/>
-      <xsl:message select="'       top:', $CoordinateTop, 
-                           '&#xa;      left:', $CoordinateLeft, 
-                           '&#xa;     right:', $CoordinateRight, 
-                           '&#xa;    bottom:', $CoordinateBottom, 
+      <xsl:message select="'       top:', idml2xml:get-shape-top-coordinate(.), 
+                           '&#xa;      left:', idml2xml:get-shape-left-coordinate(.), 
+                           '&#xa;     right:', idml2xml:get-shape-right-coordinate(.), 
+                           '&#xa;    bottom:', idml2xml:get-shape-bottom-coordinate(.), 
                            '&#xa;width (pt):', $width, '(shape)',
                            '&#xa;height(pt):', $height, '(shape)',
                            '&#xa;width (px):', ($width * $dpi-x-original) div 72, ' (image; = height in pt * original dpi-y div 72; dpi-x =', $dpi-x-original, ')',
