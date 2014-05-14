@@ -1398,6 +1398,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </phrase>
   </xsl:template>
 
+  <!-- Problem: some properties that are generated from the proplist can double with the css:rule 
+       declarations, because the proplist is not very detailed. 
+       Example: css:font-style="italic" is given in css:rule + local override is 
+       FontStyle="LF4 SemiLight Italic". This is mapped to css:font-style="italic" as well. 
+       Later two <italic>-tags would be created.-->
+  
+  <xsl:template match="@*[matches(name(), '^(css:|xml:lang)')]
+                         [key('idml2xml:css-rule-by-name', ../@role)/@*[name() = name(current())]
+                                                                       [. = current()]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+     
   <!-- §§§ GI 2012-09-30 Needs review.
        Are there any dbk:phrase[@role='br'], or is it dbk:br now?
        Should it apply to dbk:br?
