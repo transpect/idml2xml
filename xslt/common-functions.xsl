@@ -12,6 +12,8 @@
   
   <xsl:include href="colors/colors.xsl"/>
   
+  <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
+  
   <xsl:variable name="idml2xml:shape-element-names" as="xs:string+"
     select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon')"/>
   <xsl:variable
