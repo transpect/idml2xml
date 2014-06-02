@@ -30,7 +30,6 @@
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
               )" as="xs:string+"/>
 
-  <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
