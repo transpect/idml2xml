@@ -518,8 +518,6 @@
     <xsl:param name="shape-element" as="element()"/>
     <xsl:variable name="CoordinateLeft" select="idml2xml:get-shape-left-coordinate($shape-element)" as="xs:double"/>
     <xsl:variable name="CoordinateRight" select="idml2xml:get-shape-right-coordinate($shape-element)" as="xs:double"/>
-    <xsl:message select="$CoordinateRight, ':::', 'CoordinateRight'"/>
-    <xsl:message select="$CoordinateLeft, ':::', 'CoordinateLeft'"/>
     <xsl:choose>
       <xsl:when test="$CoordinateLeft gt 0 and $CoordinateRight gt 0">
         <xsl:sequence select="$CoordinateRight - $CoordinateLeft"/>
