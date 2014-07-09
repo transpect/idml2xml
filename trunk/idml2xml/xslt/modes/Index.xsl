@@ -76,11 +76,11 @@
   </xsl:template>
 
   <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
-    <pagestart num="{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
+    <pagestart num="{replace(normalize-space(string-join(.//Content/text(),'')), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
   <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageEnd')]" mode="idml2xml:IndexTerms-extract">
-    <pageend num="{replace(string-join(.//text(),''), '^.*_(\d+)$', '$1')}"/>
+    <pageend num="{replace(normalize-space(string-join(.//Content/text(),'')), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
   <!-- END: new indesign script -->
 
