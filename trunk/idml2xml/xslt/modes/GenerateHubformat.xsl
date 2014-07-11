@@ -173,7 +173,7 @@
       </xsl:variable>
       <xsl:for-each-group select="$mergeable-atts[self::idml2xml:attribute]" group-by="@name">
         <xsl:variable name="att" as="element(idml2xml:attribute)">
-          <idml2xml:attribute name="{current-grouping-key()}" select="distinct-values(current-group())"/>
+          <idml2xml:attribute name="{current-grouping-key()}"><xsl:value-of select="distinct-values(current-group())" /></idml2xml:attribute>
         </xsl:variable>
         <xsl:copy-of select="$att" copy-namespaces="no"/>
       </xsl:for-each-group>
