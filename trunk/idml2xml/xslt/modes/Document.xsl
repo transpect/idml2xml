@@ -115,7 +115,7 @@
           <ns short="{substring-after( @Name, ':' )}" space="{@Value}" />
         </xsl:for-each-group>
       </idml2xml:namespaces>
-      <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)+"/>
+      <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)*"/>
       <xsl:for-each select="$spreads">
         <xsl:variable name="pos" select="position()" as="xs:integer" />
         <idml2xml:sidebar remap="Spread" xml:id="spread_{position()}">
