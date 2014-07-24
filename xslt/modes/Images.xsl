@@ -23,11 +23,11 @@
     <xsl:variable name="metadata" as="xs:string"
       select="replace(Image/MetadataPacketPreference/Properties/Contents/text(), '\s|\n', '')" />
     <xsl:variable name="dpi-x" as="xs:double"
-      select="if(Image/@EffectivePpi) 
+      select="if(Image/@EffectivePpi castable as xs:double) 
               then xs:double(tokenize(Image/@EffectivePpi, ' ')[1])
               else 150" />
     <xsl:variable name="dpi-y" as="xs:double"
-      select="if(Image/@EffectivePpi)
+      select="if(Image/@EffectivePpi castable as xs:double)
               then xs:double(tokenize(Image/@EffectivePpi, ' ')[2])
               else 150" />
     <xsl:variable name="dpi-x-original" as="xs:double"
