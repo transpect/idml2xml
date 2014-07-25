@@ -337,7 +337,7 @@
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkURLDestination'">
-        <idml2xml:link xlink:href="{$dest[1]/@DestinationURL}">
+        <idml2xml:link xlink:href="{normalize-space($dest[1]/@DestinationURL)}">
           <!-- only use first item, sometimes the link url appears twice, MK 2013-04-23 -->
           <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
             <xsl:with-param name="document-context" select="$document-context"/>
