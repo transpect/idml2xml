@@ -218,6 +218,7 @@
           <val match="NextColumn|NextFrame|NextPage" target-value="always"/>
           <val eq="NextOddPage" target-value="right"/>
           <val eq="NextEvenPage" target-value="left"/>
+          <val eq="Anywhere" target-value="auto"/>
         </prop>
         <prop name="StrikeThru" target-name="css:text-decoration-line">
           <val eq="true" target-value="line-through"/>
