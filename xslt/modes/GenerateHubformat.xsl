@@ -250,11 +250,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </idml2xml:attribute>
   </xsl:template>
     
-  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-add-properties_" priority="4">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <xsl:copy>
-      <xsl:copy-of select="@Self"/>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:apply-templates select="node()" mode="#current"/>
+      <xsl:copy-of select="@*, node()"/>
     </xsl:copy>
   </xsl:template>
   
@@ -1278,7 +1276,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
   <!-- figures -->
-  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(@idml2xml:rectangle-embedded-source='true')][Image or EPS or PDF or WMF]"
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]
+                        [
+                          (
+                            not(@idml2xml:rectangle-embedded-source eq 'true') and
+                            exists(Image or EPS or PDF or WMF)
+                          )
+                          or
+                          (
+                            @idml2xml:rectangle-embedded-source eq 'true'
+                            and
+                            $process-embedded-images eq 'yes'
+                          )
+                        ]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
     <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', @Self)" as="element(*)+" />
     <xsl:variable name="my-number" as="xs:integer"
@@ -1288,12 +1298,34 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="image-info" as="element(image)">
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
     </xsl:variable>
+    <xsl:variable name="id" as="xs:string"
+      select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)"/>
+    <xsl:variable name="fileref" as="xs:string?"
+      select="if(@idml2xml:rectangle-embedded-source eq 'true')
+              then concat('images/', $id, '.bin')
+              else .//@LinkResourceURI"/>
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
       <imageobject>
-        <imagedata fileref="{.//@LinkResourceURI}" xml:id="img_{$idml2xml:basename}_{@Self}{$suffix}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px"/>
+        <imagedata fileref="{$fileref}" xml:id="{$id}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
+          <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
+            <xsl:attribute name="role" select="'base64-decoded'"/>
+          </xsl:if>
+        </imagedata>
       </imageobject>
     </mediaobject>
+    <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
+      <!-- will be decoded by idml_tagged2hub.xpl, otherwise the resulting document stays base64 encoded -->
+      <xsl:result-document href="{concat($archive-dir-uri, $fileref)}">
+        <data xmlns="http://www.le-tex.de/namespace/idml2xml" 
+          xml:base="{concat($src-dir-uri, $fileref)}"
+          content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}-base64-encoded"
+          embedded-in-idml="true"
+          xml:id="{$id}">
+          <xsl:sequence select=".//*:Contents/node()"/>
+        </data>
+      </xsl:result-document>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="*[name() = $idml2xml:shape-element-names][not(@idml2xml:keep-object eq 'true')]" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>

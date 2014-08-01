@@ -86,6 +86,7 @@
   <xsl:param name="srcpaths" as="xs:string" select="'no'"/>
   <xsl:param name="all-styles" as="xs:string" select="'no'"/>
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
+  <xsl:param name="process-embedded-images" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
 
