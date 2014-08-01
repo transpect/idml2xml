@@ -192,6 +192,10 @@
   <xsl:template match="*[name() = $idml2xml:shape-element-names][exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
       <xsl:attribute name="idml2xml:rectangle-embedded-source" select="'true'"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$process-embedded-images eq 'yes'">
+        <xsl:copy-of select="node()"/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
   
@@ -213,7 +217,6 @@
                                              'InCopyExportOption',
                                              'FrameFittingOption'))]" 
                 mode="idml2xml:ExtractTagging" priority="3">
-    <xsl:message select="'HURZ'"/>
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   

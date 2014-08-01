@@ -13,6 +13,7 @@ DEBUGDIR = "$<.tmp/debug"
 SRCPATHS = no
 HUBVERSION = 1.0
 ALLSTYLES = no
+PROCESSEMBEDDEDIMAGES = no
 # Whether to discard existing piggyback tagging:  
 DISCARD=yes
 
@@ -39,6 +40,7 @@ default: idml2xml_usage
       hub-version=$(HUBVERSION) \
       all-styles=$(ALLSTYLES) \
       srcpaths=$(SRCPATHS) \
+      process-embedded-images=$(PROCESSEMBEDDEDIMAGES) \
       debug=$(DEBUG) \
       debugdir=$(call uri,$(DEBUGDIR)) \
       2> "$@".idml2hub.log \
@@ -62,7 +64,7 @@ idml2xml_usage:
 	@echo ""
 	@echo "This is idml2xml, an IDML to XML converter"
 	@echo "written by Philipp Glatza and Gerrit Imsieke"
-	@echo "(C) 2010--2013 le-tex publishing services GmbH"
+	@echo "(C) 2010--2014 le-tex publishing services GmbH"
 	@echo "All rights reserved"
 	@echo ""
 	@echo "Usage:"
