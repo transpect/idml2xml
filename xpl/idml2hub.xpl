@@ -18,6 +18,7 @@
   <p:option name="srcpaths" required="false" select="'no'"/>
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'yes'"/>
+  <p:option name="process-embedded-images" required="false" select="'yes'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
@@ -65,6 +66,7 @@
     <p:with-option name="srcpaths" select="$srcpaths"/>  
     <p:with-option name="all-styles" select="$all-styles"/>  
     <p:with-option name="discard-tagging" select="$discard-tagging"/>
+    <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
   </idml2xml:single-doc>
   
@@ -83,6 +85,7 @@
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
+    <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
     <p:input port="xslt-stylesheet">
       <p:pipe port="xslt-stylesheet" step="single"></p:pipe>
     </p:input>
