@@ -58,6 +58,9 @@
         <p:with-option name="message" select="'idml2hub error on unzipping.&#xa;', //text(), '&#xa;'"/>
       </cx:message>
     </p:when>
+    <p:otherwise>
+      <p:identity/>
+    </p:otherwise>
   </p:choose>
 
   <p:sink/>
