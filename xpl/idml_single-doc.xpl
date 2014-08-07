@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"  
+  xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
@@ -44,12 +45,20 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />
   <p:import href="http://transpect.le-tex.de/xproc-util/store-debug/store-debug.xpl"/>
-  
+
   <letex:unzip name="unzip">
     <p:with-option name="zip" select="$idmlfile" />
     <p:with-option name="dest-dir" select="concat($idmlfile, '.tmp')"/>
     <p:with-option name="overwrite" select="'yes'" />
   </letex:unzip>
+
+  <p:choose>
+    <p:when test="name(/*) eq 'c:error'">
+      <cx:message>
+        <p:with-option name="message" select="'idml2hub error on unzipping.&#xa;', //text(), '&#xa;'"/>
+      </cx:message>
+    </p:when>
+  </p:choose>
 
   <p:sink/>
 
