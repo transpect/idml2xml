@@ -25,10 +25,11 @@
   <xsl:template match="idml2xml:genSpan
                          [string-length(.) eq 0]
                          [
-                           not(*[local-name()=$idml2xml:idml-content-element-names])
+                           not(*[name()=$idml2xml:idml-content-element-names])
                            and 
                            not(.//EPS or .//PDF or .//Image or .//WMF)
-                         ]" mode="idml2xml:AutoCorrect" priority="1.25" />
+                         ]" mode="idml2xml:AutoCorrect" priority="1.25" >
+  </xsl:template>
 
 
   <xsl:template match="idml2xml:genSpan[@aid:pstyle][not(../@aid:cstyle)]" mode="idml2xml:AutoCorrect">
