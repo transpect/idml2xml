@@ -1280,7 +1280,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                         [
                           (
                             not(@idml2xml:rectangle-embedded-source eq 'true') and
-                            exists(Image or EPS or PDF or WMF)
+                            exists(Image | EPS | PDF | WMF)
                           )
                           or
                           (
