@@ -154,7 +154,7 @@
         <prop name="FontStyle">
           <val match="Condensed" target-name="css:font-stretch" target-value="condensed" />
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
-          <val match="SemiBold" target-name="css:font-weight" target-value="600" />
+          <val match="Semi[bB]old" target-name="css:font-weight" target-value="600" />
           <val match="Italic" target-name="css:font-style" target-value="italic" />
           <val match="Oblique" target-name="css:font-style" target-value="oblique" />
           <val match="Medium" target-name="css:font-weight" target-value="normal" />
