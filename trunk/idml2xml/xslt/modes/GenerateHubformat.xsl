@@ -257,7 +257,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:variable name="src-dir-uri-regex" as="xs:string" 
-    select="replace($src-dir-uri, '^file:/+', '^file:/+')"/>
+    select="replace(
+              replace(
+                $src-dir-uri, 
+                '[-+.]', 
+                '\\$1'
+              ), 
+              '^file:/+', 
+              '^file:/+'
+            )"/>
   
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-add-properties">
     <idml2xml:attribute name="srcpath"> 
