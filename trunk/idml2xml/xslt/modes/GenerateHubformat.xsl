@@ -260,7 +260,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     select="replace(
               replace(
                 $src-dir-uri, 
-                '[-+.]', 
+                '([-+.])', 
                 '\\$1'
               ), 
               '^file:/+', 
