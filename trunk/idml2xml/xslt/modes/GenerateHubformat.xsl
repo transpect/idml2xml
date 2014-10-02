@@ -1069,6 +1069,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>-->
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <!--<xsl:variable name="prelim">
+    <xsl:apply-templates select="." mode="idml2xml:IndexTerms-extract"/>  
+    </xsl:variable>-->
+<!--    <xsl:message select="'IIIIIIIIIIIIIII ', $prelim"/>-->
     <!-- Convert to an indexterm here for general projects and set specific @xml:id for 
          "indexterms" initial template (will export the indexterms in a separate pass). -->
     <indexterm xml:id="ie_{$idml2xml:basename}_{@Self}">
