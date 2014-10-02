@@ -26,6 +26,7 @@
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
     <xsl:variable name="embedded-story" select="ancestor::Story[parent::TextFrame]/@Self" as="xs:string*" />
+    <hurz count="{key('topic', @ReferencedTopic)/../name()}"/>
     <xsl:apply-templates select="key('topic', @ReferencedTopic)" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
       <xsl:with-param name="page-reference" select="@Self" tunnel="yes" />
@@ -63,6 +64,12 @@
     </xsl:choose>
   </xsl:template>
   
+  <xsl:template match="@SortOrder" mode="idml2xml:IndexTerms">
+    <xsl:attribute name="sortas" select="."/>
+  </xsl:template>
+
+  <xsl:template match="@SortOrder[not(normalize-space())]" mode="idml2xml:IndexTerms"/>
+
   <xsl:template match="HyperlinkTextSource" mode="idml2xml:IndexTerms-extract">
     <xsl:apply-templates select="key('hyperlink', @Self)" mode="#current" />
   </xsl:template>
@@ -96,10 +103,12 @@
 
 
   <xsl:template match="idml2xml:indexterms" mode="idml2xml:IndexTerms">
+    <xsl:param name="silent" as="xs:boolean?" tunnel="yes"/>
     <xsl:copy>
       <xsl:for-each-group select="*" group-ending-with="*[self::pageend]">
         <xsl:if test="exists(current-group()/self::Topic)">
           <xsl:apply-templates select="current-group()/self::Topic" mode="#current">
+            <xsl:with-param name="silent" select="$silent" tunnel="yes"/>
             <xsl:with-param name="pagenum" 
               select="(
                         @idml2xml:pagenum-of-freely-placed-textframe, 
@@ -115,10 +124,12 @@
 
   <xsl:template match="Topic[not(parent::Topic)]" mode="idml2xml:IndexTerms">
     <xsl:param name="pagenum" as="xs:string?" />
+    <xsl:param name="silent" as="xs:boolean?" tunnel="yes"/>
     <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean" />
     <indexterm>
       <xsl:if test="@page-reference">
         <xsl:attribute name="xml:id" select="concat('ie_', $idml2xml:basename, '_', @page-reference)" />
+        <xsl:copy-of select="@page-reference"/>
       </xsl:if>
       <xsl:if test="$pagenum-is-from-freely-placed-textframe">
         <xsl:attribute name="pagenum-is-from-freely-placed-textframe" select="'yes'"/>
@@ -130,14 +141,17 @@
           <xsl:attribute name="pagenum" select="$pagenum" />
         </xsl:when>
         <xsl:otherwise>
+          <xsl:if test="not($silent)">
           <xsl:message>No page number for topic <xsl:sequence select="." />
-          </xsl:message>
+          </xsl:message>  
+          </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="exists($crossrefs) and not(exists(idml2xml:index-crossrefs(.)))">
         <xsl:attribute name="{if ($crossrefs[1]/@CrossReferenceType eq 'See') then 'see' else 'seealso'}-crossref-topics" select="distinct-values($crossrefs/@ReferencedTopic)" />
       </xsl:if>
       <primary>
+        <xsl:apply-templates select="@SortOrder" mode="#current"/>
         <xsl:copy-of select="@in-embedded-story" />
         <xsl:value-of select="@Name"/>
         <xsl:sequence select="idml2xml:index-crossrefs(.)" />
@@ -151,6 +165,7 @@
 
   <xsl:template match="Topic[not(parent::Topic)]//Topic" mode="idml2xml:IndexTerms">
     <xsl:element name="{$level-element-name[count(current()/ancestor::Topic) + 1]}">
+      <xsl:apply-templates select="@SortOrder" mode="#current"/>
       <xsl:copy-of select="@in-embedded-story" />
       <xsl:value-of select="@Name"/>
       <xsl:sequence select="idml2xml:index-crossrefs(.)" />
@@ -199,5 +214,45 @@
       <xsl:value-of select="@Name"/>
     </seealso>
   </xsl:template>
+
+
+  <!-- This is used for handling of indexterms in the regular idml2hub pipeline -->
+  
+  <xsl:template match="idml2xml:index" mode="idml2xml:SeparateParagraphs-pull-down-psrange" >
+    <xsl:variable name="idml2xml:IndexTerms-extract" as="document-node(element(idml2xml:indexterms))">
+      <xsl:document>
+        <idml2xml:indexterms>
+          <xsl:apply-templates select="/" mode="idml2xml:IndexTerms-extract"/>
+        </idml2xml:indexterms>
+      </xsl:document>
+    </xsl:variable>
+    <xsl:apply-templates select="$idml2xml:IndexTerms-extract/idml2xml:indexterms" mode="idml2xml:IndexTerms">
+      <xsl:with-param name="silent" select="true()" as="xs:boolean" tunnel="yes"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:indexterms" mode="idml2xml:XML-Hubformat-add-properties" />
+
+  <xsl:template match="idml2xml:index" mode="idml2xml:GenerateTagging" />
+
+  <xsl:key name="indexterm-by-page-reference" match="idml2xml:indexterms/indexterm" use="@page-reference"/>
+
+  <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:apply-templates select="key('indexterm-by-page-reference', @Self)" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="indexterm/@page-reference | @in-embedded-story" mode="idml2xml:XML-Hubformat-add-properties" priority="2"/>
+
+  <xsl:template match="indexterm | *[name() = $level-element-name] | see | seealso" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:element name="{name()}" xmlns="http://docbook.org/ns/docbook">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="indexterm//@*" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:copy/>
+  </xsl:template>
+
+
 
 </xsl:stylesheet>
