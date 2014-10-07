@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
-  xmlns:c="http://www.w3.org/ns/xproc-step"  
+  xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
   xmlns:letex="http://www.le-tex.de/namespace"
@@ -19,6 +20,8 @@
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'yes'"/>
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
+  <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
+  <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
@@ -68,6 +71,8 @@
     <p:with-option name="discard-tagging" select="$discard-tagging"/>
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
+    <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>
+    <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>
   </idml2xml:single-doc>
   
   <idml2xml:single2tagged name="tagged">
@@ -81,7 +86,35 @@
     </p:input>
   </idml2xml:single2tagged>
 
+  <p:sink/>
+
+  <p:add-attribute name="xslt-params-modified-after-tagged"
+    match="c:param[@name eq 'hub-other-elementnames-whitelist']">
+    <p:input port="source">
+      <p:pipe port="xslt-params" step="single"></p:pipe>
+    </p:input>
+    <p:with-option name="attribute-name" select="'value'"/>
+    <p:with-option name="attribute-value"
+      select="if($discard-tagging eq 'yes') 
+              then ''
+              else 
+                string-join(
+                  distinct-values(
+                    for $e in //XMLElement return substring-after($e/@MarkupTag, 'XMLTag/')
+                  ),
+                  ','
+                )
+              ">
+      <p:pipe step="single" port="result"/>
+    </p:with-option>
+  </p:add-attribute>
+
+  <p:sink/>
+
   <idml2xml:tagged2hub name="hub">
+    <p:input port="source">
+      <p:pipe port="result" step="tagged"></p:pipe>
+    </p:input>
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
@@ -90,7 +123,7 @@
       <p:pipe port="xslt-stylesheet" step="single"></p:pipe>
     </p:input>
     <p:input port="xslt-params">
-      <p:pipe port="xslt-params" step="single"></p:pipe>
+      <p:pipe port="result" step="xslt-params-modified-after-tagged"></p:pipe>
     </p:input>
   </idml2xml:tagged2hub>
 

@@ -20,6 +20,8 @@
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
   <p:option name="process-embedded-images" required="false" select="'no'"/>
+  <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
+  <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   
@@ -81,6 +83,8 @@
           <c:param name="all-styles" />
           <c:param name="discard-tagging" />
           <c:param name="process-embedded-images" />
+          <c:param name="hub-other-elementnames-whitelist" />
+          <c:param name="output-items-not-on-workspace" />
         </c:param-set>
       </p:inline>
     </p:input>
@@ -105,8 +109,16 @@
     <p:with-option name="attribute-value" select="$srcpaths"/>
   </p:add-attribute>
   
-  <p:add-attribute match="/c:param-set/c:param[@name eq 'process-embedded-images']" attribute-name="value" name="xslt-params">
+  <p:add-attribute match="/c:param-set/c:param[@name eq 'process-embedded-images']" attribute-name="value">
     <p:with-option name="attribute-value" select="$process-embedded-images"/>
+  </p:add-attribute>
+
+  <p:add-attribute match="/c:param-set/c:param[@name eq 'hub-other-elementnames-whitelist']" attribute-name="value">
+    <p:with-option name="attribute-value" select="$hub-other-elementnames-whitelist"/>
+  </p:add-attribute>
+
+  <p:add-attribute match="/c:param-set/c:param[@name eq 'output-items-not-on-workspace']" attribute-name="value" name="xslt-params">
+    <p:with-option name="attribute-value" select="$output-items-not-on-workspace"/>
   </p:add-attribute>
     
   <p:sink/>
