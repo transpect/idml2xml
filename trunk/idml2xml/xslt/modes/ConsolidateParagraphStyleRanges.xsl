@@ -153,9 +153,12 @@
                   <xsl:attribute name="AppliedParagraphStyle" select="idml2xml:RemoveTypeFromStyleName((current-group()/descendant-or-self::*[@AppliedParagraphStyle][idml2xml:same-scope(., $context)]/@AppliedParagraphStyle)[1])" />
                   <xsl:attribute name="idml2xml:reason" select="'cp1'" />
                   <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
-                  <xsl:copy-of select="current-group()/@*[not(name() = ('Self', 'srcpath', 'AppliedParagraphStyle'))], Properties"/>
-                  <xsl:apply-templates select="current-group()" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-ranges" />
+                  <xsl:copy-of select="current-group()[not(self::XMLAttribute)]/@*[not(name() = ('Self', 'srcpath', 'AppliedParagraphStyle'))], Properties"/>
+                  <xsl:apply-templates select="current-group()[not(self::XMLAttribute)]" 
+                    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-ranges"/>
                 </idml2xml:ParagraphStyleRange>
+                <xsl:apply-templates select="current-group()[self::XMLAttribute]" 
+                    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-ranges"/>
               </xsl:when>
               <xsl:when test="count(current-group()//*[name() = $idml2xml:idml-content-element-names]
                                                       [idml2xml:same-scope(., $context)]
