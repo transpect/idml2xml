@@ -213,22 +213,26 @@
 
   <xsl:function name="idml2xml:br-first" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
+    <!-- returns true if a Br comes first in a given context -->
     <xsl:sequence select="exists( 
                                   ($elt//*
                                     [name() = $idml2xml:idml-scope-terminal-names]
                                     [idml2xml:same-scope(., $elt)]
-                                  )[1]
+                                  )[position() = (if (last() eq 1) then 2 else 1)]
                                   /self::Br 
                                 )" />
   </xsl:function>
 
   <xsl:function name="idml2xml:br-last" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
+    <!-- returns true if a Br comes last in a given context or if it is the only Br.
+    Treating single Brs as last ones is necessary because otherwise ParagraphBreakType="NextPage"
+    will be attached to the wrong (the following) paragraph in idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br -->
     <xsl:sequence select="exists( 
                                   ($elt//*
                                     [name() = $idml2xml:idml-scope-terminal-names]
                                     [idml2xml:same-scope(., $elt)]
-                                  )[if (last() eq 1) then 2 else last()]
+                                  )[last()]
                                   /self::Br 
                                 )" />
   </xsl:function>
