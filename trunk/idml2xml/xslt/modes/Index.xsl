@@ -82,11 +82,11 @@
     <xsl:apply-templates select="key('destination', Properties/Destination)" mode="#current" />
   </xsl:template>
 
-  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageStart')]" mode="idml2xml:IndexTerms-extract">
+  <xsl:template match="HiddenText[some $a in .//@*:AppliedConditions satisfies (matches($a, 'Condition/PageStart'))]" mode="idml2xml:IndexTerms-extract">
     <pagestart num="{replace(normalize-space(string-join(.//Content/text(),'')), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
 
-  <xsl:template match="HiddenText[matches(.//@*:AppliedConditions, 'Condition/PageEnd')]" mode="idml2xml:IndexTerms-extract">
+  <xsl:template match="HiddenText[some $a in .//@*:AppliedConditions satisfies (matches($a, 'Condition/PageEnd'))]" mode="idml2xml:IndexTerms-extract">
     <pageend num="{replace(normalize-space(string-join(.//Content/text(),'')), '^.*_(\d+)$', '$1')}"/>
   </xsl:template>
   <!-- END: new indesign script -->
