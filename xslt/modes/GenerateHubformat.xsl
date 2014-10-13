@@ -737,13 +737,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'])[last()],
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()]
                                                       )"/>
-    <xsl:attribute name="hub:numbering-picture-string" select="../idml2xml:attribute[@name eq 'numbering-expression'][last()]"/>
+    <xsl:attribute name="hub:numbering-picture-string" select="(($style, ..)/idml2xml:attribute[@name eq 'numbering-expression'])[last()]"/>
     <xsl:if test="not(../idml2xml:attribute[@name eq 'numbering-starts-at'][last()] = '1')">
-      <xsl:attribute name="hub:numbering-starts-at" select="../idml2xml:attribute[@name eq 'numbering-starts-at'][last()]"/>
+      <xsl:attribute name="hub:numbering-starts-at" select="(($style, ..)/idml2xml:attribute[@name eq 'numbering-starts-at'])[last()]"/>
     </xsl:if>
-    <xsl:attribute name="hub:numbering-level" select="../idml2xml:attribute[@name eq 'numbering-level'][last()]"/>
+    <xsl:attribute name="hub:numbering-level" select="(($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()]"/>
     <xsl:if test="../idml2xml:attribute[@name eq 'numbering-continue'][last()] = 'true'">
-      <xsl:attribute name="hub:numbering-continue" select="../idml2xml:attribute[@name eq 'numbering-continue'][last()]"/>
+      <xsl:attribute name="hub:numbering-continue" select="(($style, ..)/idml2xml:attribute[@name eq 'numbering-continue'])[last()]"/>
     </xsl:if>
   </xsl:template>
   
