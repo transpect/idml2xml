@@ -10,7 +10,7 @@
     exclude-result-prefixes = "xs idPkg letex"
 >
   
-  <xsl:include href="colors/colors.xsl"/>
+  <xsl:include href="http://transpect.le-tex.de/xslt-util/colors/colors.xsl"/>
   
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   
