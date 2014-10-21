@@ -189,7 +189,11 @@
                 <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
               </CharacterStyleRange>
             </xsl:variable>
-            <xsl:variable name="parent-is-crossrefsrc" select="$charstylerange/parent::CrossReferenceSource" as="element(CrossReferenceSource)?" />
+            <xsl:variable name="parent-is-crossrefsrc" as="element(CrossReferenceSource)?"
+              select="if (not($charstylerange/parent::CrossReferenceSource)) 
+                      then self::Content/parent::CrossReferenceSource 
+                      else $charstylerange/parent::CrossReferenceSource
+                     " />
             <xsl:choose>
               <xsl:when test="exists($parent-is-crossrefsrc)">
                 <!-- move an enclosing CrossRefSrc down, too (thereby potentially splitting it – we gotta do this 
