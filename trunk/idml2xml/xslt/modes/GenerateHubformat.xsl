@@ -1315,7 +1315,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="fileref" as="xs:string?"
       select="if(@idml2xml:rectangle-embedded-source eq 'true')
               then concat('images/', $id, '.bin')
-              else .//@LinkResourceURI"/>
+              else (
+                    (: If the same images are referenced more than once with different clippings, 
+                    they can be exported with a script that adds a hexcode to the image and a key to the idml. If so the real filename differs  :)
+                    if (.//Properties/Label/KeyValuePair[@Key = 'px:bildFileName']) 
+                    then (concat(replace(.//@LinkResourceURI, '^(.*/)?(.+)$', '$1'), .//Properties/Label/KeyValuePair[@Key = 'px:bildFileName']/@Value)) 
+                    else .//@LinkResourceURI
+               )
+              "/>
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
       <imageobject>
