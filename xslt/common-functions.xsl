@@ -15,7 +15,7 @@
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   
   <xsl:variable name="idml2xml:shape-element-names" as="xs:string+"
-    select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon')"/>
+    select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon', 'MultiStateObject')"/>
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
     select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', $idml2xml:shape-element-names, 'TextFrame',
