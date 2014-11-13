@@ -75,6 +75,8 @@
             </xsl:call-template>
           </xsl:otherwise>
         </xsl:choose>
+        <!-- temporary save idml2xml:indexterms, will be removed in XML-Hubformat-cleanup-paras-and-br -->
+        <xsl:sequence select="idml2xml:indexterms"/>
       </info>
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
@@ -637,6 +639,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:copy>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <!-- save idml2xml:indexterms for mode XML-Hubformat-cleanup-paras-and-br -->
+  <xsl:template match="idml2xml:indexterms" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:sequence select="."/>
   </xsl:template>
 
   <xsl:template match="@*" mode="idml2xml:XML-Hubformat-properties2atts-compound">
@@ -1557,6 +1564,41 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="dbk:sidebar[@remap = ('TextFrame', 'Group')]/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
+  <!-- insert see indexterms not in body into last para (not table|mediaobject only paragraphs) of the body -->
+  <xsl:template match="dbk:para[node()]
+                        [not(ancestor::*[local-name() = ('mediaobject', 'informaltable')])]
+                        [
+                         (
+                          not(every $n in node() satisfies $n/self::*[local-name() = ('mediaobject', 'informaltable')])
+                          and not(following::dbk:para[node()])
+                         ) or 
+                         (
+                           not(following::dbk:para[node()]) and
+                           not((preceding::dbk:para)[1][every $n in node() satisfies $n/self::*[local-name() = ('mediaobject', 'informaltable')]])
+                         )
+                       ]/node()[last()]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="1">
+    <xsl:next-match/>
+    <xsl:for-each select="//idml2xml:indexterms/dbk:indexterm[not(@page-reference)]">
+      <indexterm xml:id="ie_{$idml2xml:basename}_see_{position()}">
+        <xsl:apply-templates mode="#current"/>
+        <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
+          <see>
+            <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
+          </see>
+        </xsl:if>
+      </indexterm>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:indexterms//dbk:primary[dbk:see]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <primary>
+      <xsl:apply-templates select="node()[not(self::dbk:see)]" mode="#current"/>
+    </primary>
+    <xsl:apply-templates select="dbk:see" mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:indexterms" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3"/>
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-without-srcpath -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
