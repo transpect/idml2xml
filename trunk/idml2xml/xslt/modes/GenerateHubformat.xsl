@@ -61,6 +61,11 @@
               <xsl:value-of select="/*/@TOCStyle_Title"/>
             </keyword>
           </xsl:if>
+          <xsl:if test="/*/@TypeAreaWidth">
+            <keyword role="type-area-width">
+              <xsl:value-of select="/*/@TypeAreaWidth"/>
+            </keyword>
+          </xsl:if>
         </keywordset>
         <xsl:choose>
           <xsl:when test="$hub-version eq '1.0'">
