@@ -3,6 +3,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+  xmlns:transpect="http://www.le-tex.de/namespace/transpect"
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
@@ -47,10 +48,15 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />
   <p:import href="http://transpect.le-tex.de/xproc-util/store-debug/store-debug.xpl"/>
+	<p:import href="http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl"/>
 
+  <transpect:file-uri name="file-uri">
+    <p:with-option name="filename" select="$idmlfile"/>
+  </transpect:file-uri>
+  
   <letex:unzip name="unzip">
-    <p:with-option name="zip" select="$idmlfile" />
-    <p:with-option name="dest-dir" select="concat($idmlfile, '.tmp')"/>
+    <p:with-option name="zip" select="/*/@os-path" />
+    <p:with-option name="dest-dir" select="concat(/*/@os-path, '.tmp')"/>
     <p:with-option name="overwrite" select="'yes'" />
   </letex:unzip>
 
