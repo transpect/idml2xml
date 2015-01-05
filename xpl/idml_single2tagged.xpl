@@ -7,7 +7,6 @@
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  xmlns:bc="http://transpect.le-tex.de/book-conversion"
   xmlns:letex="http://www.le-tex.de/namespace"
   version="1.0"
   name="single2tagged"
