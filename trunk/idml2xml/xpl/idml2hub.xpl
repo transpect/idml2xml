@@ -11,8 +11,7 @@
   xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
   version="1.0"
   name="idml2xml"
-  type="idml2xml:hub"
-  >
+  type="idml2xml:hub">
 
   <p:option name="idmlfile" />
   <p:option name="hub-version" required="false" select="'1.1'"/>
@@ -23,7 +22,8 @@
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
-  <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
+  <p:option name="debug-dir-uri" required="false" select="'debug'"/>
+  <p:option name="status-dir-uri" required="false" select="'status'"/>
   
   <p:output port="Document">
     <p:pipe step="single" port="result" />
@@ -47,8 +47,6 @@
   <p:import href="idml_tagged2hub.xpl"/>
   <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-hub-xml-model.xpl" />
   <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/simple-progress-msg.xpl"/>
-  
-  <p:variable name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
   
   <letex:simple-progress-msg name="start-msg" file="idml2hub-start.txt">
     <p:input port="msgs">
