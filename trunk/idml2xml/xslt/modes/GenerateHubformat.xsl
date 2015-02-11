@@ -401,6 +401,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test=". eq 'list-type-declaration'">
         <xsl:choose>
           <xsl:when test="$val = 'NoList'">
+            <idml2xml:remove-attribute name="css:list-style-type"/>
+            <idml2xml:remove-attribute name="css:display" value="list-item"/>
             <idml2xml:attribute name="{name($val)}">NoList</idml2xml:attribute>
           </xsl:when>
           <xsl:otherwise>
@@ -617,7 +619,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="atts" as="attribute(*)*">
-      <xsl:apply-templates select="idml2xml:attribute[not(@name = following-sibling::idml2xml:remove-attribute/@name)]" mode="#current" />
+      <xsl:apply-templates 
+        select="idml2xml:attribute
+                  [not(
+                    @name = following-sibling::idml2xml:remove-attribute/@name
+                    and
+                    (if (@value) then @value = current() else true())
+                  )]" mode="#current" />
     </xsl:variable>
     <xsl:variable name="content" as="node()*">
       <xsl:apply-templates select="$atts[not(matches(name(), '^css:_transform'))]" mode="idml2xml:XML-Hubformat-properties2atts-compound" />
