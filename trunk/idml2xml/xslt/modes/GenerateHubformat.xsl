@@ -1506,7 +1506,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="dbk:mediaobject[(some $n in ancestor::dbk:para[1]//text() satisfies (matches($n, '\S')))
+  <xsl:template match="dbk:mediaobject[(some $n in ancestor::dbk:para[not(dbk:informaltable)][1]//text() satisfies (matches($n, '\S')))
                                        or
                                        (exists(parent::dbk:link))]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
