@@ -1331,7 +1331,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
     </xsl:variable>
     <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
-    <xsl:variable name="LinkResourceURI" select="replace(.//@LinkResourceURI, '^([a-z]+:)(.+)$', '$1/$2')" as="xs:string"/>
+    <!-- file:C:/… → file:/C:/… -->
+    <xsl:variable name="LinkResourceURI" select="replace(.//@LinkResourceURI, '^(file:)([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
       select="if(@idml2xml:rectangle-embedded-source eq 'true')
               then concat('images/', $id, '.bin')
