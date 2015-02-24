@@ -152,9 +152,11 @@
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
         <prop name="FontStyle">
-          <val match="Condensed" target-name="css:font-stretch" target-value="condensed" />
+          <val match="Cond(ensed)?" target-name="css:font-stretch" target-value="condensed" />
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
+          <val match="Light" target-name="css:font-weight" target-value="300" />
           <val match="Semi[bB]old" target-name="css:font-weight" target-value="600" />
+          <val match="Black" target-name="css:font-weight" target-value="900" />
           <val match="Italic" target-name="css:font-style" target-value="italic" />
           <val match="Oblique" target-name="css:font-style" target-value="oblique" />
           <val match="Medium" target-name="css:font-weight" target-value="normal" />
