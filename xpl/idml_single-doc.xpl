@@ -53,7 +53,11 @@
   <transpect:file-uri name="file-uri">
     <p:with-option name="filename" select="$idmlfile"/>
   </transpect:file-uri>
-  
+
+  <!--<cx:message>
+    <p:with-option name="message" select="string-join(for $a in /*/@* return concat(name($a), '=', $a), ', ')"></p:with-option>
+  </cx:message>-->
+
   <letex:unzip name="unzip">
     <p:with-option name="zip" select="/*/@os-path" />
     <p:with-option name="dest-dir" select="concat(/*/@os-path, '.tmp')"/>
