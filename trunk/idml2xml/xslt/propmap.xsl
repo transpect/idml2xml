@@ -168,6 +168,10 @@
           <val eq="false"/>
         </prop>
         <prop name="HorizontalScale" type="percentage" target-name="css:_transform_scaleX"/>
+        <prop name="Hyphenation" target-name="css:hyphens">
+          <val eq="true" target-value="auto"/>
+          <val eq="false" target-value="manual"/>
+        </prop>
         <prop name="Justification">
           <!-- string "LeftAlign" | string "CenterAlign" | string "RightAlign" | 
                string "LeftJustified" | string "RightJustified" | 
@@ -265,7 +269,6 @@
         <prop name="Composer" implement="maybe later" />
         <prop name="DropCapCharacters" implement="maybe later" />
         <prop name="DropCapLines" implement="maybe later" />
-        <prop name="Hyphenation" implement="maybe later" />
         <prop name="HyphenateAfterFirst" implement="maybe later" />
         <prop name="HyphenateBeforeLast" implement="maybe later" />
         <prop name="HyphenateCapitalizedWords" implement="maybe later" />
