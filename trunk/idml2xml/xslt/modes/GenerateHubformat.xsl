@@ -951,6 +951,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:element name="para">
       <xsl:if test="@aid:pstyle">
 	      <xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+        <xsl:attribute name="idml2xml:layout-type" select="'para'"/>
       </xsl:if>
       <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
@@ -1003,6 +1004,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <phrase>
               <xsl:if test="not($role = ('', 'No character style'))">
                 <xsl:attribute name="role" select="$role"/>
+                <xsl:attribute name="idml2xml:layout-type" select="'inline'"/>
               </xsl:if>
               <xsl:apply-templates select="@srcpath, $atts except @aid:cstyle, node()[not(self::idml2xml:genAnchor)]" mode="#current"/>
             </phrase>
@@ -1059,6 +1061,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="@aid:cstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="role" select="." />
+    <xsl:attribute name="idml2xml:layout-type" select="'inline'"/>
   </xsl:template>
 
   <xsl:template match="idml2xml:genFrame" 
@@ -1070,6 +1073,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="@idml2xml:objectstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="role" select="idml2xml:StyleName(.)"/>
+    <xsl:attribute name="idml2xml:layout-type" select="'object'"/>
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text()] ) ]" 
@@ -1250,6 +1254,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
     <informaltable>
       <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
+      <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
@@ -1292,6 +1297,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
           </xsl:if>
           <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:cellstyle)"/>
+          <xsl:attribute name="idml2xml:layout-type" select="'cell'"/>
           <xsl:apply-templates mode="#current"/>
         </entry>
       </xsl:for-each>
@@ -1439,6 +1445,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:copy>
       <xsl:if test="@aid:pstyle">
         <xsl:attribute name="role" select="@aid:pstyle"/>
+        <xsl:attribute name="idml2xml:layout-type" select="'para'"/>
       </xsl:if>
       <xsl:apply-templates select="@* except @aid:pstyle, node()" mode="#current"/>
     </xsl:copy>
@@ -1480,6 +1487,20 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@*[matches(name(), '^(css:|xml:lang)')]
                          [key('idml2xml:css-rule-by-name', ../@role)/@*[name() = name(current())]
                                                                        [. = current()]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+     
+   <!-- Make css:rule/@name and @role unique in case that there are rules with the same name, but different
+   layout types: -->
+   
+   <xsl:template match="css:rule/@name[count(key('idml2xml:css-rule-by-name', .)) gt 1] 
+                        | @role[not(parent::dbk:keyword)][count(key('idml2xml:css-rule-by-name', .)) gt 1]" 
+                        mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2">
+     <xsl:variable name="string-replacements-applied" as="attribute()"><!-- see approx. 70 lines below -->
+       <xsl:next-match/>
+     </xsl:variable>
+     <xsl:attribute name="{name()}" select="string-join((../@*:layout-type, $string-replacements-applied), '__')"/>
+   </xsl:template>
+   
+   <xsl:template match="@idml2xml:layout-type" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
      
   <!-- §§§ GI 2012-09-30 Needs review.
        Are there any dbk:phrase[@role='br'], or is it dbk:br now?
