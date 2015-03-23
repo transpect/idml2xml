@@ -1345,9 +1345,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               else (
                     (: If the same images are referenced more than once with different clippings, 
                     they can be exported with a script that adds a hexcode to the image and a key to the idml. If so the real filename differs  :)
-                    if (.//Properties/Label/KeyValuePair[@Key = 'px:bildFileName']) 
+                    if (.//Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]) 
                     (: correct the URI prefix of the base uri and replace the file name with px:bildFileName :)
-                    then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), .//Properties/Label/KeyValuePair[@Key = 'px:bildFileName']/@Value)) 
+                    then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), .//Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]/@Value)) 
                     else $LinkResourceURI
                )
               "/>
