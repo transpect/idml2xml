@@ -223,6 +223,15 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <!-- dissolve genSpans that contain only tables or rectangles because the information cannot be used later-->
+  <xsl:template match="idml2xml:genSpan[idml2xml:genTable or Rectangle]
+                                       [count(*) eq 2]
+                                       [every $text in text() satisfies (not(matches($text, '\S')))]
+                                       [every $node in node()[not(self::text())] satisfies ($node/local-name() = ('Rectangle', 'genTable', 'Properties'))]" 
+                mode="idml2xml:AutoCorrect-clean-up" priority="3">
+    <xsl:apply-templates select="*[self::idml2xml:genTable or self::Rectangle]" mode="#current"/>
+  </xsl:template>
+
   <xsl:template match="HiddenText[empty(node())]" mode="idml2xml:AutoCorrect-clean-up" />
   
   
