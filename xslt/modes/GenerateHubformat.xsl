@@ -1252,9 +1252,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
-    <xsl:variable name="alternative-image-name" select="(../preceding-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
+    <xsl:variable name="alternative-image-name" select="(ancestor::idml2xml:genPara[1]/preceding-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
                                                                                                                             [matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')], 
-                                                         ../following-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
+                                                         ancestor::idml2xml:genPara[1]/following-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
                                                                                                                             [matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')]
                                                          )[1]"/>
     <informaltable>
