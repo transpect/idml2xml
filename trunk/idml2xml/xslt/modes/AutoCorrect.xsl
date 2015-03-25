@@ -225,7 +225,7 @@
 
   <!-- dissolve genSpans that contain only tables or rectangles because the information cannot be used later-->
   <xsl:template match="idml2xml:genSpan[idml2xml:genTable or Rectangle]
-                                       [count(*) eq 2]
+                                       [count(*) = (1, 2)]
                                        [every $text in text() satisfies (not(matches($text, '\S')))]
                                        [every $node in node()[not(self::text())] satisfies ($node/local-name() = ('Rectangle', 'genTable', 'Properties'))]" 
                 mode="idml2xml:AutoCorrect-clean-up" priority="3">
