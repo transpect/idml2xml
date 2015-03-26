@@ -213,7 +213,7 @@
 
   <!-- CSR without style name -->
   <xsl:template match="CharacterStyleRange[node()]
-                       [not(@AppliedCharacterStyle)]
+                       [not(@AppliedCharacterStyle) and not(@*)]
                        [.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
