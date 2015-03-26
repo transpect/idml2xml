@@ -199,13 +199,23 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="CharacterStyleRange[node()][.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
+  <!-- CSR with style (even if @ACS is 'CharacterStyle/$ID/[No character style]') -->
+  <xsl:template match="CharacterStyleRange[node()]
+                       [@AppliedCharacterStyle]
+                       [.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenSpan">
       <xsl:copy-of select="@* except @AppliedCharacterStyle"/>
       <XMLAttribute Name="aid:cstyle" Value="{idml2xml:StyleName(@AppliedCharacterStyle)}" />
       <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
       <xsl:apply-templates mode="#current" />
     </XMLElement>
+  </xsl:template>
+
+  <!-- CSR without style name -->
+  <xsl:template match="CharacterStyleRange[node()]
+                       [not(@AppliedCharacterStyle)]
+                       [.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
+    <xsl:apply-templates mode="#current" />
   </xsl:template>
 
 
