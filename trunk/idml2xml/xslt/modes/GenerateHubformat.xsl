@@ -960,7 +960,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- Dissolves what was an anchored Group that contains a Rectangle and a TextFrame.
   Example: chb HC 66246 -->
-  <xsl:template match="idml2xml:genSpan[
+  <xsl:template match="idml2xml:genSpan[*][
                           every $c in * satisfies (
                              exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
                            )
