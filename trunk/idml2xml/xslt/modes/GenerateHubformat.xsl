@@ -1263,6 +1263,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
+    <!-- if the @condition EpubAlternative is used in a para before or after the heading, the referenced image namee(s) inside are transported as alt image for the table rendering-->
     <xsl:variable name="alternative-image-name" select="(ancestor::idml2xml:genPara[1]/preceding-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
                                                                                                                             [matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')], 
                                                          ancestor::idml2xml:genPara[1]/following-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
@@ -1273,7 +1274,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <xsl:if test="$alternative-image-name[self::idml2xml:genSpan]">
-        <alt><inlinemediaobject><imageobject><imagedata fileref="{normalize-space($alternative-image-name)}"></imagedata></imageobject></inlinemediaobject></alt>
+        <alt>
+          <xsl:for-each select="tokenize(normalize-space($alternative-image-name), ' ')">
+            <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
+          </xsl:for-each>
+        </alt>
       </xsl:if>
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
