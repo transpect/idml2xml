@@ -222,8 +222,9 @@
        they’d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
     use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef'] return idml2xml:text-content($r)"/>
-  
-  <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]" 
+  <!-- we do not allow StoryIDs/StoryRefs that consist of whistespace only -->
+  <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]
+                                               [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
     use="string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
   
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
@@ -297,11 +298,11 @@
   
   <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
                                  satisfies (ends-with(current()//@LinkResourceURI, normalize-space(idml2xml:text-content($ref))))]"
-    mode="idml2xml:DocumentResolveTextFrames"/>
+    mode="idml2xml:DocumentResolveTextFrames" priority="3"/>
 
   <xsl:function name="idml2xml:text-content" as="xs:string?">
     <xsl:param name="elt" as="element(*)?"/>
-    <xsl:sequence select="string-join($elt//Content, '')"/>
+    <xsl:sequence select="string-join($elt//Content[normalize-space()], '')"/>
   </xsl:function>
   
 
