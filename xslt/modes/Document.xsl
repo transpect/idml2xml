@@ -292,12 +292,17 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="(//Rectangle[ends-with(.//@LinkResourceURI, normalize-space(idml2xml:text-content(current())))])[1]"/>
+      <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content(current())), ' ') return (//Rectangle[ends-with(.//@LinkResourceURI, $i)])[1] "/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
-                                 satisfies (ends-with(current()//@LinkResourceURI, normalize-space(idml2xml:text-content($ref))))]"
+                                 satisfies 
+                                 (
+                                    some $testi in tokenize(normalize-space(idml2xml:text-content($ref)), ' ') 
+                                    satisfies ends-with(current()//@LinkResourceURI, $testi)
+                                  )
+                                  ]"
     mode="idml2xml:DocumentResolveTextFrames" priority="3"/>
 
   <xsl:function name="idml2xml:text-content" as="xs:string?">
