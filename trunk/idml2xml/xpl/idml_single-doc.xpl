@@ -20,7 +20,7 @@
   <p:option name="srcpaths" required="false" select="'no'"/>
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
-  <p:option name="process-embedded-images" required="false" select="'no'"/>
+  <p:option name="process-embedded-images" required="false" select="'yes'"/>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
@@ -130,6 +130,15 @@
   <p:add-attribute match="/c:param-set/c:param[@name eq 'output-items-not-on-workspace']" attribute-name="value" name="xslt-params">
     <p:with-option name="attribute-value" select="$output-items-not-on-workspace"/>
   </p:add-attribute>
+  
+  <letex:store-debug pipeline-step="idml2xml/idml2xml.04.Parameters">
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="if (not($debug-dir-uri) or $debug-dir-uri  = '')
+      then concat(/c:parm-set/c:param[@name eq 'src-dir-uri'], 'debug') 
+      else $debug-dir-uri">
+      <p:pipe step="xslt-params" port="result"/>
+    </p:with-option>
+  </letex:store-debug>
     
   <p:sink/>
   
