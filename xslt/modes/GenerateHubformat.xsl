@@ -964,7 +964,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           every $c in * satisfies (
                              exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
                            )
-                       ]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+                       ]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="0.6">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
                         
