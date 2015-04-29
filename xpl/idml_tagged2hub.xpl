@@ -65,16 +65,22 @@
     <p:with-option name="hub-version" select="$hub-version"/>
   </letex:xslt-mode>
 
+  <!--  *
+        * iterate over embedded base64 binary blobs
+        * -->
   <p:for-each name="rewrite-base64-result-documents-to-base64">
     <p:iteration-source select="/*[@encoding eq 'base64' and $process-embedded-images eq 'yes']">
       <p:pipe step="remap-para-and-span" port="secondary"/>
     </p:iteration-source>
+    
     <p:rename name="rename_idml2xml-data_to_c-data"
-      match="/*" new-name="c:data"/>
+      match="/*" new-name="data" new-namespace="http://www.w3.org/ns/xproc-step" new-prefix="c"/>
+    
     <p:store cx:decode="true" name="store-decoded-b64">
       <p:documentation>Notice: this cx:decode only works with c:data[@encoding eq 'base64']</p:documentation>
       <p:with-option name="href" select="base-uri(/*)"/>
-    </p:store> 
+    </p:store>
+    
   </p:for-each>
   
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="XML-Hubformat-cleanup-paras-and-br">

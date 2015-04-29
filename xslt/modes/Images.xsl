@@ -49,7 +49,6 @@
       <xsl:if test="self::Rectangle">
         <xsl:variable name="width" select="idml2xml:get-shape-width(.)" as="xs:double"/>
         <xsl:variable name="height" select="idml2xml:get-shape-height(.)" as="xs:double"/>
-        
         <xsl:attribute name="width"
           select="$width * $dpi-x-original div 72"/>
         <xsl:attribute name="height"
@@ -59,18 +58,6 @@
           select="concat($width, 'pt')"/>
         <xsl:attribute name="shape-height"
           select="concat($height, 'pt')"/>
-<!--
-      <xsl:message select="concat('Processing shape ', local-name(), ', @Self: ', @Self, 
-                                  ', Linked image filename: ', tokenize(descendant::Link[1]/@LinkResourceURI, '/')[last()])"/>
-      <xsl:message select="'       top:', idml2xml:get-shape-top-coordinate(.), 
-                           '&#xa;      left:', idml2xml:get-shape-left-coordinate(.), 
-                           '&#xa;     right:', idml2xml:get-shape-right-coordinate(.), 
-                           '&#xa;    bottom:', idml2xml:get-shape-bottom-coordinate(.), 
-                           '&#xa;width (pt):', $width, '(shape)',
-                           '&#xa;height(pt):', $height, '(shape)',
-                           '&#xa;width (px):', ($width * $dpi-x-original) div 72, ' (image; = height in pt * original dpi-y div 72; dpi-x =', $dpi-x-original, ')',
-                           '&#xa;height(px):', ($height * $dpi-y-original) div 72, ' (image; = height in pt * original dpi-y div 72; dpi-y =', $dpi-y-original, ')', '&#xa;'"/>
--->
       </xsl:if>
       <xsl:if test="matches(Image/MetadataPacketPreference/Properties/Contents,'exif:PixelXDimension')">
         <xsl:attribute name="width-original" 
