@@ -964,7 +964,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           every $c in * satisfies (
                              exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
                            )
-                       ]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="0.6">
+                       ]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
                         
@@ -1339,74 +1339,67 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-
-  <!-- figures -->
-  <xsl:template match="*[name() = $idml2xml:shape-element-names]
-                        [
-                          (
-                            not(@idml2xml:rectangle-embedded-source eq 'true') and
-                            exists(Image | EPS | PDF | WMF)
-                          )
-                          or
-                          (
-                            @idml2xml:rectangle-embedded-source eq 'true'
-                            and
-                            $process-embedded-images eq 'yes'
-                          )
-                        ]"
-		mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
-    <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', @Self)" as="element(*)+" />
-    <xsl:variable name="my-number" as="xs:integer"
-      select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id(.))" />
+  <!-- FIGURES, IMAGES -->
+  
+  <!--  * 
+        * process shape-element-names, Rectangle, GraphicLine, Oval, Polygon, MultiStateObject
+        * -->
+  
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
+    
     <xsl:variable name="suffix" as="xs:string"
       select="letex:identical-self-object-suffix(.)"/>
+    <!--  *
+          * process image properties in mode idml2xml:Images, see idml2xml/xslt/modes/Images.xsl  
+          * -->
     <xsl:variable name="image-info" as="element(image)">
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
     </xsl:variable>
     <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
-    <!-- file:C:/… → file:/C:/… -->
-    <xsl:variable name="LinkResourceURI" select="replace(.//@LinkResourceURI, '^(file:)([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
+    <!--  *
+          * construct file reference from LinkResourceURI (note that even embedded images have an URI)
+          * -->
+    <xsl:variable name="LinkResourceURI" select="if(@idml2xml:rectangle-embedded-source eq 'true') 
+      then concat($archive-dir-uri, 'images/', replace(Image/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'))
+      else replace(Image/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
-      select="if(@idml2xml:rectangle-embedded-source eq 'true')
-              then concat('images/', $id, '.bin')
-              else (
-                    (: If the same images are referenced more than once with different clippings, 
-                    they can be exported with a script that adds a hexcode to the image and a key to the idml. If so the real filename differs  :)
-                    if (.//Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]) 
-                    (: correct the URI prefix of the base uri and replace the file name with px:bildFileName :)
-                    then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), .//Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]/@Value)) 
-                    else $LinkResourceURI
-               )
-              "/>
+      select="(: check first for inserted filename labels from image export script, then use real link URI :)
+              if (Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]) 
+              (: correct the URI prefix of the base uri and replace the file name with px:bildFileName :)
+              then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]/@Value)) 
+              else $LinkResourceURI"/>
+     <!-- *
+          * mediaobject wrapper element
+          * -->
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
       <imageobject>
-        <imagedata fileref="{$fileref}" xml:id="{$id}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
-          <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
-            <xsl:attribute name="role" select="'base64-decoded'"/>
-          </xsl:if>
+        <imagedata fileref="{$fileref}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
+          <xsl:attribute name="xml:id" select="$id"/>
         </imagedata>
       </imageobject>
     </mediaobject>
+    <!--  * 
+          * generate virtual result documents, which will be decoded by idml_tagged2hub.xpl,
+          * otherwise the resulting document stays base64 encoded 
+          * -->
     <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
-      <!-- will be decoded by idml_tagged2hub.xpl, otherwise the resulting document stays base64 encoded -->
-      <xsl:result-document href="{concat($archive-dir-uri, $fileref)}">
+      <xsl:result-document href="{$fileref}">
         <data xmlns="http://www.le-tex.de/namespace/idml2xml" 
           content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}"
           encoding="base64"
-          embedded-in-idml="true"
-          xml:id="{$id}">
-          <xsl:attribute name="xml:base" select="concat($archive-dir-uri, $fileref)"/>
-          <xsl:sequence select=".//*:Contents/node()"/>
+          embedded-in-idml="true">
+          <!-- "it's inadvisable to write @xml:* attributes as attribute value templates, 
+            see https://saxonica.plan.io/issues/2362 for more details -->
+          <xsl:attribute name="xml:base" select="$fileref"/>
+          <xsl:attribute name="xml:id" select="$id"/>
+          <!--  *
+                * if you get 0KB sized images, probably no Contents element exists
+                * -->
+          <xsl:sequence select="Contents/text()"/>
         </data>
       </xsl:result-document>
     </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="*[name() = $idml2xml:shape-element-names][not(@idml2xml:keep-object eq 'true')]" mode="idml2xml:XML-Hubformat-remap-para-and-span"/>
-
-  <xsl:template match="*[name() = $idml2xml:shape-element-names][@idml2xml:keep-object eq 'true']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:next-match/><!-- identity -->
   </xsl:template>
   
   <!-- footnotes -->

@@ -194,21 +194,23 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="*[name() = $idml2xml:shape-element-names][exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF)][empty(descendant::Link/@LinkResourceURI)]" mode="idml2xml:ExtractTagging">
+
+
+  <!--  *
+        * handle shape elements, e.g. Rectangle, GraphicLine, Oval, Polygon, MultiStateObject
+        * -->
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:ExtractTagging">
     <xsl:copy>
-      <xsl:attribute name="idml2xml:rectangle-embedded-source" select="'true'"/>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:if test="$process-embedded-images eq 'yes'">
-        <xsl:copy-of select="node()"/>
-      </xsl:if>
-    </xsl:copy>
-  </xsl:template>
-  
-  <xsl:template match="*[name() = $idml2xml:shape-element-names]
-                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
-                        [not(empty(descendant::Link/@LinkResourceURI))]" mode="idml2xml:ExtractTagging">
-    <xsl:copy>
-      <xsl:apply-templates select="@*|descendant::Link/@LinkResourceURI" mode="#current"/>
+      <!--  *  
+            * in case of embedded images: set @idml2xml:rectangle-embedded-source to true  
+            * -->
+      <xsl:attribute name="idml2xml:rectangle-embedded-source" 
+         select="if(Image/Link/@StoredState eq 'Embedded') then 'true' else 'false'"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <!--  *
+            * retain the Contents element or get 0KB big images
+            * -->
+      <xsl:copy-of select="Image/Properties/Contents"/>
     </xsl:copy>
   </xsl:template>
   
