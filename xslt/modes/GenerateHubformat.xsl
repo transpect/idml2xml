@@ -1392,11 +1392,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <!-- will be decoded by idml_tagged2hub.xpl, otherwise the resulting document stays base64 encoded -->
       <xsl:result-document href="{concat($archive-dir-uri, $fileref)}">
         <data xmlns="http://www.le-tex.de/namespace/idml2xml" 
-          xml:base="{concat($archive-dir-uri, $fileref)}"
           content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}"
           encoding="base64"
           embedded-in-idml="true"
           xml:id="{$id}">
+          <xsl:attribute name="xml:base" select="concat($archive-dir-uri, $fileref)"/>
           <xsl:sequence select=".//*:Contents/node()"/>
         </data>
       </xsl:result-document>
