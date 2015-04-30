@@ -1362,7 +1362,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <xsl:variable name="LinkResourceURI" select="if(@idml2xml:rectangle-embedded-source eq 'true') 
       then concat($archive-dir-uri, 'images/', replace(Image/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'))
-      else replace(Image/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
+      else replace(*/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
       select="(: check first for inserted filename labels from image export script, then use real link URI :)
               if (Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]) 
