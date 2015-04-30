@@ -978,7 +978,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                            ) 
                            or 
                            @aid:table = ('table')
-                         )
+                         ) or
+                         (exists(Rectangle) and @condition)
                        ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
@@ -1429,7 +1430,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </note>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]"
+  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
+                                       [not(@condition)]"
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
