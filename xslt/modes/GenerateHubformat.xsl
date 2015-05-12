@@ -353,9 +353,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" >
                 <!-- UnderlineColor has its tint value as a number in ../../@UnderlineTint,
                   while other Colors are tinted by means of a Tint element -->
-                <xsl:with-param name="multiplier" select="if (matches(($val/name(),'')[1], '(Stroke|Underline)Color')) 
-                                                          then number(($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')], 100)[1]) * 0.01
-                                                          else 1.0"/>
+                <xsl:with-param name="multiplier">
+                  <xsl:choose>
+                    <xsl:when test="matches(($val/name(),'')[1], '(Stroke|Underline)Color')">
+                      <xsl:sequence select="if ($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')] = '-1') 
+                                            then 1.0 
+                                            else number(($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')], 100)[1]) * 0.01"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:sequence select="1.0"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:with-param>
               </xsl:apply-templates>
             </idml2xml:attribute>
           </xsl:when>
@@ -373,6 +382,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, '^Swatch/None')">
             <idml2xml:remove-attribute name="{../@target-name}" />
+          </xsl:when>
+          <xsl:when test="matches($val, '^Text Color$')">
+            <idml2xml:attribute name="{../@target-name}-text-color">
+              <xsl:text>true</xsl:text>
+            </idml2xml:attribute>
           </xsl:when>
           <xsl:otherwise>
             <idml2xml:attribute name="{../@target-name}">?</idml2xml:attribute>
@@ -706,7 +720,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" 
+    mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
          a fill tint that comes from a style has to be applied here. 
          If it isn’t superseded by a local override tint, of course. -->
@@ -739,9 +754,35 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <xsl:if test="@name = 'css:color'">
+      <!-- border color = text color handling -->
+      <xsl:variable name="context" as="element(idml2xml:attribute)" select="."/>
+      <xsl:for-each select="('css:border-top-color', 'css:border-bottom-color')">
+        <xsl:variable name="propname" as="xs:string" select="."/>
+        <xsl:variable name="msa" as="element(idml2xml:attribute)?"
+          select="($context/../idml2xml:attribute[@name = ($propname, concat($propname, '-text-color'))])[1]"/>
+        <xsl:if test="$msa/@name = concat($propname, '-text-color')">
+          <xsl:attribute name="{$propname}" select="$tinted"/>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:if>
     <xsl:attribute name="{@name}" select="$tinted" />
   </xsl:template>
-  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template 
+    match="idml2xml:attribute[@name = ('css:border-top-color', 'css:border-bottom-color')]
+                             [following-sibling::idml2xml:attribute[
+                               @name = concat(
+                                         current()/@name, 
+                                         '-text-color'
+                                       )
+                             ]]" 
+    mode="idml2xml:XML-Hubformat-properties2atts">
+    <!-- If there is a following css:border-top-color-text-color, do nothing
+    (will be handled by css:color) -->
+  </xsl:template>
+  
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
   <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
@@ -842,7 +883,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
   
-
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />
@@ -1271,7 +1311,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:copy>
   </xsl:template>
 
-
   <!-- BEGIN: tables -->
 
   <xsl:template match="Column" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -1510,6 +1549,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:text-decoration-color[../@css:text-decoration-line = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:border-top-width[../@css:border-top = 'none'] | @css:padding-top[../@css:border-top = 'none'] | @css:border-top-style[../@css:border-top = 'none'] | @css:border-top-color[../@css:border-top = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none'] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:border-bottom | @css:border-top" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <xsl:template match="dbk:superscript
                          [dbk:footnote]
