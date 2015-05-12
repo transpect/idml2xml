@@ -281,8 +281,18 @@
 
         <prop name="PageNumberType" implement="maybe later" />
         <prop name="PreviewColor" implement="maybe later" />
-        <prop name="StrokeColor" implement="maybe later" />
-        <prop name="StrokeWeight" implement="maybe later" />
+        <prop name="StrokeColor" type="color" target-name="css:border-color"/>
+        <prop name="StrokeWeight" type="length" target-name="css:border-width"/>
+        <prop name="StrokeType" target-name="css:border-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
         <prop name="TopBorderStrokeWeight" type="length" target-name="css:border-top-width"/>
         <prop name="TopBorderStrokeColor" type="color" target-name="css:border-top-color"/>
         <prop name="LeftBorderStrokeWeight" type="length" target-name="css:border-left-width"/>
@@ -316,7 +326,7 @@
         <prop name="KeepLastLines" implement="maybe later" />
         <prop name="CharacterAlignment" implement="maybe later" />
         <prop name="KeepLinesTogether" implement="maybe later" />
-        <prop name="StrokeTint" implement="maybe later" />
+        <prop name="StrokeTint" implement="maybe later"/>
         <prop name="OverprintStroke" implement="maybe later" />
         <prop name="OverprintFill" implement="maybe later" />
         <prop name="GradientStrokeAngle" implement="maybe later" />
@@ -326,21 +336,28 @@
         <prop name="GradientStrokeStart" implement="maybe later" />
         <prop name="GradientFillStart" implement="maybe later" />
         <prop name="Skew" implement="maybe later" />
-        <prop name="RuleAboveLineWeight" implement="maybe later" />
+        <prop name="RuleAboveLineWeight" type="length" target-name="css:border-top-width"/>
         <prop name="RuleAboveTint" implement="maybe later" />
-        <prop name="RuleAboveOffset" implement="maybe later" />
+        <prop name="RuleAboveOffset" type="length" target-name="css:padding-top"/>
         <prop name="RuleAboveLeftIndent" implement="maybe later" />
         <prop name="RuleAboveRightIndent" implement="maybe later" />
         <prop name="RuleAboveWidth" implement="maybe later" />
-        <prop name="RuleBelowLineWeight" implement="maybe later" />
-        <prop name="RuleBelowTint" implement="maybe later" />
-        <prop name="RuleBelowOffset" implement="maybe later" />
+        <prop name="RuleBelowLineWeight" type="length" target-name="css:border-bottom-width"/>
+        <prop name="RuleBelowTint" />
+        <prop name="RuleBelowOffset" type="length" target-name="css:padding-bottom"/>
         <prop name="RuleBelowLeftIndent" implement="maybe later" />
         <prop name="RuleBelowRightIndent" implement="maybe later" />
         <prop name="RuleBelowWidth" implement="maybe later" />
         <prop name="RuleAboveOverprint" implement="maybe later" />
         <prop name="RuleBelowOverprint" implement="maybe later" />
-        <prop name="RuleAbove" implement="maybe later" />
+        <prop name="RuleAbove" target-name="css:border-top">
+          <val eq="false" target-value="none"/>
+          <val eq="true" target-value="border-top"/>
+        </prop>
+        <prop name="RuleBelow" target-name="css:border-bottom">
+          <val eq="false" target-value="none"/>
+          <val eq="true" target-value="border-bottom"/>
+        </prop>
         <prop name="RuleBelow" implement="maybe later" />
         <prop name="LastLineIndent" implement="maybe later" />
         <prop name="HyphenateLastWord" implement="maybe later" />
@@ -478,15 +495,32 @@
         <prop name="KeyboardDirection" implement="maybe later" />
         <prop name="KeyboardShortcut" implement="maybe later" />
         <prop name="Leading" implement="maybe later" />
-        <prop name="RuleAboveColor" implement="maybe later" />
-        <prop name="RuleBelowColor" implement="maybe later" />
-        <prop name="RuleAboveType" implement="maybe later" />
-        <prop name="RuleBelowType" implement="maybe later" />
+        <prop name="RuleAboveColor" type="color" target-name="css:border-top-color"/>
+        <prop name="RuleBelowColor" type="color" target-name="css:border-bottom-color"/>
+        <prop name="RuleAboveType" target-name="css:border-top-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-name="css:text-decoration-line" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
+        <prop name="RuleBelowType" target-name="css:border-bottom-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
         <prop name="BalanceRaggedLines" implement="maybe later" />
         <prop name="RuleAboveGapColor" implement="maybe later" />
         <prop name="RuleBelowGapColor" implement="maybe later" />
         <prop name="UnderlineGapColor" implement="maybe later" />
-
         <prop name="StrikeThroughColor" implement="maybe later" />
         <prop name="StrikeThroughGapColor" implement="maybe later" />
         <prop name="StrikeThroughType" implement="maybe later" />
