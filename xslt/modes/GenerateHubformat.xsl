@@ -720,7 +720,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" 
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-bottom-color')]" 
     mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
          a fill tint that comes from a style has to be applied here. 
@@ -735,7 +735,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                            ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
                                           )[@layout-type = $layout-type]"
                   as="element(css:rule)?"/>
-	<xsl:variable name="last-fill-tint" select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint','fill-value')])[last()]" as="element(idml2xml:attribute)?" />    <xsl:variable name="tinted" as="xs:string">
+    <xsl:variable name="last-fill-tint"  as="element(idml2xml:attribute)?">
+      <!-- rules above and below have an own tint attribute which is mapped to border-bottom-tint e.g.. handled separately -->
+      <xsl:choose>
+        <xsl:when test="@name = 'css:border-top-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-top-tint')])[last()]"/>
+        </xsl:when>
+        <xsl:when test="@name = 'css:border-bottom-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-bottom-tint')])[last()]"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint', 'fill-value')])[last()]"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable> 
+    <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
         <xsl:sequence select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
@@ -782,7 +796,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     (will be handled by css:color) -->
   </xsl:template>
   
-  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color', 'border-top-tint', 'border-bottom-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
   <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
@@ -1554,6 +1568,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none'] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-bottom | @css:border-top" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <xsl:template match="dbk:superscript
                          [dbk:footnote]

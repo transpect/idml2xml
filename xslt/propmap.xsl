@@ -337,13 +337,13 @@
         <prop name="GradientFillStart" implement="maybe later" />
         <prop name="Skew" implement="maybe later" />
         <prop name="RuleAboveLineWeight" type="length" target-name="css:border-top-width"/>
-        <prop name="RuleAboveTint" implement="maybe later" />
+        <prop name="RuleAboveTint" type="percentage" target-name="border-top-tint" />
         <prop name="RuleAboveOffset" type="length" target-name="css:padding-top"/>
         <prop name="RuleAboveLeftIndent" implement="maybe later" />
         <prop name="RuleAboveRightIndent" implement="maybe later" />
         <prop name="RuleAboveWidth" implement="maybe later" />
         <prop name="RuleBelowLineWeight" type="length" target-name="css:border-bottom-width"/>
-        <prop name="RuleBelowTint" />
+        <prop name="RuleBelowTint" type="percentage" target-name="border-bottom-tint" />/>
         <prop name="RuleBelowOffset" type="length" target-name="css:padding-bottom"/>
         <prop name="RuleBelowLeftIndent" implement="maybe later" />
         <prop name="RuleBelowRightIndent" implement="maybe later" />
