@@ -694,13 +694,31 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:key name="idml2xml:css-rule-by-name" match="css:rule" use="@name"/>
+  
+  <xsl:function name="letex:layout-type-by-idml2xml-attribute" as="xs:string">
+    <xsl:param name="attr" as="element(idml2xml:attribute)"/>
+    <xsl:choose>
+      <xsl:when test="$attr/@name eq 'aid:pstyle'">para</xsl:when>
+      <xsl:when test="$attr/@name eq 'aid:cstyle'">inline</xsl:when>
+      <xsl:when test="matches($attr/@name, '^aid5?:cellstyle$')">cell</xsl:when>
+      <xsl:when test="matches($attr/@name, '^aid5?:tablestyle$')">table</xsl:when>
+      <xsl:otherwise>object</xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
   <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
          a fill tint that comes from a style has to be applied here. 
          If it isn’t superseded by a local override tint, of course. -->
+    <xsl:variable name="layout-type" as="xs:string"
+      select="(
+                ../@layout-type,
+                ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
+                                     [letex:layout-type-by-idml2xml-attribute(.)]
+              )[1]"/>
     <xsl:variable name="style" select="key('idml2xml:css-rule-by-name', 
-                                           ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])"
+                                           ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
+                                          )[@layout-type = $layout-type]"
                   as="element(css:rule)?"/>
 	<xsl:variable name="last-fill-tint" select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint','fill-value')])[last()]" as="element(idml2xml:attribute)?" />    <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
