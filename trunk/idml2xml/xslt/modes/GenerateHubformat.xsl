@@ -444,9 +444,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'percentage'">
-        <idml2xml:attribute name="{../@target-name}">
-          <xsl:value-of select="if ($val castable as xs:integer and xs:integer($val) eq -1) then 1 else round(xs:double($val)*100) * 0.0001" />
-        </idml2xml:attribute>
+        <xsl:if test="$val castable as xs:integer and not(xs:integer($val) eq -1)">
+          <idml2xml:attribute name="{../@target-name}">
+            <xsl:value-of select="round(xs:double($val)*100) * 0.0001" />
+          </idml2xml:attribute>
+        </xsl:if>
       </xsl:when>
       
       <xsl:when test=". eq 'position'">
