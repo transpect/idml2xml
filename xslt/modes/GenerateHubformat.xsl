@@ -720,7 +720,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-bottom-color')]" 
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-bottom-color')]
+                                         [$hub-version ne '1.0']" 
     mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
          a fill tint that comes from a style has to be applied here. 
