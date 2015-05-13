@@ -309,6 +309,10 @@
         <prop name="BottomEdgeStrokeColor" type="color" target-name="css:border-bottom-color"/>
         <prop name="RightEdgeStrokeWeight" type="length" target-name="css:border-right-width"/>
         <prop name="RightEdgeStrokeColor" type="color" target-name="css:border-right-color"/>
+        <prop name="TopLeftCornerRadius" type="length" target-name="css:border-top-left-radius"/>
+        <prop name="TopRightCornerRadius" type="length" target-name="css:border-top-right-radius"/>
+        <prop name="BottomLeftCornerRadius" type="length" target-name="css:border-bottom-left-radius"/>
+        <prop name="BottomRightCornerRadius" type="length" target-name="css:border-bottom-right-radius"/>
         <prop name="Tracking" implement="maybe later" />
         <prop name="OTFFigureStyle" implement="maybe later" />
         <prop name="DesiredWordSpacing" implement="maybe later" />
