@@ -14,7 +14,7 @@
   type="idml2xml:hub">
 
   <p:option name="idmlfile" />
-  <p:option name="hub-version" required="false" select="'1.1'"/>
+  <p:option name="hub-version" required="false" select="'1.2'"/>
   <p:option name="srcpaths" required="false" select="'no'"/>
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'yes'"/>

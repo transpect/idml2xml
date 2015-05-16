@@ -16,7 +16,7 @@
 
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>  
-  <p:option name="hub-version" required="false" select="'1.1'"/>  
+  <p:option name="hub-version" required="false" select="'1.2'"/>  
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
   
   <p:input port="source" primary="true"/>
