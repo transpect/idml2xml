@@ -174,6 +174,7 @@
   <xsl:template match="*:XMLElement" mode="idml2xml:GenerateTagging">
     <xsl:copy>
       <xsl:copy-of select="@*" />
+      <xsl:attribute name="idml2xml:tag-source" select="'embedded'"/>
       <xsl:apply-templates mode="#current" />
     </xsl:copy>
   </xsl:template>
