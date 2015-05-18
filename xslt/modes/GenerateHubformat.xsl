@@ -257,10 +257,28 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </idml2xml:attribute>
   </xsl:template>
     
-  <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]" 
+                mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <xsl:copy>
       <xsl:copy-of select="@*, node()"/>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*[@idml2xml:tag-source = 'embedded']" 
+                mode="idml2xml:XML-Hubformat-add-properties" priority="4">
+    <xsl:copy>
+      <xsl:copy-of select="@* except (@idml2xml:tag-source | @srcpath)"/>
+      <xsl:apply-templates select="@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+      <xsl:apply-templates mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged">
+    <xsl:attribute name="{name()}" select="string-join(
+                                            for $s in tokenize(., '\s+') return 
+                                              replace($s , $src-dir-uri-regex, ''),
+                                            ' '
+                                          )"/>
   </xsl:template>
   
   <xsl:variable name="src-dir-uri-regex" as="xs:string" 
@@ -1039,7 +1057,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           every $c in * satisfies (
                              exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
                            )
-                       ]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
+                       ]" 
+                mode="idml2xml:XML-Hubformat-remap-para-and-span"
+                priority="2">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
                         
@@ -1671,7 +1691,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- Make @role and css:rule/@name compliant with the rules for CSS identifiers
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 
-  <xsl:template match="@role[not($hub-version eq '1.0')] | css:rule/@name | dbk:linked-style/@name" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="  @role[not($hub-version eq '1.0')][not(starts-with(., 'hub:'))] 
+                       | css:rule/@name 
+                       | dbk:linked-style/@name" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{name()}" 
       select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
