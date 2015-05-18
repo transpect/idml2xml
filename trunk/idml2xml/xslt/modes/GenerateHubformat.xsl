@@ -818,9 +818,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color', 'border-top-tint', 'border-bottom-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-left-radius'][following-sibling::idml2xml:attribute[@name = 'idml2xml:TopLeftCornerOption', 'idml2xml:CornerOption'][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius'][following-sibling::idml2xml:attribute[@name = 'idml2xml:TopRightCornerOption', 'idml2xml:CornerOption'][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius'][following-sibling::idml2xml:attribute[@name = 'idml2xml:BottomLeftCornerOption', 'idml2xml:CornerOption'][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
   <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
