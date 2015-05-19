@@ -134,7 +134,15 @@
       <xsl:apply-templates
         select="if ($all-styles eq 'yes')
                 then /*/idPkg:Styles//CharacterStyle
-                else key('idml2xml:style', for $s in distinct-values(//*/@aid:cstyle) return idml2xml:generate-style-name-variants('CharacterStyle', $s) )"
+                else key(
+                  'idml2xml:style', 
+                  for $s in (
+                    distinct-values(//*/@aid:cstyle), 
+                    for $n in //CharacterStyle[@Name ne '$ID/[No character style]'][
+                      @Self = //ParagraphStyle/Properties/NumberingCharacterStyle] 
+                    return substring-after($n/@Self, 'CharacterStyle/')
+                  ) return idml2xml:generate-style-name-variants('CharacterStyle', $s)
+                )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
@@ -863,10 +871,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:if test="../idml2xml:attribute[@name eq 'numbering-continue'][last()] = 'true'">
       <xsl:attribute name="hub:numbering-continue" select="(($style, ..)/idml2xml:attribute[@name eq 'numbering-continue'])[last()]"/>
     </xsl:if>
+    <xsl:if test="../idml2xml:attribute[@name eq 'numbering-inline-stylename'][. ne 'CharacterStyle/$ID/[No character style]']">
+      <xsl:attribute name="hub:numbering-inline-stylename" select="idml2xml:StyleName((../idml2xml:attribute[@name eq 'numbering-inline-stylename'])[last()])"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template mode="idml2xml:XML-Hubformat-properties2atts" priority="2" 
-    match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'numbering-continue', 'numbering-level')]" />
+    match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'numbering-continue', 'numbering-level', 'numbering-inline-stylename')]" />
   
   <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
     <xsl:param name="type-example-string" as="xs:string"/>
@@ -1697,10 +1708,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="  @role[not($hub-version eq '1.0')][not(starts-with(., 'hub:'))] 
                        | css:rule/@name 
-                       | dbk:linked-style/@name" 
+                       | dbk:linked-style/@name
+                       | @hub:numbering-inline-stylename" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:attribute name="{name()}" 
-      select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
+    <xsl:attribute name="{name()}" select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
         that should be treated equivalently by adding a tilde, followed by arbitrary name components -->
   </xsl:template>
