@@ -75,7 +75,9 @@
   <xsl:function name="idml2xml:signature" as="xs:string*">
     <xsl:param name="elt" as="element(*)?" />
     <xsl:sequence select="if (exists($elt)) 
-      then string-join((name($elt), idml2xml:attr-hashes($elt)), '___')
+      then string-join(
+             (name($elt), idml2xml:attr-hashes($elt), $elt/Properties/*/name(), normalize-space($elt/Properties/*)), 
+             '___')
       else '' " />
   </xsl:function>
   
