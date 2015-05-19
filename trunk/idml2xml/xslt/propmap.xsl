@@ -542,7 +542,7 @@
         <prop name="AppliedNumberingList" implement="maybe later" />
         <prop name="NumberingRestartPolicies" implement="maybe later" />
         <prop name="BulletsCharacterStyle" implement="maybe later" />
-        <prop name="NumberingCharacterStyle" implement="maybe later" />
+        <prop name="NumberingCharacterStyle" target-name="numbering-inline-stylename" type="linear"/>
 
         <prop name="AssetURL" implement="maybe later" />
         <prop name="AssetID" implement="maybe later" />
