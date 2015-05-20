@@ -76,7 +76,7 @@
     <xsl:param name="elt" as="element(*)?" />
     <xsl:sequence select="if (exists($elt)) 
       then string-join(
-             (name($elt), idml2xml:attr-hashes($elt), $elt/Properties/*/name(), normalize-space($elt/Properties/*)), 
+             (name($elt), idml2xml:attr-hashes($elt), $elt/Properties/*/name(), $elt/Properties/*/normalize-space()), 
              '___')
       else '' " />
   </xsl:function>
