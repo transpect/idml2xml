@@ -229,9 +229,8 @@
   
   <xsl:template match="*[name() = $idml2xml:shape-element-names]
                         [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
-                        [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]" mode="idml2xml:ExtractTagging"
-                priority="0">
-    <xsl:message select="concat('IDML2XML warning in ExtractTagging: Image ', @Self, ' with unknown xml structure.')"/>
+                        [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]" mode="idml2xml:ExtractTagging" priority="3">
+    <xsl:message select="concat('IDML2XML warning in ExtractTagging: Image ', @Self, ' with unknown xml structure.')" />
   </xsl:template>
 
   <!-- Shouldn't happen if paragraph tagging and styling are coherent -->
