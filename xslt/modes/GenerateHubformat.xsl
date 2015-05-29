@@ -781,7 +781,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
-        <xsl:sequence select="idml2xml:tint-color(., ($last-fill-tint, 1.0)[1])" />
+        <xsl:sequence select="idml2xml:tint-color(., (xs:double(tokenize($last-fill-tint, '\s')[1]), 1.0)[1])" />
       </xsl:when>
         <xsl:when test="matches(., '^#[\da-f]{6}$', 'i')">
           <xsl:sequence
