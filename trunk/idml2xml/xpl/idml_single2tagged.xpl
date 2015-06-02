@@ -123,29 +123,36 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </letex:xslt-mode>
   
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators">
-    <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
-    <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
-  
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators">
-    <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
-    <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
-  
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply">
-    <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
-    <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  <p:choose>
+    <p:when test="exists(//AllNestedStyles/ListItem)">
+      <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators">
+        <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
+        <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+        <p:input port="models"><p:empty/></p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+      </letex:xslt-mode>
+      
+      <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators">
+        <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
+        <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+        <p:input port="models"><p:empty/></p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+      </letex:xslt-mode>
+      
+      <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply">
+        <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
+        <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+        <p:input port="models"><p:empty/></p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+      </letex:xslt-mode>
+    </p:when>
+    <p:otherwise>
+      <p:identity/>
+    </p:otherwise>
+  </p:choose>
   
   <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.60" mode="idml2xml:JoinSpans" name="JoinSpans">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
