@@ -403,7 +403,20 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                              root($val)
                                            )" mode="#current" />
             </idml2xml:attribute>
-            <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current" />
+            <xsl:choose>
+              <xsl:when test="matches($target-name, 'css:border-((top|bottom)-)?color')">
+                <!-- if borders are tinted no new fill-value attribute may be created! -->
+                  <xsl:if test=" $tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
+                    <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom)-)?color', 'border-$1tint')}">
+                      <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
+                    </idml2xml:attribute>
+                  </xsl:if>
+               </xsl:when>
+              <xsl:otherwise>
+                <!-- standard case if background-color-->
+                <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, '^Swatch/None')">
