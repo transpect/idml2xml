@@ -1384,7 +1384,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </colspec>
   </xsl:template>
 
-  <xsl:variable name="idml2xml:epub-alternative-image-regex" as="xs:string" select="'^([_-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)([_-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)*$'"/>
+  <xsl:variable name="idml2xml:epub-alternative-image-regex" as="xs:string" select="'^([_\-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)([_\-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)*$'"/>
   
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
