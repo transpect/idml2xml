@@ -1384,19 +1384,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </colspec>
   </xsl:template>
 
+  <xsl:variable name="idml2xml:epub-alternative-image-regex" as="xs:string" select="'^([_-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)([_-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)*$'"/>
+  
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
-    <!-- if the @condition EpubAlternative is used in a para before or after the heading, the referenced image namee(s) inside are transported as alt image for the table rendering-->
-    <xsl:variable name="alternative-image-name" select="(ancestor::idml2xml:genPara[1]/preceding-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
-                                                                                                                            [matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')], 
-                                                         ancestor::idml2xml:genPara[1]/following-sibling::*[self::idml2xml:genPara][1]/idml2xml:genSpan[@condition = 'EpubAlternative']
-                                                                                                                            [matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')]
-                                                         )[1]"/>
+    <!-- if the @condition EpubAlternative is used in a para before or after the heading, the referenced image name(s) inside are transported as alt image for the table rendering-->
+    <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']]
+                                                                                                        [matches(., $idml2xml:epub-alternative-image-regex, 'i')],
+                                                                    ' ')"
+                  as="xs:string?"/>
+    <xsl:message select="$alternative-image-name"/>
     <informaltable>
       <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
       <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
-      <xsl:if test="$alternative-image-name[self::idml2xml:genSpan]">
+      <xsl:if test="$alternative-image-name[matches(., '\S')]">
         <alt>
           <xsl:for-each select="tokenize(normalize-space($alternative-image-name), ' ')">
             <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
@@ -1423,7 +1425,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- sets alternative image name for table as alt in table and removes the conditional phrase then -->
-  <xsl:template match="idml2xml:genPara/idml2xml:genSpan[@condition = 'EpubAlternative'][matches(., '^.+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*$', 'i')]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
+  <xsl:template match="idml2xml:genPara/idml2xml:genSpan[@condition = 'EpubAlternative']
+                                                        [matches(., $idml2xml:epub-alternative-image-regex, 'i')]"
+                mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
   
   <xsl:template name="idml2xml:row" as="element(dbk:row)*">
     <row>
