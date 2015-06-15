@@ -37,7 +37,7 @@
     <p:pipe step="tagged" port="result" />
   </p:output>
   <p:serialization port="tagged" omit-xml-declaration="false"/>
-  <p:output port="result" primary="true" sequence="true">
+  <p:output port="result" primary="true">
     <p:pipe step="pi" port="result" />
   </p:output>
   <p:serialization port="result" omit-xml-declaration="false" />
