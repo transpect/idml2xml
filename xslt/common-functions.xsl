@@ -291,6 +291,11 @@
     <xsl:value-of select="replace($hash, '^.+__=__', '')" />
   </xsl:function>
 
+  <xsl:function name="idml2xml:index-of" as="xs:integer*">
+    <xsl:param name="nodes" as="node()*"/>
+    <xsl:param name="node" as="node()"/>
+    <xsl:sequence select="index-of(for $n in $nodes return generate-id($n), generate-id($node))"/>
+  </xsl:function>
 
   <!-- Document functions -->
 
