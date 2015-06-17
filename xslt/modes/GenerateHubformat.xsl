@@ -1782,20 +1782,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="dbk:sidebar[@remap = ('TextFrame', 'Group')]/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
-  <!-- insert see indexterms not in body into last para (not table|mediaobject only paragraphs) of the body -->
-  <xsl:template match="dbk:para[node()]
-                        [not(ancestor::*[local-name() = ('mediaobject', 'informaltable')])]
-                        [
-                         (
-                          not(every $n in node() satisfies $n/self::*[local-name() = ('mediaobject', 'informaltable')])
-                          and not(following::dbk:para[node()])
-                         ) or 
-                         (
-                           not(following::dbk:para[node()]) and
-                           not((preceding::dbk:para)[1][every $n in node() satisfies $n/self::*[local-name() = ('mediaobject', 'informaltable')]])
-                         )
-                       ]/node()[last()]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="1">
-    <xsl:next-match/>
+  <xsl:template match="/" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?"
+      select="/dbk:hub/dbk:para
+                    [node()]
+                    [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
+                    [last()]"/>
+    <xsl:next-match>
+      <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
+    </xsl:next-match>
+    <xsl:if test="not($orphaned-indexterm-para)">
+      <para>
+        <xsl:call-template name="orphaned-indexterms"/>
+      </para>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="orphaned-indexterms">
     <xsl:for-each select="//idml2xml:indexterms/dbk:indexterm[not(@page-reference)]">
       <indexterm xml:id="ie_{$idml2xml:basename}_see_{position()}">
         <xsl:apply-templates mode="#current"/>
@@ -1807,7 +1810,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </indexterm>
     </xsl:for-each>
   </xsl:template>
-
+  
+  <xsl:template match="dbk:para" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test=". is $orphaned-indexterm-para">
+        <xsl:copy copy-namespaces="no">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+          <xsl:call-template name="orphaned-indexterms"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <xsl:template match="idml2xml:indexterms//dbk:primary[dbk:see]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <primary>
       <xsl:apply-templates select="node()[not(self::dbk:see)]" mode="#current"/>
