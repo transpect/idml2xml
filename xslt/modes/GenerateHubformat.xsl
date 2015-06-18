@@ -636,6 +636,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:variable name="vals" select="for $c in tokenize(@ColorValue, '\s+') return number($c)" as="xs:double+"/>
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
+      <xsl:when test="@Name[starts-with(., 'PANTONE ') and ends-with(., ' C')]">
+        <xsl:variable name="vals" select="for $c in tokenize(letex:pantone-c-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
+        <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:message>Unknown colorspace <xsl:value-of select="@Space"/>
         </xsl:message>
@@ -794,15 +798,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
-        <xsl:sequence select="idml2xml:tint-color(., (xs:double(tokenize($last-fill-tint, '\s')[1]), 1.0)[1])" />
-      </xsl:when>
+          <xsl:sequence select="idml2xml:tint-color(., (xs:double(tokenize($last-fill-tint, '\s')[1]), 1.0)[1])" />
+        </xsl:when>
         <xsl:when test="matches(., '^#[\da-f]{6}$', 'i')">
           <xsl:sequence
             select="idml2xml:tint-dec-rgb-triple(
                                 for $i in (letex:rgb-string-to-dec-triple(.)) return number($i), 
                                 ($last-fill-tint, 1.0)[1]
                               )"
-          />
+            />
         </xsl:when>
         <xsl:otherwise>
           <xsl:message>Cannot tint <xsl:value-of select="."/></xsl:message>
@@ -822,6 +826,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:if>
       </xsl:for-each>
     </xsl:if>
+    <xsl:message select="'_________________', $tinted, '|||||||||||||||', $last-fill-tint"/>
     <xsl:attribute name="{@name}" select="$tinted" />
   </xsl:template>
   
