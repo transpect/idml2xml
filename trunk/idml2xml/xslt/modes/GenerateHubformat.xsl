@@ -405,7 +405,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             </idml2xml:attribute>
             <xsl:choose>
               <xsl:when test="matches($target-name, 'css:border-((top|bottom)-)?color')">
-                <!-- if borders are tinted no new fill-value attribute may be created! -->
+                <!-- if borders are tinted no new fill-value attribute must be created! -->
                   <xsl:if test=" $tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
                     <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom)-)?color', 'border-$1tint')}">
                       <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
@@ -1445,14 +1445,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- sets alternative image name for table as alt in table and removes the conditional phrase then -->
-<<<<<<< .mine
-  <xsl:template match="idml2xml:genPara/idml2xml:genSpan[@condition = 'EpubAlternative'][matches(., $idml2xml:epub-alternative-image-regex, 'i')]"
-                 mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
-=======
   <xsl:template match="idml2xml:genPara/idml2xml:genSpan[@condition = 'EpubAlternative']
                                                         [matches(., $idml2xml:epub-alternative-image-regex, 'i')]"
                 mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
->>>>>>> .r591
   
   <xsl:template name="idml2xml:row" as="element(dbk:row)*">
     <row>
