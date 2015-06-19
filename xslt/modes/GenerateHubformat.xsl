@@ -826,7 +826,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:if>
       </xsl:for-each>
     </xsl:if>
-    <xsl:message select="'_________________', $tinted, '|||||||||||||||', $last-fill-tint"/>
     <xsl:attribute name="{@name}" select="$tinted" />
   </xsl:template>
   
