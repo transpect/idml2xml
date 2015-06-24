@@ -299,8 +299,8 @@
   <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
                                  satisfies 
                                  (
-                                    some $testi in tokenize(normalize-space(idml2xml:text-content($ref)), ' ') 
-                                    satisfies ends-with(current()//@LinkResourceURI, $testi)
+                                    some $token in tokenize(normalize-space(idml2xml:text-content($ref)), ' ') 
+                                    satisfies ends-with(current()//@LinkResourceURI, $token)
                                   )
                                   ]"
     mode="idml2xml:DocumentResolveTextFrames" priority="3"/>
