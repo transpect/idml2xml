@@ -292,7 +292,17 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content(current())), ' ') return (//Rectangle[ends-with(.//@LinkResourceURI, $i)])[1] "/>
+      <xsl:for-each-group select="*" group-ending-with="Br">
+        <xsl:variable name="group-container" as="element(*)?">
+          <GroupContainer>
+            <xsl:copy-of select="current-group()"/>
+          </GroupContainer>
+         </xsl:variable>
+        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//Rectangle[ends-with(.//@LinkResourceURI, $i)], (//Rectangle[.//KeyValuePair[@Key = 'px:bildFileName'][@Value = $i]])))[1]"/>
+        <xsl:if test="current-group()[descendant-or-self::*:Br]">
+          <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
+        </xsl:if>
+      </xsl:for-each-group>
     </xsl:copy>
   </xsl:template>
   
@@ -300,7 +310,7 @@
                                  satisfies 
                                  (
                                     some $token in tokenize(normalize-space(idml2xml:text-content($ref)), ' ') 
-                                    satisfies ends-with(current()//@LinkResourceURI, $token)
+                                    satisfies (ends-with(current()//@LinkResourceURI, $token) or ($token = current()//KeyValuePair[@Key = 'px:bildFileName']/@Value))
                                   )
                                   ]"
     mode="idml2xml:DocumentResolveTextFrames" priority="3"/>
