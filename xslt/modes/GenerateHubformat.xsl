@@ -1434,13 +1434,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:apply-templates select="Column" mode="#current"/>
         <xsl:if test="number(@idml2xml:header-row-count) gt 0">
           <thead>
-            <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
+            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
               <xsl:call-template name="idml2xml:row" />
             </xsl:for-each-group>
           </thead>
         </xsl:if>
         <tbody>
-          <xsl:for-each-group select="idml2xml:genCell[number(@idml2xml:rowname) gt ($head-count - 1)]" group-by="@idml2xml:rowname">
+          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@idml2xml:rowname) gt ($head-count - 1)]" group-by="@idml2xml:rowname">
             <xsl:call-template name="idml2xml:row" />
           </xsl:for-each-group>
         </tbody>
