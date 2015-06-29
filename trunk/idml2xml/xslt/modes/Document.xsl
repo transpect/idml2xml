@@ -306,10 +306,34 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:function name="idml2xml:split-figure-ref" as="xs:string?">
+    <xsl:param name="elt" as="element(*)?"/>
+    <xsl:variable name="group"  as="element(*)?">
+    <xsl:element name="{name($elt)}">
+      <xsl:copy-of select="$elt/@*"/>
+        <xsl:for-each select="$elt/node()">
+          <xsl:choose>
+            <xsl:when test="following-sibling::*[1][local-name() = 'Br']">
+              <xsl:element name="{name(.)}">
+                <xsl:copy-of select="@*"/>
+                <xsl:copy-of select="node()"/>
+                <xsl:text> </xsl:text>
+              </xsl:element>
+            </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy-of select="."/>
+              </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each>
+    </xsl:element>
+    </xsl:variable>
+    <xsl:sequence select="normalize-space(idml2xml:text-content($group))"/>
+  </xsl:function>
+  
   <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
                                  satisfies 
                                  (
-                                    some $token in tokenize(normalize-space(idml2xml:text-content($ref)), ' ') 
+                                    some $token in tokenize(idml2xml:split-figure-ref($ref), ' ') 
                                     satisfies (ends-with(current()//@LinkResourceURI, $token) or ($token = current()//KeyValuePair[@Key = 'px:bildFileName']/@Value))
                                   )
                                   ]"
