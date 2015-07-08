@@ -99,15 +99,28 @@
                                     or 
                                     not(node())
                                   ][idml2xml:same-scope(., current())]"
-        group-starting-with="idml2xml:tab | idml2xml:sep">
-        <xsl:copy-of select="current-group()/(self::idml2xml:tab | self::idml2xml:sep)"/>
+        group-starting-with="*[idml2xml:is-pull-up-separator(.)]">
+        <xsl:copy-of select="current-group()/(self::*[idml2xml:is-pull-up-separator(.)])"/>
         <xsl:apply-templates select="$context/node()" mode="idml2xml:NestedStyles-upward-project">
           <xsl:with-param name="restricted-to" 
-            select="current-group()/ancestor-or-self::node()[not(self::idml2xml:tab or self::idml2xml:sep)]" tunnel="yes"/>
+            select="current-group()/ancestor-or-self::node()[not(self::*[idml2xml:is-pull-up-separator(.)])]" tunnel="yes"/>
         </xsl:apply-templates>
       </xsl:for-each-group>  
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:function name="idml2xml:is-pull-up-separator" as="xs:boolean">
+    <xsl:param name="el" as="element()"/>
+    <xsl:sequence select="(
+                            $el/self::idml2xml:tab
+                            or
+                            $el/self::idml2xml:sep
+                          )
+                          and 
+                          not($el/self::idml2xml:tab[@role]
+                                 /parent::idml2xml:genSpan[every $n in node() satisfies $n[self::idml2xml:tab[@role]]]
+                          )"/>
+  </xsl:function>
 
   <xsl:template match="node()" mode="idml2xml:NestedStyles-upward-project">
     <xsl:param name="restricted-to" as="node()+" tunnel="yes" />
