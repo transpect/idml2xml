@@ -161,7 +161,9 @@
           <val match="Oblique" target-name="css:font-style" target-value="oblique" />
           <val match="Medium" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-weight" target-value="normal" />
+          <val match="Regular" target-name="css:font-style" target-value="normal" />
           <val match="Roman" target-name="css:font-weight" target-value="normal" />
+          <val match="Roman" target-name="css:font-style" target-value="normal" />
         </prop>
         <prop name="Hidden" target-name="css:display">
           <val eq="true" target-value="none"/>
