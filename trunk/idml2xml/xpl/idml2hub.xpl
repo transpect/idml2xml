@@ -25,6 +25,9 @@
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'status'"/>
   
+  <p:input port="xslt-stylesheet">
+    <p:document href="../xslt/idml2xml.xsl"/>
+  </p:input>
   <p:output port="Document">
     <p:pipe step="single" port="result" />
   </p:output>
@@ -61,6 +64,9 @@
   </letex:simple-progress-msg>
   
   <idml2xml:single-doc name="single">
+    <p:input port="xslt-stylesheet">
+      <p:pipe port="xslt-stylesheet" step="idml2xml"/>
+    </p:input>
     <p:with-option name="idmlfile" select="$idmlfile"/>  
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
@@ -77,7 +83,7 @@
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:input port="xslt-stylesheet">
-      <p:pipe port="xslt-stylesheet" step="single"></p:pipe>
+      <p:pipe port="xslt-stylesheet" step="idml2xml"></p:pipe>
     </p:input>
     <p:input port="xslt-params">
       <p:pipe port="xslt-params" step="single"></p:pipe>
@@ -118,7 +124,7 @@
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
     <p:input port="xslt-stylesheet">
-      <p:pipe port="xslt-stylesheet" step="single"></p:pipe>
+      <p:pipe port="xslt-stylesheet" step="idml2xml"></p:pipe>
     </p:input>
     <p:input port="xslt-params">
       <p:pipe port="result" step="xslt-params-modified-after-tagged"></p:pipe>

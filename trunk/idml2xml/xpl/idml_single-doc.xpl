@@ -26,14 +26,14 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   
+  <p:input port="xslt-stylesheet">
+    <p:document href="../xslt/idml2xml.xsl"/>
+  </p:input>
   <p:output port="result" primary="true" >
     <p:pipe step="Document" port="result"/>
   </p:output>
   <p:output port="xslt-params" primary="false">
     <p:pipe step="xslt-params" port="result" />
-  </p:output>
-  <p:output port="xslt-stylesheet" primary="false">
-    <p:pipe step="load-stylesheet" port="result" />
   </p:output>
   <p:output port="report" primary="false">
     <p:inline>
@@ -74,10 +74,6 @@
       <p:identity/>
     </p:otherwise>
   </p:choose>
-
-  <p:sink/>
-
-  <p:load name="load-stylesheet" href="../xslt/idml2xml.xsl" />
 
   <p:sink/>
 
@@ -153,7 +149,7 @@
       <p:pipe step="xslt-params" port="result" />
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe step="load-stylesheet" port="result"/>
+      <p:pipe step="idml_single-doc" port="xslt-stylesheet"/>
     </p:input>
   </p:xslt>
 
