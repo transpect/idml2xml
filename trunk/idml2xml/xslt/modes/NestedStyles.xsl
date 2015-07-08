@@ -118,7 +118,10 @@
                           )
                           and 
                           not($el/self::idml2xml:tab[@role]
-                                 /parent::idml2xml:genSpan[every $n in node() satisfies $n[self::idml2xml:tab[@role]]]
+                                 /parent::idml2xml:genSpan[
+                                   every $n in node() 
+                                   satisfies $n[self::idml2xml:tab[@role] or self::Properties]
+                                 ]
                           )"/>
   </xsl:function>
 
