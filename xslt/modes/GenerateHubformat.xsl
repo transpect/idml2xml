@@ -837,7 +837,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                          '-text-color'
                                        )
                              ]]" 
-    mode="idml2xml:XML-Hubformat-properties2atts">
+    mode="idml2xml:XML-Hubformat-properties2atts" priority="2">
     <!-- If there is a following css:border-top-color-text-color, do nothing
     (will be handled by css:color) -->
   </xsl:template>
