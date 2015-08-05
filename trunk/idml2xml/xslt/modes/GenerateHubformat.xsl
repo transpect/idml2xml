@@ -774,8 +774,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="layout-type" as="xs:string"
       select="(
                 ../@layout-type,
-                ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
-                                     [letex:layout-type-by-idml2xml-attribute(.)]
+                letex:layout-type-by-idml2xml-attribute(../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])
               )[1]"/>
     <xsl:variable name="style" select="key('idml2xml:css-rule-by-name', 
                                            ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
