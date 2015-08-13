@@ -1064,6 +1064,33 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     match="idml2xml:genFrame[not(node())]" />
 
 
+
+  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
+                                       [text()[matches(., '\S')]]"
+    mode="idml2xml:XML-Hubformat-extract-frames" priority="3">
+    <!-- wasn't handled yet. may occur after anchorings. not sure whether those elements should be pulled out earlier.
+          example: Hogrefe PPP 02384 -->
+    <xsl:variable name="text-nodes" select="text()" as="node()*"/>
+    <xsl:variable name="context" select="." as="element(*)"/>
+    <xsl:for-each-group select="node()" group-by="name()">
+      <xsl:choose>
+        <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names">
+          <xsl:apply-templates select="current-group()" mode="#current"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <idml2xml:genSpan>
+            <xsl:apply-templates select="$context/@*" mode="#current"/>
+            <xsl:if test="count($text-nodes) gt 1">
+              <!-- this is not tested yet. only tried to think of this case-->
+              <xsl:attribute name="srcpath" select="concat(@srcpath, 'n=', $text-nodes[. = current-group()]/position())"/>
+            </xsl:if>
+            <xsl:apply-templates select="current-group()" mode="#current"/>
+          </idml2xml:genSpan>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each-group>
+  </xsl:template>
+  
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-remap-para-and-span -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
