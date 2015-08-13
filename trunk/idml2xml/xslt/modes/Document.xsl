@@ -209,6 +209,7 @@
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
 
+
   <xsl:function name="idml2xml:is-story-origin" as="xs:boolean">
     <xsl:param name="frame" as="element(TextFrame)"/>
     <xsl:sequence select="exists(
@@ -423,7 +424,6 @@
       <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
     </xsl:if>
   </xsl:template>
-
   <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->
   <xsl:template 
     match="*[
@@ -436,7 +436,7 @@
                and
                not(idml2xml:item-is-on-workspace(.))
              ) 
-             or $output-items-not-on-workspace = ('yes','1','true')
+             and not($output-items-not-on-workspace = ('yes','1','true'))
            ]" 
     mode="idml2xml:DocumentResolveTextFrames" />
 
