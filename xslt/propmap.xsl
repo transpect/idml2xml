@@ -154,12 +154,24 @@
         <prop name="FontStyle">
           <val match="Cond(ensed)?" target-name="css:font-stretch" target-value="condensed" />
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
+          <val eq="Bold" target-name="css:font-style" target-value="normal" />
+          <val eq="Bold" target-name="css:font-weight" target-value="bold" />
           <val match="Light" target-name="css:font-weight" target-value="300" />
+          <val eq="Light" target-name="css:font-style" target-value="normal" />
+          <val eq="Light" target-name="css:font-weight" target-value="300" />
           <val match="Semi[bB]old" target-name="css:font-weight" target-value="600" />
           <val match="Black" target-name="css:font-weight" target-value="900" />
+          <val eq="Black" target-name="css:font-style" target-value="normal" />
+          <val eq="Black" target-name="css:font-weight" target-value="900" />
           <val match="Italic" target-name="css:font-style" target-value="italic" />
+          <val eq="Italic" target-name="css:font-style" target-value="italic" />
+          <val eq="Italic" target-name="css:font-weight" target-value="normal" />
           <val match="Oblique" target-name="css:font-style" target-value="oblique" />
+          <val eq="Oblique" target-name="css:font-style" target-value="oblique" />
+          <val eq="Oblique" target-name="css:font-weight" target-value="normal" />
           <val match="Medium" target-name="css:font-weight" target-value="normal" />
+          <val eq="Medium" target-name="css:font-style" target-value="normal" />
+          <val eq="Medium" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-style" target-value="normal" />
           <val match="Roman" target-name="css:font-weight" target-value="normal" />
