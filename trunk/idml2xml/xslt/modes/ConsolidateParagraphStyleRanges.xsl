@@ -96,6 +96,33 @@
       </xsl:for-each-group>
     </xsl:copy>
   </xsl:template>
+  
+  <!-- collareral for links that span para boundaries -->
+  <xsl:template match="HyperlinkTextSource[ParagraphStyleRange][every $c in * satisfies ($c/self::ParagraphStyleRange)]" 
+    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="3">
+    <xsl:apply-templates select="*" mode="#current">
+      <xsl:with-param name="pull-in" select="."/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="ParagraphStyleRange" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="3">
+    <xsl:param name="pull-in" as="element(*)?"/>
+    <xsl:variable name="context" select="." as="element(ParagraphStyleRange)"/>
+    <xsl:variable name="prelim" as="element(*)*">
+      <xsl:apply-templates select="$context/node()" mode="#current"/>
+    </xsl:variable>
+    <xsl:if test="exists($prelim)">
+      <xsl:copy>
+        <xsl:apply-templates select="@*" mode="#current"/>
+        <xsl:for-each select="$pull-in">
+          <xsl:copy>
+            <xsl:apply-templates select="@*" mode="#current"/>
+            <xsl:apply-templates select="$context/node()" mode="#current"/>
+          </xsl:copy>
+        </xsl:for-each>
+      </xsl:copy>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="CrossReferenceSource" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
     <xsl:apply-templates select="*" mode="#current"/>
