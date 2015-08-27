@@ -107,21 +107,28 @@
 
   <xsl:template match="ParagraphStyleRange" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="3">
     <xsl:param name="pull-in" as="element(*)?"/>
-    <xsl:variable name="context" select="." as="element(ParagraphStyleRange)"/>
-    <xsl:variable name="prelim" as="element(*)*">
-      <xsl:apply-templates select="$context/node()" mode="#current"/>
-    </xsl:variable>
-    <xsl:if test="exists($prelim)">
-      <xsl:copy>
-        <xsl:apply-templates select="@*" mode="#current"/>
-        <xsl:for-each select="$pull-in">
+    <xsl:choose>
+      <xsl:when test="exists($pull-in)">
+        <xsl:variable name="context" select="." as="element(ParagraphStyleRange)"/>
+        <xsl:variable name="prelim" as="element(*)*">
+          <xsl:apply-templates select="$context/node()" mode="#current"/>
+        </xsl:variable>
+        <xsl:if test="exists($prelim)">
           <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
-            <xsl:apply-templates select="$context/node()" mode="#current"/>
+            <xsl:for-each select="$pull-in">
+              <xsl:copy>
+                <xsl:apply-templates select="@*" mode="#current"/>
+                <xsl:apply-templates select="$context/node()" mode="#current"/>
+              </xsl:copy>
+            </xsl:for-each>
           </xsl:copy>
-        </xsl:for-each>
-      </xsl:copy>
-    </xsl:if>
+        </xsl:if>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="CrossReferenceSource" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
