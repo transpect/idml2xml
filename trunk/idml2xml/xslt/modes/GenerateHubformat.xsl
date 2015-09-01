@@ -1812,20 +1812,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="dbk:sidebar[@remap = ('TextFrame', 'Group')]/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
-  <xsl:template match="/" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?"
       select="/dbk:hub/dbk:para
                     [node()]
                     [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
                     [last()]"/>
-    <xsl:next-match>
-      <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
-    </xsl:next-match>
-    <xsl:if test="not($orphaned-indexterm-para)">
-      <para>
-        <xsl:call-template name="orphaned-indexterms"/>
-      </para>
-    </xsl:if>
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates mode="#current">
+        <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
+      </xsl:apply-templates>
+      <xsl:if test="not($orphaned-indexterm-para)">
+        <para>
+          <xsl:call-template name="orphaned-indexterms"/>
+        </para>
+      </xsl:if>
+    </xsl:copy>
   </xsl:template>
   
   <xsl:template name="orphaned-indexterms">
