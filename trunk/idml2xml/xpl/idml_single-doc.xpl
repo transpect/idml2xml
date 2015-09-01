@@ -5,6 +5,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:transpect="http://www.le-tex.de/namespace/transpect"
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
@@ -31,6 +32,9 @@
   </p:input>
   <p:output port="result" primary="true" >
     <p:pipe step="Document" port="result"/>
+  </p:output>
+  <p:output port="zip-manifest">
+    <p:pipe port="result" step="zip-manifest"/>
   </p:output>
   <p:output port="xslt-params" primary="false">
     <p:pipe step="xslt-params" port="result" />
@@ -75,6 +79,33 @@
     </p:otherwise>
   </p:choose>
 
+  <p:sink/>
+
+  <p:xslt name="zip-manifest">
+    <p:input port="source">
+      <p:pipe port="result" step="unzip"/>
+    </p:input>
+    <p:input port="stylesheet">
+      <p:inline>
+        <xsl:stylesheet version="2.0">
+          <xsl:template match="c:files">
+            <c:zip-manifest>
+              <xsl:apply-templates/>
+            </c:zip-manifest>
+          </xsl:template>
+          <xsl:variable name="base-uri" select="/*/@xml:base" as="xs:string"/>
+          <xsl:template match="c:file">
+            <c:entry name="{replace(replace(@name, '%5B', '['), '%5D', ']')}"
+              href="{concat($base-uri, replace(replace(@name, '\[', '%5B'), '\]', '%5D'))}" compression-method="deflate"
+              compression-level="default"/>
+          </xsl:template>
+        </xsl:stylesheet>
+      </p:inline>
+    </p:input>
+    <p:input port="parameters">
+      <p:empty/>
+    </p:input>
+  </p:xslt>
   <p:sink/>
 
   <p:add-attribute match="/c:param-set/c:param[@name eq 'src-dir-uri']" attribute-name="value">

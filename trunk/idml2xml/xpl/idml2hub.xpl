@@ -28,6 +28,9 @@
   <p:input port="xslt-stylesheet">
     <p:document href="../xslt/idml2xml.xsl"/>
   </p:input>
+  <p:output port="zip-manifest">
+    <p:pipe port="zip-manifest" step="single"></p:pipe>
+  </p:output>
   <p:output port="Document">
     <p:pipe step="single" port="result" />
   </p:output>
