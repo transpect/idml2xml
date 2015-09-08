@@ -1073,6 +1073,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="text-nodes" select="text()" as="node()*"/>
     <xsl:variable name="context" select="." as="element(*)"/>
     <xsl:for-each-group select="node()" group-by="name()">
+      <xsl:variable name="pos" select="position()" as="xs:integer"/>
       <xsl:choose>
         <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names">
           <xsl:apply-templates select="current-group()" mode="#current"/>
@@ -1081,8 +1082,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <idml2xml:genSpan>
             <xsl:apply-templates select="$context/@*" mode="#current"/>
             <xsl:if test="count($text-nodes) gt 1">
-              <!-- this is not tested yet. only tried to think of this case-->
-              <xsl:attribute name="srcpath" select="concat(@srcpath, 'n=', $text-nodes[. = current-group()]/position())"/>
+              <xsl:attribute name="srcpath" select="string-join((@srcpath, string($pos)), ';n=')"/>
             </xsl:if>
             <xsl:apply-templates select="current-group()" mode="#current"/>
           </idml2xml:genSpan>
