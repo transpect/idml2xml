@@ -378,7 +378,7 @@
         <prop name="RuleAboveRightIndent" implement="maybe later" />
         <prop name="RuleAboveWidth" implement="maybe later" />
         <prop name="RuleBelowLineWeight" type="length" target-name="css:border-bottom-width"/>
-        <prop name="RuleBelowTint" type="percentage" target-name="border-bottom-tint" />/>
+        <prop name="RuleBelowTint" type="percentage" target-name="border-bottom-tint" />
         <prop name="RuleBelowOffset" type="length" target-name="css:padding-bottom"/>
         <prop name="RuleBelowLeftIndent" implement="maybe later" />
         <prop name="RuleBelowRightIndent" implement="maybe later" />
