@@ -395,7 +395,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             </idml2xml:attribute>
           </xsl:when>
           <xsl:when test="matches($val, '^Tint')">
-            <xsl:variable name="tint-decl" select="key('idml2xml:tint', $val, root($val))" as="element(Tint)" />
+            <xsl:variable name="tint-decl" select="key('idml2xml:tint', $val, root($val))[1]" as="element(Tint)" />
             <idml2xml:attribute name="{$target-name}">
               <xsl:apply-templates select="key(
                                              'idml2xml:color',
