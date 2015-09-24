@@ -1550,6 +1550,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
+      <xsl:apply-templates select="Image/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
       <imageobject>
         <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
           <xsl:attribute name="role" select="'hub:embedded'"/>
