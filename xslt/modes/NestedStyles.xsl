@@ -172,12 +172,28 @@
       select="$splitting-point-candidates[position() = xs:integer(number($instructions[1]/Repetition))]"/>
     <xsl:choose>
       <xsl:when test="exists($splitting-point)">
-        <idml2xml:genSpan aid:cstyle="{idml2xml:StyleName($instructions[1]/AppliedCharacterStyle)}">
+        <xsl:variable name="pre-split-cstyle" as="xs:string" select="idml2xml:StyleName($instructions[1]/AppliedCharacterStyle)"/>
+        <xsl:variable name="pre-split-transformed" as="node()*">
           <xsl:apply-templates select="if ($splitting-point) 
                                        then $nodes[. &lt;&lt; $splitting-point] 
                                        else $nodes"
-            mode="idml2xml:NestedStyles-apply"/>
-        </idml2xml:genSpan>
+            mode="idml2xml:NestedStyles-apply">
+            <xsl:with-param name="pre-split-cstyle" select="$pre-split-cstyle"/>
+          </xsl:apply-templates>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="every $n in $pre-split-transformed[normalize-space()] 
+                          satisfies ($n/@aid:cstyle = $pre-split-cstyle)">
+            <!-- The to-be-applied cstyle is already present or whitespace-only nodes, cf. UV 00495_Singh_Nekropolis,
+                 Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
+              <xsl:sequence select="$pre-split-transformed"/>
+            </idml2xml:genSpan>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
         <xsl:if test="$splitting-point/@ancestors != ''">
           <xsl:message>NestedStyles: Separator after '<xsl:value-of select="$nodes[. &lt;&lt; $splitting-point]"/>' 
@@ -201,6 +217,17 @@
   
   <xsl:template match="idml2xml:sep" mode="idml2xml:NestedStyles-apply">
     <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="*[@aid:cstyle][not(normalize-space())]" mode="idml2xml:NestedStyles-apply">
+    <xsl:param name="pre-split-cstyle" as="xs:string?"/>
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$pre-split-cstyle">
+        <xsl:attribute name="aid:cstyle" select="$pre-split-cstyle"/>  
+      </xsl:if>
+      <xsl:apply-templates mode="#current"/>
+    </xsl:copy>
   </xsl:template>
   
   <xsl:template match="idml2xml:tab[@role eq 'end-nested-style']" mode="idml2xml:NestedStyles-apply" />
