@@ -469,5 +469,60 @@
 
   <xsl:template match="XMLInstruction[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames"/>
   
+<<<<<<< .mine
+  <xsl:template match="Group" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:variable name="all-objects" as="element(*)*" select="*"/>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:variable name="objects-coordinates">
+        <xsl:apply-templates select="*" mode="idml2xml:Geometry"/>
+      </xsl:variable>
+      <xsl:variable name="ordered-objects">
+          <xsl:perform-sort select="$objects-coordinates/point">
+            <xsl:sort select="@coord-y" data-type="number" order="ascending"/>
+            <xsl:sort select="@coord-x" data-type="number" order="ascending"/>
+          </xsl:perform-sort>
+      </xsl:variable>
+      <xsl:for-each select="($ordered-objects/point)">
+        <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
+      </xsl:for-each>
+    </xsl:copy>
+  </xsl:template>
   
+  <xsl:template match="*[Properties/PathGeometry/GeometryPathType]" mode="idml2xml:Geometry" as="item()*">
+    <xsl:variable name="transformation-matrix" as="xs:double+" select="for $value in tokenize(@ItemTransform, ' ') return xs:double($value)"/>
+    <xsl:variable name="id" select="@Self"/>
+    <xsl:variable name="original-point-array" as="element(point)+">
+      <xsl:for-each select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType">
+        <point>
+          <xsl:for-each select="tokenize(@Anchor, ' ')">
+            <coord>
+              <xsl:sequence select="xs:double(.)"/>
+            </coord>
+          </xsl:for-each>
+        </point>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:variable name="translated-point-array" as="element(point)*">
+      <xsl:for-each select="$original-point-array">
+        <point>
+          <xsl:attribute name="Self" select="$id"/>  
+          <xsl:attribute name="coord-x" select="coord[1] + $transformation-matrix[5]"/>  
+          <xsl:attribute name="coord-y" select="coord[2] + $transformation-matrix[6]"/>  
+        </point>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:variable name="lowest-y" select="min($translated-point-array//@coord-y)" as="xs:double"/>
+    <xsl:variable name="point-with-lowest-y-coords" as="element(point)*">
+      <xsl:perform-sort select="$translated-point-array[@coord-y = $lowest-y]">
+        <xsl:sort data-type="number" order="ascending" select="@coord-x"/>
+      </xsl:perform-sort>
+    </xsl:variable>
+    <xsl:variable name="first-point-on-page" select="$point-with-lowest-y-coords[1]"/>
+    <xsl:sequence select="$first-point-on-page"/>
+  </xsl:template>
+  
+=======
+  
+>>>>>>> .r626
 </xsl:stylesheet>
