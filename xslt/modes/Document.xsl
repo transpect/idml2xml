@@ -482,9 +482,11 @@
             <xsl:sort select="@coord-x" data-type="number" order="ascending"/>
           </xsl:perform-sort>
       </xsl:variable>
-      <xsl:for-each select="($ordered-objects/point)">
+      <xsl:for-each select="($ordered-objects/point | Group)">
         <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
       </xsl:for-each>
+      <!-- what if there are objects in the group without coordinates? -->
+      <!-- perhaps the inner groups shall be sorted by the objects inside -->
     </xsl:copy>
   </xsl:template>
   
@@ -493,6 +495,7 @@
     <xsl:variable name="id" select="@Self"/>
     <xsl:variable name="original-point-array" as="element(point)+">
       <xsl:for-each select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType">
+        <!-- put all points into new elements -->
         <point>
           <xsl:for-each select="tokenize(@Anchor, ' ')">
             <coord>
@@ -504,6 +507,7 @@
     </xsl:variable>
     <xsl:variable name="translated-point-array" as="element(point)*">
       <xsl:for-each select="$original-point-array">
+        <!-- calculate the translation values to the x and  coordinates-->
         <point>
           <xsl:attribute name="Self" select="$id"/>  
           <xsl:attribute name="coord-x" select="coord[1] + $transformation-matrix[5]"/>  
@@ -513,6 +517,7 @@
     </xsl:variable>
     <xsl:variable name="lowest-y" select="min($translated-point-array//@coord-y)" as="xs:double"/>
     <xsl:variable name="point-with-lowest-y-coords" as="element(point)*">
+      <!-- in IDML the center of the spread is 0,0. the top of the page and the right page have negative y and x values-->
       <xsl:perform-sort select="$translated-point-array[@coord-y = $lowest-y]">
         <xsl:sort data-type="number" order="ascending" select="@coord-x"/>
       </xsl:perform-sort>
