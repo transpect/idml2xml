@@ -468,8 +468,7 @@
   <xsl:template match="XMLAttribute[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames"/>
 
   <xsl:template match="XMLInstruction[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames"/>
-  
-<<<<<<< .mine
+
   <xsl:template match="Group" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:variable name="all-objects" as="element(*)*" select="*"/>
     <xsl:copy copy-namespaces="no">
@@ -521,8 +520,5 @@
     <xsl:variable name="first-point-on-page" select="$point-with-lowest-y-coords[1]"/>
     <xsl:sequence select="$first-point-on-page"/>
   </xsl:template>
-  
-=======
-  
->>>>>>> .r626
+
 </xsl:stylesheet>
