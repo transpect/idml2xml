@@ -469,4 +469,5 @@
 
   <xsl:template match="XMLInstruction[$discard-tagging = 'yes']" mode="idml2xml:DocumentResolveTextFrames"/>
   
+  
 </xsl:stylesheet>
