@@ -477,11 +477,17 @@
         <xsl:apply-templates select="*" mode="idml2xml:Geometry"/>
       </xsl:variable>
       <xsl:variable name="ordered-objects">
-          <xsl:perform-sort select="$objects-coordinates/point">
-            <xsl:sort select="@coord-y" data-type="number" order="ascending"/>
-            <xsl:sort select="@coord-x" data-type="number" order="ascending"/>
-          </xsl:perform-sort>
+        <xsl:for-each-group select="$objects-coordinates/point" group-by="replace(@coord-y, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
+          <!--  inaccuracies on positioning in IDesign will be softened by using only two numbers after comma. 
+            Perhaps rounding might be better, but we'll watch this -->
+          <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
+          <xsl:for-each-group select="current-group()" group-by="replace(@coord-x, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
+            <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
+            <xsl:sequence select="current-group()"/>
+          </xsl:for-each-group>
+        </xsl:for-each-group>
       </xsl:variable>
+<!--      <xsl:message select="'→→→→→ Grouped object‘s first points on page, sorted ascending: ', $ordered-objects"/>-->
       <xsl:for-each select="($ordered-objects/point | Group)">
         <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
       </xsl:for-each>
