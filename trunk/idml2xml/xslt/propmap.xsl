@@ -49,7 +49,9 @@
         <prop name="idml2xml:objectstyle" type="passthru" />
         <prop name="aid:table" type="passthru" />
         <prop name="aid:ccols" type="passthru" />
+        <prop name="aid:colname" type="passthru" />
         <prop name="aid:crows" type="passthru" />
+        <prop name="aid:rowname" type="passthru" />
         <prop name="aid:tcols" type="passthru" />
         <prop name="aid:trows" type="passthru" />
         <prop name="linkend" type="passthru" />

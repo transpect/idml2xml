@@ -26,6 +26,17 @@
     select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'idml2xml:genCell', 'CharacterStyleRange')" 
     as="xs:string+" />
 
+  <!-- GI 2015-11-01: Created this function ad hoc as a replacement for predicates 
+    [name() = $idml2xml:idml-scope-terminal-names]. Reason: After ExtractTagging, there may by custom tags for table cells.
+    I didn’t analyze yet whether is-scope-terminal and is-scope-origin should mean the same thing (i.e., should
+    return the same value for a given input, if input is an element). -->
+  <xsl:function name="idml2xml:is-scope-terminal" as="xs:boolean">
+    <xsl:param name="node" as="node()"/>
+    <xsl:sequence select="$node/self::element()/name() = $idml2xml:idml-scope-terminal-names
+                          or
+                          $node/@aid:table = 'cell'"/>
+  </xsl:function>
+
   <xsl:function name="letex:identical-self-object-suffix" as="xs:string">
     <xsl:param name="self-object" as="element(*)"/>
     <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', $self-object/@Self, root($self-object))" as="element(*)+" />
@@ -216,7 +227,7 @@
     <!-- returns true if a Br comes first in a given context -->
     <xsl:sequence select="exists( 
                                   ($elt//*
-                                    [name() = $idml2xml:idml-scope-terminal-names]
+                                    [idml2xml:is-scope-terminal(.)]
                                     [idml2xml:same-scope(., $elt)]
                                   )[position() = (if (last() eq 1) then 2 else 1)]
                                   /self::Br 
@@ -230,7 +241,7 @@
     will be attached to the wrong (the following) paragraph in idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br -->
     <xsl:sequence select="exists( 
                                   ($elt//*
-                                    [name() = $idml2xml:idml-scope-terminal-names]
+                                    [idml2xml:is-scope-terminal(.)]
                                     [idml2xml:same-scope(., $elt)]
                                   )[last()]
                                   /self::Br 

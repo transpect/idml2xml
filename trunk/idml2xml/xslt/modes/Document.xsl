@@ -497,7 +497,8 @@
   </xsl:template>
   
   <xsl:template match="*[Properties/PathGeometry/GeometryPathType]" mode="idml2xml:Geometry" as="item()*">
-    <xsl:variable name="transformation-matrix" as="xs:double+" select="for $value in tokenize(@ItemTransform, ' ') return xs:double($value)"/>
+    <xsl:variable name="transformation-matrix" as="xs:double*" 
+      select="for $value in tokenize((@ItemTransform, '1 0 0 1 0 0')[1], ' ') return xs:double($value)"/>
     <xsl:variable name="id" select="@Self"/>
     <xsl:variable name="original-point-array" as="element(point)+">
       <xsl:for-each select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType">

@@ -95,7 +95,7 @@
       <xsl:for-each-group
         select="descendant::node()
                                   [
-                                    (name() = $idml2xml:idml-scope-terminal-names)
+                                    (idml2xml:is-scope-terminal(.))
                                     or 
                                     not(node())
                                   ][idml2xml:same-scope(., current())]"
@@ -135,12 +135,12 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="*[name() = $idml2xml:idml-scope-terminal-names]/*" mode="idml2xml:NestedStyles-upward-project">
+  <xsl:template match="*[idml2xml:is-scope-terminal(.)]/*" mode="idml2xml:NestedStyles-upward-project">
     <xsl:apply-templates select="." mode="idml2xml:NestedStyles-pull-up-separators"/>
   </xsl:template>
 
   <!-- Deal with tables, footnotes etc. that are contained in the para or its spans -->
-  <xsl:template match="*[name() = $idml2xml:idml-scope-terminal-names]" mode="idml2xml:NestedStyles-upward-project"
+  <xsl:template match="*[idml2xml:is-scope-terminal(.)]" mode="idml2xml:NestedStyles-upward-project"
     priority="-0.75">
     <xsl:apply-templates select="." mode="idml2xml:NestedStyles-pull-up-separators" />
   </xsl:template>
@@ -150,8 +150,8 @@
   <!-- Wrap stretches of text with character styles spans according to the nested style instructions. -->
   
   <xsl:template match="*[@aid:pstyle]
-    [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
-    mode="idml2xml:NestedStyles-apply">
+                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
+                mode="idml2xml:NestedStyles-apply">
     <xsl:variable name="instructions" as="element(ListItem)+" 
       select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
     <xsl:copy copy-namespaces="no">
