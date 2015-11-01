@@ -1460,13 +1460,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:apply-templates select="Column" mode="#current"/>
         <xsl:if test="number(@idml2xml:header-row-count) gt 0">
           <thead>
-            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@idml2xml:rowname) lt $head-count]" group-by="@idml2xml:rowname">
+            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) lt $head-count]" group-by="@aid:rowname">
               <xsl:call-template name="idml2xml:row" />
             </xsl:for-each-group>
           </thead>
         </xsl:if>
         <tbody>
-          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@idml2xml:rowname) gt ($head-count - 1)]" group-by="@idml2xml:rowname">
+          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1)]" group-by="@aid:rowname">
             <xsl:call-template name="idml2xml:row" />
           </xsl:for-each-group>
         </tbody>
@@ -1484,7 +1484,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:for-each select="current-group()">
         <entry>
           <xsl:apply-templates select="@xml:*, @css:*" mode="#current"/>
-          <xsl:variable name="col" select="xs:integer(@idml2xml:colname)+1" as="xs:integer"/>
+          <xsl:variable name="col" select="xs:integer(@aid:colname)+1" as="xs:integer"/>
           <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" as="xs:integer"/>
           <xsl:choose>
             <xsl:when test="number(@aid:ccols) gt 1">
@@ -1494,7 +1494,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 select="idml2xml:pt-length(string(sum(../Column/@SingleColumnWidth[position() = ($col to $col + $colspan - 1)])))"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:attribute name="colname" select="concat('c',number(@idml2xml:colname)+1)"/>
+              <xsl:attribute name="colname" select="concat('c',number(@aid:colname)+1)"/>
             </xsl:otherwise>
           </xsl:choose>
           <xsl:if test="number(@aid:crows) gt 1">
