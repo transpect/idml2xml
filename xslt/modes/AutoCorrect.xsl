@@ -170,6 +170,8 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: idml2xml:AutoCorrect-clean-up -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -259,5 +261,71 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <!-- Solve a situation like this:
+   <idml2xml:parsep/>
+   <idml2xml:genPara>
+      <idml2xml:genAnchor/>
+   </idml2xml:genPara>
+   <idml2xml:link>
+      <idml2xml:ParagraphStyleRange>
+         <idml2xml:genPara>
+         …
+   The first idml2xml:genPara is not a para in its own right. Its content belongs to the beginning 
+   of the subsequent idml2xml:genPara, if there is such.
+  -->
+  <xsl:template match="*[idml2xml:parsep]" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="*" group-starting-with="idml2xml:parsep">
+        <xsl:choose>
+          <xsl:when test="self::idml2xml:parsep">
+            <xsl:if test="count(current-group()[not(self::idml2xml:parsep)]
+                                               [not(idml2xml:is-dissolvable-anchor-genPara(.))]) gt 1">
+              <xsl:message terminate="yes" select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
+              <!-- this case wasn't thought of and has to be handled! -->
+            </xsl:if>
+            <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
+              mode="#current">
+              <xsl:with-param name="insert-anchor" select="current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]/*" tunnel="yes"/>
+            </xsl:apply-templates>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="current-group()" mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*[@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up" priority="5">
+    <xsl:param name="insert-anchor" as="element(idml2xml:genAnchor)*" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="exists($insert-anchor)">
+        <xsl:copy>
+          <xsl:apply-templates select="@*,
+                                       $insert-anchor,
+                                       node()" mode="#current"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  
+  <xsl:template match="idml2xml:genPara[idml2xml:is-dissolvable-anchor-genPara(.)]"
+    mode="idml2xml:AutoCorrect-clean-up"/>
+  
+  <xsl:function name="idml2xml:is-dissolvable-anchor-genPara" as="xs:boolean">
+    <xsl:param name="para" as="element(*)?"/>
+    <xsl:sequence select="exists($para/preceding-sibling::*[1]/self::idml2xml:parsep)
+                          and
+                          exists($para/idml2xml:genAnchor)
+                          and
+                          (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
+  </xsl:function>
+  
   
 </xsl:stylesheet>
