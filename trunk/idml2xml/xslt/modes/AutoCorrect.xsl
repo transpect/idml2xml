@@ -274,16 +274,28 @@
    The first idml2xml:genPara is not a para in its own right. Its content belongs to the beginning 
    of the subsequent idml2xml:genPara, if there is such.
   -->
+
   <xsl:template match="*[idml2xml:parsep]" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each-group select="*" group-starting-with="idml2xml:parsep">
         <xsl:choose>
           <xsl:when test="self::idml2xml:parsep">
-            <xsl:if test="count(current-group()[not(self::idml2xml:parsep)]
-                                               [not(idml2xml:is-dissolvable-anchor-genPara(.))]) gt 1">
+            <xsl:if test="(count(current-group()[self::idml2xml:genPara]) gt 1
+                           ) and
+                           current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]">
+             
+              
               <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
-              <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!</xsl:comment>
+              <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!, <xsl:value-of select="count(current-group()[not(self::idml2xml:parsep)]
+                                               [not(idml2xml:is-dissolvable-anchor-genPara(.))]
+                                )"/>
+              </xsl:comment>
+              <xsl:comment>
+                <xsl:for-each select="current-group()">
+                  <xsl:sequence select="name(.)"/>
+                </xsl:for-each>
+              </xsl:comment>
               <!-- this case wasn't thought of and has to be handled! -->
             </xsl:if>
             <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
