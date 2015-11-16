@@ -485,7 +485,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test=". eq 'percentage'">
         <xsl:if test="$val castable as xs:double and not(number($val) = -1)">
           <idml2xml:attribute name="{../@target-name}">
-            <xsl:value-of select="round(xs:double($val)*100) * 0.0001" />
+            <xsl:value-of select="format-number($val*.01, '##0.00###')" />
           </idml2xml:attribute>
         </xsl:if>
       </xsl:when>
