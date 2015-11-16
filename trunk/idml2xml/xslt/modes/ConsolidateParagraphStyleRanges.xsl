@@ -226,4 +226,15 @@
     <xsl:apply-templates mode="idml2xml:ConsolidateParagraphStyleRanges" />
   </xsl:template>
 
+  <!-- Unwrap graphic objects that contain other frames -->
+  
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]
+                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
+                        [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]
+                        [not(empty(TextFrame | Group))]" mode="idml2xml:ConsolidateParagraphStyleRanges" priority="3">
+    <xsl:apply-templates select="* except (Properties | AnchoredObjectSetting | TextWrapPreference |InCopyExportOption
+                                            | FrameFittingOption)" mode="#current"/>
+    <xsl:message select="concat('IDML2XML warning in ConsolidateParagraphStyleRanges: ', name(), ' ', @Self, ' will be unwrapped.')" />
+  </xsl:template>
+
 </xsl:stylesheet>
