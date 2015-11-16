@@ -282,7 +282,8 @@
           <xsl:when test="self::idml2xml:parsep">
             <xsl:if test="count(current-group()[not(self::idml2xml:parsep)]
                                                [not(idml2xml:is-dissolvable-anchor-genPara(.))]) gt 1">
-              <xsl:message terminate="yes" select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
+              <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
+              <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!</xsl:comment>
               <!-- this case wasn't thought of and has to be handled! -->
             </xsl:if>
             <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
@@ -326,6 +327,5 @@
                           and
                           (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
   </xsl:function>
-  
   
 </xsl:stylesheet>
