@@ -205,7 +205,12 @@
   <!-- Groups that contain text frames with a StoryID will be moved to the location 
        of the corresponding StoryRef if such exists. They will be removed here -->
   <xsl:template match="Group[.//TextFrame[idml2xml:conditional-text-anchored(.)]]"
-    mode="idml2xml:DocumentResolveTextFrames" priority="4"/>
+    mode="idml2xml:DocumentResolveTextFrames" priority="4">
+    <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
+    <xsl:if test="$do-not-discard-anchored-group">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
 
@@ -271,9 +276,9 @@
           <xsl:choose>
             <xsl:when test="$potential-group/self::Group">
               <xsl:for-each select="$potential-group">
-                <xsl:copy>
-                  <xsl:apply-templates select="@*, node()" mode="#current"/>
-                </xsl:copy>
+                <xsl:apply-templates select="." mode="#current">
+                  <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+                </xsl:apply-templates>
               </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
