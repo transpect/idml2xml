@@ -1440,19 +1440,24 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
-    <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']]
-                                                                                 [matches(., $idml2xml:epub-alternative-image-regex, 'i')],
-                                                                    ' ')"
+    <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']], '')"
                   as="xs:string?"/>
     <informaltable>
       <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
       <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
-      <xsl:if test="$alternative-image-name[matches(., '\S')]">
+      <xsl:if test="$alternative-image-name[matches(., '\S')][matches(., $idml2xml:epub-alternative-image-regex, 'i')]">
         <alt>
-          <xsl:for-each select="tokenize(normalize-space($alternative-image-name), ' ')">
+          <xsl:analyze-string select="$alternative-image-name" regex="{$idml2xml:epub-alternative-image-regex}" flags="i">
+            <xsl:matching-substring>
+              <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
+            </xsl:matching-substring>
+            <xsl:non-matching-substring/>
+          </xsl:analyze-string>
+     
+       <!--   <xsl:for-each select="tokenize(normalize-space($alternative-image-name), ' ')">
             <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
-          </xsl:for-each>
+          </xsl:for-each>-->
         </alt>
       </xsl:if>
       <tgroup>
@@ -1475,8 +1480,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- sets alternative image name for table as alt in table and removes the conditional phrase then -->
-  <xsl:template match="idml2xml:genPara/idml2xml:genSpan[@condition = 'EpubAlternative']
-                                                        [matches(., $idml2xml:epub-alternative-image-regex, 'i')]"
+  <!-- has to be improved -->
+  <xsl:template match="idml2xml:genPara[matches(string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']], ''), 
+    $idml2xml:epub-alternative-image-regex, 'i')]/idml2xml:genSpan[@condition = 'EpubAlternative']"
                 mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
   
   <xsl:template name="idml2xml:row" as="element(dbk:row)*">
