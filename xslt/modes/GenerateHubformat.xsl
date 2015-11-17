@@ -1450,14 +1450,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <alt>
           <xsl:analyze-string select="$alternative-image-name" regex="{$idml2xml:epub-alternative-image-regex}" flags="i">
             <xsl:matching-substring>
-              <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
+              <xsl:for-each select="tokenize(normalize-space(.), ' ')">
+                <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
+              </xsl:for-each>
             </xsl:matching-substring>
             <xsl:non-matching-substring/>
           </xsl:analyze-string>
-     
-       <!--   <xsl:for-each select="tokenize(normalize-space($alternative-image-name), ' ')">
-            <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
-          </xsl:for-each>-->
         </alt>
       </xsl:if>
       <tgroup>
