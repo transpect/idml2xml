@@ -574,6 +574,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="exists($atts) and (every $a in $atts satisfies (matches(name($a), 'transform_scale[XY]')))">
         <xsl:choose>
           <xsl:when test="$scaleX = $scaleY and ($scaleY = 1)"/>
+          <xsl:when test="not($scaleY) and $scaleX = 1"/>
+          <xsl:when test="not($scaleX) and $scaleY = 1"/>
           <xsl:when test="$scaleX = $scaleY and ($scaleY != 1)">
             <xsl:sequence select="concat('scale(', $scaleX, ')')"/>
           </xsl:when>
