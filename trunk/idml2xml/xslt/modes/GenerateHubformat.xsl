@@ -1447,8 +1447,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
       <xsl:apply-templates select="@css:* | @xml:* | @srcpath" mode="#current"/>
       <xsl:if test="$alternative-image-name[matches(., '\S')][matches(., $idml2xml:epub-alternative-image-regex, 'i')]">
-        <alt>
-          <xsl:analyze-string select="$alternative-image-name" regex="{$idml2xml:epub-alternative-image-regex}" flags="i">
+        <xsl:variable name="alternative-image-name-parted" select="replace($alternative-image-name, '\.(jpe?g|tiff?|pdf|eps|ai|png)(\S)', '.$1 $2', 'i')" as="xs:string?"/>
+         <alt>
+          <xsl:analyze-string select="$alternative-image-name-parted" regex="{$idml2xml:epub-alternative-image-regex}" flags="i">
             <xsl:matching-substring>
               <xsl:for-each select="tokenize(normalize-space(.), ' ')">
                 <inlinemediaobject><imageobject><imagedata fileref="{.}"></imagedata></imageobject></inlinemediaobject>
