@@ -1113,17 +1113,39 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- Dissolves what was an anchored Group that contains a Rectangle and a TextFrame.
   Example: chb HC 66246 -->
-  <xsl:template match="idml2xml:genSpan[*][not(text()[matches(., '\S')])][
-                          every $c in * satisfies (
-                             exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
-                           )
-                       ]" 
+  <xsl:template match="idml2xml:genSpan[*]
+                                       [not(text()[matches(., '\S')])]
+                                       [
+                                         every $c in * satisfies (
+                                           exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
+                                         )
+                                       ]
+                                       [
+                                         not(@remap = 'HiddenText')
+                                       ]" 
                 mode="idml2xml:XML-Hubformat-remap-para-and-span"
                 priority="2">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
-                        
 
+  <!-- https://redmine.le-tex.de/issues/1237 -->
+  <xsl:template match="idml2xml:genSpan[*]
+                                       [not(text()[matches(., '\S')])]
+                                       [
+                                         every $c in * satisfies (
+                                           exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
+                                         )
+                                       ]
+                                       [
+                                         @remap = 'HiddenText'
+                                       ]" 
+                mode="idml2xml:XML-Hubformat-remap-para-and-span"
+                priority="2">
+    <xsl:element name="phrase">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+  
   <xsl:template match="idml2xml:genSpan[
                          not(
                            (
@@ -1771,7 +1793,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
-      match="*[local-name() ne '' and not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
+      match="*[not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="content" select="string-join(.,'')"/>
     <xsl:message>
@@ -1803,6 +1825,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <!-- Replace anchors in groups with the items that they point to (typically, sidebar of the TextFrame type,
        or Rectangles) --> 
+  <!-- GI 2015-11-19: But then we’ll get nested sidebars which violates the DocBook schema -->
   <xsl:template 
     match="dbk:sidebar[@remap = ('TextFrame','Group')]/dbk:anchor[exists(key('idml2xml:linking-item-by-id', @xml:id))]" 
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
