@@ -23,7 +23,8 @@
     as="xs:string+" />
   <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
-    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 'idml2xml:genCell', 'CharacterStyleRange')" 
+    select="($idml2xml:idml-content-element-names, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 
+    'idml2xml:genCell', 'CharacterStyleRange', 'Group')" 
     as="xs:string+" />
 
   <!-- GI 2015-11-01: Created this function ad hoc as a replacement for predicates 
