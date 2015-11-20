@@ -7,13 +7,13 @@
     xmlns:aid = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5 = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:idml2xml = "http://www.le-tex.de/namespace/idml2xml"
-    xmlns:letex = "http://www.le-tex.de/namespace"
+    xmlns:idml2xml  = "http://transpect.io/idml2xml"
+    xmlns:tr="http://transpect.io"
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns:hub = "http://www.le-tex.de/namespace/hub"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid5 aid xs idml2xml xlink dbk letex css hub"
+    exclude-result-prefixes="idPkg aid5 aid xs idml2xml xlink dbk tr css hub"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -639,7 +639,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
       <xsl:when test="@Name[starts-with(., 'PANTONE ') and ends-with(., ' C')]">
-        <xsl:variable name="vals" select="for $c in tokenize(letex:pantone-c-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
+        <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-c-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
       <xsl:otherwise>
@@ -655,7 +655,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="multiplier" as="xs:double"/>
     <xsl:variable name="tinted" select="for $c in $vals return round(255 - (255 - $c) * $multiplier) cast as xs:integer" 
       as="xs:integer+"/>
-    <xsl:sequence select="string-join(('#', for $c in $tinted return letex:pad(letex:dec-to-hex($c), 2)), '')"/>
+    <xsl:sequence select="string-join(('#', for $c in $tinted return tr:pad(tr:dec-to-hex($c), 2)), '')"/>
   </xsl:function>
 
   <xsl:template match="TabList/ListItem" mode="idml2xml:XML-Hubformat-add-properties" as="element(dbk:tab)">
@@ -756,7 +756,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:key name="idml2xml:css-rule-by-name" match="css:rule" use="@name"/>
   
-  <xsl:function name="letex:layout-type-by-idml2xml-attribute" as="xs:string">
+  <xsl:function name="tr:layout-type-by-idml2xml-attribute" as="xs:string">
     <xsl:param name="attr" as="element(idml2xml:attribute)"/>
     <xsl:choose>
       <xsl:when test="$attr/@name eq 'aid:pstyle'">para</xsl:when>
@@ -776,7 +776,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="layout-type" as="xs:string"
       select="(
                 ../@layout-type,
-                letex:layout-type-by-idml2xml-attribute(../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])
+                tr:layout-type-by-idml2xml-attribute(../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')])
               )[1]"/>
     <xsl:variable name="style" select="key('idml2xml:css-rule-by-name', 
                                            ../idml2xml:attribute[matches(@name, '^aid5?:(cell|table|[cp])style$')]
@@ -804,7 +804,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:when test="matches(., '^#[\da-f]{6}$', 'i')">
           <xsl:sequence
             select="idml2xml:tint-dec-rgb-triple(
-                                for $i in (letex:rgb-string-to-dec-triple(.)) return number($i), 
+                                for $i in (tr:rgb-string-to-dec-triple(.)) return number($i), 
                                 ($last-fill-tint, 1.0)[1]
                               )"
             />
@@ -1554,7 +1554,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
     
     <xsl:variable name="suffix" as="xs:string"
-      select="letex:identical-self-object-suffix(.)"/>
+      select="tr:identical-self-object-suffix(.)"/>
     <!--  *
           * process image properties in mode idml2xml:Images, see idml2xml/xslt/modes/Images.xsl  
           * -->

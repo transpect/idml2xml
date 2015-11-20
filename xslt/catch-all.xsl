@@ -1,7 +1,7 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
-    xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+    xmlns:idml2xml  = "http://transpect.io/idml2xml"
     exclude-result-prefixes = "xs idml2xml"
 >
 

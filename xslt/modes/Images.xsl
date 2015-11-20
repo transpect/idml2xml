@@ -2,12 +2,12 @@
 <xsl:stylesheet version="2.0"
   xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
   xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
-  xmlns:letex    = "http://www.le-tex.de/namespace"
+  xmlns:tr="http://transpect.io"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  exclude-result-prefixes = "idPkg aid5 aid xs letex"
+  xmlns:idml2xml  = "http://transpect.io/idml2xml"
+  exclude-result-prefixes = "idPkg aid5 aid xs tr"
 >
 
   <!--== KEYs ==-->
@@ -39,7 +39,7 @@
               then xs:double(tokenize(Image/@ActualPpi, ' ')[2])
               else 150" />
     <xsl:variable name="suffix" as="xs:string"
-      select="letex:identical-self-object-suffix(.)"/>
+      select="tr:identical-self-object-suffix(.)"/>
 
     <image>
       <xsl:if test="descendant::Link/@LinkResourceURI">
@@ -75,7 +75,7 @@
       <xsl:attribute name="dpi-y" select="if(Image/@EffectivePpi) then $dpi-y else 'nil'" />
       <xsl:attribute name="dpi-x-original" select="if(Image/@EffectivePpi) then $dpi-x-original else 'nil'" />
       <xsl:attribute name="dpi-y-original" select="if(Image/@EffectivePpi) then $dpi-y-original else 'nil'" />
-      <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, letex:identical-self-object-suffix(.))" />
+      <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, tr:identical-self-object-suffix(.))" />
     </image>
   </xsl:template>
 

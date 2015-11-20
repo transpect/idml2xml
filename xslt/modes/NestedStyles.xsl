@@ -3,7 +3,7 @@
   xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
   xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
-  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:idml2xml  = "http://transpect.io/idml2xml"
   exclude-result-prefixes="aid xs idml2xml">
   
   <!-- Please note that this mode has side effects. For example, it will split links that contain 

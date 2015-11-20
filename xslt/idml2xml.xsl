@@ -13,7 +13,7 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+    xmlns:idml2xml  = "http://transpect.io/idml2xml"
     exclude-result-prefixes="idPkg aid5 aid xs idml2xml xhtml"
 >
 

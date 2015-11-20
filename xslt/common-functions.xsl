@@ -2,15 +2,15 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
-    xmlns:letex = "http://www.le-tex.de/namespace"
+    xmlns:tr="http://transpect.io"
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-    xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-    exclude-result-prefixes = "xs idPkg letex"
+    xmlns:idml2xml  = "http://transpect.io/idml2xml"
+    exclude-result-prefixes = "xs idPkg"
 >
   
-  <xsl:include href="http://transpect.le-tex.de/xslt-util/colors/colors.xsl"/>
+  <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   
@@ -38,7 +38,7 @@
                           $node/@aid:table = 'cell'"/>
   </xsl:function>
 
-  <xsl:function name="letex:identical-self-object-suffix" as="xs:string">
+  <xsl:function name="tr:identical-self-object-suffix" as="xs:string">
     <xsl:param name="self-object" as="element(*)"/>
     <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', $self-object/@Self, root($self-object))" as="element(*)+" />
     <xsl:variable name="my-number" as="xs:integer"
