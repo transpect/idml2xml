@@ -7,8 +7,8 @@
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  xmlns:letex="http://www.le-tex.de/namespace"
+  xmlns:idml2xml  = "http://transpect.io/idml2xml"
+  xmlns:tr    = "http://transpect.io" 
   version="1.0"
   name="tagged2hub"
   type="idml2xml:tagged2hub"
@@ -29,33 +29,33 @@
   <p:serialization port="result" omit-xml-declaration="false"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-  <p:import href="http://transpect.le-tex.de/xproc-util/xslt-mode/xslt-mode.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07" mode="idml2xml:XML-Hubformat-add-properties">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07" mode="idml2xml:XML-Hubformat-add-properties">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
   
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
   
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
   
-  <letex:xslt-mode name="remap-para-and-span"
+  <tr:xslt-mode name="remap-para-and-span"
     msg="yes" prefix="idml2xml/idml2xml.HUB.10" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
@@ -63,7 +63,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
 
   <!--  *
         * iterate over embedded base64 binary blobs
@@ -83,7 +83,7 @@
     
   </p:for-each>
   
-  <letex:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="XML-Hubformat-cleanup-paras-and-br">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="XML-Hubformat-cleanup-paras-and-br">
     <p:input port="source"><p:pipe step="remap-para-and-span" port="result" /></p:input>
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
@@ -91,7 +91,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="hub-version" select="$hub-version"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
   
   <p:sink/>
 

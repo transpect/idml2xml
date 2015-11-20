@@ -4,11 +4,11 @@
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
-  xmlns:letex="http://www.le-tex.de/namespace"
+  xmlns:tr    = "http://transpect.io" 
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
+  xmlns:idml2xml  = "http://transpect.io/idml2xml"
   version="1.0"
   name="idml2xml"
   type="idml2xml:hub">
@@ -51,10 +51,10 @@
   <p:import href="idml_single-doc.xpl"/>
   <p:import href="idml_single2tagged.xpl"/>
   <p:import href="idml_tagged2hub.xpl"/>
-  <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-hub-xml-model.xpl" />
-  <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/simple-progress-msg.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-hub-xml-model.xpl" />
+  <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
-  <letex:simple-progress-msg name="start-msg" file="idml2hub-start.txt">
+  <tr:simple-progress-msg name="start-msg" file="idml2hub-start.txt">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
@@ -64,7 +64,7 @@
       </p:inline>
     </p:input>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
-  </letex:simple-progress-msg>
+  </tr:simple-progress-msg>
   
   <idml2xml:single-doc name="single">
     <p:input port="xslt-stylesheet">
@@ -134,11 +134,11 @@
     </p:input>
   </idml2xml:tagged2hub>
 
-  <letex:prepend-hub-xml-model name="pi">
+  <tr:prepend-hub-xml-model name="pi">
     <p:with-option name="hub-version" select="$hub-version"/>
-  </letex:prepend-hub-xml-model>
+  </tr:prepend-hub-xml-model>
 
-  <letex:simple-progress-msg name="success-msg" file="idml2hub-success.txt">
+  <tr:simple-progress-msg name="success-msg" file="idml2hub-success.txt">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
@@ -148,7 +148,7 @@
       </p:inline>
     </p:input>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
-  </letex:simple-progress-msg>
+  </tr:simple-progress-msg>
 
   <p:sink/>
 </p:declare-step>

@@ -3,14 +3,13 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:transpect="http://www.le-tex.de/namespace/transpect"
+  xmlns:tr    = "http://transpect.io" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
-  xmlns:idml2xml  = "http://www.le-tex.de/namespace/idml2xml"
-  xmlns:letex="http://www.le-tex.de/namespace"
+  xmlns:idml2xml  = "http://transpect.io/idml2xml"
   version="1.0"
   name="idml_single-doc"
   type="idml2xml:single-doc"
@@ -50,23 +49,24 @@
   </p:output>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
-  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />
-  <p:import href="http://transpect.le-tex.de/xproc-util/store-debug/store-debug.xpl"/>
-	<p:import href="http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl"/>
+  <p:import href="http://transpect.io/calabash-extensions/transpect-lib.xpl"/>
+<!--  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />-->
+  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
+  <p:import href="http://transpect.io//xproc-util/file-uri/xpl/file-uri.xpl"/>
 
-  <transpect:file-uri name="file-uri">
+  <tr:file-uri name="file-uri">
     <p:with-option name="filename" select="$idmlfile"/>
-  </transpect:file-uri>
+  </tr:file-uri>
 
   <!--<cx:message>
     <p:with-option name="message" select="string-join(for $a in /*/@* return concat(name($a), '=', $a), ', ')"></p:with-option>
   </cx:message>-->
 
-  <letex:unzip name="unzip">
+  <tr:unzip name="unzip">
     <p:with-option name="zip" select="/*/@os-path" />
     <p:with-option name="dest-dir" select="concat(/*/@os-path, '.tmp')"/>
     <p:with-option name="overwrite" select="'yes'" />
-  </letex:unzip>
+  </tr:unzip>
 
   <p:choose>
     <p:when test="name(/*) eq 'c:error'">
@@ -158,14 +158,14 @@
     <p:with-option name="attribute-value" select="$output-items-not-on-workspace"/>
   </p:add-attribute>
   
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.04.Parameters">
+  <tr:store-debug pipeline-step="idml2xml/idml2xml.04.Parameters">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="if (not($debug-dir-uri) or $debug-dir-uri  = '')
       then concat(/c:parm-set/c:param[@name eq 'src-dir-uri'], 'debug') 
       else $debug-dir-uri">
       <p:pipe step="xslt-params" port="result"/>
     </p:with-option>
-  </letex:store-debug>
+  </tr:store-debug>
     
   <p:sink/>
   
@@ -184,14 +184,14 @@
     </p:input>
   </p:xslt>
 
-  <letex:store-debug pipeline-step="idml2xml/idml2xml.05.Document">
+  <tr:store-debug pipeline-step="idml2xml/idml2xml.05.Document">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="if (not($debug-dir-uri) or $debug-dir-uri  = '')
                                            then concat(/c:parm-set/c:param[@name eq 'src-dir-uri'], 'debug') 
                                            else $debug-dir-uri">
       <p:pipe step="xslt-params" port="result"/>
     </p:with-option>
-  </letex:store-debug>
+  </tr:store-debug>
   
   <p:sink/>
   
