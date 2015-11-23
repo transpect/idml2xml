@@ -42,7 +42,7 @@
           <xsl:when test="current-grouping-key()">
             <XMLElement MarkupTag="XMLTag/idml2xml%3agenDoc">
               <xsl:attribute name="srcpath" select="current-group()/@srcpath" />
-              <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+              <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
               <xsl:apply-templates select="current-group()" mode="#current" />
             </XMLElement>
           </xsl:when>
@@ -82,7 +82,7 @@
       <xsl:copy-of select="Properties" />
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
-        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
         <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp2'), ' ')}" />
       </XMLElement>
@@ -107,7 +107,7 @@
       <xsl:copy-of select="Properties" />
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
-        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
         <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp4'), ' ')}" />
       </XMLElement>
@@ -123,7 +123,7 @@
       <xsl:copy-of select="Properties" />
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
-        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
         <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp5'), ' ')}" />
       </XMLElement>
@@ -137,7 +137,7 @@
       <xsl:copy-of select="Properties" />
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenPara">
         <xsl:apply-templates select="* except Properties" mode="#current" />
-        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
         <XMLAttribute Name="aid:pstyle" Value="{idml2xml:StyleName(@AppliedParagraphStyle)}"/>
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp5'), ' ')}" />
       </XMLElement>
@@ -153,7 +153,7 @@
       <xsl:copy-of select="Properties" />
       <XMLElement MarkupTag="XMLTag/idml2xml%3agenCell">
         <xsl:apply-templates select="* except Properties" mode="#current" />
-        <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+        <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
         <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp7'), ' ')}" />
       </XMLElement>
     </xsl:copy>
@@ -166,7 +166,7 @@
         <xsl:copy-of select="Properties" />
         <xsl:apply-templates select="* except Properties" mode="#current" />
       </xsl:copy>
-      <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+      <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
       <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp7'), ' ')}" />
     </XMLElement>
   </xsl:template>
@@ -194,7 +194,7 @@
     <xsl:copy>
       <xsl:copy-of select="@*" />
       <xsl:apply-templates mode="#current" />
-      <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+      <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
       <XMLAttribute Name="idml2xml:AppliedParagraphStyle" Value="{replace(../@AppliedParagraphStyle, '^ParagraphStyle/', '')}" />
       <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'gp3'), ' ')}" />
     </xsl:copy>
@@ -207,7 +207,7 @@
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenSpan">
       <xsl:copy-of select="@* except @AppliedCharacterStyle"/>
       <XMLAttribute Name="aid:cstyle" Value="{idml2xml:StyleName(@AppliedCharacterStyle)}" />
-      <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+      <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
       <xsl:apply-templates mode="#current" />
     </XMLElement>
   </xsl:template>
@@ -224,7 +224,7 @@
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenFrame">
       <xsl:apply-templates select="* except Properties" mode="#current" />
       <XMLAttribute Name="idml2xml:elementName" Value="{name()}" />
-      <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+      <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
       <xsl:apply-templates select="@*:objectstyle" mode="idml2xml:GenerateTagging-attr" />
     </XMLElement>
   </xsl:template>

@@ -86,10 +86,10 @@
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:input port="xslt-stylesheet">
-      <p:pipe port="xslt-stylesheet" step="idml2xml"></p:pipe>
+      <p:pipe port="xslt-stylesheet" step="idml2xml"/>
     </p:input>
     <p:input port="xslt-params">
-      <p:pipe port="xslt-params" step="single"></p:pipe>
+      <p:pipe port="xslt-params" step="single"/>
     </p:input>
   </idml2xml:single2tagged>
 

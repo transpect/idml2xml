@@ -37,7 +37,7 @@
 
   <xsl:template match="/*" mode="idml2xml:Document">
     <xsl:copy>
-      <xsl:namespace name="idml2xml" select="'http://www.le-tex.de/namespace/idml2xml'" />
+      <xsl:namespace name="idml2xml" select="'http://transpect.io/idml2xml'" />
       <xsl:attribute name="xml:base" select="base-uri(.)" />
       <xsl:copy-of select="@*, /processing-instruction()"/>
       <xsl:apply-templates mode="#current"/>
@@ -71,7 +71,7 @@
   </xsl:function>
 
   <idml2xml:default-namespaces>
-    <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml"/>
+    <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml"/>
     <XMLAttribute Name="xmlns:aid" Value="http://ns.adobe.com/AdobeInDesign/4.0/"/>
     <XMLAttribute Name="xmlns:aid5" Value="http://ns.adobe.com/AdobeInDesign/5.0/"/>
     <XMLAttribute Name="xmlns:ac" Value="http://ns.acolada.de/InDesignPlugIn/1.0/"/>

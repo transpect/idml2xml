@@ -51,7 +51,7 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
 <!--  <p:import href="http://transpect.io/calabash-extensions/transpect-lib.xpl"/>-->
   <p:import href="http://transpect.io/calabash-extensions/unzip-extension/unzip-declaration.xpl"/>
-<!--  <p:import href="http://transpect.le-tex.de/calabash-extensions/ltx-lib.xpl" />-->
+  <!--  <p:import href="http://transpect.io/calabash-extensions/transpect-lib.xpl" />-->
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
   <tr:file-uri name="file-uri">

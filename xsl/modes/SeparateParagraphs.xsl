@@ -85,7 +85,7 @@
               <xsl:apply-templates select="current-group()[not(self::XMLAttribute)]" mode="idml2xml:SeparateParagraphs-pull-down-psrange" />
             </xsl:element>
             <xsl:copy-of select="current-group()/self::XMLAttribute" />
-            <XMLAttribute Name="xmlns:idml2xml" Value="http://www.le-tex.de/namespace/idml2xml" />
+            <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
             <XMLAttribute Name="idml2xml:reason" Value="{string-join((@idml2xml:reason, 'ps2'), ' ')}" />
           </xsl:otherwise>
         </xsl:choose>

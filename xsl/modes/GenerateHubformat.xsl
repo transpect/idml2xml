@@ -1556,12 +1556,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="suffix" as="xs:string"
       select="tr:identical-self-object-suffix(.)"/>
     <!--  *
-          * process image properties in mode idml2xml:Images, see idml2xml/xslt/modes/Images.xsl  
+          * process image properties in mode idml2xml:Images, see idml2xml/xsl/modes/Images.xsl  
           * -->
     <xsl:variable name="image-info" as="element(image)">
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
-    </xsl:variable>
-    <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
+    </xsl:variable>    <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
     <!--  *
           * construct file reference from LinkResourceURI (note that even embedded images have an URI)
           * -->
@@ -1595,7 +1594,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
       <xsl:result-document href="{$fileref}">
-        <data xmlns="http://www.le-tex.de/namespace/idml2xml" 
+        <data xmlns="http://transpect.io/idml2xml" 
           content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}"
           encoding="base64"
           embedded-in-idml="true">
