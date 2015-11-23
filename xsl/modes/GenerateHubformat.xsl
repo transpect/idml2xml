@@ -1046,7 +1046,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- Frames in Groups that are anchored in inline text. These groups don’t have a child
        with an @aid:pstyle. Therefore, the genFrame extraction template above (first in mode)
        doesn’t match. But the immediately preceding template would match indeed, effectively
-       throwing away the figure caption in case of Hogrefe 101026_02142_FPT Abbildung 1. §§§ Create a test case -->
+       throwing away the figure caption in case of Hogrefe 101026_02142_FPT Abbildung 1. §§§ Create a test case 
+  
+      GI 2015-11-23: This template lead to duplicated content in Klett WIV/input/2015-10-22/DO01800021_S008_S019_01_Unit.idml
+      The output was ok without this template. If this change is incompatible with 101026_02142_FPT, we need to adapt
+      the matching patterns.
+
+      Tested 101026_02142_FPT with this change. Ok. Content probably not thrown away any more because
+      Groups will be carried along in ExtractTagging
+  -->
   <xsl:template match="idml2xml:genFrame[ancestor::idml2xml:genFrame[@idml2xml:elementName eq 'Group'][*/@aid:cstyle]]" 
     mode="idml2xml:XML-Hubformat-extract-frames">
     <idml2xml:genAnchor xml:id="{generate-id()}"/>
