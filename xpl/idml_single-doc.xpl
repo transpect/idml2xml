@@ -27,7 +27,7 @@
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   
   <p:input port="xslt-stylesheet">
-    <p:document href="../xslt/idml2xml.xsl"/>
+    <p:document href="../xsl/idml2xml.xsl"/>
   </p:input>
   <p:output port="result" primary="true" >
     <p:pipe step="Document" port="result"/>

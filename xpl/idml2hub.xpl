@@ -26,7 +26,7 @@
   <p:option name="status-dir-uri" required="false" select="'status'"/>
   
   <p:input port="xslt-stylesheet">
-    <p:document href="../xslt/idml2xml.xsl"/>
+    <p:document href="../xsl/idml2xml.xsl"/>
   </p:input>
   <p:output port="zip-manifest">
     <p:pipe port="zip-manifest" step="single"></p:pipe>
