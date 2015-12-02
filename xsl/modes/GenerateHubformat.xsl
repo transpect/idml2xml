@@ -420,7 +420,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </xsl:when>
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, '^Swatch/None')">
-            <idml2xml:remove-attribute name="{../@target-name}" />
+            <xsl:choose>
+              <xsl:when test="matches($target-name, '^css:border-(top|bottom)-color')">
+                <idml2xml:attribute name="{../@target-name}">
+                  <xsl:text>transparent</xsl:text>
+                </idml2xml:attribute>
+              </xsl:when>
+              <xsl:otherwise>
+                <idml2xml:remove-attribute name="{../@target-name}" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="matches($val, '^Text Color$')">
             <idml2xml:attribute name="{../@target-name}-text-color">
@@ -1710,6 +1719,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none'] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-bottom | @css:border-top" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:border-top-width[. = '0pt'][../@css:border-top-color[. = 'transparent']] | @css:border-bottom-width[. = '0pt'][../@css:border-bottom-color[. = 'transparent']] | 
+                       @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] | 
+                       @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] | @css:border-bottom-style[../@css:border-bottom-width[. = '0pt']][../@css:border-bottom-color[. = 'transparent']]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
