@@ -11,7 +11,7 @@
     xmlns:tr="http://transpect.io"
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
-    xmlns:hub = "http://www.le-tex.de/namespace/hub"
+    xmlns:hub = "http://transpect.io/hub"
     xmlns="http://docbook.org/ns/docbook"
     exclude-result-prefixes="idPkg aid5 aid xs idml2xml xlink dbk tr css hub"
     >
