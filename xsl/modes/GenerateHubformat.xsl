@@ -647,8 +647,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:variable name="vals" select="for $c in tokenize(@ColorValue, '\s+') return number($c)" as="xs:double+"/>
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
-      <xsl:when test="@Name[starts-with(., 'PANTONE ') and ends-with(., ' C')]">
-        <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-c-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
+      <xsl:when test="@Name[starts-with(., 'PANTONE ') and matches(., ' [CU]$')]">
+        <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
       <xsl:otherwise>
