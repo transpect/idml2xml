@@ -310,6 +310,46 @@
           <val match="Solid" target-value="solid"/>
           <val match="Wavy" target-value="groove"/>
         </prop>
+        <prop name="TopEdgeStrokeType" target-name="css:border-top-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
+        <prop name="LeftEdgeStrokeType" target-name="css:border-left-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
+        <prop name="BottomEdgeStrokeType" target-name="css:border-bottom-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
+        <prop name="RightEdgeStrokeType" target-name="css:border-right-style">
+          <val match="Dash" target-value="dashed"/>
+          <val match="Dotted" target-value="dotted"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="ThinThick" target-value="double"/>
+          <val match="ThickThin" target-value="double"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="Wavy" target-value="groove"/>
+        </prop>
         <prop name="TopBorderStrokeWeight" type="length" target-name="css:border-top-width"/>
         <prop name="TopBorderStrokeColor">
           <val ne="n" type="color" target-name="css:border-top-color"/>
