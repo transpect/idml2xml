@@ -304,7 +304,7 @@
             <xsl:copy-of select="current-group()"/>
           </GroupContainer>
          </xsl:variable>
-        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//Rectangle[ends-with(.//@LinkResourceURI, $i)], (//Rectangle[.//KeyValuePair[@Key = 'px:bildFileName'][@Value = $i]])))[1]"/>
+        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//Rectangle[ends-with(.//@LinkResourceURI, $i)], (//Rectangle[.//KeyValuePair[@Key = 'letex:fileName'][@Value = $i]])))[1]"/>
         <xsl:if test="current-group()[descendant-or-self::*:Br]">
           <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
         </xsl:if>
@@ -340,7 +340,7 @@
                                  satisfies 
                                  (
                                     some $token in tokenize(idml2xml:split-figure-ref($ref), ' ') 
-                                    satisfies (ends-with(current()//@LinkResourceURI, $token) or ($token = current()//KeyValuePair[@Key = 'px:bildFileName']/@Value))
+                                    satisfies (ends-with(current()//@LinkResourceURI, $token) or ($token = current()//KeyValuePair[@Key = 'letex:fileName']/@Value))
                                   )
                                   ]"
     mode="idml2xml:DocumentResolveTextFrames" priority="3"/>

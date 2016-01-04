@@ -1586,9 +1586,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       else replace(*/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
       select="(: check first for inserted filename labels from image export script, then use real link URI :)
-              if (Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]) 
-              (: correct the URI prefix of the base uri and replace the file name with px:bildFileName :)
-              then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), Properties/Label/KeyValuePair[@Key = ('px:bildFileName','letex:fileName')]/@Value)) 
+              if (Properties/Label/KeyValuePair[@Key = 'letex:fileName']) 
+              (: correct the URI prefix of the base uri and replace the file name with letex:fileName :)
+              then (concat(replace($LinkResourceURI, '^(.*/)?(.+)$', '$1'), Properties/Label/KeyValuePair[@Key = 'letex:fileName']/@Value)) 
               else $LinkResourceURI"/>
      <!-- *
           * mediaobject wrapper element
