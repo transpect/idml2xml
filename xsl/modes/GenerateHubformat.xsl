@@ -26,7 +26,7 @@
                'superscript', 'subscript', 'link', 'xref', 'footnote', 'note',
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso', 'date', 'author', 'personname',
-               'css:rules', 'css:rule', 'linked-style',
+               'css:rules', 'css:rule', 'linked-style', 'tfoot',
                'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
               )" as="xs:string+"/>
 
@@ -113,7 +113,16 @@
       <cellstyles>
         <style role="None"/>
         <xsl:apply-templates
-          select="key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
+          select="key(
+                    'idml2xml:style', 
+                    for $s 
+                    in distinct-values((
+                         //*/@aid5:cellstyle,
+                         //TableStyle[not(@HeaderRegionSameAsBodyRegion eq 'true')]/@HeaderRegionCellStyle,
+                         //TableStyle/@BodyRegionCellStyle,
+                         //TableStyle[not(@FooterRegionSameAsBodyRegion eq 'true')]/@FooterRegionCellStyle
+                       ))
+                    return idml2xml:generate-style-name-variants('CellStyle', $s) )"
           mode="#current">
           <xsl:sort select="@Name"/>
         </xsl:apply-templates>
@@ -157,7 +166,14 @@
       <xsl:apply-templates
         select="if ($all-styles eq 'yes')
                 then /*/idPkg:Styles//CellStyle
-                else key('idml2xml:style', for $s in distinct-values(//*/@aid5:cellstyle) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
+                else key(
+                       'idml2xml:style', 
+                       for $s in distinct-values((
+                         //*/@aid5:cellstyle,
+                         //TableStyle[not(@HeaderRegionSameAsBodyRegion eq 'true')]/@HeaderRegionCellStyle,
+                         //TableStyle/@BodyRegionCellStyle,
+                         //TableStyle[not(@FooterRegionSameAsBodyRegion eq 'true')]/@FooterRegionCellStyle
+                       )) return idml2xml:generate-style-name-variants('CellStyle', $s) )"
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
@@ -1480,7 +1496,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:variable name="idml2xml:epub-alternative-image-regex" as="xs:string" select="'^([_\-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)([_\-A-z0-9]+\.(jpe?g|tiff?|pdf|eps|ai|png)\p{Zs}*)*$'"/>
   
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)"/>
+    <xsl:variable name="context-table" select="." as="element(idml2xml:genTable)"/>
+    <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)" as="xs:double"/>
+    <xsl:variable name="body-count" select="number(@idml2xml:body-row-count)" as="xs:double"/>
+    <xsl:variable name="foot-count" select="number(@idml2xml:footer-row-count)" as="xs:double"/>
     <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']], '')"
                   as="xs:string?"/>
     <informaltable>
@@ -1503,18 +1522,31 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <tgroup>
         <xsl:attribute name="cols" select="@aid:tcols"/>
         <xsl:apply-templates select="Column" mode="#current"/>
-        <xsl:if test="number(@idml2xml:header-row-count) gt 0">
+        <xsl:if test="$head-count gt 0">
           <thead>
             <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) lt $head-count]" group-by="@aid:rowname">
-              <xsl:call-template name="idml2xml:row" />
+              <xsl:call-template name="idml2xml:row">
+                <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:HeaderRegionCellStyle"/>
+              </xsl:call-template>
             </xsl:for-each-group>
           </thead>
         </xsl:if>
         <tbody>
-          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1)]" group-by="@aid:rowname">
-            <xsl:call-template name="idml2xml:row" />
+          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1) and number(@aid:rowname) lt ($head-count + $body-count - 1)]" group-by="@aid:rowname">
+            <xsl:call-template name="idml2xml:row">
+              <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:BodyRegionCellStyle"/>
+            </xsl:call-template>
           </xsl:for-each-group>
         </tbody>
+        <xsl:if test="$foot-count gt 0">
+          <tfoot>
+            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count + $body-count - 1)]" group-by="@aid:rowname">
+              <xsl:call-template name="idml2xml:row">
+                <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:FooterRegionCellStyle"/>
+              </xsl:call-template>
+            </xsl:for-each-group>
+          </tfoot>
+        </xsl:if>
       </tgroup>
     </informaltable>
   </xsl:template>
@@ -1526,10 +1558,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3"/>
   
   <xsl:template name="idml2xml:row" as="element(dbk:row)*">
+    <xsl:param name="inherit-cellstyle" select="''" as="xs:string?" tunnel="no"/>
     <row>
       <xsl:for-each select="current-group()">
         <entry>
           <xsl:apply-templates select="@xml:*, @css:*" mode="#current"/>
+          <xsl:copy-of select="@*[ends-with(name(), 'Priority')]"/>
           <xsl:variable name="col" select="xs:integer(@aid:colname)+1" as="xs:integer"/>
           <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" as="xs:integer"/>
           <xsl:choose>
@@ -1546,7 +1580,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:if test="number(@aid:crows) gt 1">
             <xsl:attribute name="morerows" select="number(@aid:crows)-1"/>
           </xsl:if>
-          <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:cellstyle)"/>
+          <xsl:attribute name="role" 
+            select="idml2xml:StyleName(
+                      if(@aid5:cellstyle eq 'None' and $inherit-cellstyle ne '') 
+                      then $inherit-cellstyle 
+                      else @aid5:cellstyle
+                    )"/>
           <xsl:attribute name="idml2xml:layout-type" select="'cell'"/>
           <xsl:apply-templates mode="#current"/>
         </entry>
@@ -1703,6 +1742,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
+  <xsl:template match="css:rule[@layout-type eq 'cell'][not(@name = distinct-values(//dbk:entry/@role))]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- delete special unused cell styles: HeaderRegionCellStyle, BodyRegionCellStyle, FooterRegionCellStyle-->
+    <xsl:if test="$all-styles = 'yes'">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="dbk:entry/@idml2xml:*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
   <xsl:template match="text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:value-of select="replace(., '&#xfeff;', '')"/>
   </xsl:template>
@@ -1714,14 +1762,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:text-decoration-color[../@css:text-decoration-line = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:border-top-width[../@css:border-top = 'none'] | @css:padding-top[../@css:border-top = 'none'] | @css:border-top-style[../@css:border-top = 'none'] | @css:border-top-color[../@css:border-top = 'none']"
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="  @css:border-top-width[../@css:border-top = 'none'] 
+                       | @css:padding-top[../@css:border-top = 'none'] 
+                       | @css:border-top-style[../@css:border-top = 'none'] 
+                       | @css:border-top-color[../@css:border-top = 'none']"
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2"/>
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none'] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-bottom | @css:border-top" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:border-top-width[. = '0pt'][../@css:border-top-color[. = 'transparent']] | @css:border-bottom-width[. = '0pt'][../@css:border-bottom-color[. = 'transparent']] | 
-                       @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] | 
-                       @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] | @css:border-bottom-style[../@css:border-bottom-width[. = '0pt']][../@css:border-bottom-color[. = 'transparent']]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="  @css:border-top-width[. = '0pt'][../@css:border-top-color[. = 'transparent']] 
+                       | @css:border-bottom-width[. = '0pt'][../@css:border-bottom-color[. = 'transparent']] 
+                       | @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
+                       | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] 
+                       | @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] 
+                       | @css:border-bottom-style[../@css:border-bottom-width[. = '0pt']][../@css:border-bottom-color[. = 'transparent']]" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
@@ -1779,6 +1834,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                         [not(@remap)][count(node()) eq count(dbk:informaltable)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:apply-templates mode="#current" />
+  </xsl:template>
+  
+  <xsl:template match="@*" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:copy/>
   </xsl:template>
 
   <!-- Links around unanchored mediaobjects may occur on the top level --> 
