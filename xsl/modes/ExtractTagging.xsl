@@ -123,7 +123,8 @@
     <xsl:attribute name="aid:tcols" select="@ColumnCount"/>
     <xsl:attribute name="aid:trows" select="count( Row )"/>
     <xsl:attribute name="aid:header-row-count" select="@HeaderRowCount"/>
-    <xsl:attribute name="aid:body-row-count" select="if (@FooterRowCount) then number(@BodyRowCount) + number(@FooterRowCount) else @BodyRowCount"/>
+    <xsl:attribute name="aid:body-row-count" select="@BodyRowCount"/>
+    <xsl:attribute name="aid:footer-row-count" select="@FooterRowCount"/>
     <xsl:attribute name="aid5:tablestyle" select="idml2xml:StyleName(@AppliedTableStyle)"/>
     <xsl:attribute name="idml2xml:width" select="sum(Column/@SingleColumnWidth/number())"/>
     <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:objectstyle" />
