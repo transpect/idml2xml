@@ -350,38 +350,22 @@
           <val match="Solid" target-value="solid"/>
           <val match="Wavy" target-value="groove"/>
         </prop>
+        <prop name="LeftBorderStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="BottomBorderStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="RightBorderStrokeColor" type="color" target-name="css:border-right-color"/>
+        <prop name="TopBorderStrokeColor" type="color" target-name="css:border-top-color"/>
+        <prop name="LeftEdgeStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="BottomEdgeStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="RightEdgeStrokeColor" type="color" target-name="css:border-right-color"/>
+        <prop name="TopEdgeStrokeColor" type="color" target-name="css:border-top-color"/>
         <prop name="TopBorderStrokeWeight" type="length" target-name="css:border-top-width"/>
-        <prop name="TopBorderStrokeColor">
-          <val ne="n" type="color" target-name="css:border-top-color"/>
-        </prop>
         <prop name="LeftBorderStrokeWeight" type="length" target-name="css:border-left-width"/>
-        <prop name="LeftBorderStrokeColor">
-          <val ne="n" type="color" target-name="css:border-left-color"/>
-        </prop>
         <prop name="BottomBorderStrokeWeight" type="length" target-name="css:border-bottom-width"/>
-        <prop name="BottomBorderStrokeColor">
-          <val ne="n" type="color" target-name="css:border-bottom-color"/>
-        </prop>
         <prop name="RightBorderStrokeWeight" type="length" target-name="css:border-right-width"/>
-        <prop name="RightBorderStrokeColor">
-          <val ne="n" type="color" target-name="css:border-lerightft-color"/>
-        </prop>
         <prop name="TopEdgeStrokeWeight" type="length" target-name="css:border-top-width"/>
-        <prop name="TopEdgeStrokeColor">
-          <val ne="n" type="color" target-name="css:border-top-color"/>
-        </prop>
         <prop name="LeftEdgeStrokeWeight" type="length" target-name="css:border-left-width"/>
-        <prop name="LeftEdgeStrokeColor">
-          <val ne="n" type="color" target-name="css:border-left-color"/>
-        </prop>
         <prop name="BottomEdgeStrokeWeight" type="length" target-name="css:border-bottom-width"/>
-        <prop name="BottomEdgeStrokeColor">
-          <val ne="n" type="color" target-name="css:border-bottom-color"/>
-        </prop>
         <prop name="RightEdgeStrokeWeight" type="length" target-name="css:border-right-width"/>
-        <prop name="RightEdgeStrokeColor">
-          <val ne="n" type="color" target-name="css:border-right-color"/>
-        </prop>
         <prop name="TopLeftCornerRadius" type="length" target-name="css:border-top-left-radius"/>
         <prop name="TopRightCornerRadius" type="length" target-name="css:border-top-right-radius"/>
         <prop name="BottomLeftCornerRadius" type="length" target-name="css:border-bottom-left-radius"/>
