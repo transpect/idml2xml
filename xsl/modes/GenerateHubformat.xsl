@@ -1532,7 +1532,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </thead>
         </xsl:if>
         <tbody>
-          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1) and number(@aid:rowname) lt ($head-count + $body-count - 1)]" group-by="@aid:rowname">
+          <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1) and number(@aid:rowname) lt ($head-count + $body-count)]" group-by="@aid:rowname">
             <xsl:call-template name="idml2xml:row">
               <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:BodyRegionCellStyle"/>
             </xsl:call-template>
@@ -1540,7 +1540,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </tbody>
         <xsl:if test="$foot-count gt 0">
           <tfoot>
-            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count + $body-count - 1)]" group-by="@aid:rowname">
+            <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) ge ($head-count + $body-count)]" group-by="@aid:rowname">
               <xsl:call-template name="idml2xml:row">
                 <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:FooterRegionCellStyle"/>
               </xsl:call-template>
