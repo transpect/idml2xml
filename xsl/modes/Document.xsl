@@ -152,7 +152,7 @@
       <xsl:copy-of select="idPkg:Graphic" />
       <xsl:copy-of select="idPkg:Styles" />
       <idml2xml:hyper>
-        <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink | HyperlinkPageItemSource" />
+        <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink[not(key('idml2xml:Bookmark-from-Hyperlinks', Properties/Destination)[self::Bookmark])] | HyperlinkPageItemSource" />
       </idml2xml:hyper>
       <idml2xml:lang>
         <xsl:copy-of select="Language" />
@@ -538,4 +538,10 @@
     <xsl:sequence select="$first-point-on-page"/>
   </xsl:template>
 
+  <xsl:key name="idml2xml:Bookmark-from-Hyperlinks" match="Bookmark" use="@Destination"/>
+
+  <xsl:template match="HyperlinkTextDestination[key('idml2xml:Bookmark-from-Hyperlinks', @Self)[self::Bookmark]]" mode="idml2xml:DocumentResolveTextFrames" priority="3">
+    <!-- discard anchors of Bookmarks and their hyperlinks -->
+  </xsl:template>
+  
 </xsl:stylesheet>
