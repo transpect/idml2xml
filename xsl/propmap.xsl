@@ -351,11 +351,11 @@
           <val match="Wavy" target-value="groove"/>
         </prop>
         <prop name="LeftBorderStrokeColor" type="color" target-name="css:border-left-color"/>
-        <prop name="BottomBorderStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="BottomBorderStrokeColor" type="color" target-name="css:border-bottom-color"/>
         <prop name="RightBorderStrokeColor" type="color" target-name="css:border-right-color"/>
         <prop name="TopBorderStrokeColor" type="color" target-name="css:border-top-color"/>
         <prop name="LeftEdgeStrokeColor" type="color" target-name="css:border-left-color"/>
-        <prop name="BottomEdgeStrokeColor" type="color" target-name="css:border-left-color"/>
+        <prop name="BottomEdgeStrokeColor" type="color" target-name="css:border-bottom-color"/>
         <prop name="RightEdgeStrokeColor" type="color" target-name="css:border-right-color"/>
         <prop name="TopEdgeStrokeColor" type="color" target-name="css:border-top-color"/>
         <prop name="TopBorderStrokeWeight" type="length" target-name="css:border-top-width"/>
