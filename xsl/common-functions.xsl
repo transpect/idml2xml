@@ -438,7 +438,6 @@
               in $corresponding-spread/Page
               satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) ge -0.00001"/>
 
-            <!--
         <xsl:if test="$item/@Self = ('u152')">
           <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
           <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
@@ -448,19 +447,19 @@
           <xsl:message select="'DEBUG page width:', $page-width"/>
           <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
         </xsl:if>
--->
-            <xsl:variable name="causes" as="element(cause)+">
-              <cause name="item outside single page (left side)" 
-                present="{$item-real-right-x lt 0.0001 and not($left-page-available) and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
-              <cause name="no page on left side" 
-                present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available}"/>
-              <cause name="no page on right side" 
-                present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available}"/>
-              <cause name="item placed outside of page left" 
-                present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + abs($page-width)}"/>
-              <cause name="item placed outside of page right" 
-                present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) gt $spread-x + ($page-width)}"/>
-            </xsl:variable>
+            
+         <xsl:variable name="causes" as="element(cause)+">
+            <cause name="item outside single page (left side)" 
+              present="{$item-real-right-x lt 0.0001 and not($left-page-available) and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
+            <cause name="no page on left side" 
+              present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available}"/>
+            <cause name="no page on right side" 
+              present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available}"/>
+            <cause name="item placed outside of page left" 
+              present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + (abs($page-width) + root($item)//DocumentPreference/@DocumentBleedInsideOrLeftOffset)}"/>
+            <cause name="item placed outside of page right" 
+              present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) gt ($spread-x + ($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset)}"/>
+          </xsl:variable>
 
             <!-- choose wether the item is on the workspace or not -->
             <xsl:choose>
