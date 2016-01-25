@@ -60,7 +60,7 @@
   </xsl:template>
 
   <xsl:template
-    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][idml2xml:genPara][every $c in * satisfies ($c/self::idml2xml:genPara)]" 
+    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, '(et|cp)1')][idml2xml:genPara][every $c in * satisfies ($c/self::idml2xml:genPara)]" 
     mode="idml2xml:AutoCorrect" priority="3">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
@@ -194,7 +194,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
   <!-- one kind of pstyled element, together with optional anchored objects and character ranges. Everything will be wrapped in an element like the last pstyled   -->
   <xsl:template match="idml2xml:genPara
                          [*[@aid:pstyle]]
@@ -209,9 +209,10 @@
                          ]" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:element name="{name(*[@aid:pstyle][last()])}">
       <xsl:copy-of select="*[@aid:pstyle][last()]/@*" />
-      <xsl:attribute name="aid:pstyle" select="@aid:pstyle" />
+      <!-- inner pstyle wins. is there any case where the outer pstyle is more important? -->
+      <!--<xsl:attribute name="aid:pstyle" select="@aid:pstyle" />-->
       <xsl:attribute name="idml2xml:reason" select="string-join((@idml2xml:reason, 'ac7'), ' ')" />
-      <xsl:apply-templates select="      *[@aid:pstyle]/node() 
+      <xsl:apply-templates select="      *[@aid:pstyle]/node()
                                    union *[@aid:cstyle] 
                                    union *[@idml2xml:AppliedCharacterStyle] 
                                    union *[@idml2xml:story]
