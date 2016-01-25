@@ -178,6 +178,7 @@
           <xsl:when test="self::ParagraphStyleRange[*]">
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
+          <xsl:when test="HyperlinkTextSource[.//HyperlinkTextSource]"/>
           <xsl:when test="self::XMLElement[@MarkupTag = $idml2xml:split-these-elements-if-they-stretch-across-paragraphs]">
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
