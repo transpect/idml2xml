@@ -336,7 +336,7 @@
         <xsl:sequence select="false()"/>
       </xsl:when>
       <!-- unsupported Spread/@ItemTransform value -->
-      <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
+      <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 9) ne '1 0 0 1 '">
         <xsl:message
           select="'      WARNING: Spread for', local-name($item), string($item/@Self), 'does not fit standard settings. Item will be exported.'"/>
         <xsl:sequence select="true()"/>
@@ -364,7 +364,7 @@
       <xsl:when test="local-name($item) = ('Rectangle', 'TextFrame')">
         <xsl:choose>
           <!-- unsupported TextFrame/@ItemTransform value -->
-          <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 11) ne '1 0 0 1 0 '">
+          <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 9) ne '1 0 0 1 '">
             <xsl:message
               select="'      WARNING:', local-name($item), 
                  'does not fit standard settings (in func idml2xml:item-is-on-workspace). Item will be exported.'"/>
