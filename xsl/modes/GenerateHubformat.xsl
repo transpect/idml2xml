@@ -664,8 +664,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
       <xsl:when test="@Name[starts-with(., 'PANTONE ') and matches(., ' [CU]$')]">
-        <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-to-rgb(@Name), '\s+') return number($c)" as="xs:double+"/>
-        <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
+        <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-to-rgb(@Name), '\s+') return number($c)" as="xs:double*"/>
+        <xsl:sequence select="if ($vals) then idml2xml:tint-dec-rgb-triple($vals, $multiplier) else @ColorValue"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message>Unknown colorspace <xsl:value-of select="@Space"/>
