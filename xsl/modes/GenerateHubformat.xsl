@@ -1633,7 +1633,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                          $LinkResourceURI, 
                          '^(.*/)?(.+)$', '$1'
                        ), 
-                       Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')][1]/@Value
+                       (Properties/Label/KeyValuePair[@Key = 'letex:fileName'], Properties/Label/KeyValuePair[@Key = 'px:bildFileName'])[1]/@Value
                      )
                    ) 
               else $LinkResourceURI"/>
