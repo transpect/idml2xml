@@ -1162,8 +1162,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- https://redmine.le-tex.de/issues/1237 -->
+  <!-- AS: modified to match any span with HiddenText that contains anchor -->
   <xsl:template match="idml2xml:genSpan[*]
-                                       [not(text()[matches(., '\S')])]
                                        [
                                          every $c in * satisfies (
                                            exists($c/(self::idml2xml:genFrame | self::idml2xml:genAnchor))
