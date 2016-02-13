@@ -284,7 +284,8 @@
   <xsl:variable name="idml2xml:indesign-link-name-suffix-regex" select="'_ID[0-9_]+$'" as="xs:string" />
 
   <xsl:key name="hyperlink-by-source-id" match="Hyperlink" use="@Source" />
-  <xsl:key name="hyperlink-dest-by-self" match="HyperlinkURLDestination | HyperlinkPageDestination | ParagraphDestination | HyperlinkTextDestination" use="@Self" />
+  <xsl:key name="hyperlink-dest-by-self" match="HyperlinkURLDestination | HyperlinkPageDestination | ParagraphDestination | HyperlinkTextDestination" 
+    use="@DestinationUniqueKey" />
   <xsl:key name="hyperlinkPageItemSource-by-sourcePageItem" match="HyperlinkPageItemSource" use="@SourcePageItem"/>
   
   <xsl:template match="*[key('hyperlinkPageItemSource-by-sourcePageItem', @Self)]" mode="idml2xml:ExtractTagging">
@@ -332,7 +333,7 @@
   <xsl:template match="Destination[@type eq 'object']" mode="idml2xml:ExtractTagging_Linking">
     <xsl:param name="document-context" as="element(*)"/>
     <xsl:variable name="target-element-name" select="substring-before(., '/')" as="xs:string"/>
-    <xsl:variable name="dest" select="key('hyperlink-dest-by-self', .)" as="element(*)*"/>
+    <xsl:variable name="dest" select="key('hyperlink-dest-by-self', ../../@DestinationUniqueKey)" as="element(*)*"/>
     <xsl:choose>
       <xsl:when
         test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
