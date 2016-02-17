@@ -183,18 +183,26 @@
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
           <!-- Move a CharacterStyleRange down here, immediately above the rendered content: -->
-          <xsl:when test="exists($charstylerange) and name() = ($idml2xml:idml-content-element-names, 'Footnote', 'Table', 'Group')">
+          <xsl:when test="exists($charstylerange) and name() = ($idml2xml:idml-content-element-names, 'Footnote', 'Table', 'Group', 'TextVariableInstance')">
             <xsl:variable name="new-charstylerange" as="element(CharacterStyleRange)">
               <CharacterStyleRange>
                 <xsl:copy-of select="$charstylerange/(@*, Properties)" />
                 <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
               </CharacterStyleRange>
             </xsl:variable>
-            <xsl:variable name="parent-is-crossrefsrc" as="element(CrossReferenceSource)?"
-              select="if (not($charstylerange/parent::CrossReferenceSource)) 
-                      then self::Content/parent::CrossReferenceSource 
-                      else $charstylerange/parent::CrossReferenceSource
-                     " />
+            <xsl:variable name="parent-is-crossrefsrc" as="element(CrossReferenceSource)?">
+              <xsl:choose>
+                <xsl:when test="self::TextVariableInstance and parent::CrossReferenceSource">
+                  <xsl:sequence select="self::TextVariableInstance/parent::CrossReferenceSource"/>
+                </xsl:when>
+                <xsl:when test="not($charstylerange/parent::CrossReferenceSource)">
+                  <xsl:sequence select="self::Content/parent::CrossReferenceSource"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:sequence select="$charstylerange/parent::CrossReferenceSource"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
             <xsl:choose>
               <xsl:when test="exists($parent-is-crossrefsrc)">
                 <!-- move an enclosing CrossRefSrc down, too (thereby potentially splitting it – we gotta do this 
