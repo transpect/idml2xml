@@ -12,6 +12,7 @@
   <xsl:key name="topic" match="Topic" use="@Self"/>
   <xsl:key name="hyperlink" match="Hyperlink" use="@Source"/>
   <xsl:key name="destination" match="HyperlinkURLDestination" use="@Self"/>
+  <xsl:key name="by-Self" match="*[@Self]" use="@Self"/>
 
   <!--== mode: IndexTerms ==-->
   <xsl:template match="*" mode="idml2xml:IndexTerms-extract">
@@ -238,14 +239,28 @@
   <xsl:key name="indexterm-by-page-reference" match="idml2xml:indexterms/indexterm" use="@page-reference"/>
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates select="key('indexterm-by-page-reference', @Self)" mode="#current"/>
+    <xsl:apply-templates select="key('indexterm-by-page-reference', @Self)" mode="#current">
+      <xsl:with-param name="PageReference" select="." tunnel="no"/>
+    </xsl:apply-templates>
   </xsl:template>
   
   <xsl:template match="indexterm/@page-reference | @in-embedded-story" mode="idml2xml:XML-Hubformat-add-properties" priority="2"/>
 
   <xsl:template match="indexterm | *[name() = $level-element-name] | see | seealso" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:param name="PageReference" select="()" as="element(PageReference)?" tunnel="no"/>
     <xsl:element name="{name()}" xmlns="http://docbook.org/ns/docbook">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$PageReference[starts-with(@PageNumberStyleOverride, 'CharacterStyle')]">
+        <xsl:variable name="cstyle" as="element()?"
+          select="key('by-Self', $PageReference/@PageNumberStyleOverride)"/>
+        <xsl:if test="matches($cstyle/@FontStyle, 'Italic')">
+          <xsl:attribute name="role" select="'hub:pagenum-italic'"/>
+        </xsl:if>
+        <xsl:if test="matches($cstyle/@FontStyle, 'Bold')">
+          <xsl:attribute name="role" select="'hub:pagenum-bold'"/>
+        </xsl:if>
+      </xsl:if>
+      <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:element>
   </xsl:template>
   
