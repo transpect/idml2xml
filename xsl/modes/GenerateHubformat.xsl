@@ -1772,13 +1772,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:for-each select="('Top', 'Right', 'Bottom', 'Left')[
                               $context/@*/local-name() = concat(., 'EdgeStrokePriority')
                             ]">
-        <xsl:sequence select="idml2xml:set-zero-border-width-for-opposite-entry($context, current())"/>
+        <xsl:call-template name="idml2xml:set-zero-border-width-for-opposite-entry">
+          <xsl:with-param name="entry" select="$context"/>
+          <xsl:with-param name="direction" select="current()"/>
+        </xsl:call-template>
+<!--        <xsl:sequence select="idml2xml:set-zero-border-width-for-opposite-entry($context, current())"/>-->
       </xsl:for-each>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-
-  <xsl:function name="idml2xml:set-zero-border-width-for-opposite-entry" as="attribute()?">
+<!--  as="attribute()?"-->
+  <xsl:template name="idml2xml:set-zero-border-width-for-opposite-entry">
     <xsl:param name="entry" as="element(dbk:entry)" />
     <xsl:param name="direction" as="xs:string" />
     <xsl:variable name="opposite-entry-element" as="element(dbk:entry)*">
@@ -1801,37 +1805,40 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
+<!--    <xsl:message select="'OPP-ELT: ', $opposite-entry-element"/>-->
     <xsl:variable name="opposite-border-name" as="xs:string"
       select="if($direction eq 'Top') then 'Bottom' 
               else if($direction eq 'Right') then 'Left'
               else if($direction eq 'Left') then 'Right'
               else 'Top'"/>
+    
     <xsl:variable name="opposite-border-has-higher-importance-and-zero-width" as="xs:boolean">
       <xsl:sequence select="exists($opposite-entry-element[
                               (
-                                $entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')] 
-                                  ge @idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')] 
+                                number($entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')]) 
+                                  ge number(@idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')]) 
                                 and
-                                $entry/@idml2xml:AppliedCellStylePriority ge @idml2xml:AppliedCellStylePriority 
+                                number($entry/@idml2xml:AppliedCellStylePriority) ge number(@idml2xml:AppliedCellStylePriority) 
                                 and
                                 $entry/@css:*[local-name() eq concat('border-', lower-case($direction), '-width')] = '0pt'
                               )
                               or
                               (
-                                $entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')] 
-                                  le @idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')] 
+                                number($entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')]) 
+                                  le number(@idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')]) 
                                 and
-                                @idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')] 
-                                  ge @idml2xml:AppliedCellStylePriority 
+                                number(@idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')]) 
+                                  ge number(@idml2xml:AppliedCellStylePriority) 
                                 and
                                 @css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')] = '0pt'
                               )
                               or
                               (
-                                @idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')] 
-                                  eq $entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')]
+                                number(@idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')]) 
+                                  eq number($entry/@idml2xml:*[local-name() eq concat($direction, 'EdgeStrokePriority')])
                                 and
-                                @idml2xml:AppliedCellStylePriority gt $entry/@idml2xml:AppliedCellStylePriority and
+                                number(@idml2xml:AppliedCellStylePriority) gt number($entry/@idml2xml:AppliedCellStylePriority) 
+                                and
                                 key('idml2xml:css-rule-by-name', @role, root($entry))/@css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')][. eq '0pt']
                               )
                             ])"/>
@@ -1839,7 +1846,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:if test="$opposite-border-has-higher-importance-and-zero-width">
       <xsl:attribute name="{concat('css:border-', lower-case($direction), '-width')}" select="'0pt'"/>
     </xsl:if>
-  </xsl:function>
+  </xsl:template>
 
   <xsl:function name="idml2xml:get-colnums" as="xs:integer+">
     <xsl:param name="entry" as="element(dbk:entry)" />
