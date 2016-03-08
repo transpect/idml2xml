@@ -23,7 +23,7 @@
     as="xs:string+" />
   <xsl:variable
     name="idml2xml:idml-content-element-names" 
-    select="($idml2xml:idml-content-element-names-without-textSource, 'HyperlinkTextSource')" 
+    select="($idml2xml:idml-content-element-names-without-textSource, 'CharacterStyleRange', 'HyperlinkTextSource')" 
     as="xs:string+" />
   <xsl:variable 
     name="idml2xml:idml-scope-terminal-names"
