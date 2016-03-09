@@ -460,6 +460,9 @@
   <!-- remove (binary) metadata to reduce debugging file size -->
   <xsl:template match="MetadataPacketPreference" mode="idml2xml:DocumentResolveTextFrames" />
 
+  <!-- remove InDesign Notes. Can produce problems later on because they appear inside paras.-->
+  <xsl:template match="Note" mode="idml2xml:DocumentResolveTextFrames" />
+  
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = /Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:apply-templates mode="#current"/>
