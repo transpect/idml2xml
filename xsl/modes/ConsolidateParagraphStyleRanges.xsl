@@ -105,6 +105,33 @@
     </xsl:apply-templates>
   </xsl:template>
 
+  <!-- collareral to pull HyperlinkTextSource down into CharacterStyleRange if formatting is homogeneous -->
+  <xsl:template match="HyperlinkTextSource[CharacterStyleRange]
+                                          [every $child in * satisfies 
+                                           (exists($child/(self::ParagraphDestination 
+                                                           | self::CharacterStyleRange
+                                                                    [idml2xml:elt-signature(.) = idml2xml:elt-signature(current()/CharacterStyleRange[1])]
+                                                          )))]"
+    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="2">
+    <CharacterStyleRange>
+      <xsl:copy-of select="CharacterStyleRange[1]/(@* | Properties)"/>
+      <xsl:copy>
+        <xsl:apply-templates select="@*, node()" mode="#current"/>
+      </xsl:copy>
+    </CharacterStyleRange>
+  </xsl:template>
+  
+  <xsl:template match="HyperlinkTextSource/CharacterStyleRange
+                                          [every $child in ../* satisfies 
+                                           (exists($child/(self::ParagraphDestination 
+                                                           | self::CharacterStyleRange
+                                                                    [idml2xml:elt-signature(.) = idml2xml:elt-signature(current()/../CharacterStyleRange[1])]
+                                                          )))]"
+    mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="2">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+
   <xsl:template match="ParagraphStyleRange" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" priority="3">
     <xsl:param name="pull-in" as="element(*)?"/>
     <xsl:choose>

@@ -279,16 +279,19 @@
 
   <xsl:function name="idml2xml:elt-signature" as="xs:string*">
     <xsl:param name="elt" as="element(*)?" />
-    <xsl:sequence select="if (exists($elt)) 
-                          then string-join((name($elt), idml2xml:attr-hashes($elt)), '___')
-                          else '' " />
+    <xsl:variable name="prelim" as="xs:string*">
+      <xsl:sequence select="$elt/name()"/>
+      <xsl:sequence select="idml2xml:attr-hashes($elt)"/>
+      <xsl:sequence select="for $p in $elt/Properties/* return (idml2xml:elt-signature($p), string($p))"/>
+    </xsl:variable>
+    <xsl:sequence select="string-join($prelim, '__')"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:attr-hashes" as="xs:string*">
     <xsl:param name="elt" as="node()*" />
     <xsl:perform-sort>
       <xsl:sort/>
-      <xsl:sequence select="for $a in $elt/@* return idml2xml:attr-hash($a)" />
+      <xsl:sequence select="for $a in $elt/(@* except (@srcpath | @xml:id)) return idml2xml:attr-hash($a)" />
     </xsl:perform-sort>
   </xsl:function>
 
