@@ -1764,6 +1764,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="dbk:entry/@idml2xml:*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
+  <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
+  </xsl:template>
+  
   <!-- set or overwrite border-*-width attributes, when opposite cell is set to '0pt' and has more priority -->
   <xsl:template match="dbk:entry[@idml2xml:*[ends-with(name(), 'Priority')]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="context" select="." as="element(dbk:entry)"/>
