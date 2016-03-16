@@ -1947,7 +1947,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <!-- Links around unanchored mediaobjects may occur on the top level --> 
-  <xsl:template match="*[self::dbk:mediaobject or self::dbk:link][not(parent::dbk:para or parent::dbk:phrase or parent::dbk:link)]" 		
+  <xsl:template match="*[self::dbk:mediaobject or self::dbk:link][not(parent::dbk:para or parent::dbk:phrase or parent::dbk:link or parent::dbk:superscript or parent::dbk:subscript)]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2">
     <xsl:element name="para">
       <xsl:next-match/>
