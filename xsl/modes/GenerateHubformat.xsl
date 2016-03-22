@@ -1870,6 +1870,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:text-decoration-color[../@css:text-decoration-line = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@css:text-decoration-style[../@css:text-decoration-line = 'none']"
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="  @css:border-top-width[. != '0pt'][../@css:border-top = 'none'] 
                        | @css:padding-top[../@css:border-top = 'none'] 
                        | @css:border-top-style[../@css:border-top = 'none'] 
