@@ -1110,7 +1110,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:for-each-group select="node()" group-by="name()">
       <xsl:variable name="pos" select="position()" as="xs:integer"/>
       <xsl:choose>
-        <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names">
+        <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
           <xsl:apply-templates select="current-group()" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
