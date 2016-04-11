@@ -1056,7 +1056,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="ancestor" as="element(*)" />
     <xsl:sequence select="matches(
                             string-join(
-                              $ancestor//text()[. &gt;&gt; $elt] 
+                              $ancestor//text()[. &gt;&gt; $elt][parent::node()[not(matches(@condition, 'Page(Start|End)'))]] 
                               except $ancestor//idml2xml:genFrame//text(),
                               ''
                             ),
