@@ -564,7 +564,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:sequence select="'disc'"/>
       </xsl:when>
       <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('8211', '8212', '8722')"><!-- U+2013, U+2014, U+2212 -->
-        <xsl:sequence select="'dash'"/>
+        <xsl:sequence select="'hyphen'"/>
       </xsl:when>
       <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('10003')"><!-- U+2713 -->
         <xsl:sequence select="'check'"/>
