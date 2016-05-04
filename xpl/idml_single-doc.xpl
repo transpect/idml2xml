@@ -125,7 +125,7 @@
         </c:param-set>
       </p:inline>
     </p:input>
-    <p:with-option name="attribute-value" select="/c:files/@xml:base">
+    <p:with-option name="attribute-value" select="escape-html-uri(/c:files/@xml:base)">
       <p:pipe step="unzip" port="result" />
     </p:with-option>
   </p:add-attribute>
