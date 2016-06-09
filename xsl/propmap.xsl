@@ -152,6 +152,7 @@
         <prop name="FillColor" type="color" target-name="css:background-color">
           <context match="Para|Char|genSpan" target-name="css:color"/>
         </prop>
+        <prop name="StopColor" type="color" target-name="css:background-color"/>
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
         <prop name="FontStyle">

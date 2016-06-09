@@ -364,7 +364,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:key name="idml2xml:color" match="idPkg:Graphic/Color" use="@Self" />
   <xsl:key name="idml2xml:tint" match="idPkg:Graphic/Tint" use="@Self" />
-
+  <xsl:key name="idml2xml:gradient" match="idPkg:Graphic/Gradient" use="@Self" />
+  
   <xsl:template match="prop/@type" mode="idml2xml:XML-Hubformat-add-properties" as="node()*">
     <xsl:param name="val" as="node()" tunnel="yes" />
     <xsl:choose>
@@ -390,7 +391,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                                   else $val/../name()" as="xs:string" />
         <xsl:variable name="target-name" select="(../context[matches($context-name, @match)]/@target-name, ../@target-name)[1]" as="xs:string" />
         <xsl:choose>
-          <xsl:when test="matches($val, '^Color')">
+          <xsl:when test="matches($val, '^(Stop)?Color')">
             <idml2xml:attribute name="{$target-name}">
               <xsl:apply-templates select="key('idml2xml:color', $val, root($val))" mode="#current" >
                 <!-- UnderlineColor has its tint value as a number in ../../@UnderlineTint,
@@ -434,6 +435,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
+          <xsl:when test="matches($val, '^Gradient/')">
+            <!-- very basic approach. neither the directions nor the angles or positions are taken int consideration -->
+            <xsl:variable name="gradient" select="key('idml2xml:gradient', $val, root($val))[1]" as="element(Gradient)?" />
+            <xsl:variable name="colorStops" as="element(idml2xml:attribute)*">
+              <xsl:apply-templates select="$gradient/GradientStop/@StopColor" mode="#current">
+                <xsl:sort order="ascending" select="../@Location" data-type="number"/>
+              </xsl:apply-templates>
+            </xsl:variable>
+            <idml2xml:attribute name="{concat(replace($target-name, '-color', ''), '-image')}">
+              <xsl:value-of select="concat(lower-case($gradient/@Type),'-gradient(', string-join($colorStops, ', '), ')')"/>
+            </idml2xml:attribute>
+           </xsl:when>
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
             <xsl:choose>
