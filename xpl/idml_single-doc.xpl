@@ -161,7 +161,7 @@
   <tr:store-debug pipeline-step="idml2xml/idml2xml.04.Parameters">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="if (not($debug-dir-uri) or $debug-dir-uri  = '')
-      then concat(/c:parm-set/c:param[@name eq 'src-dir-uri'], 'debug') 
+      then concat(/c:param-set/c:param[@name eq 'src-dir-uri'], 'debug') 
       else $debug-dir-uri">
       <p:pipe step="xslt-params" port="result"/>
     </p:with-option>
@@ -187,7 +187,7 @@
   <tr:store-debug pipeline-step="idml2xml/idml2xml.05.Document">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="if (not($debug-dir-uri) or $debug-dir-uri  = '')
-                                           then concat(/c:parm-set/c:param[@name eq 'src-dir-uri'], 'debug') 
+                                           then concat(/c:param-set/c:param[@name eq 'src-dir-uri'], 'debug') 
                                            else $debug-dir-uri">
       <p:pipe step="xslt-params" port="result"/>
     </p:with-option>
