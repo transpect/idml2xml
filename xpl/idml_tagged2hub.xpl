@@ -15,7 +15,8 @@
   >
 
   <p:option name="debug" required="false" select="'no'"/>
-  <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>  
+  <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
+  <p:option name="fail-on-error" required="false" select="'yes'"/>
   <p:option name="hub-version" required="false" select="'1.2'"/>  
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
   
@@ -37,6 +38,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts">
@@ -45,6 +47,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames">
@@ -53,6 +56,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode name="remap-para-and-span"
@@ -62,6 +66,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="hub-version" select="$hub-version"/>
   </tr:xslt-mode>
 
@@ -90,6 +95,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="hub-version" select="$hub-version"/>
   </tr:xslt-mode>
   

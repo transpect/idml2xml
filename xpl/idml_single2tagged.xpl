@@ -15,6 +15,7 @@
 
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>  
+  <p:option name="fail-on-error" select="'yes'"/>
 
   <p:input port="source" primary="true"/>
   <p:input port="xslt-stylesheet" />
@@ -49,6 +50,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.22" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
@@ -57,6 +59,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.24" mode="idml2xml:SeparateParagraphs">
@@ -65,6 +68,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.26" mode="idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br">
@@ -73,6 +77,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.27" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
@@ -81,6 +86,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.28" mode="idml2xml:ConsolidateParagraphStyleRanges">
@@ -89,6 +95,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.29" mode="idml2xml:GenerateTagging" name="GenerateTagging">
@@ -97,6 +104,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.30" mode="idml2xml:ExtractTagging" name="ExtractTagging">
@@ -105,6 +113,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.50" mode="idml2xml:AutoCorrect" name="AutoCorrect">
@@ -113,6 +122,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.52" mode="idml2xml:AutoCorrect-clean-up">
@@ -121,6 +131,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <p:choose>
@@ -131,6 +142,7 @@
         <p:input port="models"><p:empty/></p:input>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
       <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators">
@@ -139,6 +151,7 @@
         <p:input port="models"><p:empty/></p:input>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
       <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply">
@@ -147,6 +160,7 @@
         <p:input port="models"><p:empty/></p:input>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
     </p:when>
     <p:otherwise>
@@ -160,6 +174,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
   <p:sink/>

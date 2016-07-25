@@ -24,6 +24,7 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'status'"/>
+  <p:option name="fail-on-error" required="false" select="'yes'"/>
   
   <p:input port="xslt-stylesheet">
     <p:document href="../xsl/idml2xml.xsl"/>
@@ -33,7 +34,7 @@
   </p:output>
   <p:output port="Document">
     <p:pipe step="single" port="result" />
-  </p:output>
+    </p:output>
   <p:serialization port="Document" omit-xml-declaration="false"/>
   <p:output port="DocumentStoriesSorted">
     <p:pipe step="tagged" port="DocumentStoriesSorted" />
@@ -85,6 +86,7 @@
   <idml2xml:single2tagged name="tagged">
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:input port="xslt-stylesheet">
       <p:pipe port="xslt-stylesheet" step="idml2xml"/>
     </p:input>
@@ -124,6 +126,7 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
     <p:input port="xslt-stylesheet">
