@@ -44,21 +44,6 @@
       <xsl:attribute name="css:version" select="concat('3.0-variant le-tex_Hub-', $hub-version)" />
       <xsl:if test="not($hub-version eq '1.0')">
         <xsl:attribute name="css:rule-selection-attribute" select="'role'" />
-        <!-- select most frequently used language (in paragraph styles) 
-             as the document's default language -->
-        <xsl:variable name="max-lang-count" select="max(for $i in distinct-values(/idml2xml:doc/*:Styles//ParagraphStyle/@AppliedLanguage)                                                                                                                 return count(for $j in /idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i]/@Name 
-                                                                     return ($j, /idml2xml:doc/*:Styles//ParagraphStyle[Properties/BasedOn eq $j])
-                                                                     )
-                                                        )" as="xs:integer">
-        </xsl:variable>
-        <xsl:variable name="lang" as="element(idml2xml:attribute)">
-          <xsl:apply-templates select="(for $i in /idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage]
-                                        return $i[count((/idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i/@AppliedLanguage],
-                                                         /idml2xml:doc/*:Styles//ParagraphStyle[Properties/BasedOn eq $i/@Name])
-                                                         ) eq $max-lang-count]
-                                        )[1]/@AppliedLanguage" mode="#current"/>
-        </xsl:variable>
-        <xsl:attribute name="xml:lang" select="$lang"/>
       </xsl:if>
       <info>
         <keywordset role="hub">
@@ -730,6 +715,36 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-properties2atts -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  
+  <!-- select most frequently used language (in paragraphs by character count) 
+       as the document's default language -->
+  
+  <xsl:template match="/dbk:hub" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="most-frequent-lang" select="idml2xml:most-frequent-lang(.)" as="xs:string?"/>
+    <xsl:copy>
+      <xsl:attribute name="xml:lang" select="$most-frequent-lang"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:function name="idml2xml:most-frequent-lang" as="xs:string?">
+    <xsl:param name="context" as="element(*)"/>
+    <xsl:variable name="langs" as="xs:string*">
+      <xsl:for-each-group select="$context//idml2xml:genPara" group-by="idml2xml:text-lang(.)">
+        <xsl:sort select="string-length(string-join(current-group(), ''))" order="descending"/>
+        <xsl:sequence select="current-grouping-key()"/>
+      </xsl:for-each-group>
+    </xsl:variable>
+    <xsl:sequence select="$langs[1]"/>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:text-lang" as="xs:string?">
+    <xsl:param name="text" as="element(idml2xml:genPara)"/>
+    <xsl:variable name="style-name" select="idml2xml:StyleNameEscape($text/idml2xml:attribute[@name eq 'aid:pstyle'])" as="xs:string"/>    
+    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name]/idml2xml:attribute[@name eq 'xml:lang']" as="element(idml2xml:attribute)+"/>
+    <xsl:variable name="lang-override" select="$text/idml2xml:attribute[@xml:lang]/@xml:lang" as="attribute(xml:lang)?"/>
+    <xsl:sequence select="($lang-override, $lang-by-style)[1]"/>
+  </xsl:function>
 
   <xsl:template match="* | @*" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="atts" as="attribute(*)*">
