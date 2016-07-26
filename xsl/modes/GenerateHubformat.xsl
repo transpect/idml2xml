@@ -44,14 +44,19 @@
       <xsl:attribute name="css:version" select="concat('3.0-variant le-tex_Hub-', $hub-version)" />
       <xsl:if test="not($hub-version eq '1.0')">
         <xsl:attribute name="css:rule-selection-attribute" select="'role'" />
-        <!-- take most frequently used language (in paragraph styles) 
+        <!-- select most frequently used language (in paragraph styles) 
              as the document's default language -->
-        <xsl:variable name="max-lang-count" select="max(for $i in distinct-values(/idml2xml:doc/*:Styles//ParagraphStyle/@AppliedLanguage)                                                                                     return count(/idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i])
+        <xsl:variable name="max-lang-count" select="max(for $i in distinct-values(/idml2xml:doc/*:Styles//ParagraphStyle/@AppliedLanguage)                                                                                                                 return count(for $j in /idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i]/@Name 
+                                                                     return ($j, /idml2xml:doc/*:Styles//ParagraphStyle[Properties/BasedOn eq $j])
+                                                                     )
                                                         )" as="xs:integer">
         </xsl:variable>
         <xsl:variable name="lang" as="element(idml2xml:attribute)">
-          <xsl:apply-templates select="(for $i in /idml2xml:doc/*:Styles//ParagraphStyle/@AppliedLanguage
-                                        return $i[count(/idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i]) eq $max-lang-count])[1]" mode="#current"/>
+          <xsl:apply-templates select="(for $i in /idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage]
+                                        return $i[count((/idml2xml:doc/*:Styles//ParagraphStyle[@AppliedLanguage eq $i/@AppliedLanguage],
+                                                         /idml2xml:doc/*:Styles//ParagraphStyle[Properties/BasedOn eq $i/@Name])
+                                                         ) eq $max-lang-count]
+                                        )[1]/@AppliedLanguage" mode="#current"/>
         </xsl:variable>
         <xsl:attribute name="xml:lang" select="$lang"/>
       </xsl:if>
