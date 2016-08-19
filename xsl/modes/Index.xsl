@@ -71,11 +71,6 @@
 
   <xsl:template match="@SortOrder[not(normalize-space())]" mode="idml2xml:IndexTerms"/>
 
-  <xsl:template match="HyperlinkTextSource" mode="idml2xml:IndexTerms-extract">
-    <xsl:apply-templates select="key('hyperlink', @Self)" mode="#current" />
-  </xsl:template>
-
-
   <!-- begin and end of print page -->
 
   <!-- BEGIN: new indesign script -->
