@@ -44,6 +44,11 @@
     <p:pipe step="tagged" port="result" />
   </p:output>
   <p:serialization port="tagged" omit-xml-declaration="false"/>
+  <p:output port="report" sequence="true">
+    <p:pipe port="report" step="single"/>  
+    <p:pipe port="report" step="tagged"/>
+    <p:pipe port="report" step="hub"/>  
+  </p:output>
   <p:output port="result" primary="true">
     <p:pipe step="pi" port="result" />
   </p:output>
@@ -81,6 +86,7 @@
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>
     <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>
+    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </idml2xml:single-doc>
   
   <idml2xml:single2tagged name="tagged">

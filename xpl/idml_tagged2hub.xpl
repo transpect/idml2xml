@@ -24,15 +24,22 @@
   <p:input port="xslt-stylesheet" />
   <p:input port="xslt-params" />
   
+  <p:output port="report" sequence="true">
+    <p:pipe port="report" step="add-properties"/>
+    <p:pipe port="report" step="properties2atts"/>
+    <p:pipe port="report" step="extract-frames"/>
+    <p:pipe port="report" step="remap-para-and-span"/>
+    <p:pipe port="report" step="cleanup-paras-and-br"/>
+  </p:output>
   <p:output port="result" primary="true">
-    <p:pipe step="XML-Hubformat-cleanup-paras-and-br" port="result" />
+    <p:pipe step="cleanup-paras-and-br" port="result" />
   </p:output>
   <p:serialization port="result" omit-xml-declaration="false"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07" mode="idml2xml:XML-Hubformat-add-properties">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07" mode="idml2xml:XML-Hubformat-add-properties" name="add-properties">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -41,7 +48,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.07a" mode="idml2xml:XML-Hubformat-properties2atts" name="properties2atts">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -50,7 +57,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.08" mode="idml2xml:XML-Hubformat-extract-frames" name="extract-frames">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -88,7 +95,7 @@
     
   </p:for-each>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="XML-Hubformat-cleanup-paras-and-br">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="cleanup-paras-and-br">
     <p:input port="source"><p:pipe step="remap-para-and-span" port="result" /></p:input>
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>

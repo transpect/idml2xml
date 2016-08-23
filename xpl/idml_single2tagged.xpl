@@ -21,6 +21,20 @@
   <p:input port="xslt-stylesheet" />
   <p:input port="xslt-params" />
   
+  <p:output port="report" sequence="true">
+    <p:pipe port="report" step="DocumentStoriesSorted"/>
+    <p:pipe port="report" step="SeparateParagraphs-pull-down-psrange"/>
+    <p:pipe port="report" step="SeparateParagraphs"/>
+    <p:pipe port="report" step="ConsolidateParagraphStyleRanges-pull-up-Br"/>
+    <p:pipe port="report" step="ConsolidateParagraphStyleRanges-remove-empty"/>
+    <p:pipe port="report" step="ConsolidateParagraphStyleRanges"/>
+    <p:pipe port="report" step="GenerateTagging"/>
+    <p:pipe port="report" step="ExtractTagging"/>
+    <p:pipe port="report" step="AutoCorrect"/>
+    <p:pipe port="report" step="AutoCorrect-clean-up"/>
+    <p:pipe port="report" step="nested-styles"/>
+    <p:pipe port="report" step="JoinSpans"/>
+  </p:output>
   <p:output port="result" primary="true">
     <p:pipe step="JoinSpans" port="result" />
   </p:output>
@@ -53,7 +67,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.22" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.22" mode="idml2xml:SeparateParagraphs-pull-down-psrange" name="SeparateParagraphs-pull-down-psrange">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -62,7 +76,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.24" mode="idml2xml:SeparateParagraphs">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.24" mode="idml2xml:SeparateParagraphs" name="SeparateParagraphs">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -71,7 +85,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.26" mode="idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.26" mode="idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br" name="ConsolidateParagraphStyleRanges-pull-up-Br">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -80,7 +94,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.27" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.27" mode="idml2xml:ConsolidateParagraphStyleRanges-remove-empty" name="ConsolidateParagraphStyleRanges-remove-empty">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -89,7 +103,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
 
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.28" mode="idml2xml:ConsolidateParagraphStyleRanges">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.28" mode="idml2xml:ConsolidateParagraphStyleRanges" name="ConsolidateParagraphStyleRanges">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -125,7 +139,7 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.52" mode="idml2xml:AutoCorrect-clean-up">
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.52" mode="idml2xml:AutoCorrect-clean-up" name="AutoCorrect-clean-up">
     <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
     <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
     <p:input port="models"><p:empty/></p:input>
@@ -134,9 +148,15 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
-  <p:choose>
+  <p:choose name="nested-styles">
     <p:when test="exists(//AllNestedStyles/ListItem)">
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators">
+      <p:output port="result" primary="true"/>
+      <p:output port="report" sequence="true">
+        <p:pipe port="report" step="NestedStyles-create-separators"/>
+        <p:pipe port="report" step="NestedStyles-pull-up-separators"/>
+        <p:pipe port="report" step="NestedStyles-apply"/>
+      </p:output>
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators" name="NestedStyles-create-separators">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -145,7 +165,7 @@
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators">
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators" name="NestedStyles-pull-up-separators">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -154,7 +174,7 @@
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply">
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply" name="NestedStyles-apply">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -164,6 +184,8 @@
       </tr:xslt-mode>
     </p:when>
     <p:otherwise>
+      <p:output port="result" primary="true"/>
+      <p:output port="report" sequence="true"/>
       <p:identity/>
     </p:otherwise>
   </p:choose>
