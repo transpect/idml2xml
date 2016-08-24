@@ -916,7 +916,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  
+	
   <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
     <xsl:variable name="last-numbering-style" as="element(idml2xml:attribute)?"
@@ -1806,7 +1806,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:template match="dbk:entry/@idml2xml:*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  
+	
   <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
   </xsl:template>
@@ -1935,6 +1935,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
   
+	<xsl:template match="@*[matches(name(), 'color')][matches(., '^[\S]+\s[\S]+\s[\S]+$')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+		<!-- LAB colours can be reported by schematron on idml. But as css:color attriute it is not valid and will be replace by black-->
+		<xsl:attribute name="{name()}" select="'device-cmyk(0,0,0,1)'"/>
+	</xsl:template>
+	
   <xsl:template match="dbk:superscript
                          [dbk:footnote]
                          [every $c in (text()[normalize-space()], *) 
