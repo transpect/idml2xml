@@ -472,7 +472,7 @@
             <xsl:choose>
 
               <!-- Item not on workspace -->
-              <xsl:when test="$causes[@present = 'true']">
+              <xsl:when test="$causes[@present = 'true'] and not(idml2xml:is-on-workspace-because-we-know-better($item))">
                 <xsl:variable name="text-content" as="xs:string?"
                   select="substring(
                             string-join(root($item)//Story[@Self eq $item/@ParentStory]//Content/text(),''),
@@ -511,6 +511,11 @@
         <xsl:sequence select="true()"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:is-on-workspace-because-we-know-better" as="xs:boolean">
+    <xsl:param name="item" as="element(*)"/>
+    <xsl:sequence select="false()"/>
   </xsl:function>
   
   <xsl:function name="idml2xml:get-shape-top-coordinate" as="xs:double">
