@@ -1143,14 +1143,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
 
-  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
-                                       [text()[matches(., '\S')]]"
-    mode="idml2xml:XML-Hubformat-extract-frames" priority="3">
-    <!-- wasn't handled yet. may occur after anchorings. not sure whether those elements should be pulled out earlier.
+	<xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
+		[text()[matches(., '\S')]]"
+		mode="idml2xml:XML-Hubformat-extract-frames" priority="3">
+		<!-- wasn't handled yet. may occur after anchorings. not sure whether those elements should be pulled out earlier.
           example: Hogrefe PPP 02384 -->
-    <xsl:variable name="text-nodes" select="text()" as="node()*"/>
-    <xsl:variable name="context" select="." as="element(*)"/>
-    <xsl:for-each-group select="node()" group-by="name()">
+		<!-- MP: I replaced the for-each-group. In chb/bw/69891 it produced wrong results. there was an image between two textnodes. the text was grouped together, the image placed afterwards.-->
+		<xsl:variable name="context" select="." as="element(*)"/>
+		<xsl:variable name="nodes" select="text(), node()[name() = $idml2xml:shape-element-names][not($context/@remap eq 'HiddenText')]" as="node()*"/>
+		<!--<xsl:for-each-group select="node()" group-by="name() and .">
       <xsl:variable name="pos" select="position()" as="xs:integer"/>
       <xsl:choose>
         <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
@@ -1166,8 +1167,25 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </idml2xml:genSpan>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:for-each-group>
-  </xsl:template>
+    </xsl:for-each-group>-->
+		<xsl:for-each select="node()">
+			<xsl:variable name="pos" select="position()" as="xs:integer"/>
+			<xsl:choose>
+				<xsl:when test="current() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
+					<xsl:apply-templates select="." mode="#current"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<idml2xml:genSpan>
+						<xsl:apply-templates select="$context/@*" mode="#current"/>
+						<xsl:if test="count($nodes) gt 1">
+							<xsl:attribute name="srcpath" select="string-join(($context/@srcpath, string($pos)), ';n=')"/>
+						</xsl:if>
+						<xsl:apply-templates select="." mode="#current"/>
+					</idml2xml:genSpan>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:for-each>
+	</xsl:template>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-remap-para-and-span -->
