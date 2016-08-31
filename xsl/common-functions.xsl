@@ -320,7 +320,6 @@
 
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
-
     <!-- @ItemTransform: (standard is 1 0 0 1 0 0) last two are x and y
          matrix: see idml-specification.pdf
     -->
@@ -377,6 +376,9 @@
                  'does not fit standard settings (in func idml2xml:item-is-on-workspace). Item will be exported.'"/>
             <xsl:sequence select="true()"/>
           </xsl:when>
+          <xsl:when test="count($item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType) lt 4">
+            <xsl:sequence select="false()"/>
+          </xsl:when>
 
           <!-- 'x' in Spread/@ItemTransform is set to 0 = center of the spread -->
           <!-- point zero 'y' is half size of spread height -->
@@ -406,7 +408,6 @@
               select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] )"/>
             <xsl:variable name="item-bottom" as="xs:double"
               select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] )"/>
-
             <xsl:variable name="group-x" as="xs:double"
               select="if($item/ancestor::Group) 
                       then sum(
