@@ -27,8 +27,9 @@
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
     <xsl:variable name="embedded-story" select="ancestor::Story[parent::TextFrame]/@Self" as="xs:string*" />
+    <xsl:variable name="topics" select="if (count(key('topic', @ReferencedTopic)) gt 1 and key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]]) then key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]] else key('topic', @ReferencedTopic)" as="element(Topic)*"/>
     <hurz count="{key('topic', @ReferencedTopic)/../name()}"/>
-    <xsl:apply-templates select="key('topic', @ReferencedTopic)" mode="#current">
+    <xsl:apply-templates select="$topics" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
       <xsl:with-param name="page-reference" select="@Self" tunnel="yes" />
       <xsl:with-param name="idml2xml:sourcepage" select="@idml2xml:sourcepage" tunnel="yes" />
