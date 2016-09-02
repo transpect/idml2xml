@@ -106,7 +106,7 @@
   </xsl:function>
 
   <xsl:function name="idml2xml:StyleNameEscape" as="xs:string">
-    <xsl:param name="stylename" as="xs:string"/>
+    <xsl:param name="stylename" as="xs:string?"/>
     <xsl:sequence select="replace(
                             $stylename,
                             '%3a',
