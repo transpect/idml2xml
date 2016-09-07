@@ -141,6 +141,7 @@
           <val eq="AllCaps" target-name="css:text-transform" target-value="uppercase"/>
           <val eq="CapToSmallCap" target-name="css:text-transform" target-value="uppercase"/><!-- ? -->
           <val eq="Normal" target-name="css:text-transform" target-value="none"/>
+        	<val eq="Normal" target-name="css:font-variant" target-value="normal"/>
         </prop>
         <prop name="aid:ccolwidth" type="length" target-name="css:width"/>
         <prop name="idml2xml:width" type="length" target-name="css:width"/>
