@@ -966,13 +966,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'numbering-continue', 'numbering-level', 'numbering-inline-stylename')]" />
   
   <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
-    <xsl:param name="type-example-string" as="xs:string"/>
-    <xsl:param name="picture-string" as="xs:string"/>
-    <xsl:param name="level" as="xs:string"/>
+    <xsl:param name="type-example-string" as="xs:string?"/>
+    <xsl:param name="picture-string" as="xs:string?"/>
+    <xsl:param name="level" as="xs:string?"/>
     <!-- §§§ Please note that the picture string does not influence the result.
          This is partly due do CSS3 lists not supporting interpunction and
          inclusion of upper levels in a straightforward declarative way -->
     <xsl:choose>
+      <xsl:when test="empty($type-example-string) or empty($picture-string) or empty($level)">
+        <!-- this should not happen. It happened once when a style name contained U+000D that
+          was converted differently for ParagraphStyle/@Self (hex-encoded) and ParagraphStyle/@Name (Unicode)
+          so that the css:rule could not be found. With tr:unescape-uri, it should be fixed. -->
+        <xsl:sequence select="'underspecified'"/>
+      </xsl:when>
       <xsl:when test="matches($type-example-string, '^0*1')">
         <xsl:sequence select="'decimal'"/>
       </xsl:when>

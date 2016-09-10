@@ -11,6 +11,7 @@
 >
   
   <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
+  <xsl:include href="http://transpect.io/xslt-util/hex/xsl/hex.xsl"/>
   
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   
@@ -107,11 +108,13 @@
 
   <xsl:function name="idml2xml:StyleNameEscape" as="xs:string">
     <xsl:param name="stylename" as="xs:string?"/>
-    <xsl:sequence select="replace(
-                            $stylename,
-                            '%3a',
-                            ':'
-                          )"/>
+    <!-- Convertes strings that originate from both ParagraphStyle/@Name and ParagraphStyle/@Selfor.
+      ParagraphStyle/@Name is a Unicode literal while ParagraphStyle/@Self is hex-escaped. 
+      This converts hex-escaped to unicode. It may go wrong if the unicode string already contains 
+      what looks like percent encoding.
+      tr:unescape-uri() replaces previous '%3a'→':' replacement for hierarchically organized styles.
+      The previous ad-hoc replacement was introduced when tr:unescape-uri() did not exist yet. -->
+    <xsl:sequence select="tr:unescape-uri($stylename)"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:RemoveTypeFromStyleName" as="xs:string">
