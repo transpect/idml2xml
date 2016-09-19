@@ -423,7 +423,7 @@
   </xsl:function>
 
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
-  <xsl:template match="TextFrame/@*" mode="idml2xml:DocumentResolveTextFrames" priority="-0.125" />
+  <xsl:template match="TextFrame/@*[not(name() = 'Self')]" mode="idml2xml:DocumentResolveTextFrames" priority="-0.125" />
   <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:if test="not(. = 'n')">
       <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
