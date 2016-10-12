@@ -963,8 +963,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:template
-    match="idml2xml:genPara/idml2xml:attribute[@name eq 'numbering-continue']" mode="idml2xml:XML-Hubformat-properties2atts" priority="4">
-    <xsl:attribute name="hub:numbering-continue" select="."/>
+    match="idml2xml:genPara/idml2xml:attribute[@name = ('numbering-continue', 'numbering-starts-at')]" mode="idml2xml:XML-Hubformat-properties2atts" priority="4">
+    <xsl:attribute name="{concat('hub:', @name)}" select="."/>
   </xsl:template>
 	
   <xsl:template mode="idml2xml:XML-Hubformat-properties2atts" priority="2" 
