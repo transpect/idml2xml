@@ -1964,7 +1964,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
 	<xsl:template match="css:rule[@layout-type = 'para']/@css:font-variant[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  
+  <xsl:template match="dbk:phrase[@srcpath][count(@*) = 1]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  	<xsl:apply-templates mode="#current"/>
+  </xsl:template>
+	
 	<xsl:template match="@*[matches(name(), 'color')][matches(., '^[\S]+\s[\S]+\s[\S]+$')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
 		<!-- LAB colours can be reported by schematron on idml. But as css:color attriute it is not valid and will be replace by black-->
 		<xsl:attribute name="{name()}" select="'device-cmyk(0,0,0,1)'"/>
