@@ -119,7 +119,7 @@
       <xsl:for-each select="$spreads">
         <xsl:variable name="pos" select="position()" as="xs:integer" />
         <idml2xml:sidebar remap="Spread" xml:id="spread_{position()}">
-          <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', $idml2xml:shape-element-names)]">
+          <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', 'Group', $idml2xml:shape-element-names)]">
             <anchor linkend="{lower-case(local-name())}_{position()}" Self="{@Self}"/>
           </xsl:for-each>
         </idml2xml:sidebar>
