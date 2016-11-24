@@ -157,6 +157,10 @@
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
         <prop name="FontStyle">
+          <val match="Caps" target-name="css:font-variant" target-value="small-caps">
+            <!-- Better would be to use the Capitalization property. But it should be also possible to use a proper caps font. 
+              Not sure what happens wth contrary Capitalization properties though. -->
+          </val>
           <val match="Cond(ensed)?" target-name="css:font-stretch" target-value="condensed" />
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
           <val eq="Bold" target-name="css:font-style" target-value="normal" />
