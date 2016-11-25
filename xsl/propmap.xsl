@@ -157,10 +157,6 @@
         <prop name="FillTint" type="percentage" target-name="fill-tint"/>
         <prop name="FirstLineIndent" type="length" target-name="css:text-indent" />
         <prop name="FontStyle">
-          <val match="Caps" target-name="css:font-variant" target-value="small-caps">
-            <!-- Better would be to use the Capitalization property. But it should be also possible to use a proper caps font. 
-              Not sure what happens wth contrary Capitalization properties though. -->
-          </val>
           <val match="Cond(ensed)?" target-name="css:font-stretch" target-value="condensed" />
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
           <val eq="Bold" target-name="css:font-style" target-value="normal" />
@@ -172,9 +168,11 @@
           <val match="Black" target-name="css:font-weight" target-value="900" />
           <val eq="Black" target-name="css:font-style" target-value="normal" />
           <val eq="Black" target-name="css:font-weight" target-value="900" />
-          <val match="Italic" target-name="css:font-style" target-value="italic" />
+          <val match="(Italic|Kursiv)" target-name="css:font-style" target-value="italic" />
           <val eq="Italic" target-name="css:font-style" target-value="italic" />
           <val eq="Italic" target-name="css:font-weight" target-value="normal" />
+          <val eq="Kursiv" target-name="css:font-style" target-value="italic" />
+          <val eq="Kursiv" target-name="css:font-weight" target-value="normal" />
           <val match="Oblique" target-name="css:font-style" target-value="oblique" />
           <val eq="Oblique" target-name="css:font-style" target-value="oblique" />
           <val eq="Oblique" target-name="css:font-weight" target-value="normal" />
