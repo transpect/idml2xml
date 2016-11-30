@@ -422,9 +422,16 @@
     <xsl:sequence select="not($group/TextFrame[@PreviousTextFrame eq 'n'])"/>
   </xsl:function>
 
+  <xsl:key name="encript-layername" match="Layer" use="@Self"/>
+
   <xsl:template match="TextFrame/*" mode="idml2xml:DocumentResolveTextFrames" />
   <xsl:template match="TextFrame/@*[not(name() = 'Self')]" mode="idml2xml:DocumentResolveTextFrames" priority="-0.125" />
-  <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template match="@ItemLayer" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:if test="not(. = 'n')">
+      <xsl:attribute name="idml2xml:layer" select="key('encript-layername',.)/@Name" />
+    </xsl:if>
+  </xsl:template>
+   <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:if test="not(. = 'n')">
       <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
     </xsl:if>
