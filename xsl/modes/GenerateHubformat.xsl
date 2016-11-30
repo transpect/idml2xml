@@ -1370,6 +1370,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="idml2xml:layout-type" select="'object'"/>
   </xsl:template>
 
+   <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:attribute name="idml2xml:layer" select="."/>
+  </xsl:template>
+
   <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text()] ) ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span"
 		priority="-1">
@@ -2006,7 +2010,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
    </xsl:template>
    
    <xsl:template match="@idml2xml:layout-type" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-     
+  
+  <!-- delete newly introduced idml2xml:layer attribute if only one layer is used -->
+   <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+     <xsl:if test="count(distinct-values(//@*[local-name()='layer'])) &gt; 1">
+       <xsl:copy/>
+     </xsl:if>
+   </xsl:template>
+   
   <!-- §§§ GI 2012-09-30 Needs review.
        Are there any dbk:phrase[@role='br'], or is it dbk:br now?
        Should it apply to dbk:br?
