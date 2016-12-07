@@ -1949,11 +1949,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:text-decoration-style[../@css:text-decoration-line = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="  @css:border-top-width[. != '0pt'][../@css:border-top = 'none'] 
-                       | @css:padding-top[../@css:border-top = 'none'] 
+                       | @css:padding-top[../@css:border-top = 'none' or matches(., '^-')]
                        | @css:border-top-style[../@css:border-top = 'none'] 
                        | @css:border-top-color[../@css:border-top = 'none']"
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2"/>
-  <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none'] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
+  <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none' or matches(., '^-')] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:border-bottom | @css:border-top" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="  @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
