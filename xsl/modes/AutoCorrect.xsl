@@ -287,7 +287,6 @@
                               and 
                               (every $elt in current-group() satisfies $elt[not(idml2xml:is-dissolvable-anchor-genPara(.))])">
                 <!--  hogrefe.de/PPP/02773/idml/101026_02773_PPP.idml, paras splitted by crossreference source-->
-                <xsl:message select="'#################################', ' |||| ', count(current-group()[self::idml2xml:genPara]) gt 1"/>
                 <xsl:for-each-group select="current-group()" group-adjacent="boolean(self::idml2xml:genPara)">
                   <xsl:choose>
                     <xsl:when test="current-group()[self::idml2xml:genPara] 
