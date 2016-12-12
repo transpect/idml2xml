@@ -493,7 +493,7 @@
       </xsl:variable>
       <xsl:variable name="ordered-objects">
         <xsl:for-each-group select="$objects-coordinates/point" group-by="replace(@coord-y, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
-          <!--  inaccuracies on positioning in IDesign will be softened by using only two numbers after comma. 
+          <!--  inaccuracies on positioning in InDesign will be softened by using only two numbers after comma. 
             Perhaps rounding might be better, but we'll watch this -->
           <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
           <xsl:for-each-group select="current-group()" group-by="replace(@coord-x, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
