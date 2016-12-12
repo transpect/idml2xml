@@ -282,27 +282,49 @@
       <xsl:for-each-group select="*" group-starting-with="idml2xml:parsep">
         <xsl:choose>
           <xsl:when test="self::idml2xml:parsep">
-            <xsl:if test="(count(current-group()[self::idml2xml:genPara]) gt 1
-                           ) and
-                           current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]">
-             
-              
-              <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
-              <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!, <xsl:value-of select="count(current-group()[not(self::idml2xml:parsep)]
-                                               [not(idml2xml:is-dissolvable-anchor-genPara(.))]
-                                )"/>
-              </xsl:comment>
-              <xsl:comment>
-                <xsl:for-each select="current-group()">
-                  <xsl:sequence select="name(.)"/>
-                </xsl:for-each>
-              </xsl:comment>
-              <!-- this case wasn't thought of and has to be handled! -->
-            </xsl:if>
-            <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
-              mode="#current">
-              <xsl:with-param name="insert-anchor" select="current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]/*" tunnel="yes"/>
-            </xsl:apply-templates>
+            <xsl:choose>
+              <xsl:when test="(count(current-group()[self::idml2xml:genPara]) gt 1)
+                              and 
+                              (every $elt in current-group() satisfies $elt[not(idml2xml:is-dissolvable-anchor-genPara(.))])">
+                <!--  hogrefe.de/PPP/02773/idml/101026_02773_PPP.idml, paras splitted by crossreference source-->
+                <xsl:message select="'#################################', ' |||| ', count(current-group()[self::idml2xml:genPara]) gt 1"/>
+                <xsl:for-each-group select="current-group()" group-adjacent="boolean(self::idml2xml:genPara)">
+                  <xsl:choose>
+                    <xsl:when test="current-group()[self::idml2xml:genPara] 
+                                                    and count(distinct-values(current-group()/@aid:pstyle)) = 1
+                                                    and (contains(current-group()[2]/@srcpath, replace(current-group()[1]/@srcpath, '^.+?(Stories/Story_u35c9d.xml\?).+$', '$1')))">
+                     <xsl:element name="genPara" namespace="http://transpect.io/idml2xml">
+                       <xsl:apply-templates select="current-group()[1]/@*, current-group()/node()" mode="#current"/>
+                     </xsl:element>
+                  </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:apply-templates select="current-group()" mode="#current"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:for-each-group>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:if test="(count(current-group()[self::idml2xml:genPara]) gt 1
+                               ) and
+                               current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]">
+                  <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
+                  <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!, <xsl:value-of select="count(current-group()[not(self::idml2xml:parsep)]
+                    [not(idml2xml:is-dissolvable-anchor-genPara(.))]
+                    )"/>
+                  </xsl:comment>
+                  <xsl:comment>
+                    <xsl:for-each select="current-group()">
+                      <xsl:sequence select="name(.)"/>
+                    </xsl:for-each>
+                  </xsl:comment>
+                  <!-- this case wasn't thought of and has to be handled! -->
+                </xsl:if>
+                <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
+                  mode="#current">
+                  <xsl:with-param name="insert-anchor" select="current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]/*" tunnel="yes"/>
+                </xsl:apply-templates>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="current-group()" mode="#current"/>
