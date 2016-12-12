@@ -1576,7 +1576,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)" as="xs:double"/>
     <xsl:variable name="body-count" select="number(@idml2xml:body-row-count)" as="xs:double"/>
     <xsl:variable name="foot-count" select="number(@idml2xml:footer-row-count)" as="xs:double"/>
-    <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[@condition = 'EpubAlternative']], '')"
+    <xsl:variable name="alternative-image-name" select="string-join(descendant::*[self::idml2xml:genSpan[ancestor::*[self::idml2xml:genTable][1][. is current()]][@condition = 'EpubAlternative']], '')"
                   as="xs:string?"/>
     <informaltable>
       <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
