@@ -282,7 +282,7 @@
         </prop>
         <prop name="xlink:href" type="passthru"/>
 
-        <prop name="NumberingApplyRestartPolicy" implement="maybe later" />
+        <prop name="NumberingApplyRestartPolicy" target-name="restart-at-higher-level" type="linear"/>
         <prop name="BulletsAlignment" implement="maybe later" />
         <prop name="NumberingAlignment" implement="maybe later" />
         <prop name="BulletsTextAfter" implement="maybe later" />
