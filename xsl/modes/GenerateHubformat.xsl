@@ -2193,7 +2193,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
  			<xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
   		<xsl:param name="all-list-paras" as="element(dbk:para)*" tunnel="yes"/>
       <xsl:variable name="context" select="." as="element(dbk:para)"/>
- 			<xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)" as="element(css:rule)?"/>
+ 			<xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
 
     	<xsl:choose>
     		<xsl:when test="some $para in $all-list-paras satisfies $para is $context">
