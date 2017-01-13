@@ -41,9 +41,8 @@
  <p:input port="xslt">
     <p:document href="../../xsl/idml_modify/identity.xsl"/>
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-      <p>XXXXXXXXXXXXXXXXXXXx
-        XSLT that transforms the compound IDML document (all files assembled below a single w:root element,
-      as produced by the step named 'insert-xpath') to a target compound document. The stylesheet may of course import
+      <p>XSLT that transforms the compound IDML document (all files assembled below a single Document element,
+      as produced by the step named idml2xml:Document to a target compound document. The stylesheet may of course import
     other stylesheets or use multiple passes in different modes. In order to facilitate this common processing pattern,
     an XProc pipeline may also be supplied for the compound→compound transformation part. This pipeline will be dynamically
     executed by this pipeline. Please note that your stylesheet must use named modes if you are using an tr:xslt-mode 
@@ -52,6 +51,8 @@
     to match @xml:base in any of the other modifying modes and apply-templates to it in mode docxhub:modify.</p>
       <p>Please note that your stylesheet may need to import the identity.xsl or to transform the xml-base attributes itself 
     (old base→new base).</p>
+      <p>Please also note that if your pipeline/stylesheet don't have a pass in idml2xml:modify mode, they need 
+    to match @xml:base in any of the other modifying modes and apply-templates to it in mode docxhub:modify.</p>
     </p:documentation>
   </p:input>
   <p:input port="xpl">
