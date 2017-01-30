@@ -1378,6 +1378,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
    <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="idml2xml:layer" select="."/>
   </xsl:template>
+  
+  <xsl:template match="@idml2xml:label" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:attribute name="idml2xml:label" select="."/>
+  </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text()] ) ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span"
