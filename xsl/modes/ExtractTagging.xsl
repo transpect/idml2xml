@@ -58,7 +58,7 @@
       namespace="{if (contains( $ElementName, ':' ) ) then /Document/idml2xml:namespaces/ns[ @short = $ElementSpace ]/@space  else  ''}">
 
       <xsl:apply-templates select="@*" mode="idml2xml:ExtractAttributes" />
-      <xsl:apply-templates select="ancestor::Story[1]/parent::TextFrame/@idml2xml:layer" mode="idml2xml:ExtractAttributes"/>
+      <xsl:apply-templates select="ancestor::Story[1]/parent::TextFrame/@idml2xml:layer|ancestor::Story[1]/parent::TextFrame/@idml2xml:label" mode="idml2xml:ExtractAttributes"/>
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
       <xsl:if test="XMLAttribute[@Name eq 'aid:pstyle']">
         <xsl:apply-templates select="(ancestor::ParagraphStyleRange | ../ancestor::XMLElement)[last()]" mode="idml2xml:ExtractAttributes"/>
@@ -98,7 +98,7 @@
 
   <xsl:template match="CharacterStyleRange/@AppliedCharacterStyle[. eq 'CharacterStyle/$ID/[No character style]']" mode="idml2xml:ExtractAttributes" />
 
-<xsl:template match="@AppliedParagraphStyle | @AppliedCharacterStyle | @idml2xml:layer" mode="idml2xml:ExtractAttributes">
+  <xsl:template match="@AppliedParagraphStyle | @AppliedCharacterStyle | @idml2xml:layer | @idml2xml:label" mode="idml2xml:ExtractAttributes">
     <xsl:attribute name="idml2xml:{local-name()}" select="idml2xml:RemoveTypeFromStyleName( . )"/>
   </xsl:template>
 
