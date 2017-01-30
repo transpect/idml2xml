@@ -412,6 +412,9 @@
 
   <xsl:template match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
+      <xsl:if test="Properties/Label/KeyValuePair[@Key='letex:category']">
+        <xsl:attribute name="idml2xml:label" select="Properties/Label/KeyValuePair[@Key='letex:category']/@Value"/>
+      </xsl:if>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
     </xsl:copy>
