@@ -193,10 +193,10 @@
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
-      <xsl:apply-templates select="if (Properties/BasedOn/@type = 'object') 
+      <xsl:apply-templates select="if (Properties/BasedOn/@type = 'object' and Properties/BasedOn ne @Self) 
                                    then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn))
                                    else 
-                                     if (Properties/BasedOn/@type = 'string')
+                                     if (Properties/BasedOn/@type = 'string' and Properties/BasedOn ne @Self)
                                      then key('idml2xml:style-by-Name', Properties/BasedOn)
                                      else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
