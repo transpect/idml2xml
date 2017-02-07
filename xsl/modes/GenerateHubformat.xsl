@@ -1949,14 +1949,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
 
-  <xsl:template match="@css:text-decoration-width[../@css:text-decoration-line = 'none']"
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:text-decoration-offset[../@css:text-decoration-line = 'none']"
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:text-decoration-color[../@css:text-decoration-line = 'none']"
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:text-decoration-style[../@css:text-decoration-line = 'none']"
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="@*[name() = ('css:text-decoration-width', 'css:text-decoration-offset', 'css:text-decoration-color', 'css:text-decoration-style')][../@css:text-decoration-line = 'none']"
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="  @css:border-top-width[. != '0pt'][../@css:border-top = 'none'] 
                        | @css:padding-top[../@css:border-top = 'none' or matches(., '^-')]
                        | @css:border-top-style[../@css:border-top = 'none'] 
@@ -1973,16 +1967,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+
     <!-- can happen that several contrary font-style attributes are created. normal won't win then. and to avoid invalid CSS, we discard it -->
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
+  <xsl:template match="@idml2xml:layout-type" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
 	<xsl:template match="css:rule[@layout-type = 'para']/@css:font-variant[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="dbk:phrase[@srcpath][count(@*) = 1]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
   	<xsl:apply-templates mode="#current"/>
   </xsl:template>
 	
 	<xsl:template match="@*[matches(name(), 'color')][matches(., '^[\S]+\s[\S]+\s[\S]+$')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-		<!-- LAB colours can be reported by schematron on idml. But as css:color attriute it is not valid and will be replace by black-->
+		<!-- LAB colours can be reported by schematron on idml. But as css:color attribute it is not valid and will be replace by black-->
 		<xsl:attribute name="{name()}" select="'device-cmyk(0,0,0,1)'"/>
 	</xsl:template>
 	
@@ -2018,11 +2014,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
      <xsl:attribute name="{name()}" select="string-join((../@*:layout-type, $string-replacements-applied), '__')"/>
    </xsl:template>
    
-   <xsl:template match="@idml2xml:layout-type" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  
-  <!-- delete newly introduced idml2xml:layer attribute if only one layer is used -->
+ 
+  <!-- delete idml2xml:layer attribute if only one layer is used -->
    <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-     <xsl:if test="count(distinct-values(//@*[local-name()='layer'])) &gt; 1">
+     <xsl:param name="multiple-layers" as="xs:boolean" tunnel="yes"/>
+     <xsl:if test="$multiple-layers">
        <xsl:copy/>
      </xsl:if>
    </xsl:template>
@@ -2154,6 +2150,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
       	<xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
+        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(distinct-values(//@*[local-name()='layer'])) &gt; 1"/>
       </xsl:apply-templates>
       <xsl:if test="not($orphaned-indexterm-para)">
         <para>
