@@ -721,7 +721,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- select most frequently used language (in paragraphs by character count) 
        as the document's default language -->
   
-  <xsl:template match="/dbk:hub" mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template match="/dbk:hub" mode="idml2xml:XML-Hubformat-extract-frames">
     <xsl:variable name="most-frequent-lang" select="idml2xml:most-frequent-lang(.)" as="xs:string?"/>
     <xsl:copy>
       <xsl:attribute name="xml:lang" select="$most-frequent-lang"/>
@@ -733,7 +733,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="context" as="element(*)"/>
     <xsl:variable name="langs" as="xs:string*">
       <xsl:for-each-group select="$context//idml2xml:genPara" group-by="idml2xml:text-lang(.)">
-        <xsl:sort select="string-length(string-join(current-group(), ''))" order="descending"/>
+        <xsl:sort select="string-length(string-join(current-group()/*, ''))" order="descending"/>
+<!--        <xsl:message select="string-length(string-join(current-group()/*, '')), '###### groups:', current-grouping-key(), ' -\-\-\-\-\-\-\-\-\-\-\-\-\- ', count(current-group()), ' ##### ', distinct-values(current-group()/@aid:pstyle)"/>-->
         <xsl:sequence select="current-grouping-key()"/>
       </xsl:for-each-group>
     </xsl:variable>
@@ -742,9 +743,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:function name="idml2xml:text-lang" as="xs:string?">
     <xsl:param name="text" as="element(idml2xml:genPara)"/>
-    <xsl:variable name="style-name" select="idml2xml:StyleNameEscape($text/idml2xml:attribute[@name eq 'aid:pstyle'])" as="xs:string"/>    
-    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name]/idml2xml:attribute[@name eq 'xml:lang'][last()]" as="element(idml2xml:attribute)*"/>
-    <xsl:variable name="lang-override" select="$text/idml2xml:attribute[@xml:lang]/@xml:lang" as="attribute(xml:lang)?"/>
+    <xsl:variable name="style-name" select="idml2xml:StyleNameEscape($text/@aid:pstyle)" as="xs:string"/>    
+    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name]/@xml:lang[last()]" as="attribute(xml:lang)?"/>
+    <xsl:variable name="lang-override" select="$text/@xml:lang" as="attribute(xml:lang)?"/>
     <xsl:sequence select="($lang-override, $lang-by-style)[1]"/>
   </xsl:function>
 
