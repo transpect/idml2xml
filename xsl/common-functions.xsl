@@ -11,7 +11,6 @@
 >
   
   <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
-  <xsl:include href="http://transpect.io/xslt-util/hex/xsl/hex.xsl"/>
   
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   

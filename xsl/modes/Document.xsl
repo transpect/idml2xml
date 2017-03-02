@@ -151,6 +151,7 @@
       </xsl:for-each>
       <xsl:copy-of select="idPkg:Graphic" />
       <xsl:copy-of select="idPkg:Styles" />
+      <xsl:copy-of select="idPkg:Preferences"/>
       <idml2xml:hyper>
         <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink[not(key('idml2xml:Bookmark-from-Hyperlinks', Properties/Destination)[self::Bookmark])] | HyperlinkPageItemSource" />
       </idml2xml:hyper>
@@ -163,6 +164,9 @@
       <idml2xml:index>
         <xsl:copy-of select="Index" />
       </idml2xml:index>
+      <idml2xml:numbering>
+        <xsl:copy-of select="NumberingList"/>
+      </idml2xml:numbering>
       <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
         value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
         don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 

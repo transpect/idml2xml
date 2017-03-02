@@ -13,12 +13,13 @@
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns:hub = "http://transpect.io/hub"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid5 aid xs idml2xml xlink dbk tr css hub"
+    exclude-result-prefixes="idPkg aid5 aid xs xlink dbk tr css hub"
     >
 
   <xsl:import href="../propmap.xsl"/>
 	<xsl:key name="idml2xml:list-styles" match="css:rule" use="@css:list-style-type"/>
   <xsl:key name="idml2xml:style-by-role" match="style | css:rule" use="(@role, @name)[1]" />
+  <xsl:key name="idml2xml:element-by-pstyle" match="*[@aid:pstyle]" use="@aid:pstyle" />
 	
   <xsl:variable 
       name="hubformat-elementnames-whitelist"
@@ -193,6 +194,16 @@
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
     <xsl:variable name="atts" as="node()*">
+      <xsl:if test="self::ParagraphStyle[not(Properties/BasedOn)]">
+        <xsl:apply-templates select="/*/idPkg:Preferences/TextDefault/(
+                                        @NumberingApplyRestartPolicy
+                                      | @NumberingContinue
+                                      | NumberingFormat
+                                      (: | probably need to consider NumberingRestartPolicies, too :) 
+                                    )" mode="#current">
+            <xsl:with-param name="wrap-in-style-element" select="false()"/>
+          </xsl:apply-templates>
+      </xsl:if>
       <xsl:apply-templates select="if (Properties/BasedOn/@type = 'object' and Properties/BasedOn ne @Self) 
                                    then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn))
                                    else 
@@ -213,6 +224,9 @@
       <xsl:sequence select="$mergeable-atts[not(self::idml2xml:attribute)]"/>
     </xsl:variable>
     <xsl:comment select="@Self"/>
+    <xsl:if test="not(Properties/BasedOn)">
+      <xsl:comment>TextDefault</xsl:comment>
+    </xsl:if>
     <xsl:choose>
       <xsl:when test="$wrap-in-style-element">
         <xsl:element name="{if($version eq '1.0') then 'style' else 'css:rule'}">
@@ -517,6 +531,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+      
+      <xsl:when test=". eq 'numbering-family'">
+        <idml2xml:attribute name="{../@target-name}">
+          <xsl:choose>
+            <xsl:when test="$val = 'NumberingList/$ID/[Default]'">
+              <xsl:value-of select="''" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="replace($val, '^NumberingList/', '')" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </idml2xml:attribute>
+      </xsl:when>
 
       <xsl:when test=". eq 'passthru'">
         <idml2xml:attribute name="{../@name}"><xsl:value-of select="$val" /></idml2xml:attribute>
@@ -704,7 +731,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </tab>
   </xsl:template>
 
-  <xsl:template match="idPkg:Styles | idPkg:Graphic | idml2xml:hyper | idml2xml:lang | idml2xml:cond" mode="idml2xml:XML-Hubformat-add-properties" />
+  <xsl:template match="idPkg:Styles | idPkg:Graphic | idPkg:Preferences/*[not(self::TextDefault)] | idml2xml:hyper | idml2xml:lang | idml2xml:cond 
+                     | idml2xml:numbering" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:copy-of select="." />
@@ -828,8 +856,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:key name="idml2xml:css-rule-by-name" match="css:rule" use="@name"/>
   
   <xsl:function name="tr:layout-type-by-idml2xml-attribute" as="xs:string">
-    <xsl:param name="attr" as="element(idml2xml:attribute)"/>
+    <xsl:param name="attr" as="element(idml2xml:attribute)?"/>
     <xsl:choose>
+      <xsl:when test="empty($attr)">
+        <xsl:sequence select="'nonex'"/>
+      </xsl:when>
       <xsl:when test="$attr/@name eq 'aid:pstyle'">para</xsl:when>
       <xsl:when test="$attr/@name eq 'aid:cstyle'">inline</xsl:when>
       <xsl:when test="matches($attr/@name, '^aid5?:cellstyle$')">cell</xsl:when>
@@ -963,9 +994,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:if test="../idml2xml:attribute[@name eq 'numbering-inline-stylename'][. ne 'CharacterStyle/$ID/[No character style]']">
       <xsl:attribute name="hub:numbering-inline-stylename" select="idml2xml:StyleName((../idml2xml:attribute[@name eq 'numbering-inline-stylename'])[last()])"/>
     </xsl:if>
-  	<xsl:if test="../idml2xml:attribute[@name eq 'restart-at-higher-level'][. ne 'true'][(($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()] ne '1']">
+  	<!--<xsl:if test="../idml2xml:attribute[@name eq 'restart-at-higher-level'][. ne 'true'][(($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()] ne '1']">
       <xsl:attribute name="hub:restart-at-higher-level" select="(($style, ..)/idml2xml:attribute[@name eq 'restart-at-higher-level'])[last()]"/>
-    </xsl:if>
+    </xsl:if>-->
   </xsl:template>
   
   <xsl:template
@@ -973,7 +1004,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="{concat('hub:', @name)}" select="."/>
   </xsl:template>
 	
-  <xsl:template mode="idml2xml:XML-Hubformat-properties2atts" priority="2" 
+  <xsl:template mode="idml2xml:XML-Hubformat-properties2atts_DISABLED" priority="2" 
     match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'restart-at-higher-level', 'numbering-continue', 'numbering-level', 'numbering-inline-stylename')]" />
   
   <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
@@ -1208,18 +1239,91 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-remap-para-and-span -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
+  <xsl:template match="/*" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:next-match>
+      <xsl:with-param name="text-default" as="element(TextDefault)" tunnel="yes" select="idPkg:Preferences/TextDefault"/>
+    </xsl:next-match>
+  </xsl:template>
+
   <xsl:variable name="id-prefix" select="'id_'" as="xs:string"/>
 
   <xsl:template match="idml2xml:genPara" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:element name="para">
+      <xsl:variable name="role" as="xs:string?" select="for $s in @aid:pstyle return idml2xml:StyleName(@aid:pstyle)"/>
       <xsl:if test="@aid:pstyle">
-	      <xsl:attribute name="role" select="idml2xml:StyleName( @aid:pstyle )" />
+	      <xsl:attribute name="role" select="$role" />
         <xsl:attribute name="idml2xml:layout-type" select="'para'"/>
       </xsl:if>
+      <xsl:call-template name="idml2xml:list-aux-counter-atts">
+        <xsl:with-param name="role" select="$role"/>
+      </xsl:call-template>
       <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:key name="idml2xml:paras-by-numbering-family" match="idml2xml:genPara" 
+    use="(if (@aid:pstyle) then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-family else (),
+          @hub:numbering-family)[last()]"/>
+
+  <!-- Add auxiliary attributes that will facilitate list number calculations in the next pass: -->
+  <xsl:template name="idml2xml:list-aux-counter-atts">
+    <!-- context: idml2xml:genPara -->
+    <xsl:param name="role" as="xs:string?"/>
+    <xsl:param name="text-default" as="element(TextDefault)?" tunnel="yes"/>
+    <xsl:variable name="pstyle" as="element(css:rule)?" select="(key('idml2xml:style-by-role', $role))[1]"/>
+    <xsl:variable name="numfam" as="xs:string?"
+      select="($pstyle/@hub:numbering-family, @hub:numbering-family)[last()]"/>
+    <xsl:variable name="numlvl" as="xs:integer?"
+      select="for $lvl in ($pstyle/@hub:numbering-level, @hub:numbering-level)[last()]
+              return xs:integer($lvl)"/>
+    <xsl:variable name="all-list-styles" as="xs:string*" 
+      select="key('idml2xml:list-styles', $numbered-list-styles)[@hub:numbering-level = $numlvl]
+                                                                [@hub:numbering-family = $numfam]/@name"/>
+    <xsl:if test="($pstyle/@css:display, @css:display)[last()] = 'list-item' (: idml2xml:StyleName(@aid:pstyle) = $all-list-styles :)">
+      <xsl:if test="$numlvl">
+        <xsl:attribute name="idml2xml:aux-list-level" select="$numlvl"/>
+      </xsl:if>
+      <xsl:variable name="preceding-same-family" as="element(idml2xml:genPara)*" 
+        select="key('idml2xml:paras-by-numbering-family', $numfam)[. &lt;&lt; current()]"/>
+      <xsl:variable name="preceding-higher" as="element(idml2xml:genPara)*" 
+        select="$preceding-same-family[(if (@aid:pstyle)
+                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-level 
+                                        else (),
+                                        @hub:numbering-level)[last()]
+                                       &lt; $numlvl]"/>
+      <xsl:variable name="preceding-same" as="element(idml2xml:genPara)*"
+        select="$preceding-same-family[(if (@aid:pstyle)
+                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-level 
+                                        else (),
+                                        @hub:numbering-level)[last()]
+                                       = $numlvl]"/>
+      <!-- reminder: higher level means lower level number -->
+      <xsl:variable name="restart-at-higher-level" as="xs:boolean"
+        select="($pstyle/@hub:restart-at-higher-level, @hub:restart-at-higher-level)[last()] = 'true'"/>
+      <xsl:variable name="continue" as="xs:boolean"
+        select="($text-default/@hub:numbering-continue, $pstyle/@hub:numbering-continue, @hub:numbering-continue)[last()] = 'true'"/>
+      <xsl:variable name="restart" as="xs:boolean"
+        select="empty($preceding-same) (: not actually restarted by higher level, but still… :)
+                or 
+                (
+                  if ($restart-at-higher-level)
+                  then 
+                    if ($preceding-same)
+                    then ($preceding-higher[last()] &gt;&gt; $preceding-same[last()])
+                    else exists($preceding-higher)
+                  else false()
+                )
+                or 
+                not($continue)"/>
+      <xsl:if test="$restart">
+        <xsl:attribute name="idml2xml:aux-list-restart" select="'true'"/>
+      </xsl:if>
+      <xsl:attribute name="idml2xml:aux-list-famlvl" select="string-join(($numfam, string($numlvl)), '__')"/>
+      <xsl:attribute name="idml2xml:aux-list-fam" select="$numfam"/>
+    </xsl:if>
+    
   </xsl:template>
 
   <!-- Dissolves what was an anchored Group that contains a Rectangle and a TextFrame.
@@ -1538,7 +1642,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template 
-    match="@idml2xml:* " 
+    match="@idml2xml:* | idPkg:Preferences" 
     mode="idml2xml:XML-Hubformat-remap-para-and-span" 
     />
 
@@ -1727,7 +1831,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * mediaobject wrapper element
           * -->
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
-      <xsl:apply-templates select="@idml2xml:objectstyle" mode="#current"/>
+      <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
       <xsl:apply-templates select="Image/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
       <imageobject>
         <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
@@ -1959,7 +2063,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2"/>
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none' or matches(., '^-')] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  <xsl:template match="@css:border-bottom | @css:border-top| @hub:restart-at-higher-level" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
+  <xsl:template match="@css:border-bottom | @css:border-top| @hub:restart-at-higher-level 
+    | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
+    | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam
+    | @hub:numbering-picture-string | @hub:numbering-starts-at | @hub:numbering-level | @numbering-format" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
   <xsl:template match="  @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
                        | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] 
                        | @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] 
@@ -1972,7 +2081,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- can happen that several contrary font-style attributes are created. normal won't win then. and to avoid invalid CSS, we discard it -->
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
-  <xsl:template match="@idml2xml:layout-type" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
 	<xsl:template match="css:rule[@layout-type = 'para']/@css:font-variant[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="dbk:phrase[@srcpath][count(@*) = 1]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
   	<xsl:apply-templates mode="#current"/>
@@ -2038,7 +2146,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        mechanism such as the one for text frames. -->
   <xsl:template match="*[self::dbk:phrase or self::dbk:subscript or self::dbk:superscript]
                         [not(@remap)][count(node()) eq count(dbk:informaltable)]" 		
-    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
   
@@ -2191,118 +2299,127 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:variable name="numbered-list-styles" select="('decimal', 'lower-roman', 'upper-roman', 'lower-alpha', 'upper-alpha')" as="xs:string+"/>
 	
+	<xsl:key name="idml2xml:list-para-by-fam" match="dbk:para[@idml2xml:aux-list-fam]"
+	  use="@idml2xml:aux-list-fam"/>
+	
   <xsl:template match="dbk:para[node()]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
- 			<xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
-  		<xsl:param name="all-list-paras" as="element(dbk:para)*" tunnel="yes"/>
-      <xsl:variable name="context" select="." as="element(dbk:para)"/>
- 			<xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
-
-    	<xsl:choose>
-    		<xsl:when test="some $para in $all-list-paras satisfies $para is $context">
-
-				<xsl:variable name="list-style-type" as="xs:string" select="('', ($rule, $context)//@css:list-style-type)[last()]"/>
-				<xsl:variable name="is-list-item" as="xs:boolean" select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
-				<xsl:variable name="all-list-styles" as="xs:string*" select="key('idml2xml:list-styles', $numbered-list-styles)[@hub:numbering-level = $rule/@hub:numbering-level]/@name"/>
-	    	<xsl:variable name="override" as="xs:integer?">
-		  		<xsl:for-each-group select="$all-list-paras[not(@css:display = 'block')][(@role = $all-list-styles or  (@css:list-style-type 
-		  																																				and
-		  		                                                                    @css:list-style-type = $numbered-list-styles 
-		  		                                                                    and 
-		  		                                                                    (not(@hub:numbering-level) or @hub:numbering-level = $rule/@hub:numbering-level or @css:display='list-item')
-		  		                                                                    ))
-		  		                                                                    and
-		  		                                                                    (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()] = $numbered-list-styles
-		  		                                      ]" 
-		  		      group-starting-with="//dbk:para[idml2xml:restart-list(., $all-list-styles, root($context))]">
-
-				  		<xsl:if test="current-group()[some $elt in descendant-or-self::* satisfies $elt is $context]">
-			  		  <xsl:variable name="list-start" as="xs:string" select="(current-group()[1]/@hub:numbering-starts-at, key('idml2xml:style-by-role', current-group()[1]/@role)//@hub:numbering-starts-at[last()], '1')[1]"/>
-				  		<xsl:variable name="position" as="xs:integer" select="index-of(current-group()/@srcpath, $context/@srcpath)"/>
-			  			<xsl:choose>
-			  			  <xsl:when test="$list-start = '0'">
-			  			    <xsl:sequence select="$position - 1"/>
-			  			  </xsl:when>
-			  			  <xsl:when test="$list-start = '1'">
-			  			    <xsl:sequence select="$position"/>
-			  			  </xsl:when>
-			  			  <xsl:otherwise>
-			  			    <xsl:sequence select="$position + xs:integer($list-start) - 1"/>
-			  			  </xsl:otherwise>
-			  			</xsl:choose>
-			  		</xsl:if>
-		  	</xsl:for-each-group>
-		  	</xsl:variable>
-    			<xsl:copy>
-    				<xsl:apply-templates select="@*" mode="#current"/>
-    				<xsl:if test="$is-list-item">
-			        <xsl:variable name="list-item-position" as="xs:integer"
-			          select="count(
-			                   $context/preceding-sibling::*[
-			                      (
-			                        @css:list-style-type, 
-			                        key('idml2xml:style-by-role', @role)/@css:list-style-type
-			                      )[1] = $numbered-list-styles
-			                    ]
-			                  ) + 1"/>
-		    					
-	    					<xsl:element name="phrase">
-	    						<xsl:attribute name="role" select="'hub:identifier'"/>
-	    						<!-- The picture strings are not reproduced 1:1 according to their levels -->
-	    						<xsl:variable name="picture-string" select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
-	    						<xsl:variable name="picture-result" select="(replace(replace($picture-string, '\^#', idml2xml:numbering-format($list-style-type)), '(\^[tm&gt;&lt;=pJBeH\|/\.]|\^\d\.?)', ''), $list-style-type)[1]" as="xs:string"/>
-	    						<xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
-<!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
+    <xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
+    <xsl:param name="all-list-paras" as="element(dbk:para)*" tunnel="yes"/>
+    <xsl:variable name="context" select="." as="element(dbk:para)"/>
+    <xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
+    <xsl:variable name="list-style-type" as="xs:string" select="('', ($rule, $context)//@css:list-style-type)[last()]"/>
+    <xsl:choose>
+      <xsl:when test="exists(@idml2xml:aux-list-fam) and $list-style-type = $numbered-list-styles">
+        <xsl:variable name="same-list-family" as="element(dbk:para)*" 
+          select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
+        <xsl:variable name="is-list-item" as="xs:boolean" select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
+        <xsl:variable name="all-list-styles" as="xs:string*"
+          select="key('idml2xml:list-styles', $numbered-list-styles)[@hub:numbering-level = $rule/@hub:numbering-level]/@name"/>
+        <xsl:variable name="same-list-famlvl" as="element(dbk:para)*"
+          select="$same-list-family[@idml2xml:aux-list-level = current()/@idml2xml:aux-list-level]"/>
+        <xsl:variable name="start" as="element(dbk:para)?" 
+          select="(($same-list-famlvl)[@idml2xml:aux-list-restart = 'true'])[last()]"/>
+        <xsl:variable name="in-between" as="element(dbk:para)*"
+          select="$same-list-famlvl[not(@css:display = 'block')]
+                                   [(@role = $all-list-styles 
+                                     or (
+                                      @css:list-style-type
+                                      and
+                                      @css:list-style-type = $numbered-list-styles
+                                      and
+                                      @css:display = 'list-item'
+                                     )
+                                  )
+                                  and
+                                  (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()] 
+                                   = $numbered-list-styles
+                                 ]
+                                 [. &gt;&gt; $start]"/>
+        <xsl:variable name="list-start" as="xs:string"
+          select="(($start/@hub:numbering-starts-at, key('idml2xml:style-by-role', $start/@role)/@hub:numbering-starts-at)[1], '1')[1]"/>
+        <xsl:variable name="override" as="xs:integer?" 
+          select="if (
+                       $list-start castable as xs:integer
+                     ) 
+                  then xs:integer($list-start) + count($in-between) 
+                  else ()"/>
+        <xsl:copy copy-namespaces="no">
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:if test="$is-list-item">
+            <xsl:variable name="list-item-position" as="xs:integer?"
+              select="if (exists($override)) then () else
+                      count(
+                        $context/preceding-sibling::*[
+                          (@css:list-style-type, key('idml2xml:style-by-role', @role)/@css:list-style-type)[1] = $numbered-list-styles
+                        ]
+                      ) + 1"/>
+            <xsl:if test="@srcpath='Stories/Story_u105.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[47]'">
+              <xsl:message>
+                <xsl:element name="phrase">
+              <xsl:attribute name="role" select="'hub:identifier'"/>
+              <!-- The picture strings are not reproduced 1:1 according to their levels -->
+              <xsl:variable name="picture-string"
+                select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
+              <xsl:variable name="picture-result"
+                select="(
+                          replace(
+                            replace(
+                              $picture-string, 
+                              '\^#', 
+                              idml2xml:numbering-format($list-style-type)
+                            ), 
+                            '(\^[tm&gt;&lt;=pJBeH\|/\.]|\^\d\.?)',
+                            ''
+                          ), 
+                          $list-style-type
+                        )[1]"
+                as="xs:string"/>
+              <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
+              <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
     							</xsl:if>-->
-	    					</xsl:element>
-	    				</xsl:if>
-    					<xsl:apply-templates select="node()" mode="#current"/>
-    					<xsl:if test=". is $orphaned-indexterm-para">
-    						 <xsl:call-template name="orphaned-indexterms"/>
-    					</xsl:if>
-    			</xsl:copy>
-    	</xsl:when>
-    	<xsl:otherwise>
-    		<xsl:next-match/>
-    	</xsl:otherwise>
-    	</xsl:choose>
+            </xsl:element>
+              </xsl:message>
+            </xsl:if>
+            <xsl:element name="phrase">
+              <xsl:attribute name="role" select="'hub:identifier'"/>
+              <!-- The picture strings are not reproduced 1:1 according to their levels -->
+              <xsl:variable name="picture-string"
+                select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
+              <xsl:variable name="picture-result"
+                select="(
+                          replace(
+                            replace(
+                              $picture-string, 
+                              '\^#', 
+                              idml2xml:numbering-format($list-style-type)
+                            ), 
+                            '(\^[tm&gt;&lt;=pJBeH\|/\.]|\^\d\.?)',
+                            ''
+                          ), 
+                          $list-style-type
+                        )[1]"
+                as="xs:string"/>
+              <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
+              <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
+    								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
+    							</xsl:if>-->
+            </xsl:element>
+          </xsl:if>
+          <xsl:apply-templates select="node()" mode="#current"/>
+          <xsl:if test=". is $orphaned-indexterm-para">
+            <xsl:call-template name="orphaned-indexterms"/>
+          </xsl:if>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
     <!-- the problem still exists that lists may not be recognized after style name mapping because of the indentation.-->
   </xsl:template>
 	
-	 <xsl:function name="idml2xml:restart-list" as="xs:boolean">
-    <xsl:param name="para" as="element(dbk:para)"/>
-	 	<xsl:param name="all-list-styles" as="xs:string*"/>
-	 	<xsl:param name="root" as="document-node()"/>
-	 	<xsl:variable name="list-level" select="xs:integer(((key('idml2xml:style-by-role', $para/@role, $root), $para)//@hub:numbering-level)[last()])" as="xs:integer"/>
-    <xsl:choose>
-      <xsl:when test="$para[@role = $all-list-styles or @css:list-style-type = $numbered-list-styles]
-                           [@hub:numbering-continue = 'false' or (key('idml2xml:style-by-role', @role)
-                           																					[@css:list-style-type = $numbered-list-styles]
-                                     																[not(@hub:numbering-continue) or @hub:numbering-continue = 'false'] 
-                                     																and not(@hub:numbering-continue = 'true')
-                                     														)
-                             ]">
-      		<xsl:sequence select="true()"/>
-      </xsl:when>
-      <xsl:when test="$para[(@hub:numbering-level and matches(@hub:numbering-level, '^[2-9]$')) 
-										     	 	or
-										     	 (key('idml2xml:style-by-role', @role)/@hub:numbering-level and matches(key('idml2xml:style-by-role', @role)/@hub:numbering-level, '^[2-9]$'))
-										     	 ]
-      											[not((key('idml2xml:style-by-role', @role), .)/@hub:restart-at-higher-level[last()] = 'false')]
-      											[(preceding::*[self::dbk:para]
-      																					 [((key('idml2xml:style-by-role', @role), .)//@css:display)[last()] = 'list-item'])[last()]
-      																					 		[xs:integer(((key('idml2xml:style-by-role', @role),.)//@hub:numbering-level)[last()]) lt $list-level]
-      																					 
-      											]">
-      <!-- lower level items that do restart at higher levels and dont't have a manual restart applied  -->
-      	<xsl:sequence select="true()"/>
-      </xsl:when>
-      <xsl:otherwise><xsl:sequence select="false()"/></xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
-	
-	
-	  <xsl:function name="idml2xml:numbering-format" as="xs:string">
+  <xsl:function name="idml2xml:numbering-format" as="xs:string">
     <xsl:param name="list-style-type" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$list-style-type = 'decimal'"><xsl:sequence select="'1'"/></xsl:when>

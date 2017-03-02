@@ -122,6 +122,7 @@
           <val match="(IDX_)?Hungarian" target-value="hu" />
           <val match="\$ID/\[No [Ll]anguage\]$" target-value="" />
         </prop>
+        <prop name="AppliedNumberingList" target-name="hub:numbering-family" type="numbering-family"/>
         <prop name="AppliedParagraphStyle" type="style-link" />
         <prop name="BottomInset" type="length" target-name="css:padding-bottom" />
         <prop name="BulletChar" target-name="css:pseudo-marker_content" type="bullet-char"/>
@@ -224,7 +225,7 @@
         </prop>
         <prop name="ListItem/AlignmentCharacter" type="linear" target-name="alignment-char" />
         <prop name="ListItem/Leader" type="linear" target-name="leader" />
-        <prop name="NumberingContinue" target-name="numbering-continue" type="linear"/>
+        <prop name="NumberingContinue" target-name="hub:numbering-continue" type="linear"/>
         <prop name="NumberingExpression" target-name="numbering-expression" type="linear"/>
         <prop name="NumberingFormat" target-name="numbering-format" type="linear"/>
         <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
@@ -282,7 +283,7 @@
         </prop>
         <prop name="xlink:href" type="passthru"/>
 
-        <prop name="NumberingApplyRestartPolicy" target-name="restart-at-higher-level" type="linear"/>
+        <prop name="NumberingApplyRestartPolicy" target-name="hub:restart-at-higher-level" type="linear"/>
         <prop name="BulletsAlignment" implement="maybe later" />
         <prop name="NumberingAlignment" implement="maybe later" />
         <prop name="BulletsTextAfter" implement="maybe later" />
@@ -680,7 +681,6 @@
         <prop name="KentenFillColor" implement="maybe later" />
         <prop name="KentenStrokeColor" implement="maybe later" />
         <prop name="BulletChar" implement="maybe later" />
-        <prop name="AppliedNumberingList" implement="maybe later" />
         <prop name="NumberingRestartPolicies" implement="maybe later" />
         <prop name="BulletsCharacterStyle" implement="maybe later" />
         <prop name="NumberingCharacterStyle" target-name="numbering-inline-stylename" type="linear"/>
