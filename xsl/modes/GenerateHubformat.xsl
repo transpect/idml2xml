@@ -1264,8 +1264,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:key name="idml2xml:paras-by-numbering-family" match="idml2xml:genPara" 
-    use="(if (@aid:pstyle) then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-family else (),
-          @hub:numbering-family)[last()]"/>
+    use="idml2xml:numbering-family-for-para(.)"/>
+
+  <xsl:function name="idml2xml:numbering-family-for-para" as="xs:string?">
+    <xsl:param name="para" as="element(idml2xml:genPara)"/>
+    <xsl:variable name="pstyle" as="element(css:rule)?" 
+      select="if (normalize-space($para/@aid:pstyle)) 
+              then key('idml2xml:style-by-role', idml2xml:StyleName($para/@aid:pstyle), root($para))
+              else ()"/>
+    <xsl:if test="($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'">
+      <xsl:sequence select="for $f in ($pstyle/@hub:numbering-family, $para/@hub:numbering-family)[last()]
+                            return string($f)"/>
+    </xsl:if>
+  </xsl:function>
 
   <!-- Add auxiliary attributes that will facilitate list number calculations in the next pass: -->
   <xsl:template name="idml2xml:list-aux-counter-atts">
@@ -1276,10 +1287,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="numfam" as="xs:string?"
       select="($pstyle/@hub:numbering-family, @hub:numbering-family)[last()]"/>
     <xsl:variable name="numlvl" as="xs:integer?"
-      select="for $lvl in ($pstyle/@hub:numbering-level, @hub:numbering-level)[last()]
+      select="for $lvl in ($pstyle/@*:numbering-level, @*:numbering-level)[last()]
               return xs:integer($lvl)"/>
     <xsl:variable name="all-list-styles" as="xs:string*" 
-      select="key('idml2xml:list-styles', $numbered-list-styles)[@hub:numbering-level = $numlvl]
+      select="key('idml2xml:list-styles', $numbered-list-styles)[@*:numbering-level = $numlvl]
                                                                 [@hub:numbering-family = $numfam]/@name"/>
     <xsl:if test="($pstyle/@css:display, @css:display)[last()] = 'list-item' (: idml2xml:StyleName(@aid:pstyle) = $all-list-styles :)">
       <xsl:if test="$numlvl">
@@ -1289,15 +1300,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         select="key('idml2xml:paras-by-numbering-family', $numfam)[. &lt;&lt; current()]"/>
       <xsl:variable name="preceding-higher" as="element(idml2xml:genPara)*" 
         select="$preceding-same-family[(if (@aid:pstyle)
-                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-level 
+                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
                                         else (),
-                                        @hub:numbering-level)[last()]
+                                        @*:numbering-level)[last()]
                                        &lt; $numlvl]"/>
       <xsl:variable name="preceding-same" as="element(idml2xml:genPara)*"
         select="$preceding-same-family[(if (@aid:pstyle)
-                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@hub:numbering-level 
+                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
                                         else (),
-                                        @hub:numbering-level)[last()]
+                                        @*:numbering-level)[last()]
                                        = $numlvl]"/>
       <!-- reminder: higher level means lower level number -->
       <xsl:variable name="restart-at-higher-level" as="xs:boolean"
@@ -1317,6 +1328,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 )
                 or 
                 not($continue)"/>
+      <xsl:if test="contains(@srcpath, '[48];n=1')">
+        <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same"></xsl:message>
+      </xsl:if>
       <xsl:if test="$restart">
         <xsl:attribute name="idml2xml:aux-list-restart" select="'true'"/>
       </xsl:if>
@@ -2315,7 +2329,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
         <xsl:variable name="is-list-item" as="xs:boolean" select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
         <xsl:variable name="all-list-styles" as="xs:string*"
-          select="key('idml2xml:list-styles', $numbered-list-styles)[@hub:numbering-level = $rule/@hub:numbering-level]/@name"/>
+          select="key('idml2xml:list-styles', $numbered-list-styles)[@*:numbering-level = $rule/@*:numbering-level]/@name"/>
         <xsl:variable name="same-list-famlvl" as="element(dbk:para)*"
           select="$same-list-family[@idml2xml:aux-list-level = current()/@idml2xml:aux-list-level]"/>
         <xsl:variable name="start" as="element(dbk:para)?" 
