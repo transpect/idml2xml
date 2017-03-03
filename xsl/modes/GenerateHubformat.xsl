@@ -1268,7 +1268,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:function name="idml2xml:numbering-family-for-para" as="xs:string?">
     <xsl:param name="para" as="element(idml2xml:genPara)"/>
-    <xsl:variable name="pstyle" as="element(css:rule)?" 
+    <xsl:variable name="pstyle" as="element(css:rule)*" 
       select="if (normalize-space($para/@aid:pstyle)) 
               then key('idml2xml:style-by-role', idml2xml:StyleName($para/@aid:pstyle), root($para))
               else ()"/>
@@ -1284,7 +1284,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- context: idml2xml:genPara -->
     <xsl:param name="role" as="xs:string?"/>
     <xsl:param name="text-default" as="element(TextDefault)?" tunnel="yes"/>
-    <xsl:variable name="pstyle" as="element(css:rule)?" select="(key('idml2xml:style-by-role', $role))[1]"/>
+    <xsl:variable name="pstyle" as="element(css:rule)*" select="(key('idml2xml:style-by-role', $role))[1]"/>
     <xsl:variable name="numfam" as="xs:string?"
       select="($pstyle/@hub:numbering-family, @hub:numbering-family)[last()]"/>
     <xsl:variable name="numlvl" as="xs:integer?"
