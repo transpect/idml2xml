@@ -225,8 +225,12 @@
       <xsl:apply-templates select="* except Properties" mode="#current" />
       <XMLAttribute Name="idml2xml:elementName" Value="{name()}" />
       <XMLAttribute Name="xmlns:idml2xml" Value="http://transpect.io/idml2xml" />
-      <xsl:apply-templates select="@*:objectstyle" mode="idml2xml:GenerateTagging-attr" />
+      <xsl:apply-templates select="@*:objectstyle, @idml2xml:layer" mode="idml2xml:GenerateTagging-attr" />
     </XMLElement>
+  </xsl:template>
+
+  <xsl:template match="@idml2xml:layer" mode="idml2xml:GenerateTagging-attr">
+    <XMLAttribute Name="{name()}" Value="{.}" />
   </xsl:template>
 
   <xsl:template match="@*:objectstyle[. = ('$ID/[None]', '$ID/[Normal Text Frame]')]" 
