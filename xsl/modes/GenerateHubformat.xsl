@@ -2068,7 +2068,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
     | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
-    | @*:numbering-expression" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+    | @*:numbering-expression | @*:numbering-inline-stylename" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <xsl:template match="  @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
                        | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] 
