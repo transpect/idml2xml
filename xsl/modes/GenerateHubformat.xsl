@@ -1272,7 +1272,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="if (normalize-space($para/@aid:pstyle)) 
               then key('idml2xml:style-by-role', idml2xml:StyleName($para/@aid:pstyle), root($para))
               else ()"/>
-    <xsl:if test="($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'">
+    <xsl:if test="($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'
+                  and exists(($pstyle/@hub:numbering-level, $para/@hub:numbering-level))">
       <xsl:sequence select="for $f in ($pstyle/@hub:numbering-family, $para/@hub:numbering-family)[last()]
                             return string($f)"/>
     </xsl:if>
@@ -1328,7 +1329,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 )
                 or 
                 not($continue)"/>
-      <xsl:if test="contains(@srcpath, '[48];n=1')">
+      <xsl:if test="contains(@srcpath, '[129]')">
         <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same"></xsl:message>
       </xsl:if>
       <xsl:if test="$restart">
