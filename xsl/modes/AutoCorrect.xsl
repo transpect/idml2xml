@@ -203,6 +203,7 @@
                                 | *[@aid:cstyle] 
                                 | *[@idml2xml:AppliedCharacterStyle] 
                                 | *[@idml2xml:story]
+                                | *[@idml2xml:layer]
                                 | text()
                                ) 
                           eq count(node())
@@ -216,6 +217,7 @@
                                    union *[@aid:cstyle] 
                                    union *[@idml2xml:AppliedCharacterStyle] 
                                    union *[@idml2xml:story]
+                                   union *[@idml2xml:layer]
                                    union text()" mode="#current" />
     </xsl:element>
   </xsl:template>
@@ -241,6 +243,7 @@
   
   
   <xsl:template match="idml2xml:genFrame[@idml2xml:elementName eq 'Group']
+                                        [not(@idml2xml:layer eq 'PrintOnly')]
                                         [count(node()) eq 1]" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
