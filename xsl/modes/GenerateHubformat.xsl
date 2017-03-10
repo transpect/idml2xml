@@ -205,10 +205,10 @@
           </xsl:apply-templates>
       </xsl:if>
       <xsl:apply-templates select="if (Properties/BasedOn/@type = 'object' and Properties/BasedOn ne @Self) 
-                                   then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn))
+                                   then key('idml2xml:style', idml2xml:StyleNameEscape(Properties/BasedOn))[name() = current()/name()]
                                    else 
                                      if (Properties/BasedOn/@type = 'string' and Properties/BasedOn ne @Self)
-                                     then key('idml2xml:style-by-Name', Properties/BasedOn)
+                                     then key('idml2xml:style-by-Name', Properties/BasedOn)[name() = current()/name()]
                                      else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>
@@ -452,7 +452,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             </xsl:choose>
           </xsl:when>
           <xsl:when test="matches($val, '^Gradient/')">
-            <!-- very basic approach. neither the directions nor the angles or positions are taken int consideration -->
+            <!-- very basic approach. neither the directions nor the angles or positions are taken into consideration -->
             <xsl:variable name="gradient" select="key('idml2xml:gradient', $val, root($val))[1]" as="element(Gradient)?" />
             <xsl:variable name="colorStops" as="element(idml2xml:attribute)*">
               <xsl:apply-templates select="$gradient/GradientStop/@StopColor" mode="#current">
@@ -886,6 +886,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                   as="element(css:rule)?"/>
     <xsl:variable name="last-fill-tint"  as="element(idml2xml:attribute)?">
       <!-- rules above and below have an own tint attribute which is mapped to border-bottom-tint e.g.. handled separately -->
+
       <xsl:choose>
         <xsl:when test="@name = 'css:border-top-color'">
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-top-tint')])[last()]"/>
@@ -1329,9 +1330,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 )
                 or 
                 not($continue)"/>
-      <xsl:if test="contains(@srcpath, '[129]')">
+ <!--     <xsl:if test="contains(@srcpath, '[129]')">
         <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same"></xsl:message>
-      </xsl:if>
+      </xsl:if>-->
       <xsl:if test="$restart">
         <xsl:attribute name="idml2xml:aux-list-restart" select="'true'"/>
       </xsl:if>
