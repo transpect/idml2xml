@@ -35,6 +35,7 @@
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" 
           select=".//text()[idml2xml:same-scope(., current())]
+                           [not(ancestor::Properties)]
                            [if ($separator-regex-chars) 
                             then matches(., concat('[', $separator-regex-chars, ']'))
                             else false()
