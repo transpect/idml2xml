@@ -558,8 +558,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
       
       <xsl:when test=". eq 'position'">
+        <xsl:variable name="script-name" select="lower-case(replace($val, '^OT', ''))" as="xs:string"/>
         <xsl:choose>
           <xsl:when test="$val eq 'Normal'" />
+          <xsl:when test="name($val/..) = 'TextDefault'">
+            <idml2xml:attribute name="{../@target-name}">
+              <xsl:value-of select="replace($script-name, 'script', '')"/>
+            </idml2xml:attribute>
+          </xsl:when>
           <xsl:otherwise>
             <idml2xml:wrap element="{lower-case(replace($val, '^OT', ''))}" />
           </xsl:otherwise>
