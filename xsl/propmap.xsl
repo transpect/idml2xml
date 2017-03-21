@@ -240,7 +240,7 @@
           <val eq="RightToLeftDirection" target-value="rtl"/>
         </prop>
         <prop name="PointSize" type="length" target-name="css:font-size" />
-        <prop name="Position" type="position" />
+        <prop name="Position" type="position" target-name="css:vertical-align" />
         <prop name="RightIndent" type="length" target-name="css:margin-right" />
         <prop name="RightInset" type="length" target-name="css:padding-right" />
         <prop name="ShadowColor" type="color" target-name="shadow-color" />
