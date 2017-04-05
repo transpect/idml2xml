@@ -447,6 +447,10 @@
         <prop name="LeftBorderStrokeWeight" type="length" target-name="css:border-left-width"/>
         <prop name="BottomBorderStrokeWeight" type="length" target-name="css:border-bottom-width"/>
         <prop name="RightBorderStrokeWeight" type="length" target-name="css:border-right-width"/>
+        <prop name="LeftEdgeStrokeTint" type="percentage" target-name="border-left-tint"/>
+        <prop name="BottomEdgeStrokeTint" type="percentage" target-name="border-bottom-tint"/>
+        <prop name="RightEdgeStrokeTint" type="percentage" target-name="border-right-tint"/>
+        <prop name="TopEdgeStrokeTint" type="percentage" target-name="border-top-tint"/>
         <prop name="TopEdgeStrokeWeight" type="length" target-name="css:border-top-width"/>
         <prop name="LeftEdgeStrokeWeight" type="length" target-name="css:border-left-width"/>
         <prop name="BottomEdgeStrokeWeight" type="length" target-name="css:border-bottom-width"/>
