@@ -21,6 +21,7 @@
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
+  <p:option name="preserve-original-image-refs" required="false" select="'no'"/>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>

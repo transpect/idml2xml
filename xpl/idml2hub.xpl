@@ -19,6 +19,12 @@
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'yes'"/>
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
+  <p:option name="preserve-original-image-refs" required="false" select="'no'">
+    <p:documentation>Original image references are preserved and an additional &lt;imageobject&gt; is 
+      created which specifies the original file reference besides the imageobject which contains
+      the file reference from the image export script.    
+    </p:documentation>
+  </p:option>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
@@ -83,6 +89,7 @@
     <p:with-option name="all-styles" select="$all-styles"/>  
     <p:with-option name="discard-tagging" select="$discard-tagging"/>
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
+    <p:with-option name="preserve-original-image-refs" select="$preserve-original-image-refs"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>
     <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>

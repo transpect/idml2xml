@@ -1835,13 +1835,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <xsl:variable name="image-info" as="element(image)">
       <xsl:apply-templates select="." mode="idml2xml:Images"/>
-    </xsl:variable>    <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
+    </xsl:variable>
+    <xsl:variable name="id" select="concat('img_', $idml2xml:basename, '_', @Self, $suffix)" as="xs:string"/>
     <!--  *
           * construct file reference from LinkResourceURI (note that even embedded images have an URI)
           * -->
-    <xsl:variable name="LinkResourceURI" select="if(@idml2xml:rectangle-embedded-source eq 'true') 
-      then concat($archive-dir-uri, 'images/', replace(Image/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'))
-      else replace(*/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
+    <xsl:variable name="LinkResourceURI" 
+                  select="if(@idml2xml:rectangle-embedded-source eq 'true') 
+                          then concat($archive-dir-uri, 'images/', replace(Image/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'))
+                          else replace(*/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
       select="(: check first for inserted filename labels from image export script, then use real link URI :)
               if (Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]) 
@@ -1863,6 +1865,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
       <xsl:apply-templates select="Image/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
       <imageobject>
+        <xsl:if test="$preserve-original-image-refs eq 'yes' and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]">
+          <xsl:attribute name="condition" select="'web'"/>
+        </xsl:if>
         <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
           <xsl:attribute name="role" select="'hub:embedded'"/>
         </xsl:if>
@@ -1870,6 +1875,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:attribute name="xml:id" select="$id"/>
         </imagedata>
       </imageobject>
+      <!-- generate a 2nd image object to preserve the original file 
+           reference if the export script had generated a filename label. -->
+      <xsl:if test="$preserve-original-image-refs eq 'yes' 
+                    and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]
+                    and @idml2xml:rectangle-embedded-source eq 'false'">
+        <imageobject condition="print" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
+          <imagedata fileref="{$LinkResourceURI}"/>
+        </imageobject>
+      </xsl:if>
     </mediaobject>
     <!--  * 
           * generate virtual result documents, which will be decoded by idml_tagged2hub.xpl,
