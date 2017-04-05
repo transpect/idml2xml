@@ -127,61 +127,25 @@
           <p:empty/>
         </p:input>
       </p:xslt>
+      
       <tr:store-debug pipeline-step="idml2xml/zip-manifest">
         <p:with-option name="active" select="$debug"/>
         <p:with-option name="base-uri" select="$debug-dir-uri"/>
       </tr:store-debug>
+      
       <p:sink/>
-
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'src-dir-uri']" attribute-name="value">
-        <p:input port="source">
-          <p:inline>
-            <c:param-set>
-              <!-- Switch off XSLT-based debugging: -->
-              <c:param name="debug" value="'0'" />
-              <c:param name="src-dir-uri" />
-              <c:param name="hub-version" />
-              <c:param name="srcpaths" />
-              <c:param name="all-styles" />
-              <c:param name="discard-tagging" />
-              <c:param name="process-embedded-images" />
-              <c:param name="hub-other-elementnames-whitelist" />
-              <c:param name="output-items-not-on-workspace" />
-            </c:param-set>
-          </p:inline>
-        </p:input>
-        <p:with-option name="attribute-value" select="escape-html-uri(/c:files/@xml:base)">
+      
+      <p:group name="xslt-params">
+        <p:output port="result">
+          <p:pipe port="result" step="create-param-set"/>
+        </p:output>
+        <p:variable name="src-dir-uri" select="escape-html-uri(/c:files/@xml:base)">
           <p:pipe step="unzip" port="result" />
-        </p:with-option>
-      </p:add-attribute>
-    
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'hub-version']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$hub-version"/>
-      </p:add-attribute>
-      
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'discard-tagging']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$discard-tagging"/>
-      </p:add-attribute>
-    
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'all-styles']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$all-styles"/>
-      </p:add-attribute>
-      
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'srcpaths']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$srcpaths"/>
-      </p:add-attribute>
-      
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'process-embedded-images']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$process-embedded-images"/>
-      </p:add-attribute>
-    
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'hub-other-elementnames-whitelist']" attribute-name="value">
-        <p:with-option name="attribute-value" select="$hub-other-elementnames-whitelist"/>
-      </p:add-attribute>
-    
-      <p:add-attribute match="/c:param-set/c:param[@name eq 'output-items-not-on-workspace']" attribute-name="value" name="xslt-params">
-        <p:with-option name="attribute-value" select="$output-items-not-on-workspace"/>
-      </p:add-attribute>
+        </p:variable>
+        
+        <p:in-scope-names name="create-param-set"/>
+        
+      </p:group>
       
       <tr:store-debug pipeline-step="idml2xml/idml2xml.04.Parameters">
         <p:with-option name="active" select="$debug"/>
