@@ -414,7 +414,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                   while other Colors are tinted by means of a Tint element -->
                 <xsl:with-param name="multiplier">
                   <xsl:choose>
-                    <xsl:when test="matches(($val/name(),'')[1], '(Stroke|Underline)Color')">
+                    <xsl:when test="matches(($val/name(),'')[1], '^(Stroke|Underline)Color')">
                       <xsl:sequence select="if ($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')] = '-1') 
                                             then 1.0 
                                             else number(($val/(../.., ..)/@*[name() = replace($val/name(), 'Color', 'Tint')], 100)[1]) * 0.01"/>
@@ -875,7 +875,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-bottom-color', 'css:border-color')]
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-left-color', 'css:border-right-color', 'css:border-bottom-color', 'css:border-color')]
                                          [$hub-version ne '1.0']" 
     mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
@@ -900,11 +900,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:when test="@name = 'css:border-bottom-color'">
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-bottom-tint')])[last()]"/>
         </xsl:when>
+        <xsl:when test="@name = 'css:border-left-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-left-tint')])[last()]"/>
+        </xsl:when>
+        <xsl:when test="@name = 'css:border-right-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-right-tint')])[last()]"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint', 'fill-value', 'border-tint')])[last()]"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable> 
+    <xsl:if test="($style | ..)/@name = 'c_table_text'"><xsl:message select="'###',idml2xml:tint-color(., (xs:double(tokenize($last-fill-tint, '\s')[1]), 1.0)[1]), '||', ."/></xsl:if>
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
@@ -952,7 +959,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     (will be handled by css:color) -->
   </xsl:template>
   
-  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color', 'border-tint', 'border-top-tint', 'border-bottom-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color', 'border-tint', 'border-left-tint', 'border-right-tint','border-top-tint', 'border-bottom-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-top-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
