@@ -431,20 +431,20 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:variable name="tint-decl" select="key('idml2xml:tint', $val, root($val))[1]" as="element(Tint)" />
             <idml2xml:attribute name="{$target-name}">
               <xsl:apply-templates select="key(
-                                             'idml2xml:color',
-                                             $tint-decl/@BaseColor,
-                                             root($val)
-                                           )" mode="#current" />
+                'idml2xml:color',
+                $tint-decl/@BaseColor,
+                root($val)
+                )" mode="#current" />
             </idml2xml:attribute>
             <xsl:choose>
-              <xsl:when test="matches($target-name, 'css:border-((top|bottom)-)?color')">
+              <xsl:when test="matches($target-name, 'css:border-((top|bottom|left|right)-)?color')">
                 <!-- if borders are tinted no new fill-value attribute must be created! -->
-                  <xsl:if test=" $tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
-                    <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom)-)?color', 'border-$1tint')}">
-                      <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
-                    </idml2xml:attribute>
-                  </xsl:if>
-               </xsl:when>
+                <xsl:if test=" $tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
+                  <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom|left|right)-)?color', 'border-$1tint')}">
+                    <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
+                  </idml2xml:attribute>
+                </xsl:if>
+              </xsl:when>
               <xsl:otherwise>
                 <!-- standard case if background-color-->
                 <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current" />
@@ -452,16 +452,27 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             </xsl:choose>
           </xsl:when>
           <xsl:when test="matches($val, '^Gradient/')">
-            <!-- very basic approach. neither the directions nor the angles or positions are taken into consideration -->
+            <!-- very basic approach. neither the directions nor the angles or positions are taken into consideration.
+            stopped mapping of border colors, because it is only allowed as whole border-image, not for border-right etc. Untergliedern, Fragezeichen ist doof-->
             <xsl:variable name="gradient" select="key('idml2xml:gradient', $val, root($val))[1]" as="element(Gradient)?" />
             <xsl:variable name="colorStops" as="element(idml2xml:attribute)*">
               <xsl:apply-templates select="$gradient/GradientStop/@StopColor" mode="#current">
                 <xsl:sort order="ascending" select="../@Location" data-type="number"/>
               </xsl:apply-templates>
             </xsl:variable>
-            <idml2xml:attribute name="{concat(replace($target-name, '-color', ''), '-image')}">
-              <xsl:value-of select="concat(lower-case($gradient/@Type),'-gradient(', string-join($colorStops, ', '), ')')"/>
-            </idml2xml:attribute>
+            <xsl:choose>
+              <xsl:when test="$target-name = 'css:background-color'">
+                <idml2xml:attribute name="{concat(replace($target-name, '-color', ''), '-image')}">
+                  <xsl:value-of select="concat(lower-case($gradient/@Type),'-gradient(', string-join($colorStops, ', '), ')')"/>
+                </idml2xml:attribute>
+              </xsl:when>
+              <xsl:otherwise>
+                <idml2xml:attribute name="{$target-name}">
+                  <xsl:message select="'############## Gradient for illegal attribute:', $target-name, 'used.'"/>
+                  <xsl:value-of select="'?'"/>
+                </idml2xml:attribute>
+              </xsl:otherwise>
+            </xsl:choose>
            </xsl:when>
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
