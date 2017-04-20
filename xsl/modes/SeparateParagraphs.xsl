@@ -100,7 +100,12 @@
     <xsl:apply-templates mode="idml2xml:SeparateParagraphs-pull-down-psrange" />
   </xsl:template>
 
-
+  <xsl:template
+    match="ParagraphDestination[Properties[Label[KeyValuePair[@Key = 'px:Foot2EndnoteHyperlink']]]][preceding-sibling::*[1][self::Content]]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
+    <xsl:element name="Br"/>
+    <xsl:next-match/>
+  </xsl:template>
+  
   <!-- Last ParagraphStyleRange of a Story or XmlStory -->
   <xsl:template
     match="ParagraphStyleRange[((ancestor::Story | ancestor::XmlStory)[last()]//ParagraphStyleRange)[last()] is current()]" 
