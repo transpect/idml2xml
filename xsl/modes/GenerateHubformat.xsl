@@ -1061,6 +1061,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="starts-with($type-example-string, 'I')">
         <xsl:sequence select="'upper-roman'"/>
       </xsl:when>
+      <xsl:when test="starts-with($type-example-string, 'None')">
+        <xsl:sequence select="'none'"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="string-join(($type-example-string, $picture-string), '__')"/>
       </xsl:otherwise>
