@@ -477,7 +477,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
             <xsl:choose>
-              <xsl:when test="matches($target-name, '^css:border-(top|bottom)-color')">
+              <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color')">
                 <idml2xml:attribute name="{../@target-name}">
                   <xsl:text>transparent</xsl:text>
                 </idml2xml:attribute>
