@@ -789,7 +789,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:function name="idml2xml:text-lang" as="xs:string?">
     <xsl:param name="text" as="element(idml2xml:genPara)"/>
     <xsl:variable name="style-name" select="idml2xml:StyleNameEscape($text/@aid:pstyle)" as="xs:string"/>    
-    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name]/@xml:lang[last()]" as="attribute(xml:lang)?"/>
+    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name][@layout-type = 'para']/@xml:lang[last()]" as="attribute(xml:lang)?"/>
     <xsl:variable name="lang-override" select="$text/@xml:lang" as="attribute(xml:lang)?"/>
     <xsl:sequence select="($lang-override, $lang-by-style)[1]"/>
   </xsl:function>
