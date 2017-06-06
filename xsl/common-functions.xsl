@@ -417,7 +417,7 @@
                                return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
                             )
                       else 0"/>
-
+ 
 <!--            <xsl:message select="'top:', $item-top, ' left:', $item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
 
             <xsl:variable name="item-real-center-x" as="xs:double"
@@ -441,12 +441,13 @@
             <xsl:variable name="left-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies (xs:double(tokenize($page/@ItemTransform, ' ')[5]) lt 0.00001 and not($spread-binding eq 'left'))"/>
+              satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5]) + xs:double(tokenize($page/@MasterPageTransform, ' ')[5])) lt 0.00001) 
+                         and not($spread-binding eq 'left'))"/>
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies xs:double(tokenize($page/@ItemTransform, ' ')[5]) ge -0.00001"/>
+              satisfies ((xs:double(tokenize($page/@ItemTransform, ' ')[5]) + xs:double(tokenize($page/@MasterPageTransform, ' ')[5])) ge -0.00001)"/>
 
         <xsl:if test="$item/@Self = ('u152')">
           <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
@@ -482,6 +483,7 @@
                             0,
                             200
                           )"/>
+                <xsl:message select="'####', $causes"/>
                 <xsl:message
                   select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON(s):', 
                           string-join($causes[@present = 'true']/@name, ', '),
