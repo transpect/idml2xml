@@ -1899,11 +1899,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </imageobject>
       </xsl:if>
     </mediaobject>
+
     <!--  * 
           * generate virtual result documents, which will be decoded by idml_tagged2hub.xpl,
-          * otherwise the resulting document stays base64 encoded 
+          * otherwise the resulting document stays base64 encoded. Avoid writing duplicate images
           * -->
-    <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
+    <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true' and key('idml2xml:filerefs-for-embedded-images', *:Image/*:Link/@LinkResourceURI)[1] is .">
       <xsl:result-document href="{$fileref}">
         <data xmlns="http://transpect.io/idml2xml" 
           content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}"
@@ -1922,12 +1923,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:if>
   </xsl:template>
   
+
+  <xsl:key name="idml2xml:filerefs-for-embedded-images" 
+          match="*[name() = $idml2xml:shape-element-names]" 
+            use="*:Image/*:Link[@StoredState = 'Embedded']/@LinkResourceURI"/>
+
   <!-- footnotes -->
   <xsl:template match="Footnote" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <footnote>
       <xsl:apply-templates mode="#current"/>
     </footnote>
   </xsl:template>
+
 
   <!-- notes -->
   <xsl:template match="Note" mode="idml2xml:XML-Hubformat-remap-para-and-span">
