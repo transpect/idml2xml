@@ -166,6 +166,7 @@
           <val match="Light" target-name="css:font-weight" target-value="300" />
           <val eq="Light" target-name="css:font-style" target-value="normal" />
           <val eq="Light" target-name="css:font-weight" target-value="300" />
+          <val match="^\d+ Light$" target-name="css:font-style" target-value="normal" />
           <val match="Semi[bB]old" target-name="css:font-weight" target-value="600" />
           <val match="Black" target-name="css:font-weight" target-value="900" />
           <val eq="Black" target-name="css:font-style" target-value="normal" />
