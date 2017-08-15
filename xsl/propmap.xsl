@@ -231,11 +231,10 @@
         <prop name="NumberingFormat" target-name="numbering-format" type="linear"/>
         <prop name="NumberingLevel" target-name="numbering-level" type="linear"/>
         <prop name="NumberingStartAt" target-name="numbering-starts-at" type="linear"/>
-        <prop name="ParagraphBreakType">
-          <val eq="NextPage" target-name="css:page-break-after" target-value="always"/>
+        <prop name="ParagraphBreakType" >
+          <val match="NextPage|NextPage" target-name="css:page-break-after" target-value="always"/>
           <val eq="NextOddPage" target-name="css:page-break-after" target-value="right"/>
           <val eq="NextEvenPage" target-name="css:page-break-after" target-value="left"/>
-          <val eq="Anywhere" target-name="css:page-break-after" target-value="auto"/>
           <val match="NextColumn" target-name="css:break-after" target-value="column"/>
           <val match="NextFrame" target-name="css:break-after" target-value="always"/>
         </prop>
