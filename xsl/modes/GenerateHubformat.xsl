@@ -612,41 +612,24 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- To do: provide the reserved names from http://www.w3.org/TR/css3-lists/#ua-stylesheet for the corresponding chars --> 
     <xsl:variable name="char-elt" select="$styled-element/Properties/BulletChar" as="element(BulletChar)?"/>
     <xsl:variable name="is-unicode" as="xs:boolean"
-      select="$styled-element/Properties/BulletChar/@BulletCharacterType = ('UnicodeOnly', 'UnicodeWithFont')"/>
-    <xsl:choose>
-      <xsl:when test="
-        not($char-elt) 
-        or ( 
-          $is-unicode
-          and $char-elt/@BulletCharacterValue = '8226'
-        )">
-        <xsl:sequence select="'disc'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('8211', '8212', '8722')"><!-- U+2013, U+2014, U+2212 -->
-        <xsl:sequence select="'hyphen'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('10003')"><!-- U+2713 -->
-        <xsl:sequence select="'check'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9702')"><!-- U+25E6 -->
-        <xsl:sequence select="'circle'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9670')"><!-- U+25C6 -->
-        <xsl:sequence select="'diamond'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9725')"><!-- U+25FD -->
-        <xsl:sequence select="'box'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue = ('9726')"><!-- U+25FE -->
-        <xsl:sequence select="'square'"/>
-      </xsl:when>
-      <xsl:when test="$is-unicode and $char-elt/@BulletCharacterValue">
-        <xsl:sequence select='concat("&apos;", codepoints-to-string($char-elt/@BulletCharacterValue), "&apos;")' />    
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:sequence select='concat("&apos;", $styled-element/@BulletChar, "&apos;")' />    
-      </xsl:otherwise>
-    </xsl:choose>
+                  select="$styled-element/Properties/BulletChar/@BulletCharacterType = ('UnicodeOnly', 'UnicodeWithFont')"/>
+    <xsl:value-of select="     if(not($char-elt) or ($is-unicode and $char-elt/@BulletCharacterValue = '8226'))
+                               then 'disc'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('8211', '8212', '8722')) (:U+2013, U+2014, U+2212:)
+                               then 'hyphen'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('10003'))                (:U+2713:)
+                               then 'check'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('9702'))                 (:U+25E6:)
+                               then 'circle' 
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('9670'))                 (:U+25C6:)
+                               then 'diamond'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('9725'))                 (:U+25FD:)
+                               then 'box'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('9726'))                 (:U+25FE:)
+                               then 'square'
+                          else if($is-unicode and $char-elt/@BulletCharacterValue)
+                               then concat('''', codepoints-to-string($char-elt/@BulletCharacterValue), '''')
+                          else      concat('''', $styled-element/@BulletChar, '''')"/>
   </xsl:function>
   
   <xsl:function name="idml2xml:generate-css-transform-expression" as="xs:string?" >
