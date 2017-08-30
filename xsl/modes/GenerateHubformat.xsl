@@ -800,15 +800,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:copy>
           <xsl:sequence select="@*"/>
           <xsl:attribute name="remap" select="idml2xml:wrap/@element" />
-          <xsl:sequence select="$content"/>
+          <xsl:sequence select="$content, processing-instruction()"/>
         </xsl:copy>
       </xsl:when>
       <xsl:when test="exists(idml2xml:wrap) and empty(self::dbk:style | self::css:rule)">
-        <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap))" />
+        <xsl:sequence select="idml2xml:wrap($content, (idml2xml:wrap)), processing-instruction()" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:copy>
-          <xsl:sequence select="@*, $content" />
+          <xsl:sequence select="@*, $content, processing-instruction()" />
         </xsl:copy>
       </xsl:otherwise>
     </xsl:choose>
