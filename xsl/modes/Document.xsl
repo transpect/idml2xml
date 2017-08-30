@@ -302,18 +302,19 @@
   <!-- replace paragraph separators and line separators with the appropriate markup -->
   
   <xsl:template match="Content[contains(., '&#x2029;')]" mode="idml2xml:Document">
-    <xsl:variable name="attributes" select="@*" as="attribute()*"/>
     <xsl:for-each select="tokenize(., '&#x2029;')">
-      <Content>
-        <xsl:apply-templates select="$attributes" mode="#current"/>
+      <Content role="idml2xml:paragraph-sep">
         <xsl:value-of select="."/>
+        <xsl:if test="position() eq 1">
+          <xsl:processing-instruction name="idml2xml" select="'paragraph-separator'"/>
+        </xsl:if>
       </Content>
       <xsl:if test="not(position() eq last())">
         <Br role="idml2xml:paragraph-separator"/>  
       </xsl:if>
     </xsl:for-each>
   </xsl:template>
-
+  
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
