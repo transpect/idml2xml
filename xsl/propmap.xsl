@@ -262,6 +262,10 @@
           <val eq="false" target-value="line-through:none"/>
         </prop>
         <prop name="TabList" type="tablist"/>
+        <prop name="TextBottomInset" type="length" target-name="css:padding-bottom" />
+        <prop name="TextLeftInset" type="length" target-name="css:padding-left" />
+        <prop name="TextRightInset" type="length" target-name="css:padding-right" />
+        <prop name="TextTopInset" type="length" target-name="css:padding-top" />
         <prop name="TintValue" type="percentage" target-name="fill-tint"/>
         <prop name="TopInset" type="length" target-name="css:padding-top" />
         <prop name="Underline" target-name="css:text-decoration-line">
