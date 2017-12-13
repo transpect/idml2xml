@@ -356,12 +356,12 @@
         </prop>
         <prop name="StrokeType" target-name="css:border-style">
           <val match="Solid" target-value="solid"/>
-          <val match="ThickThick" target-value="double"/>
-          <val match="ThickThin" target-value="groove"/>
-          <val match="ThickThinThick" target-value="groove"/>
-          <val match="ThinThick" target-value="ridge"/>
-          <val match="ThinThickThin" target-value="ridge"/>
-          <val match="ThinThin" target-value="double"/>
+          <val match="/ThinThickThin$" target-value="ridge"/>
+          <val match="/ThickThick$" target-value="double"/>
+          <val match="/ThickThin$" target-value="groove"/>
+          <val match="/ThickThinThick$" target-value="groove"/>
+          <val match="/ThinThick$" target-value="ridge"/>
+          <val match="/ThinThin$" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
