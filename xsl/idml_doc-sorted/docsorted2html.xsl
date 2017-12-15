@@ -21,7 +21,7 @@
   <xsl:template match="/" mode="idml2xml:docsorted2html">
     <html>
       <head>
-        <title><xsl:value-of select="tokenize(*/@xml:base, '/')[last()]"/></title>
+        <title><xsl:message select="replace(*/@xml:base, '^.+/(.+)\.tmp/[^/]+$', '$1')"/></title>
       </head>
       <body>
         <xsl:apply-templates select="*" mode="#current"/>
