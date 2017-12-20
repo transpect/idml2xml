@@ -69,6 +69,11 @@
               <xsl:value-of select="/*/@TypeAreaWidth"/>
             </keyword>
           </xsl:if>
+          <xsl:if test="idPkg:Preferences/FootnoteOption/Properties/RestartNumbering">
+            <keyword role="footnote-restart">
+              <xsl:value-of select="if (starts-with(idPkg:Preferences/FootnoteOption/Properties/RestartNumbering, 'Dont')) then 'false' else 'true'"/>
+            </keyword>
+          </xsl:if>
         </keywordset>
         <xsl:choose>
           <xsl:when test="$hub-version eq '1.0'">
