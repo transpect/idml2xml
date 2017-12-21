@@ -14,10 +14,12 @@
       <xsl:for-each-group select="node()" group-adjacent="idml2xml:phrase-signature(.)">
         <xsl:choose>
           <xsl:when test="self::*[@aid:cstyle]">
-            <xsl:variable name="inner" as="node()*">
-              <xsl:apply-templates select="current-group()" mode="idml2xml:JoinSpans-unwrap"/>
+            <xsl:variable name="inner" as="document-node()">
+              <xsl:document>
+                <xsl:apply-templates select="current-group()" mode="idml2xml:JoinSpans-unwrap"/>  
+              </xsl:document>
             </xsl:variable>
-            <xsl:if test="$inner">
+            <xsl:if test="exists($inner/node())">
               <xsl:copy>
                 <xsl:if test="$srcpaths = 'yes'">
                   <xsl:call-template name="merge-srcpaths">
@@ -25,7 +27,19 @@
                   </xsl:call-template>
                 </xsl:if>
                 <xsl:copy-of select="@* except @srcpath"/>
-                <xsl:sequence select="$inner"/>
+                <xsl:for-each-group select="$inner/node()" group-adjacent="idml2xml:link-signature(.)">
+                  <xsl:choose>
+                    <xsl:when test="current-grouping-key()">
+                      <xsl:copy>
+                        <xsl:copy-of select="@*"/>
+                        <xsl:sequence select="current-group()/self::idml2xml:link/node() | current-group()[not(self::idml2xml:link)]"/>
+                      </xsl:copy>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:sequence select="current-group()"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:for-each-group>
               </xsl:copy>
             </xsl:if>
           </xsl:when>
@@ -98,6 +112,27 @@
                                  )
                               then idml2xml:signature($node/preceding-sibling::*[1])
                               else ''
+                          " />
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:link-signature" as="xs:string">
+    <xsl:param name="node" as="node()?" />
+    <xsl:sequence select="if (empty($node))
+                          then ''
+                          else
+                            if ($node/self::idml2xml:link[@srcpath]) 
+                            then $node/@srcpath
+                            else 
+                              if ($node/self::*)
+                              then ''
+                              else 
+                                if ($node/self::text()
+                                      [matches(., '^[\p{Zs}\s]+$')]
+                                      [normalize-space(idml2xml:link-signature($node/preceding-sibling::*[1]))]
+                                      [idml2xml:link-signature($node/preceding-sibling::*[1]) = idml2xml:link-signature($node/following-sibling::*[1])]
+                                   )
+                                then idml2xml:link-signature($node/preceding-sibling::*[1])
+                                else ''
                           " />
   </xsl:function>
 
