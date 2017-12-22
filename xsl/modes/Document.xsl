@@ -324,7 +324,7 @@
             <xsl:copy-of select="current-group()"/>
           </GroupContainer>
          </xsl:variable>
-        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//Rectangle[ends-with(.//@LinkResourceURI, $i)], (//Rectangle[.//KeyValuePair[@Key = 'letex:fileName'][@Value = $i]])))[1]"/>
+        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//*[self::Rectangle or self::Polygon or self::Oval][ends-with(.//@LinkResourceURI, $i)], (//*[self::Rectangle or self::Polygon or self::Oval][.//KeyValuePair[@Key = 'letex:fileName'][@Value = $i]])))[1]"/>
         <xsl:if test="current-group()[descendant-or-self::*:Br]">
           <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
         </xsl:if>
@@ -356,7 +356,7 @@
     <xsl:sequence select="normalize-space(idml2xml:text-content($group))"/>
   </xsl:function>
   
-  <xsl:template match="Rectangle[some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
+  <xsl:template match="*[self::Rectangle or self::Polygon or self::Oval][some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
                                  satisfies 
                                  (
                                     some $token in tokenize(idml2xml:split-figure-ref($ref), ' ') 
