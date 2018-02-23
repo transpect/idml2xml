@@ -846,6 +846,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="TextWrapPreference | FrameFittingOption | ObjectExportOption | AnchoredObjectSetting"
     mode="idml2xml:XML-Hubformat-properties2atts"/>
   
+  <xsl:template match="*[self::*:PDF | self::*:Image][..[*:ObjectExportOption[@CustomAltText ne '$ID/']]]/@Self"  mode="idml2xml:JoinSpans" priority="2">
+    <xsl:next-match/>
+    <xsl:apply-templates select="../../*:ObjectExportOption/@CustomAltText" mode="#current"/>
+  </xsl:template>
+
   <xsl:template match="idml2xml:attribute" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:choose>
       <xsl:when test="matches(@name, '^\i\c*$')">
@@ -1866,7 +1871,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
-      <xsl:apply-templates select="Image/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+      <xsl:apply-templates select="*[self::Image | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+        <xsl:if test="$image-info/@alt">
+          <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
+        </xsl:if>
       <imageobject>
         <xsl:if test="$preserve-original-image-refs eq 'yes' and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]">
           <xsl:attribute name="condition" select="'web'"/>
@@ -2216,7 +2224,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="dbk:mediaobject[(some $n in ancestor::dbk:para[not(dbk:informaltable or dbk:phrase/dbk:informaltable or dbk:sidebar[@remap eq 'HiddenText'])][1]//text() satisfies (matches($n, '\S')))
+  <xsl:template match="dbk:mediaobject[(some $n in ancestor::dbk:para[not(dbk:informaltable or dbk:phrase/dbk:informaltable or dbk:sidebar[@remap eq 'HiddenText'])][1]//text()[not(parent::dbk:alt)] satisfies (matches($n, '\S')))
                                        or
                                        (exists(parent::dbk:link))]" 		
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
