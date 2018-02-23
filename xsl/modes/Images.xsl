@@ -76,6 +76,9 @@
       <xsl:attribute name="dpi-x-original" select="if(Image/@EffectivePpi) then $dpi-x-original else 'nil'" />
       <xsl:attribute name="dpi-y-original" select="if(Image/@EffectivePpi) then $dpi-y-original else 'nil'" />
       <xsl:attribute name="xml:id" select="concat('img_', $idml2xml:basename, '_', @Self, tr:identical-self-object-suffix(.))" />
+      <xsl:if test="*[self::PDF | self::Image]/@CustomAltText">
+        <xsl:attribute name="alt" select="*[self::PDF | self::Image]/@CustomAltText"/>
+      </xsl:if>
     </image>
   </xsl:template>
 
