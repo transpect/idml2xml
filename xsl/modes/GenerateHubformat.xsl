@@ -1577,14 +1577,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="/" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:next-match>
-      <xsl:with-param name="page-starts" as="element(HiddenText)*" tunnel="yes" 
-        select="//HiddenText[(.//@condition)[1] = 'PageStart']"/>
-      <xsl:with-param name="page-ends" as="element(HiddenText)*" tunnel="yes" 
-        select="//HiddenText[(.//@condition)[1] = 'PageEnd']"/>
+      <xsl:with-param name="page-starts" as="element(*)*" tunnel="yes" 
+        select="(//HiddenText[(.//@condition)[1] = 'PageStart'], //Note[matches(.//idml2xml:genSpan, 'PageStart')])[1]"/>
+      <xsl:with-param name="page-ends" as="element(*)*" tunnel="yes" 
+        select="(//HiddenText[(.//@condition)[1] = 'PageEnd'], //Note[matches(.//idml2xml:genSpan, 'PageEnd')])[1]"/>
     </xsl:next-match>
   </xsl:template>
   
   <xsl:key name="idml2xml:hidden-text" match="HiddenText" use="normalize-space(.)"/>
+  
+  <xsl:key name="idml2xml:note" match="Note" use="normalize-space(.)"/>
 
   <xsl:template match="HiddenText[(.//@condition)[1] = 'PageStart']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:param name="page-starts" as="element(HiddenText)*" tunnel="yes"/>
@@ -1597,12 +1599,32 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                         for $p in $pos[. gt 1] return string($p)),
                       '_')}"/>
   </xsl:template>
+  
+  <xsl:template match="Note[matches(.//idml2xml:genSpan, 'PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:param name="page-starts" as="element(Note)*" tunnel="yes"/>
+    <xsl:variable name="content" as="xs:string" select="normalize-space(.)"/>
+    <xsl:variable name="pos" as="xs:integer" 
+      select="idml2xml:index-of(key('idml2xml:note', $content), .)"/>
+    <anchor xml:id="{string-join((
+      if (starts-with($content, 'CellPage')) then 'cellpage' else 'page',
+      replace(., '^.*_(.+)$', '$1'), 
+      for $p in $pos[. gt 1] return string($p)),
+      '_')}"/>
+  </xsl:template>
 
   <xsl:template match="HiddenText[(.//@condition)[1] = 'PageEnd']" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:param name="page-ends" as="element(HiddenText)*" tunnel="yes"/>
     <xsl:variable name="content" as="xs:string" select="normalize-space(.)"/>
     <xsl:variable name="pos" as="xs:integer" 
       select="idml2xml:index-of(key('idml2xml:hidden-text', $content), .)"/>
+    <anchor xml:id="{string-join((replace(., '^.*_(.+)$', 'pageend_$1'), for $p in $pos[. gt 1] return string($p)), '_')}"/>
+  </xsl:template>
+  
+  <xsl:template match="Note[matches(.//idml2xml:genSpan, 'PageEnd')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:param name="page-ends" as="element(Note)*" tunnel="yes"/>
+    <xsl:variable name="content" as="xs:string" select="normalize-space(.)"/>
+    <xsl:variable name="pos" as="xs:integer" 
+      select="idml2xml:index-of(key('idml2xml:note', $content), .)"/>
     <anchor xml:id="{string-join((replace(., '^.*_(.+)$', 'pageend_$1'), for $p in $pos[. gt 1] return string($p)), '_')}"/>
   </xsl:template>
 

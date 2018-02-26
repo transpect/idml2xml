@@ -491,7 +491,7 @@
   <xsl:template match="MetadataPacketPreference" mode="idml2xml:DocumentResolveTextFrames" />
 
   <!-- remove InDesign Notes. Can produce problems later on because they appear inside paras.-->
-  <xsl:template match="Note" mode="idml2xml:DocumentResolveTextFrames" />
+  <xsl:template match="Note[every $c in descendant::Content satisfies not(matches($c, 'Page(Start|End)'))]" mode="idml2xml:DocumentResolveTextFrames" />
   
   <!-- Remove new Story XMLElements, see also idml-specification.pdf page 235-236 -->
   <xsl:template match="XMLElement[ idml2xml:substr( 'a', @MarkupTag, 'XMLTag/' ) = /Document/idPkg:Preferences/XMLPreference/@DefaultStoryTagName  and  @XMLContent ]" mode="idml2xml:DocumentResolveTextFrames">
