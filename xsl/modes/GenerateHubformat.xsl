@@ -74,6 +74,11 @@
               <xsl:value-of select="if (starts-with(idPkg:Preferences/FootnoteOption/Properties/RestartNumbering, 'Dont')) then 'false' else 'true'"/>
             </keyword>
           </xsl:if>
+          <xsl:if test="idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering">
+            <keyword role="endnote-restart">
+              <xsl:value-of select="if (starts-with(idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering, 'Continuous')) then 'false' else 'true'"/>
+            </keyword>
+          </xsl:if>
         </keywordset>
         <xsl:choose>
           <xsl:when test="$hub-version eq '1.0'">
@@ -737,7 +742,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="idPkg:Styles | idPkg:Graphic | idPkg:Preferences/*[not(self::TextDefault)] | idml2xml:hyper | idml2xml:lang | idml2xml:cond 
-                     | idml2xml:numbering" mode="idml2xml:XML-Hubformat-add-properties" />
+                     | idml2xml:numbering | idml2xml:endnotes" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:copy-of select="." />

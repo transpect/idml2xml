@@ -364,5 +364,21 @@
                           and
                           (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
   </xsl:function>
-  
+
+  <xsl:variable name="Endnotes" as="element(EndnoteRange)*" select="//EndnoteRange"/>
+
+  <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
+     <idml2xml:genAnchor xml:id="endnote-{index-of($Endnotes/@Self, @Self)}"/>
+     <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
+    <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($Endnotes/@Self, @EndnoteTextRange)"/>
+    <idml2xml:genSpan aid:cstyle="endnote-marker">
+      <xsl:apply-templates select="@srcpath" mode="#current"/>
+      <idml2xml:genAnchor xml:id="endnoteAnchor-{$endnote-id}"/>
+      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id}"><xsl:value-of select="$endnote-id"/></idml2xml:link>
+    </idml2xml:genSpan>
+  </xsl:template>
+
 </xsl:stylesheet>

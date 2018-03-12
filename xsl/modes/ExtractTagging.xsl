@@ -20,7 +20,7 @@
       <xsl:if test="$page_width castable as xs:double and $page_margins[2] castable as xs:double and $page_margins[4] castable as xs:double">
         <xsl:attribute name="TypeAreaWidth" select="$page_width - number($page_margins[2]) - number($page_margins[4])"/>
       </xsl:if>
-      <xsl:copy-of select="(idPkg:Graphic, idPkg:Styles, idPkg:Preferences, idml2xml:hyper, idml2xml:index, idml2xml:indexterms, 
+      <xsl:copy-of select="(idPkg:Graphic, idPkg:Styles, idPkg:Preferences, idml2xml:endnotes, idml2xml:hyper, idml2xml:index, idml2xml:indexterms, 
                             idml2xml:lang, idml2xml:cond, idml2xml:numbering)" />
       <xsl:apply-templates select="XmlStory" mode="#current"/>
       <xsl:variable name="processed-stories" as="xs:string*">

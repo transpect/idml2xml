@@ -44,7 +44,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource | Footnote
+  <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource | Footnote | Endnote 
                        | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
     mode="idml2xml:Document">
     <xsl:copy>
@@ -119,7 +119,7 @@
       <xsl:for-each select="$spreads">
         <xsl:variable name="pos" select="position()" as="xs:integer" />
         <idml2xml:sidebar remap="Spread" xml:id="spread_{position()}">
-          <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', 'Group', $idml2xml:shape-element-names)]">
+          <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', 'EndnoteTextFrame', 'Group', $idml2xml:shape-element-names)]">
             <anchor linkend="{lower-case(local-name())}_{position()}" Self="{@Self}"/>
           </xsl:for-each>
         </idml2xml:sidebar>
@@ -167,6 +167,9 @@
       <idml2xml:numbering>
         <xsl:copy-of select="NumberingList"/>
       </idml2xml:numbering>
+      <idml2xml:endnotes>
+        <xsl:copy-of select="EndnoteOption"/>
+      </idml2xml:endnotes>
       <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
         value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
         don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 
@@ -184,6 +187,7 @@
       <xsl:apply-templates 
         select="idPkg:Spread/Spread/(
                                          TextFrame[idml2xml:is-story-origin(.)]
+                                     (:  | EndnoteTextFrame[idml2xml:is-story-origin(.)] :) 
                                        | Group[.//(  TextFrame[idml2xml:is-story-origin(.)] 
                                                    | *[name() = $idml2xml:shape-element-names])]
                                        | *[name() = $idml2xml:shape-element-names]
@@ -218,7 +222,6 @@
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
 
-
   <xsl:function name="idml2xml:is-story-origin" as="xs:boolean">
     <xsl:param name="frame" as="element(TextFrame)"/>
     <xsl:sequence select="exists(
@@ -227,6 +230,15 @@
                                   [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))]
                           )"/>
   </xsl:function>
+
+<!--  <xsl:function name="idml2xml:is-story-origin" as="xs:boolean">
+    <xsl:param name="frame" as="element(*)"/>
+    <xsl:sequence select="$frame[self::TextFrame | self::EndnoteTextFrame] and exists(
+                            $frame[@PreviousTextFrame eq 'n']
+                                  [$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
+                                  [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))]
+                          )"/>
+  </xsl:function>-->
 
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
        they’d be concatenated) -->
@@ -254,6 +266,23 @@
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
                           else false()"/>
   </xsl:function>
+
+  <!--<xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
+    <xsl:param name="frame" as="element(*)"/>
+    <xsl:variable name="id" as="xs:string?"  
+      select="string-join( 
+                            for $e in key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions = 'Condition/StoryID'] 
+                            return idml2xml:text-content($e), 
+                            '' 
+                          )"/>
+    <xsl:variable name="same-id-stories" as="element(Story)+" select="key('Story-by-StoryID', $id, root($frame))"/>
+    <xsl:variable name="referencing-story" as="element(Story)*" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
+    <xsl:sequence select="$frame[self::TextFrame | self::EndnoteTextFrame]
+                          and (
+                          if ($id and $id != '' and count($same-id-stories) eq 1) 
+                          then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
+                          else false())"/>
+  </xsl:function>-->
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
@@ -437,8 +466,12 @@
       </xsl:if>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
+      <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)" mode="#current"/>
     </xsl:copy>
+
   </xsl:template>
+
+  <xsl:key name="EndnoteTextFrameStory" match="Story[@IsEndnoteStory = 'true']" use="(descendant::EndnoteRange)[1]/@SourceEndnote"/>
 
   <xsl:function name="idml2xml:is-group-without-frame" as="xs:boolean">
     <xsl:param name="group" as="element(Group)"/>
