@@ -468,10 +468,15 @@
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
       <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)" mode="#current"/>
     </xsl:copy>
-
   </xsl:template>
 
   <xsl:key name="EndnoteTextFrameStory" match="Story[@IsEndnoteStory = 'true']" use="(descendant::EndnoteRange)[1]/@SourceEndnote"/>
+  
+  <xsl:template match="EndnoteRange/@SourceEndnote" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy/>
+    <xsl:attribute name="ParentStory" select="ancestor::Story[1]/@Self"/>
+    <!-- add an attribute to find out whether the endnote is in the same textframe. this makes renumbering easier later -->
+  </xsl:template>
 
   <xsl:function name="idml2xml:is-group-without-frame" as="xs:boolean">
     <xsl:param name="group" as="element(Group)"/>

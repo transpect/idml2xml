@@ -365,20 +365,24 @@
                           (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
   </xsl:function>
 
-  <xsl:variable name="Endnotes" as="element(EndnoteRange)*" select="//EndnoteRange"/>
+  <xsl:variable name="endnotes" as="element(EndnoteRange)*" select="//EndnoteRange"/>
+  <xsl:key name="endnoterange-by-endnote" match="EndnoteRange" use="@SourceEndnote"/>
+  <xsl:key name="endnote-siblings" use="@ParentStory" match="EndnoteRange"/>
 
   <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
-  <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($Endnotes/@Self, @Self)"/>
+  <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($endnotes/@Self, @Self)"/>
      <idml2xml:genAnchor xml:id="endnote-{$endnote-id}" annotations="Anchor {$endnote-id}"/>
      <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($Endnotes/@Self, @EndnoteTextRange)"/>
+    <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($endnotes/@Self, @EndnoteTextRange)"/>
+
+    <xsl:variable name="endnote-number" as="xs:integer?" select="index-of(key('endnote-siblings', key('endnoterange-by-endnote', @Self)/@ParentStory)/@Self, @EndnoteTextRange)"/>
 <!--    <idml2xml:genSpan aid:cstyle="endnote-marker">
       <xsl:apply-templates select="@srcpath" mode="#current"/>-->
       <idml2xml:genAnchor xml:id="endnoteAnchor-{$endnote-id}"/>
-      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id}"><xsl:value-of select="$endnote-id"/></idml2xml:link>
+      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id}"><xsl:value-of select="$endnote-number"/></idml2xml:link>
     <!--</idml2xml:genSpan>-->
   </xsl:template>
 
