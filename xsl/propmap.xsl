@@ -373,6 +373,7 @@
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
         <prop name="TopEdgeStrokeType" target-name="css:border-top-style">
+          <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="ThickThick" target-value="double"/>
           <val match="ThickThin" target-value="groove"/>
@@ -391,6 +392,7 @@
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
         <prop name="LeftEdgeStrokeType" target-name="css:border-left-style">
+          <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="ThickThick" target-value="double"/>
           <val match="ThickThin" target-value="groove"/>
@@ -409,6 +411,7 @@
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
         <prop name="BottomEdgeStrokeType" target-name="css:border-bottom-style">
+           <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="ThickThick" target-value="double"/>
           <val match="ThickThin" target-value="groove"/>
@@ -427,6 +430,7 @@
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
         <prop name="RightEdgeStrokeType" target-name="css:border-right-style">
+          <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="ThickThick" target-value="double"/>
           <val match="ThickThin" target-value="groove"/>
