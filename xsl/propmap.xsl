@@ -391,6 +391,25 @@
           <val match="Straight\sHash" target-value="dashed"/>
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
+        <prop name="TopBorderStrokeType" target-name="css:border-top-style">
+          <val eq="n" target-value="none"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThickThin" target-value="groove"/>
+          <val match="ThickThinThick" target-value="groove"/>
+          <val match="ThinThick" target-value="ridge"/>
+          <val match="ThinThickThin" target-value="ridge"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="Canned\sDashed\s3x2" target-value="dashed"/>
+          <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="Canned\sDotted" target-value="dotted"/>
+          <val match="Japanese\sDots" target-value="dotted"/>
+          <val match="Wavy" target-value="groove"/>
+          <val match="Left\sSlant\sHash" target-value="dashed"/>
+          <val match="Right\sSlant\sHash" target-value="dashed"/>
+          <val match="Straight\sHash" target-value="dashed"/>
+          <val match="White\sDiamond" target-value="dashed"/>
+        </prop>        
         <prop name="LeftEdgeStrokeType" target-name="css:border-left-style">
           <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
@@ -410,6 +429,25 @@
           <val match="Straight\sHash" target-value="dashed"/>
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
+        <prop name="LeftBorderStrokeType" target-name="css:border-left-style">
+          <val eq="n" target-value="none"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThickThin" target-value="groove"/>
+          <val match="ThickThinThick" target-value="groove"/>
+          <val match="ThinThick" target-value="ridge"/>
+          <val match="ThinThickThin" target-value="ridge"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="Canned\sDashed\s3x2" target-value="dashed"/>
+          <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="Canned\sDotted" target-value="dotted"/>
+          <val match="Japanese\sDots" target-value="dotted"/>
+          <val match="Wavy" target-value="groove"/>
+          <val match="Left\sSlant\sHash" target-value="dashed"/>
+          <val match="Right\sSlant\sHash" target-value="dashed"/>
+          <val match="Straight\sHash" target-value="dashed"/>
+          <val match="White\sDiamond" target-value="dashed"/>
+        </prop>        
         <prop name="BottomEdgeStrokeType" target-name="css:border-bottom-style">
            <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
@@ -429,7 +467,45 @@
           <val match="Straight\sHash" target-value="dashed"/>
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
+        <prop name="BottomBorderStrokeType" target-name="css:border-bottom-style">
+          <val eq="n" target-value="none"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThickThin" target-value="groove"/>
+          <val match="ThickThinThick" target-value="groove"/>
+          <val match="ThinThick" target-value="ridge"/>
+          <val match="ThinThickThin" target-value="ridge"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="Canned\sDashed\s3x2" target-value="dashed"/>
+          <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="Canned\sDotted" target-value="dotted"/>
+          <val match="Japanese\sDots" target-value="dotted"/>
+          <val match="Wavy" target-value="groove"/>
+          <val match="Left\sSlant\sHash" target-value="dashed"/>
+          <val match="Right\sSlant\sHash" target-value="dashed"/>
+          <val match="Straight\sHash" target-value="dashed"/>
+          <val match="White\sDiamond" target-value="dashed"/>
+        </prop>        
         <prop name="RightEdgeStrokeType" target-name="css:border-right-style">
+          <val eq="n" target-value="none"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThickThin" target-value="groove"/>
+          <val match="ThickThinThick" target-value="groove"/>
+          <val match="ThinThick" target-value="ridge"/>
+          <val match="ThinThickThin" target-value="ridge"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="Canned\sDashed\s3x2" target-value="dashed"/>
+          <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="Canned\sDotted" target-value="dotted"/>
+          <val match="Japanese\sDots" target-value="dotted"/>
+          <val match="Wavy" target-value="groove"/>
+          <val match="Left\sSlant\sHash" target-value="dashed"/>
+          <val match="Right\sSlant\sHash" target-value="dashed"/>
+          <val match="Straight\sHash" target-value="dashed"/>
+          <val match="White\sDiamond" target-value="dashed"/>
+        </prop>
+        <prop name="RightBorderStrokeType" target-name="css:border-right-style">
           <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="ThickThick" target-value="double"/>
