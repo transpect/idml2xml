@@ -355,6 +355,7 @@
           <val match="White\sDiamond" target-value="dashed"/>
         </prop>
         <prop name="StrokeType" target-name="css:border-style">
+          <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
           <val match="/ThinThickThin$" target-value="ridge"/>
           <val match="/ThickThick$" target-value="double"/>
