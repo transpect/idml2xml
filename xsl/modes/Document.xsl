@@ -497,6 +497,7 @@
       <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
     </xsl:if>
   </xsl:template>
+  
   <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->
   <xsl:template 
     match="*[
@@ -549,7 +550,18 @@
     <xsl:variable name="all-objects" as="element(*)*" select="*"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:variable name="objects-coordinates">
+      <xsl:choose>
+        <xsl:when test="Properties[Label[KeyValuePair[@Key = 'letex:fileName'][matches(@Value, '\S')]]]">
+          <Rectangle Self="{generate-id()}" ContentType="GraphicType">
+            <xsl:apply-templates select="Rectangle[1]/Properties" mode="#current"/>
+            <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
+            <Image srcpath="{descendant::Rectangle[1]/Image/@srcpath}" Self="{generate-id()}">
+              <Link Self="{generate-id()}" LinkResourceURI="{concat(replace(Rectangle[1]/Image/Link/@LinkResourceURI, '^(.+/).+$', '$1'), Properties/Label/KeyValuePair/@Value)}" StoredState="Normal"/>
+            </Image>
+          </Rectangle>
+        </xsl:when>
+        <xsl:otherwise>
+        <xsl:variable name="objects-coordinates">
         <xsl:apply-templates select="*" mode="idml2xml:Geometry"/>
       </xsl:variable>
       <xsl:variable name="ordered-objects">
@@ -567,6 +579,8 @@
       <xsl:for-each select="($ordered-objects/point | Group)">
         <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
       </xsl:for-each>
+      </xsl:otherwise>
+      </xsl:choose>
       <!-- what if there are objects in the group without coordinates? -->
       <!-- perhaps the inner groups shall be sorted by the objects inside -->
     </xsl:copy>
