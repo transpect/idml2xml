@@ -552,13 +552,21 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:choose>
         <xsl:when test="Properties[Label[KeyValuePair[@Key = 'letex:fileName'][matches(@Value, '\S')]]]">
-          <Rectangle Self="{generate-id()}" ContentType="GraphicType">
-            <xsl:apply-templates select="Rectangle[1]/Properties" mode="#current"/>
+          <xsl:element name="Rectangle">
+            <xsl:attribute name="Self" select="generate-id()"/>
+            <xsl:attribute name="ContentType" select="'GraphicType'"/>
+            <xsl:apply-templates select="*[self::Rectangle | self::Polygon | self::Oval][1]/Properties" mode="#current"/>
             <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
-            <Image srcpath="{descendant::Rectangle[1]/Image/@srcpath}" Self="{generate-id()}">
-              <Link Self="{generate-id()}" LinkResourceURI="{concat(replace(Rectangle[1]/Image/Link/@LinkResourceURI, '^(.+/).+$', '$1'), Properties/Label/KeyValuePair/@Value)}" StoredState="Normal"/>
-            </Image>
-          </Rectangle>
+            <xsl:element name="Image">
+              <xsl:attribute name="Self" select="generate-id()"/>
+              <xsl:attribute name="srcpath" select="descendant::*[Image][1]/Image/@srcpath"/>
+              <xsl:element name="Link">
+                <xsl:attribute name="Self" select="generate-id()"/>
+                <xsl:attribute name="LinkResourceURI" select="concat(replace(*[Image][1]/Image/Link/@LinkResourceURI, '^(.+/).+$', '$1'), Properties/Label/KeyValuePair/@Value)"/>
+                <xsl:attribute name="StoredState" select="'Normal'"/>
+              </xsl:element>
+            </xsl:element>
+          </xsl:element>
         </xsl:when>
         <xsl:otherwise>
         <xsl:variable name="objects-coordinates">
