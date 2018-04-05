@@ -32,6 +32,7 @@
   <xsl:template match="idPkg:Graphic" mode="idml2xml:docsorted2html"/>
   <xsl:template match="idPkg:Styles" mode="idml2xml:docsorted2html"/>
   <xsl:template match="idPkg:Preferences" mode="idml2xml:docsorted2html"/>
+  <xsl:template match="EndnoteOption" mode="idml2xml:docsorted2html"/>
   <xsl:template match="idml2xml:hyper" mode="idml2xml:docsorted2html"/>
   <xsl:template match="idml2xml:lang" mode="idml2xml:docsorted2html"/>
   <xsl:template match="idml2xml:cond" mode="idml2xml:docsorted2html"/>
