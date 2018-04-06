@@ -12,6 +12,7 @@
     xmlns:xlink = "http://www.w3.org/1999/xlink"
     xmlns:dbk = "http://docbook.org/ns/docbook"
     xmlns:hub = "http://transpect.io/hub"
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns="http://docbook.org/ns/docbook"
     exclude-result-prefixes="idPkg aid5 aid xs xlink dbk tr css hub"
     >
@@ -26,7 +27,7 @@
       select="('alt', 'anchor', 'book', 'hub', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'inlinemediaobject', 'tab', 'tabs', 'br',
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
-               'superscript', 'subscript', 'link', 'xref', 'footnote', 'note',
+               'superscript', 'subscript', 'link', 'xref', 'footnote', 'note', 'mml:math', 
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso', 'date', 'author', 'personname',
                'css:rules', 'css:rule', 'linked-style', 'tfoot',
@@ -1861,8 +1862,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         * process shape-element-names, Rectangle, GraphicLine, Oval, Polygon, MultiStateObject
         * -->
   
+  <xsl:function name="idml2xml:image-name" as="xs:string?">
+    <xsl:param name="context" as="element(*)"/>
+    <xsl:choose>
+      <xsl:when test="$context/*[self::Image | self::*:EPS | self::*:WMF]/Link">
+        <xsl:value-of select="concat($archive-dir-uri, 'images/', replace(replace($context/*[self::Image | self::*:EPS | self::*:WMF]/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'), '^.+/(.+)$', '$1'))"/>
+      </xsl:when>
+<!--      <xsl:when test="$context/WMF[@ImageTypeName = '$ID/Windows Meta Files']">
+        <xsl:value-of select="concat($archive-dir-uri, 'images/wmf-', $context/WMF/@Self, '.wmf')"/>
+      </xsl:when>
+      <xsl:when test="$context/WMF">
+        <xsl:value-of select="concat($archive-dir-uri, 'images/wmf-', $context/WMF/@Self, '.tif')"/>
+      </xsl:when>-->
+    </xsl:choose>
+  </xsl:function>
+  
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
-    
+
     <xsl:variable name="suffix" as="xs:string"
       select="tr:identical-self-object-suffix(.)"/>
     <!--  *
@@ -1877,7 +1893,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <xsl:variable name="LinkResourceURI" 
                   select="if(@idml2xml:rectangle-embedded-source eq 'true') 
-                          then concat($archive-dir-uri, 'images/', replace(Image/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'))
+                          then idml2xml:image-name(.)
                           else replace(*/Link/@LinkResourceURI, '^(file:)?([a-zA-Z]:.+)$', '$1/$2')" as="xs:string"/>
     <xsl:variable name="fileref" as="xs:string?"
       select="(: check first for inserted filename labels from image export script, then use real link URI :)
@@ -1898,7 +1914,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * -->
     <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
       <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
-      <xsl:apply-templates select="*[self::Image | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+      <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
         <xsl:if test="$image-info/@alt">
           <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
         </xsl:if>
@@ -1928,7 +1944,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           * generate virtual result documents, which will be decoded by idml_tagged2hub.xpl,
           * otherwise the resulting document stays base64 encoded. Avoid writing duplicate images
           * -->
-    <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true' and key('idml2xml:filerefs-for-embedded-images', *:Image/*:Link/@LinkResourceURI)[1] is .">
+    <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true' 
+                  and 
+                 (key('idml2xml:filerefs-for-embedded-images', *[self::*:EPS | self::*:Image]/*:Link/@LinkResourceURI)[1] is . or *:WMF)">
       <xsl:result-document href="{$fileref}">
         <data xmlns="http://transpect.io/idml2xml" 
           content-type="{(EPS, PDF, WMF, Image)[1]/local-name()}"
@@ -1941,7 +1959,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <!--  *
                 * if you get 0KB sized images, probably no Contents element exists
                 * -->
-          <xsl:sequence select="Contents/text()"/>
+          <xsl:sequence select="(Contents/text(), WMF/Properties/Contents/text())[1]"/>
         </data>
       </xsl:result-document>
     </xsl:if>
@@ -1950,7 +1968,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:key name="idml2xml:filerefs-for-embedded-images" 
           match="*[name() = $idml2xml:shape-element-names]" 
-            use="*:Image/*:Link[@StoredState = 'Embedded']/@LinkResourceURI"/>
+            use="*[self::*:EPS | self::*:Image]/*:Link[@StoredState = 'Embedded']/@LinkResourceURI"/>
 
   <!-- footnotes -->
   <xsl:template match="Footnote" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -2286,6 +2304,20 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:message>
   </xsl:template>
 
+
+  <xsl:template match="mml:*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*:imageobject[*:imagedata[mml:*]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
+    <alt><xsl:value-of select="*:imagedata/@fileref"/></alt>
+    <xsl:next-match/>
+  </xsl:template>
+  
+  <xsl:template match="*:imagedata[mml:*]/@fileref" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3"/>
+  
   <!-- Make @role and css:rule/@name compliant with the rules for CSS identifiers
        http://www.w3.org/TR/CSS21/syndata.html#characters --> 
 

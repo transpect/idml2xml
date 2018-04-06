@@ -19,10 +19,18 @@
   <p:option name="fail-on-error" required="false" select="'yes'"/>
   <p:option name="hub-version" required="false" select="'1.2'"/>  
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
+  <p:option name="mathtype2mml" required="false" select="'yes'"/>
+  <p:option name="mathtype-source-pi" required="false" select="'no'"/>
   
   <p:input port="source" primary="true"/>
   <p:input port="xslt-stylesheet" />
   <p:input port="xslt-params" />
+  <p:input port="custom-font-maps" primary="false" sequence="true">
+    <p:documentation>
+      See additional-font-maps in mathtype-extension
+    </p:documentation>
+    <p:empty/>
+  </p:input>
   
   <p:output port="report" sequence="true">
     <p:pipe port="report" step="add-properties"/>
@@ -76,7 +84,8 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="hub-version" select="$hub-version"/>
   </tr:xslt-mode>
-
+  
+  <p:sink/>
   <!--  *
         * iterate over embedded base64 binary blobs
         * -->
@@ -95,8 +104,24 @@
     
   </p:for-each>
   
+  <idml2xml:mathtype2mml name="mathtype2mml">
+    <p:input port="source">
+      <p:pipe port="result" step="remap-para-and-span"/>
+    </p:input>
+    <p:input port="params">
+      <p:pipe step="tagged2hub" port="xslt-params" />
+    </p:input>
+    <p:input port="custom-font-maps">
+      <p:pipe port="custom-font-maps" step="tagged2hub"/>
+    </p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="active" select="$mathtype2mml"/>
+    <p:with-option name="sources" select="$mathtype2mml"/>
+    <p:with-option name="source-pi" select="$mathtype-source-pi"/>
+  </idml2xml:mathtype2mml>
+  
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="cleanup-paras-and-br">
-    <p:input port="source"><p:pipe step="remap-para-and-span" port="result" /></p:input>
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
     <p:input port="models"><p:empty/></p:input>

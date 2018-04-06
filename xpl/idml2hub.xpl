@@ -31,10 +31,31 @@
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'status'"/>
   <p:option name="fail-on-error" required="false" select="'yes'"/>
-  
+  <p:option name="mathtype2mml" required="false" select="'yes+wmf'">
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <p>Activates use of mathtype2mml extension.</p>
+      <p>Should be one of the following String values:</p>
+      <dl>
+        <dt>no</dt>
+        <dd>no conversion happens</dd>
+        <dt>wmf</dt>
+        <dd>
+          Use the wmf or eps image as source for MTEF equation. <br/>
+          If no equation is found in wmf file, original embedded image is used as fallback
+        </dd>
+      </dl>
+    </p:documentation>
+  </p:option>
+  <p:option name="mathtype-source-pi" required="false" select="'no'"/>
+      
   <p:input port="xslt-stylesheet">
     <p:document href="../xsl/idml2xml.xsl"/>
   </p:input>
+  <p:input port="custom-font-maps" primary="false" sequence="true">
+    <p:documentation>See same port in mathtype2mml.xpl.</p:documentation>
+    <p:empty/>
+  </p:input>
+  
   <p:output port="zip-manifest">
     <p:pipe port="zip-manifest" step="single"></p:pipe>
   </p:output>
@@ -65,6 +86,7 @@
   <p:import href="idml_tagged2hub.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-hub-xml-model.xpl" />
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
+  <p:import href="mathtype2mml.xpl"/>
   
   <tr:simple-progress-msg name="start-msg" file="idml2hub-start.txt">
     <p:input port="msgs">
@@ -142,14 +164,19 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
+    <p:with-option name="mathtype2mml" select="$mathtype2mml"/>
+    <p:with-option name="mathtype-source-pi" select="'no'"/>
     <p:input port="xslt-stylesheet">
       <p:pipe port="xslt-stylesheet" step="idml2xml"></p:pipe>
     </p:input>
     <p:input port="xslt-params">
       <p:pipe port="result" step="xslt-params-modified-after-tagged"></p:pipe>
     </p:input>
+    <p:input port="custom-font-maps">
+      <p:pipe port="custom-font-maps" step="idml2xml"/>
+    </p:input>
   </idml2xml:tagged2hub>
-
+  
   <tr:prepend-hub-xml-model name="pi">
     <p:with-option name="hub-version" select="$hub-version"/>
   </tr:prepend-hub-xml-model>

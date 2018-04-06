@@ -209,12 +209,12 @@
             * in case of embedded images: set @idml2xml:rectangle-embedded-source to true  
             * -->
       <xsl:attribute name="idml2xml:rectangle-embedded-source" 
-         select="if(Image/Link/@StoredState eq 'Embedded') then 'true' else 'false'"/>
+         select="if((*[self::EPS | self::Image]/Link/@StoredState eq 'Embedded') or WMF[Properties/Contents[matches(., '\S')]]) then 'true' else 'false'"/>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <!--  *
             * retain the Contents element or get 0KB big images
             * -->
-      <xsl:copy-of select="Image/Properties/Contents"/>
+      <xsl:copy-of select="Image/Properties/Contents, EPS/Properties/Contents"/>
     </xsl:copy>
   </xsl:template>
   
@@ -449,7 +449,7 @@
 
 
 	<!-- delete the following elements and their children-->
-	<xsl:template match=" Properties[not(parent::*[name() = $idml2xml:shape-element-names])] |
+	<xsl:template match=" Properties[not(parent::*[name() = $idml2xml:shape-element-names])][not(parent::*[name() = 'WMF'])] |
                         StoryPreference |
 												InCopyExportOption"
 		mode="idml2xml:ExtractTagging"/>
