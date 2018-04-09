@@ -557,7 +557,7 @@
     <xsl:variable name="CoordinateRight" select="idml2xml:get-shape-right-coordinate($shape-element)" as="xs:double"/>
     <xsl:choose>
       <xsl:when test="$CoordinateLeft ge 0 and $CoordinateRight ge 0">
-        <xsl:sequence select="$CoordinateRight - $CoordinateLeft"/>
+        <xsl:sequence select="abs($CoordinateRight - $CoordinateLeft)"/>
       </xsl:when>
       <xsl:when test="$CoordinateLeft le 0 and $CoordinateRight le 0">
         <xsl:sequence select="abs($CoordinateLeft - $CoordinateRight)"/>
@@ -580,7 +580,7 @@
         <!-- GI 2017-04-14: Guiseppe Bonelli suggested that we remove this xsl:choose altogether since
           it treated the (acceptable) value of 0 as an error. Cautiously only excluding NaN which 
           wouldn’t have been returned anyway as long as the xs:double typecast was in the function. -->
-        <xsl:sequence select="idml2xml:get-shape-bottom-coordinate($shape-element) - idml2xml:get-shape-top-coordinate($shape-element)"/>
+        <xsl:sequence select="abs(idml2xml:get-shape-bottom-coordinate($shape-element) - idml2xml:get-shape-top-coordinate($shape-element))"/>
       </xsl:when>
       <!-- shape transformed, unsupported -->
       <xsl:otherwise>
