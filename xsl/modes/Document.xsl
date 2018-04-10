@@ -555,6 +555,7 @@
           <xsl:element name="Rectangle">
             <xsl:attribute name="Self" select="generate-id()"/>
             <xsl:attribute name="ContentType" select="'GraphicType'"/>
+            <xsl:apply-templates select="@AppliedObjectStyle" mode="#current"/>
             <xsl:apply-templates select="*[self::Rectangle | self::Polygon | self::Oval][1]/Properties" mode="#current"/>
             <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
             <xsl:element name="Image">
