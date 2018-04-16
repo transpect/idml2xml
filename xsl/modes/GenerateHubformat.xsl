@@ -1584,7 +1584,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="/" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:next-match>
       <xsl:with-param name="page-starts" as="element(*)*" tunnel="yes" 
-        select="(//HiddenText[(.//@condition)[1] = 'PageStart'], //Note[matches(.//idml2xml:genPara, 'PageStart')])[1]"/>
+        select="(//HiddenText[(.//@condition)[1] = 'PageStart'], //Note[matches(.//idml2xml:genPara, 'CellPage|PageStart')])[1]"/>
       <xsl:with-param name="page-ends" as="element(*)*" tunnel="yes" 
         select="(//HiddenText[(.//@condition)[1] = 'PageEnd'], //Note[matches(.//idml2xml:genPara, 'PageEnd')])[1]"/>
     </xsl:next-match>
@@ -1606,7 +1606,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                       '_')}"/>
   </xsl:template>
   
-  <xsl:template match="Note[matches(.//idml2xml:genPara, 'PageStart')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="Note[matches(.//idml2xml:genPara, 'PageStart|CellPage')]" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:param name="page-starts" as="element(Note)*" tunnel="yes"/>
     <xsl:variable name="content" as="xs:string" select="normalize-space(.)"/>
     <xsl:variable name="pos" as="xs:integer" 
