@@ -29,9 +29,9 @@
                'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
                'superscript', 'subscript', 'link', 'xref', 'footnote', 'note', 'mml:math', 
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
-               'see', 'seealso', 'date', 'author', 'personname',
-               'css:rules', 'css:rule', 'linked-style', 'tfoot',
-               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style', 'thead' 
+               'see', 'seealso', 'date', 'author', 'personname', 'tfoot', 'thead',
+               'css:rules', 'css:rule', 'linked-style', 'inlineequation', 'equation',
+               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style'
               )" as="xs:string+"/>
 
 
@@ -224,7 +224,7 @@
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>
       <xsl:variable name="mergeable-atts" as="element(*)*">
-        <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn)]" mode="#current" />
+        <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn or self::MathToolsML[mml:math])]" mode="#current" />
       </xsl:variable>
       <xsl:for-each-group select="$mergeable-atts[self::idml2xml:attribute]" group-by="@name">
         <xsl:variable name="att" as="element(idml2xml:attribute)">
@@ -273,7 +273,14 @@
   </xsl:template>
 
   <xsl:template match="Properties" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates select="node() except MathToolsML[mml:math]" mode="#current"/>
+    <xsl:if test="MathToolsML[mml:math]">
+      <inlineequation role="mathtools">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <xsl:sequence select="MathToolsML/mml:math/node()"/>
+        </math>
+      </inlineequation>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
 

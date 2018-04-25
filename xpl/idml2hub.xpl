@@ -4,6 +4,7 @@
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xhtml = "http://www.w3.org/1999/xhtml"
+  xmlns:mml   = "http://www.w3.org/1998/Math/MathML"
   xmlns:tr    = "http://transpect.io" 
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
@@ -27,6 +28,9 @@
   </p:option>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
+  <p:option name="build-MathML-from-MathTools" required="false" select="'yes'">
+    <p:documentation>You need a valid MathTools license and the checkbox for MathML in IDML turned on.</p:documentation>
+  </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'status'"/>
@@ -117,7 +121,39 @@
     <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </idml2xml:single-doc>
-  
+
+  <p:choose>
+    <p:when test="$build-MathML-from-MathTools = 'yes'">
+      <p:viewport match="MathToolsML">
+        <p:xslt name="remove-xml-declaration">
+          <p:input port="stylesheet">
+            <p:inline>
+              <xsl:stylesheet version="2.0">
+                <xsl:template match="/*">
+                  <xsl:copy>
+                    <xsl:value-of 
+                      select="replace(
+                                ., 
+                                '&lt;\?xml version=&quot;1\.0&quot; encoding=&quot;UTF[-]16&quot; standalone=&quot;yes&quot;\?&gt;&#x2028;?',
+                                ''
+                              )"/>
+                  </xsl:copy>
+                </xsl:template>
+              </xsl:stylesheet>
+            </p:inline>
+          </p:input>
+          <p:input port="parameters"><p:empty/></p:input>
+        </p:xslt>
+        <p:unescape-markup/>
+      </p:viewport>
+      <p:delete name="remove-MathTools-Markup" 
+        match="*[@MTMathZone][not(descendant::mml:math)] | CharacterStyleRange[descendant::mml:math]/Content"/>
+    </p:when>
+    <p:otherwise>
+      <p:identity/>
+    </p:otherwise>
+  </p:choose>
+
   <idml2xml:single2tagged name="tagged">
     <p:with-option name="debug" select="$debug"/>  
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>

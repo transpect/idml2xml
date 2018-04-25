@@ -203,7 +203,7 @@
   <!-- CSR with style (even if @ACS is 'CharacterStyle/$ID/[No character style]') -->
   <xsl:template match="CharacterStyleRange[node()]
                        [@AppliedCharacterStyle]
-                       [.//*[name() = $idml2xml:idml-content-element-names]]" mode="idml2xml:GenerateTagging">
+                       [.//*[name() = $idml2xml:idml-content-element-names]] | CharacterStyleRange[Properties/MathToolsML]" mode="idml2xml:GenerateTagging">
     <XMLElement MarkupTag="XMLTag/idml2xml%3agenSpan">
       <xsl:copy-of select="@* except @AppliedCharacterStyle"/>
       <XMLAttribute Name="aid:cstyle" Value="{idml2xml:StyleName(@AppliedCharacterStyle)}" />

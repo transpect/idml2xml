@@ -5,6 +5,7 @@
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+  xmlns:mml   = "http://www.w3.org/1998/Math/MathML"
   xmlns:idml2xml  = "http://transpect.io/idml2xml"
   exclude-result-prefixes=" aid5 aid xs"
 >
@@ -163,6 +164,10 @@
     <xsl:apply-templates mode="#current">
       <xsl:with-param name="charstylerange" select="." tunnel="yes"/>
     </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="CharacterStyleRange[descendant::mml:math]" mode="idml2xml:SeparateParagraphs-slice">
+    <xsl:sequence select="."/>
   </xsl:template>
 
   <xsl:template match="CrossReferenceSource" mode="idml2xml:SeparateParagraphs-slice">
