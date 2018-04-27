@@ -1328,6 +1328,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="all-list-styles" as="xs:string*" 
       select="key('idml2xml:list-styles', $numbered-list-styles)[@*:numbering-level = $numlvl]
                                                                 [@hub:numbering-family = $numfam]/@name"/>
+    <xsl:variable name="picture-string" as="xs:string?"
+      select="($pstyle/@hub:numbering-picture-string, @hub:numbering-picture-string)[last()]"/>
     <xsl:if test="($pstyle/@css:display, @css:display)[last()] = 'list-item' (: idml2xml:StyleName(@aid:pstyle) = $all-list-styles :)">
       <xsl:if test="$numlvl">
         <xsl:attribute name="idml2xml:aux-list-level" select="$numlvl"/>
@@ -1372,6 +1374,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:if>
       <xsl:attribute name="idml2xml:aux-list-famlvl" select="string-join(($numfam, string($numlvl)), '__')"/>
       <xsl:attribute name="idml2xml:aux-list-fam" select="$numfam"/>
+      <xsl:attribute name="idml2xml:aux-list-picture-string" select="$picture-string"/>
     </xsl:if>
     
   </xsl:template>
@@ -2179,7 +2182,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="@css:border-bottom | @css:border-top| @hub:restart-at-higher-level 
     | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
-    | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam
+    | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam | @idml2xml:aux-list-picture-string
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
     | @*:numbering-expression | @*:numbering-inline-stylename" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
@@ -2437,7 +2440,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
     <xsl:variable name="list-style-type" as="xs:string" select="('', ($rule, $context)//@css:list-style-type)[last()]"/>
     <xsl:choose>
-      <xsl:when test="exists(@idml2xml:aux-list-fam) and $list-style-type = $numbered-list-styles">
+      <xsl:when test="exists(@idml2xml:aux-list-fam) and $list-style-type = $numbered-list-styles and @idml2xml:aux-list-picture-string ne ''">
         <xsl:variable name="same-list-family" as="element(dbk:para)*" 
           select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
         <xsl:variable name="is-list-item" as="xs:boolean" select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
@@ -2481,11 +2484,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           (@css:list-style-type, key('idml2xml:style-by-role', @role)/@css:list-style-type)[1] = $numbered-list-styles
                         ]
                       ) + 1"/>
-            <xsl:if test="@srcpath='Stories/Story_u105.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[47]'">
+<!--            <xsl:if test="@srcpath='Stories/Story_u105.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[47]'">
               <xsl:message>
                 <xsl:element name="phrase">
               <xsl:attribute name="role" select="'hub:identifier'"/>
-              <!-- The picture strings are not reproduced 1:1 according to their levels -->
+              <!-\- The picture strings are not reproduced 1:1 according to their levels -\->
               <xsl:variable name="picture-string"
                 select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
               <xsl:variable name="picture-result"
@@ -2503,12 +2506,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                         )[1]"
                 as="xs:string"/>
               <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
-              <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
+              <!-\-    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
-    							</xsl:if>-->
+    							</xsl:if>-\->
             </xsl:element>
               </xsl:message>
-            </xsl:if>
+            </xsl:if>-->
             <xsl:element name="phrase">
               <xsl:attribute name="role" select="'hub:identifier'"/>
               <!-- The picture strings are not reproduced 1:1 according to their levels -->
