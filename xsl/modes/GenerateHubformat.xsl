@@ -2194,8 +2194,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-
-    <!-- can happen that several contrary font-style attributes are created. normal won't win then. and to avoid invalid CSS, we discard it -->
+      <!-- can happen that several contrary font-style attributes are created. normal won't win then. and to avoid invalid CSS, we discard it -->
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
 	<xsl:template match="css:rule[@layout-type = 'para']/@css:font-variant[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
@@ -2203,6 +2202,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   	<xsl:apply-templates mode="#current"/>
   </xsl:template>
 	
+    <xsl:template match="@css:text-decoration-width[matches(., '-9999pt')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+      <!-- the negative value seems to be a default. it results in invalid css though-->    
+      <xsl:attribute name="{name()}" select="'1pt'"/>
+    </xsl:template>
+
 	<xsl:template match="@*[matches(name(), 'color')][matches(., '^[\S]+\s[\S]+\s[\S]+$')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
 		<!-- LAB colours can be reported by schematron on idml. But as css:color attribute it is not valid and will be replace by black-->
 		<xsl:attribute name="{name()}" select="'device-cmyk(0,0,0,1)'"/>
