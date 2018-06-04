@@ -2171,7 +2171,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
 
   <xsl:template match="@*[name() = ('css:text-decoration-width', 'css:text-decoration-offset', 'css:text-decoration-color', 'css:text-decoration-style')][../@css:text-decoration-line = 'none']"
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="2"/>
   <xsl:template match="  @css:border-top-width[. != '0pt'][../@css:border-top = 'none'] 
                        | @css:padding-top[../@css:border-top = 'none' or matches(., '^-')]
                        | @css:border-top-style[../@css:border-top = 'none'] 
