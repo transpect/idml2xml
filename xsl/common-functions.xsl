@@ -441,15 +441,15 @@
             <xsl:variable name="left-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5]) + xs:double(tokenize($page/@MasterPageTransform, ' ')[5])) lt 0.00001) 
+              satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5]) (:+ xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) lt 0.00001) 
                          and not($spread-binding eq 'left'))"/>
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies ((xs:double(tokenize($page/@ItemTransform, ' ')[5]) + xs:double(tokenize($page/@MasterPageTransform, ' ')[5])) ge -0.00001)"/>
+              satisfies ((xs:double(tokenize($page/@ItemTransform, ' ')[5]) (:+ xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) ge -0.00001)"/>
 
-        <xsl:if test="$item/@Self = ('u152')">
+  <!--      <xsl:if test="$item/@Self = ('u152')">
           <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
           <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
           <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
@@ -457,7 +457,7 @@
           <xsl:message select="'DEBUG spread-binding:', $spread-binding, 'spread-x:', $spread-x"/>
           <xsl:message select="'DEBUG page width:', $page-width"/>
           <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
-        </xsl:if>
+        </xsl:if>-->
             
          <xsl:variable name="causes" as="element(cause)+">
             <cause name="item outside single page (left side)" 
@@ -472,7 +472,7 @@
               present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) gt ($spread-x + ($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset)}"/>
           </xsl:variable>
 
-            <!-- choose wether the item is on the workspace or not -->
+            <!-- choose whether the item is on the workspace or not -->
             <xsl:choose>
 
               <!-- Item not on workspace -->
@@ -485,7 +485,7 @@
                           )"/>
                 <xsl:message select="'####', $causes"/>
                 <xsl:message
-                  select="'      INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON(s):', 
+                  select="'################### INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON(s):', 
                           string-join($causes[@present = 'true']/@name, ', '),
                           if (normalize-space($text-content)) 
                           then concat('TEXT: ', $text-content) 
