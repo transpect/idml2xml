@@ -320,6 +320,8 @@
 
   <!-- Document functions -->
 
+  <xsl:key name="idml2xml:corresponding-master-spread" match="MasterSpread" use="@Self"/>
+
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
     <!-- @ItemTransform: (standard is 1 0 0 1 0 0) last two are x and y
@@ -442,7 +444,8 @@
               select="some $page 
               in $corresponding-spread/Page
               satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5]) (:+ xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) lt 0.00001) 
-                         and not($spread-binding eq 'left'))"/>
+                         and (not($spread-binding eq 'left') or  (every  $mp in $corresponding-spread/Page satisfies ($mp[key('idml2xml:corresponding-master-spread', @AppliedMaster)[@PageCount = '1']]))))"/>
+            <!-- sometimes single masterpages are assignned to spreads wth several pages. this case is handled here -->
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
