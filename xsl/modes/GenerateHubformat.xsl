@@ -928,7 +928,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable> 
-    <xsl:if test="($style | ..)/@name = 'c_table_text'"><xsl:message select="'###',idml2xml:tint-color(., (xs:double(tokenize($last-fill-tint, '\s')[1]), 1.0)[1]), '||', ."/></xsl:if>
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
