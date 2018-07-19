@@ -249,7 +249,8 @@
         <xsl:sequence select="'&#xa0;&#x202f;'"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
-        <xsl:sequence select="'\p{Zs}'"/>
+        <!-- Problem was here: 00a0, 200a and 202f still count as the same word. so \p{Zs} was replaced by single space characters -->
+        <xsl:sequence select="'&#x20;&#x2001;&#x2002;&#x2003;&#x2004;&#x2005;&#x2006;&#x2007;&#x2008;&#x2009;'"/>
       </xsl:when>
     </xsl:choose>
   </xsl:function>
