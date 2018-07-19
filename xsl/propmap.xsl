@@ -280,7 +280,7 @@
           http://lists.w3.org/Archives/Public/www-style/2012Jul/0445.html but not yet in
           http://dev.w3.org/csswg/css-text-decor-3/ as at 2013-02-08 -->
         <prop name="VerticalJustification">
-          <val match="TopAlign" />
+          <val match="TopAlign" target-name="css:vertical-align" target-value="top" />
           <val match="CenterAlign" target-name="css:vertical-align" target-value="middle" />
           <val match="BottomAlign" target-name="css:vertical-align" target-value="bottom" />
         </prop>

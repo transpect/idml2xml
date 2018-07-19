@@ -2185,6 +2185,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
     | @*:numbering-expression | @*:numbering-inline-stylename" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
+    <xsl:template match="dbk:entry[key('idml2xml:style-by-role', @role)[@css:vertical-align = 'top' or not(@css:vertical-align)]]/@css:vertical-align[. = 'top']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
   <xsl:template match="  @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
                        | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] 
                        | @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] 
