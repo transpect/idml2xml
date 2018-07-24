@@ -388,7 +388,8 @@
           <!-- point zero 'y' is half size of spread height -->
           <xsl:otherwise>
 
-            <!-- spread and page info -->
+            <!-- spread and page info. if page position (index) on spread is less than @BindingLocation it is a left page. 
+                  therefore the following variable declaration is not really exact -->
             <xsl:variable name="spread-binding" as="xs:string"
               select="if($corresponding-spread/@BindingLocation = 0) then 'left' else 'right'"/>
             <xsl:variable name="spread-x" as="xs:double"
@@ -435,24 +436,31 @@
               select="if ($item/ancestor::Group)
               then $item/ancestor::Group[last()]/preceding-sibling::Page[1]
               else $item/preceding-sibling::Page[1]" />-->
+            <!-- what if object is not on page 1 of a spread? there could be differently wide pages in one spread -->
             <xsl:variable name="page-width" as="xs:double"
               select="if( $corresponding-spread/Page[1]/@GeometricBounds ) 
               then xs:double(tokenize($corresponding-spread/Page[1]/@GeometricBounds, ' ')[4])
               else root($item)//DocumentPreference/@PageWidth"/>
 
-            <xsl:variable name="left-page-available" as="xs:boolean"
+<!--            <xsl:variable name="left-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5]) (:+ xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) lt 0.00001) 
-                         and (not($spread-binding eq 'left') or  (every  $mp in $corresponding-spread/Page satisfies ($mp[key('idml2xml:corresponding-master-spread', @AppliedMaster)[@PageCount = '1']]))))"/>
-            <!-- sometimes single masterpages are assignned to spreads wth several pages. this case is handled here -->
+              satisfies (((xs:double(tokenize($page/@ItemTransform, ' ')[5])(: + xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) lt 0.00001) 
+                         and (not($spread-binding eq 'left') or (every  $mp in $corresponding-spread/Page satisfies ($mp[key('idml2xml:corresponding-master-spread', @AppliedMaster)[@PageCount = '1']]))))"/>
+            <!-\- sometimes single masterpages are assigned to spreads with several pages. this case is handled here -\->
 
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page 
               in $corresponding-spread/Page
-              satisfies ((xs:double(tokenize($page/@ItemTransform, ' ')[5]) (:+ xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) ge -0.00001)"/>
+              satisfies ((xs:double(tokenize($page/@ItemTransform, ' ')[5])(: + xs:double(tokenize($page/@MasterPageTransform, ' ')[5]):)) ge -0.00001)"/>-->
 
-  <!--      <xsl:if test="$item/@Self = ('u152')">
+         <xsl:variable name="left-page-available" as="xs:boolean"
+              select="some $page in $corresponding-spread/Page satisfies ((index-of($corresponding-spread/Page/@Self, $page/@Self) -1) lt xs:double($corresponding-spread/@BindingLocation))"/>
+
+            <xsl:variable name="right-page-available" as="xs:boolean"
+              select="some $page in $corresponding-spread/Page satisfies ((index-of($corresponding-spread/Page/@Self, $page/@Self) -1) ge xs:double($corresponding-spread/@BindingLocation))"/>
+
+        <xsl:if test="$item/@Self eq 'u431'">
           <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
           <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
           <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
@@ -460,8 +468,8 @@
           <xsl:message select="'DEBUG spread-binding:', $spread-binding, 'spread-x:', $spread-x"/>
           <xsl:message select="'DEBUG page width:', $page-width"/>
           <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
-        </xsl:if>-->
-            
+        </xsl:if>
+
          <xsl:variable name="causes" as="element(cause)+">
             <cause name="item outside single page (left side)" 
               present="{$item-real-right-x lt 0.0001 and not($left-page-available) and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
