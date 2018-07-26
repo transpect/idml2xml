@@ -460,7 +460,7 @@
             <xsl:variable name="right-page-available" as="xs:boolean"
               select="some $page in $corresponding-spread/Page satisfies ((index-of($corresponding-spread/Page/@Self, $page/@Self) -1) ge xs:double($corresponding-spread/@BindingLocation))"/>
 
-        <xsl:if test="$item/@Self eq 'u431'">
+        <!--<xsl:if test="$item/@Self eq 'u250'">
           <xsl:message select="'DEBUG ITEM Self:', xs:string($item/@Self)"/>
           <xsl:message select="'DEBUG item-real-left-x:', $item-real-left-x"/>
           <xsl:message select="'DEBUG item-real-center-x:', $item-real-center-x"/>
@@ -468,15 +468,20 @@
           <xsl:message select="'DEBUG spread-binding:', $spread-binding, 'spread-x:', $spread-x"/>
           <xsl:message select="'DEBUG page width:', $page-width"/>
           <xsl:message select="'DEBUG left/right page avail.:', $left-page-available, $right-page-available" />
-        </xsl:if>
+        </xsl:if>-->
+
+
+         <!-- if each spread only consists of a single page, e.g. a right one. the center of the spread has the coordinates 0,0. 
+              In this case no left page exists, but objects may exist that have a negative x-value, because they are on the left side of the spread. For these cases the cause calculation doesn't make much sense-->
+         <xsl:variable name="single-paged-doc" as="xs:boolean" select="if (every $spread in root($item)//Spread satisfies $spread/@PageCount eq '1') then true() else false()" />
 
          <xsl:variable name="causes" as="element(cause)+">
             <cause name="item outside single page (left side)" 
-              present="{$item-real-right-x lt 0.0001 and not($left-page-available) and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
+              present="{$item-real-right-x lt 0.0001 and $left-page-available and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
             <cause name="no page on left side" 
-              present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available}"/>
+              present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available and not($single-paged-doc)}"/>
             <cause name="no page on right side" 
-              present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available}"/>
+              present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available and not($single-paged-doc)}"/>
             <cause name="item placed outside of page left" 
               present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + (abs($page-width) + root($item)//DocumentPreference/@DocumentBleedInsideOrLeftOffset)}"/>
             <cause name="item placed outside of page right" 
