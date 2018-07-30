@@ -70,7 +70,7 @@
        unwrapped from the parastylerange and got an attached aid:pstyle attribute. This prolly doesn’t hurt, but
        we better leave the genTable in the genPara. -->
   <xsl:template
-    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][count(*) eq 1][not(*/@aid:cstyle)][not(idml2xml:genTable)]" 
+    match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')][count(*) eq 1][not(*/@aid:cstyle)][not(idml2xml:genTable)][not(idml2xml:genAnchor)]" 
     mode="idml2xml:AutoCorrect" priority="2">
     <xsl:element name="{name(*)}">
       <xsl:apply-templates select="*/@*" mode="#current"/>
