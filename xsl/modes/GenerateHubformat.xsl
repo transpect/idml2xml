@@ -537,11 +537,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'list-type-declaration'">
+        <!-- $val is @BulletsAndNumberingListType -->
         <xsl:choose>
-          <xsl:when test="$val = 'NoList' or $val/../@NumberingExpression = ''">
+          <xsl:when test="$val = 'NoList'">
             <idml2xml:remove-attribute name="css:list-style-type"/>
             <idml2xml:remove-attribute name="css:display" value="list-item"/>
             <idml2xml:attribute name="{name($val)}">NoList</idml2xml:attribute>
+          </xsl:when>
+          <xsl:when test="$val = 'NumberedList'
+                          and
+                          $val/../@NumberingExpression = ''">
+            <idml2xml:remove-attribute name="css:display" value="list-item"/>
+            <idml2xml:attribute name="{name($val)}">
+              <xsl:value-of select="$val"/>
+            </idml2xml:attribute>
+            <idml2xml:attribute name="{../@target-name}">
+              <xsl:value-of select="'idml2xml:numbered'"/>
+            </idml2xml:attribute>
           </xsl:when>
           <xsl:otherwise>
             <xsl:variable name="pstyle-or-p" select="$val/.." as="element(*)"/>
