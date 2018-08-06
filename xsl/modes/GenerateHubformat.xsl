@@ -401,7 +401,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:key name="idml2xml:gradient" match="idPkg:Graphic/Gradient" use="@Self" />
   
   <xsl:template match="prop/@type" mode="idml2xml:XML-Hubformat-add-properties" as="node()*">
-    <xsl:param name="val" as="node()" tunnel="yes" />
+    <xsl:param name="val" as="node()" tunnel="yes">
+      <!-- Val may be (see template where with-param name="val" is passed): @* | Properties/* | ListItem/* -->
+    </xsl:param>
     <xsl:choose>
 
       <xsl:when test=". eq 'bullet-char'">
@@ -536,7 +538,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
       <xsl:when test=". eq 'list-type-declaration'">
         <xsl:choose>
-          <xsl:when test="$val = 'NoList'">
+          <xsl:when test="$val = 'NoList' or $val/../@NumberingExpression = ''">
             <idml2xml:remove-attribute name="css:list-style-type"/>
             <idml2xml:remove-attribute name="css:display" value="list-item"/>
             <idml2xml:attribute name="{name($val)}">NoList</idml2xml:attribute>
