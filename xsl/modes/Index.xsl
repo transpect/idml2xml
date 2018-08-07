@@ -151,9 +151,9 @@
         <xsl:apply-templates select="@SortOrder" mode="#current"/>
         <xsl:copy-of select="@in-embedded-story" />
         <xsl:value-of select="@Name"/>
-        <xsl:sequence select="idml2xml:index-crossrefs(.)" />
       </primary>
       <xsl:apply-templates mode="#current" />
+      <xsl:sequence select="idml2xml:index-crossrefs(.)"/>
     </indexterm>
   </xsl:template>
 
