@@ -561,7 +561,9 @@
         <prop name="MaximumGlyphScaling" implement="maybe later" />
         <prop name="MinimumGlyphScaling" implement="maybe later" />
         <prop name="KeepAllLinesTogether" implement="maybe later" />
-        <prop name="KeepWithNext" implement="maybe later" />
+        <prop name="KeepWithNext" target-name="css:page-break-after">
+          <val match="[1-9].*" target-value="avoid"/>
+        </prop>
         <prop name="KeepFirstLines" implement="maybe later" />
         <prop name="KeepLastLines" implement="maybe later" />
         <prop name="CharacterAlignment" implement="maybe later" />
