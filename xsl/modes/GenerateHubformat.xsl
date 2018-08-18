@@ -547,6 +547,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:when test="$val = 'NumberedList'
                           and
                           $val/../@NumberingExpression = ''">
+            <idml2xml:attribute name="css:display">list-item</idml2xml:attribute>
             <idml2xml:remove-attribute name="css:display" value="list-item"/>
             <idml2xml:attribute name="{name($val)}">
               <xsl:value-of select="$val"/>
@@ -814,7 +815,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates
         select="idml2xml:attribute
                   [not(
-                    @name = following-sibling::idml2xml:remove-attribute/@name
+                    @name = following-sibling::idml2xml:remove-attribute[if (@name = 'css:display' and @value = 'list-item')
+                                                                         then empty(following-sibling::idml2xml:attribute[@name = 'numbering-expression']/text())
+                                                                         else true()]
+                                                   /@name
                     and
                     (if (@value) then @value = current() else true())
                   )]" mode="#current" />
@@ -1320,8 +1324,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="if (normalize-space($para/@aid:pstyle)) 
               then key('idml2xml:style-by-role', idml2xml:StyleName($para/@aid:pstyle), root($para))
               else ()"/>
-    <xsl:if test="($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'
-                  and exists(($pstyle/@hub:numbering-level, $para/@hub:numbering-level))">
+    <xsl:if test="(:($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'
+                  and :) (: we need to drop this condition since there may be deactivated lists,
+                  https://redmine.le-tex.de/issues/5887 :)
+                  exists(($pstyle/@hub:numbering-level, $para/@hub:numbering-level))">
       <xsl:sequence select="for $f in ($pstyle/@hub:numbering-family, $para/@hub:numbering-family)[last()]
                             return string($f)"/>
     </xsl:if>
@@ -2394,16 +2400,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                     [node()]
                     [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
                     [last()]"/>
-  	 <xsl:variable name="all-list-paras" as="element(dbk:para)*"
-      					 select="/dbk:hub//dbk:para[(
-					    											@*[matches(name(), 'hub:numbering-(continue|starts-at|level)|css:list-style-type')] 
-												    				or 
-												    				@css:display = ('list-item') 
-												    				or 
-												    				key('idml2xml:style-by-role', @role)[@css:display = 'list-item']
-												    				)
-												    				and
-												    				(key('idml2xml:style-by-role', @role)/@css:list-style-type, @css:list-style-type)[last()] = $numbered-list-styles]"/>
+     <xsl:variable name="all-list-paras" as="element(dbk:para)*"
+                 select="/dbk:hub//dbk:para[
+                                    (
+                                      @*[matches(name(), 'hub:numbering-(continue|starts-at|level)|css:list-style-type')] 
+                                      or 
+                                      @css:display = ('list-item') 
+                                      or 
+                                      key('idml2xml:style-by-role', @role)[@css:display = 'list-item']
+                                    )
+                                    and
+                                    (key('idml2xml:style-by-role', @role)/@css:list-style-type, @css:list-style-type)[last()] = $numbered-list-styles]"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current">
