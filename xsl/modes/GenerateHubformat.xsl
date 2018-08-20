@@ -548,8 +548,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:when test="$val = 'NumberedList'
                           and
                           $val/../@NumberingExpression = ''">
-            <idml2xml:attribute name="css:display">block</idml2xml:attribute>
-            <!--<idml2xml:remove-attribute name="css:display" value="list-item"/>-->
+            <!-- block didn’t work for the inheritance in PFB/85813 -->
+<!--            <idml2xml:attribute name="css:display">block</idml2xml:attribute>-->
+            <idml2xml:attribute name="css:display">list-item</idml2xml:attribute> 
+            <idml2xml:remove-attribute name="css:display" value="list-item"/>
             <idml2xml:attribute name="{name($val)}">
               <xsl:value-of select="$val"/>
             </idml2xml:attribute>
@@ -816,10 +818,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates
         select="idml2xml:attribute
                   [not(
-                    @name = following-sibling::idml2xml:remove-attribute(: no longer necessary because css:display isn’t removed, it’s block now 
-                                                                        [if (@name = 'css:display' and @value = 'list-item')
+                    @name = following-sibling::idml2xml:remove-attribute[if (@name = 'css:display' and @value = 'list-item')
                                                                          then empty(following-sibling::idml2xml:attribute[@name = 'numbering-expression']/text())
-                                                                         else true()] :)
+                                                                         else true()]
                                                    /@name
                     and
                     (if (@value) then @value = current() else true())
@@ -1326,7 +1327,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="if (normalize-space($para/@aid:pstyle)) 
               then key('idml2xml:style-by-role', idml2xml:StyleName($para/@aid:pstyle), root($para))
               else ()"/>
-    <xsl:if test="(: ($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'
+    <xsl:if test="(:($pstyle/@css:display, $para/@css:display)[last()] = 'list-item'
                   and :) (: we need to drop this condition since there may be deactivated lists,
                   https://redmine.le-tex.de/issues/5887 :)
                   exists(($pstyle/@hub:numbering-level, $para/@hub:numbering-level))">
@@ -1394,7 +1395,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 )
                 or 
                 not($continue)"/>
-      <!--<xsl:if test="contains(@srcpath, 'Stories/Story_u380.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[48];n=1')">
+      <!--<xsl:if test="contains(@srcpath, '[837]')">
         <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same"></xsl:message>
       </xsl:if>-->
       <xsl:if test="$restart">
