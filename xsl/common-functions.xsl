@@ -477,7 +477,8 @@
 
          <xsl:variable name="causes" as="element(cause)+">
             <cause name="item outside single page (left side)" 
-              present="{$item-real-right-x lt 0.0001 and $left-page-available and not($right-page-available) and count(root($item)//Spread/Page) eq 1}"/>
+              present="{$item-real-right-x lt 0.0001 and $left-page-available and not($right-page-available) and count(root($item)//Spread/Page) eq 1 and 
+                        (: full-width image :) not(abs($item-real-left-x) lt ($spread-x + abs($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset))}"/>
             <cause name="no page on left side" 
               present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available and not($single-paged-doc)}"/>
             <cause name="no page on right side" 
@@ -499,7 +500,6 @@
                             0,
                             200
                           )"/>
-                <xsl:message select="'####', $causes"/>
                 <xsl:message
                   select="'################### INFO: Removed', local-name($item), xs:string($item/@Self), '(not on workspace). REASON(s):', 
                           string-join($causes[@present = 'true']/@name, ', '),
