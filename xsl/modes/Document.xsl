@@ -597,6 +597,10 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template match="Group[Properties[Label[KeyValuePair[@Key = 'letex:fileName'][matches(@Value, '\S')]]]]/*
+                                [self::Rectangle | self::Polygon | self::Oval][1]/Properties/Label[KeyValuePair[@Key = 'letex:fileName']]" 
+      mode="idml2xml:DocumentResolveTextFrames"/>  
+  
   <xsl:template match="*[Properties/PathGeometry/GeometryPathType]" mode="idml2xml:Geometry" as="item()*">
     <xsl:variable name="transformation-matrix" as="xs:double*" 
       select="for $value in tokenize((@ItemTransform, '1 0 0 1 0 0')[1], ' ') return xs:double($value)"/>
