@@ -243,7 +243,7 @@
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
        they’d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
-    use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef'] return idml2xml:text-content($r)"/>
+    use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef']/Content return idml2xml:text-content($r)"/>
   <!-- we do not allow StoryIDs/StoryRefs that consist of whistespace only -->
   <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]
                                                [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
@@ -287,7 +287,8 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(.))" as="element(Story)*"/>
+      <xsl:for-each select="Content">
+      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
       <xsl:choose>
         <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
           so that Schematron can report non-resolution -->
@@ -325,6 +326,7 @@
         </xsl:when>
         <!-- otherwise: the story is anchored within itself, don’t do anything -->
       </xsl:choose>
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
   
@@ -396,7 +398,7 @@
 
   <xsl:function name="idml2xml:text-content" as="xs:string?">
     <xsl:param name="elt" as="element(*)?"/>
-    <xsl:sequence select="string-join($elt//Content[normalize-space()], '')"/>
+    <xsl:sequence select="string-join($elt/descendant-or-self::Content[normalize-space()], '')"/>
   </xsl:function>
   
 
