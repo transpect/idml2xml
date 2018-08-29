@@ -1477,8 +1477,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                       and count(* except idml2xml:genAnchor) eq 0
                       and count(@* except (@aid:cstyle union @srcpath union @idml2xml:*)) eq 0
                       ">
-        <xsl:apply-templates select="idml2xml:genAnchor" mode="#current"/>
-        <xsl:apply-templates select="node() except idml2xml:genAnchor" mode="#current"/>
+        <xsl:apply-templates select="node()" mode="#current"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="atts" select="@* except (@srcpath union @idml2xml:*)" as="attribute(*)*" />
