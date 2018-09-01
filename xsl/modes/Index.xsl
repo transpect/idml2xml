@@ -160,7 +160,7 @@
   <xsl:variable name="level-element-name" as="xs:string+"
     select="('primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary', 'octonary', 'nonary', 'denary')"/>
 
-  <xsl:template match="Topic[not(parent::Topic)]//Topic" mode="idml2xml:IndexTerms">
+  <xsl:template match="Topic[not(parent::Topic)]//Topic[normalize-space(@Name)]" mode="idml2xml:IndexTerms">
     <xsl:element name="{$level-element-name[count(current()/ancestor::Topic) + 1]}">
       <xsl:apply-templates select="@SortOrder" mode="#current"/>
       <xsl:copy-of select="@in-embedded-story" />
