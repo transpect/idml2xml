@@ -1575,50 +1575,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-
-<!--  <xsl:template match="idml2xml:CharacterStyleRange[ ( idml2xml:Br  and  count(*) eq 1 )  or  
-		       ( idml2xml:Br  and  idml2xml:Content 	and  not( idml2xml:Content/node() )
-		       and count(*) eq 2 ) ]" 
-		mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:if test="not( following::*[1][ self::idml2xml:ParagraphStyleRange ] )">
-      <xsl:apply-templates mode="#current"/>
-    </xsl:if>
-  </xsl:template>-->
-
-  <xsl:template match="PageReference" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <!--<xsl:variable name="prelim">
-    <xsl:apply-templates select="." mode="idml2xml:IndexTerms-extract"/>  
-    </xsl:variable>-->
-<!--    <xsl:message select="'IIIIIIIIIIIIIII ', $prelim"/>-->
-    <!-- Convert to an indexterm here for general projects and set specific @xml:id for 
-         "indexterms" initial template (will export the indexterms in a separate pass). -->
-    <indexterm xml:id="ie_{$idml2xml:basename}_{@Self}">
-      <xsl:for-each select="tokenize( if(@idml2xml:ReferencedTopic) then @idml2xml:ReferencedTopic else @ReferencedTopic, '(d1)?Topicn' )">
-        <xsl:choose>
-          <xsl:when test="position() eq 1  or  current() eq ''"/>
-          <xsl:when test="position() eq 2">
-            <primary>
-              <xsl:value-of select="current()"/>
-            </primary>
-          </xsl:when>
-          <xsl:when test="position() eq 3">
-            <secondary>
-              <xsl:value-of select="current()"/>
-            </secondary>
-          </xsl:when>
-          <xsl:when test="position() eq 4">
-            <tertiary>
-              <xsl:value-of select="current()"/>
-            </tertiary>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:message select="'WARNING: PageReference / sub-indexterm not processed:', ."/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
-    </indexterm>
-  </xsl:template>
-
   <xsl:template match="/" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:next-match>
       <xsl:with-param name="page-starts" as="element(*)*" tunnel="yes" 
