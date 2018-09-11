@@ -2192,10 +2192,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   	<xsl:apply-templates mode="#current"/>
   </xsl:template>
 	
-    <xsl:template match="@css:text-decoration-width[matches(., '-9999pt')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-      <!-- the negative value seems to be a default. it results in invalid css though-->    
-      <xsl:attribute name="{name()}" select="'1pt'"/>
-    </xsl:template>
+  <xsl:template match="@css:text-decoration-width[. = '-9999pt']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- the negative value seems to be a default. it results in invalid css though-->
+    <xsl:attribute name="{name()}" select="'1pt'"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-decoration-offset[. = '-9999pt']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
 
 	<xsl:template match="@*[matches(name(), 'color')][matches(., '^[\S]+\s[\S]+\s[\S]+$')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
 		<!-- LAB colours can be reported by schematron on idml. But as css:color attribute it is not valid and will be replace by black-->
