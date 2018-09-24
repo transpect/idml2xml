@@ -2431,7 +2431,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 	<xsl:key name="idml2xml:list-para-by-fam" match="dbk:para[@idml2xml:aux-list-fam]"
 	  use="@idml2xml:aux-list-fam"/>
 	
-  <xsl:template match="dbk:para[node()]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
+  <xsl:template match="dbk:para[exists(node())
+                                or
+                                (
+                                  exists(@idml2xml:aux-list-fam) 
+                                  and 
+                                  ('', (key('idml2xml:style-by-role', @role)[@layout-type = 'para'], .)//@css:list-style-type)[last()] = $numbered-list-styles 
+                                  and 
+                                  @idml2xml:aux-list-picture-string ne ''
+                                )]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
     <xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
     <xsl:param name="all-list-paras" as="element(dbk:para)*" tunnel="yes"/>
     <xsl:variable name="context" select="." as="element(dbk:para)"/>
