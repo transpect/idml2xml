@@ -2366,7 +2366,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="dbk:sidebar[@remap = ('TextFrame', 'Group')]/@linkend[not(key('idml2xml:linking-item-by-linkend', .))]"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
-  <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="0.75">
     <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?"
       select="/dbk:hub/dbk:para
                     [node()]
