@@ -198,7 +198,7 @@
   </xsl:template>
 
 
-  <!-- temporary workaround to save page source informations for indexterm`s in freely placed TextFrame`s -->
+  <!-- temporary workaround to save page source informations for indexterms in freely placed TextFrames -->
   <xsl:template match="PageReference" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:if test="key('TextFrame-by-ParentStory', ancestor::Story/@Self)/@PreviousTextFrame eq 'n' and 

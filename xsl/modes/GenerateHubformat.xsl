@@ -1540,7 +1540,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </anchor>
   </xsl:template>
 
-  <xsl:template match="@linkend" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="@linkend[empty(parent::see | parent::seealso | parent::dbk:see | parent::dbk:seealso)]" 
+    mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:attribute name="linkend" select="concat ($id-prefix, idml2xml:normalize-name(.))" />
   </xsl:template>
   
@@ -2367,12 +2368,25 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
   <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="0.75">
-    <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?"
-      select="/dbk:hub/dbk:para
-                    [node()]
-                    [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
-                    [last()]"/>
-     <xsl:variable name="all-list-paras" as="element(dbk:para)*"
+    <xsl:variable name="orphaned-indexterm-para-candidates" as="element(dbk:para)*"
+      select="dbk:para[normalize-space()]
+                      [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
+                      [not(matches(@role, '(imprint|index|toc|title|note)'))]
+                      [not(.//@condition)]"/>
+    <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?">
+      <xsl:choose>
+        <xsl:when test="count($orphaned-indexterm-para-candidates) = 0">
+          <xsl:sequence select="dbk:para[1]"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="dbk:para[count($orphaned-indexterm-para-candidates) idiv 2 + 1]"/>
+          <!-- not the last as previously because the last para might get discarded (unanchored table caption 
+            continuations, etc., see https://redmine.le-tex.de/issues/5782). 
+            The first paras are also likely to be discarded (imprint, ToC, etc.). -->
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="all-list-paras" as="element(dbk:para)*"
                  select="/dbk:hub//dbk:para[
                                     (
                                       @*[matches(name(), 'hub:numbering-(continue|starts-at|level)|css:list-style-type')] 

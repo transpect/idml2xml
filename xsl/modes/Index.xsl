@@ -27,7 +27,14 @@
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
     <xsl:variable name="embedded-story" select="ancestor::Story[parent::TextFrame]/@Self" as="xs:string*" />
-    <xsl:variable name="topics" select="if (count(key('topic', @ReferencedTopic)) gt 1 and key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]]) then key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]] else key('topic', @ReferencedTopic)" as="element(Topic)*"/>
+    <xsl:variable name="topics" 
+      select="if (
+                    count(key('topic', @ReferencedTopic)) gt 1 
+                    and 
+                    key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]]
+                 )
+              then key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]] 
+              else key('topic', @ReferencedTopic)" as="element(Topic)*"/>
     <hurz count="{key('topic', @ReferencedTopic)/../name()}"/>
     <xsl:apply-templates select="$topics" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
@@ -125,13 +132,13 @@
     <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean" />
     <indexterm>
       <xsl:if test="@page-reference">
-        <xsl:attribute name="xml:id" select="concat('ie_', $idml2xml:basename, '_', @page-reference)" />
+        <xsl:attribute name="xml:id" select="idml2xml:generate-indexterm-id($idml2xml:basename, @page-reference)" />
         <xsl:copy-of select="@page-reference"/>
       </xsl:if>
       <xsl:if test="$pagenum-is-from-freely-placed-textframe">
         <xsl:attribute name="pagenum-is-from-freely-placed-textframe" select="'yes'"/>
       </xsl:if>
-      <xsl:variable name="crossrefs" select="CrossReference" />
+      <xsl:variable name="crossrefs" select="CrossReference" as="element(CrossReference)*"/>
       <xsl:choose>
         <xsl:when test="exists($crossrefs) and not(Topic)" />
         <xsl:when test="exists($pagenum)">
@@ -140,7 +147,7 @@
         <xsl:otherwise>
           <xsl:if test="not($silent)">
           <xsl:message>No page number for topic <xsl:sequence select="." />
-          </xsl:message>  
+          </xsl:message>
           </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
@@ -176,16 +183,22 @@
   <xsl:function name="idml2xml:index-crossrefs" as="element(*)*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />
     <xsl:for-each select="$topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic">
+      <xsl:variable name="referenced-topic" select="key('idml2xml:by-Self', .)" as="element(Topic)*"/>
       <seealso>
-        <xsl:value-of select="substring-after(., 'Topicn')" />
+        <xsl:if test="exists($referenced-topic/@page-reference)">
+          <xsl:attribute name="linkend" 
+            select="idml2xml:generate-indexterm-id($idml2xml:basename, ($referenced-topic/@page-reference)[1])"/>
+        </xsl:if>
+        <xsl:value-of select="replace(substring-after(., 'Topicn'), 'Topicn', ', ')" />
       </seealso>
-      <!-- <xsl:apply-templates select="key('topic', current(), root($topic))[1]" mode="idml2xml:IndexTerms-SeeAlso" /> -->
     </xsl:for-each>
-    <xsl:variable name="see-refs" select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic" as="xs:string*"/>
+    <xsl:variable name="see-refs" as="xs:string*"
+      select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic"/>
     <xsl:if test="count(distinct-values($see-refs)) gt 0">
       <xsl:variable name="errors" as="element(error)*">
         <xsl:if test="count(distinct-values($see-refs)) gt 1">
-          <xsl:message>There are many see-like crossrefs in index topic <xsl:value-of select="$topic/@Self"/> where only one is permitted. (<xsl:copy-of select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]"/>)
+          <xsl:message>There are many see-like crossrefs in index topic <xsl:value-of select="$topic/@Self"/> where only
+            one is permitted. (<xsl:copy-of select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]"/>)
           </xsl:message>
           <error role="different-crossrefs" condition="{string-join($see-refs, '; ')}"/>
         </xsl:if>
@@ -197,14 +210,91 @@
           <error role="subtopics-with-see"/>
         </xsl:if>
       </xsl:variable>
-      <xsl:for-each select="key('topic', $see-refs, root($topic))[1]/@Name">
+      <xsl:for-each select="(key('topic', distinct-values($see-refs), root($topic)))[1]">
         <see>
+          <xsl:if test="exists(@page-reference)">
+            <xsl:attribute name="linkend" 
+              select="idml2xml:generate-indexterm-id($idml2xml:basename, @page-reference)"/>
+          </xsl:if>
           <xsl:sequence select="$errors" />
-          <xsl:value-of select="." />
+          <xsl:value-of select="string-join(ancestor-or-self::Topic/@Name, ', ')" />
         </see>
       </xsl:for-each>
     </xsl:if>
   </xsl:function>
+
+  <!-- eliminate duplicates in the next pass (collateral) -->
+  <xsl:template match="indexterm[seealso/@linkend]" mode="idml2xml:SeparateParagraphs">
+    <xsl:variable name="twins" as="element(indexterm)*" 
+      select="key('idml2xml:linking-item-by-id', seealso/@linkend)/..[seealso = current()/seealso]
+                                                                     [primary = current()/primary]
+                                                                     [if (secondary) then secondary = current()/secondary else true()]
+                                                                     [if (tertiary) then tertiary = current()/tertiary else true()]"/>
+    <xsl:variable name="twins-in-text" as="element(indexterm)*" select="$twins[@page-reference]"/>
+    <xsl:if test=". is ($twins-in-text)[1]
+                  or
+                  (
+                    empty($twins-in-text) 
+                    and 
+                    empty($twins[current() >> .])
+                  )">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="indexterm[seealso[empty(@linkend)]]" mode="idml2xml:SeparateParagraphs">
+    <xsl:variable name="twins" as="element(indexterm)*" 
+      select="../indexterm[seealso[empty(@linkend)] = current()/seealso]
+                          [primary = current()/primary]
+                          [if (secondary) then secondary = current()/secondary else true()]
+                          [if (tertiary) then tertiary = current()/tertiary else true()]"/>
+    <xsl:variable name="twins-in-text" as="element(indexterm)*" select="$twins[@page-reference]"/>
+    <xsl:if test=". is ($twins-in-text)[1]
+                  or
+                  (
+                    empty($twins-in-text) 
+                    and 
+                    empty($twins[current() >> .])
+                  )">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="indexterm[see/@linkend]" mode="idml2xml:SeparateParagraphs">
+    <xsl:variable name="twins" as="element(indexterm)*" 
+      select="key('idml2xml:linking-item-by-id', see/@linkend)/..[see = current()/see]
+                                                                 [primary = current()/primary]
+                                                                 [if (secondary) then secondary = current()/secondary else true()]
+                                                                 [if (tertiary) then tertiary = current()/tertiary else true()]"/>
+    <xsl:variable name="twins-in-text" as="element(indexterm)*" select="$twins[@page-reference]"/>
+    <xsl:if test=". is ($twins-in-text)[1]
+                  or
+                  (
+                    empty($twins-in-text) 
+                    and 
+                    empty($twins[current() >> .])
+                  )">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="indexterm[see[empty(@linkend)]]" mode="idml2xml:SeparateParagraphs">
+    <xsl:variable name="twins" as="element(indexterm)*" 
+      select="../indexterm[see[empty(@linkend)] = current()/see]
+                          [primary = current()/primary]
+                          [if (secondary) then secondary = current()/secondary else true()]
+                          [if (tertiary) then tertiary = current()/tertiary else true()]"/>
+    <xsl:variable name="twins-in-text" as="element(indexterm)*" select="$twins[@page-reference]"/>
+    <xsl:if test=". is ($twins-in-text)[1]
+                  or
+                  (
+                    empty($twins-in-text) 
+                    and 
+                    empty($twins[current() >> .])
+                  )">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="Topic" mode="idml2xml:IndexTerms-SeeAlso">
     <seealso>
@@ -213,8 +303,8 @@
   </xsl:template>
 
 
-  <!-- This is used for handling of indexterms in the regular idml2hub pipeline -->
-  
+  <!-- This is used for handling of indexterms in the regular idml2hub pipeline 
+    (collateral to idml2xml:SeparateParagraphs-pull-down-psrange) -->
   <xsl:template match="idml2xml:index" mode="idml2xml:SeparateParagraphs-pull-down-psrange" >
     <xsl:variable name="idml2xml:IndexTerms-extract" as="document-node(element(idml2xml:indexterms))">
       <xsl:document>
@@ -227,6 +317,12 @@
       <xsl:with-param name="silent" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
+  
+  <xsl:function name="idml2xml:generate-indexterm-id" as="xs:string">
+    <xsl:param name="file-basename" as="xs:string"/>
+    <xsl:param name="page-reference" as="attribute(page-reference)"/>
+    <xsl:sequence select="concat('ie_', $file-basename, '_', $page-reference)"/>
+  </xsl:function>
 
   <xsl:template match="idml2xml:indexterms" mode="idml2xml:XML-Hubformat-add-properties" />
 
