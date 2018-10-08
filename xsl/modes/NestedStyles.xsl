@@ -36,6 +36,7 @@
         <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" 
           select=".//text()[idml2xml:same-scope(., current())]
                            [not(ancestor::Properties)]
+                           [not(ancestor::idml2xml:link)](: https://redmine.le-tex.de/issues/5782#note-43 :)
                            [if ($separator-regex-chars) 
                             then matches(., concat('[', $separator-regex-chars, ']'))
                             else false()
