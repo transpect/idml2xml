@@ -2414,14 +2414,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template name="orphaned-indexterms">
     <xsl:for-each select="//idml2xml:indexterms/dbk:indexterm[not(@page-reference)]">
-      <indexterm xml:id="ie_{$idml2xml:basename}_see_{position()}">
-        <xsl:apply-templates mode="#current"/>
+      <xsl:copy copy-namespaces="no">
+        <xsl:apply-templates select="@* except @see-crossref-topics, node()" mode="#current"/>
         <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
           <see>
             <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
           </see>
         </xsl:if>
-      </indexterm>
+      </xsl:copy>
     </xsl:for-each>
   </xsl:template>
   

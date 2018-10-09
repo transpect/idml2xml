@@ -22,7 +22,6 @@
           idml2xml:ExtractTagging
           idml2xml:GenerateTagging
           idml2xml:IndexTerms-Topics
-          idml2xml:IndexTerms-SeeAlso
           idml2xml:Images
           idml2xml:NestedStyles-create-separators
           idml2xml:NestedStyles-pull-up-separators
