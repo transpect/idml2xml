@@ -318,6 +318,21 @@
   
   <xsl:template match="*[name() = $level-element-name]/@*[name() = ('in-embedded-story', 'page-reference', 'xml:id')]"
     mode="idml2xml:SeparateParagraphs"/>
+  
+  <xsl:template match="indexterm[count(see) gt 1]" mode="idml2xml:ConsolidateParagraphStyleRanges-pull-up-Br">
+    <xsl:variable name="context" as="element(indexterm)" select="."/>
+    <xsl:for-each select="see">
+      <xsl:variable name="id" as="xs:string" 
+        select="string-join(((@xml:id, concat('ie_', $idml2xml:basename, '_', generate-id(..)))[1], position()), '__see')"/>
+      <xsl:variable name="current-see" as="element(see)" select="."/>
+      <xsl:for-each select="$context">
+        <xsl:copy>
+          <xsl:attribute name="xml:id" select="$id"/>
+          <xsl:apply-templates select="@* except @xml:id, node() except see, see[. is $current-see]" mode="#current"/>
+        </xsl:copy>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
 
   <!-- eliminate those indexterms whose seealso references have been moved to another indexterm that resides on a page -->
   <xsl:template match="idml2xml:indexterms/indexterm[empty(see | seealso)][empty(@page-reference)]" 
