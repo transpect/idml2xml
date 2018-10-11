@@ -2460,10 +2460,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
     <xsl:variable name="list-style-type" as="xs:string" select="('', ($rule, $context)//@css:list-style-type)[last()]"/>
     <xsl:choose>
-      <xsl:when test="exists(@idml2xml:aux-list-fam) and $list-style-type = $numbered-list-styles and @idml2xml:aux-list-picture-string ne ''">
+      <xsl:when test="exists(@idml2xml:aux-list-fam) 
+                      and 
+                      $list-style-type = $numbered-list-styles 
+                      and 
+                      @idml2xml:aux-list-picture-string ne ''
+                      and
+                      exists(node()) (: http://svn.le-tex.de/svn/ltxbase/Difftestdata/Hogrefe/hogrefe.de/ADHOC_MO/02641/idml/101026_02641_ADHOC_MO.idml
+                                        after 'Das Basisverhalten des Therapeuten sollte' :)
+                      ">
         <xsl:variable name="same-list-family" as="element(dbk:para)*" 
           select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
-        <xsl:variable name="is-list-item" as="xs:boolean" select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
+        <xsl:variable name="is-list-item" as="xs:boolean" 
+          select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
         <xsl:variable name="all-list-styles" as="xs:string*"
           select="key('idml2xml:list-styles', $numbered-list-styles)[@*:numbering-level = $rule/@*:numbering-level]/@name"/>
         <xsl:variable name="same-list-famlvl" as="element(dbk:para)*"

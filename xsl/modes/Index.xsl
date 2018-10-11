@@ -27,14 +27,15 @@
 
   <xsl:template match="PageReference" mode="idml2xml:IndexTerms-extract">
     <xsl:variable name="embedded-story" select="ancestor::Story[parent::TextFrame]/@Self" as="xs:string*" />
+    <xsl:variable name="rt" as="xs:string" select="replace(@ReferencedTopic, 'Topicn$', '')"/>
     <xsl:variable name="topics" 
       select="if (
-                    count(key('topic', @ReferencedTopic)) gt 1 
+                    count(key('topic', $rt)) gt 1 
                     and 
-                    key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]]
+                    key('topic', $rt)[@SortOrder[normalize-space(.)]]
                  )
-              then key('topic', @ReferencedTopic)[@SortOrder[normalize-space(.)]] 
-              else key('topic', @ReferencedTopic)" as="element(Topic)*"/>
+              then key('topic', $rt)[@SortOrder[normalize-space(.)]] 
+              else key('topic', $rt)" as="element(Topic)*"/>
     <xsl:apply-templates select="$topics" mode="#current">
       <xsl:with-param name="embedded-story" select="$embedded-story" tunnel="yes" />
       <xsl:with-param name="page-reference" select="@Self" tunnel="yes" />
@@ -149,7 +150,7 @@
         </xsl:if>
         <xsl:if test="exists($crossrefs) and not(exists(idml2xml:index-crossrefs(.)))">
           <xsl:attribute name="{if ($crossrefs[1]/@CrossReferenceType eq 'See') then 'see' else 'seealso'}-crossref-topics" 
-            select="distinct-values($crossrefs/@ReferencedTopic)" />
+            select="distinct-values(for $cr in $crossrefs return replace($cr/@ReferencedTopic, 'Topicn$', ''))"/>
         </xsl:if>
         <primary>
           <xsl:apply-templates select="@SortOrder" mode="#current"/>
@@ -225,18 +226,26 @@
   <xsl:function name="idml2xml:index-crossrefs" as="element(*)*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />
     <xsl:for-each select="$topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic">
-      <xsl:variable name="referenced-topic" select="key('idml2xml:by-Self', .)" as="element(Topic)*"/>
+      <xsl:variable name="referenced-topic" select="key('idml2xml:by-Self', replace(., 'Topicn$', ''))" as="element(Topic)*"/>
       <seealso>
         <xsl:if test="exists($referenced-topic/@page-reference)">
           <xsl:attribute name="linkend" 
             select="idml2xml:generate-indexterm-id($idml2xml:basename, ($referenced-topic/@page-reference)[1])"/>
         </xsl:if>
         <!--<xsl:comment select="$topic/@Self, '|', $topic/@Name, '|',., '|', $referenced-topic/@page-reference"></xsl:comment>-->
-        <xsl:value-of select="replace(substring-after(., 'Topicn'), 'Topicn', ', ')" />
+        <xsl:value-of select="replace(
+                                substring-after(
+                                  replace(., 'Topicn$', ''),
+                                  'Topicn'
+                                ), 
+                                'Topicn', 
+                                ', '
+                              )" />
       </seealso>
     </xsl:for-each>
     <xsl:variable name="see-refs" as="xs:string*"
-      select="$topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic"/>
+      select="for $rt in $topic/CrossReference[not(matches(@CrossReferenceType, 'Also'))]/@ReferencedTopic
+              return replace($rt, 'Topicn$', '')"/>
     <xsl:if test="count(distinct-values($see-refs)) gt 0">
       <xsl:variable name="errors" as="element(error)*">
         <xsl:if test="count(distinct-values($see-refs)) gt 1">
