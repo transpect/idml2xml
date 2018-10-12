@@ -243,7 +243,7 @@
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
        they’d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
-    use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef']/Content return idml2xml:text-content($r)"/>
+    use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef']//Content return idml2xml:text-content($r)"/>
   <!-- we do not allow StoryIDs/StoryRefs that consist of whistespace only -->
   <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]
                                                [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
@@ -287,7 +287,7 @@
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each select="Content">
+      <xsl:for-each select=".//Content">
       <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
       <xsl:choose>
         <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
@@ -596,10 +596,6 @@
       <!-- perhaps the inner groups shall be sorted by the objects inside -->
     </xsl:copy>
   </xsl:template>
-  
-  <xsl:template match="Group[Properties[Label[KeyValuePair[@Key = 'letex:fileName'][matches(@Value, '\S')]]]]/*
-                                [self::Rectangle | self::Polygon | self::Oval][1]/Properties/Label[KeyValuePair[@Key = 'letex:fileName']]" 
-      mode="idml2xml:DocumentResolveTextFrames"/>  
   
   <xsl:template match="*[Properties/PathGeometry/GeometryPathType]" mode="idml2xml:Geometry" as="item()*">
     <xsl:variable name="transformation-matrix" as="xs:double*" 
