@@ -130,10 +130,9 @@
     <xsl:variable name="see-or-seealso" as="element(*)*" select="idml2xml:index-crossrefs(.)"/>
     <xsl:if test="exists(Topic) or empty($see-or-seealso)">
       <indexterm>
-        <xsl:if test="@page-reference">
-          <xsl:attribute name="xml:id" select="idml2xml:generate-indexterm-id($idml2xml:basename, @page-reference)" />
-          <xsl:copy-of select="@page-reference"/>
-        </xsl:if>
+        <xsl:attribute name="xml:id" 
+          select="idml2xml:generate-indexterm-id($idml2xml:basename, (@page-reference, generate-id())[1])" />
+        <xsl:copy-of select="@page-reference"/>
         <xsl:choose>
           <xsl:when test="exists($pagenum)">
             <xsl:attribute name="pagenum" select="$pagenum"/>
@@ -162,10 +161,9 @@
     </xsl:if>
     <xsl:if test="exists($see-or-seealso)">
       <indexterm>
-        <xsl:if test="@page-reference">
-          <xsl:attribute name="xml:id" select="idml2xml:generate-indexterm-id($idml2xml:basename, @page-reference)"/>
-          <xsl:copy-of select="@page-reference"/>
-        </xsl:if>
+        <xsl:attribute name="xml:id" 
+          select="idml2xml:generate-indexterm-id($idml2xml:basename, (@page-reference, generate-id())[1])" />
+        <xsl:copy-of select="@page-reference"/>
         <xsl:if test="exists($pagenum)">
           <xsl:attribute name="pagenum" select="$pagenum"/>
         </xsl:if>
@@ -323,7 +321,13 @@
     <xsl:variable name="context" as="element(indexterm)" select="."/>
     <xsl:for-each select="see">
       <xsl:variable name="id" as="xs:string" 
-        select="string-join(((@xml:id, concat('ie_', $idml2xml:basename, '_', generate-id(..)))[1], position()), '__see')"/>
+        select="string-join(
+                  (
+                    (@xml:id, 
+                     concat('ie_', $idml2xml:basename, '_', generate-id(..))
+                    )[1], 
+                    if (position() gt 1) then position() else ()
+                  ), '__see')"/>
       <xsl:variable name="current-see" as="element(see)" select="."/>
       <xsl:for-each select="$context">
         <xsl:copy>
@@ -358,7 +362,7 @@
   
   <xsl:function name="idml2xml:generate-indexterm-id" as="xs:string">
     <xsl:param name="file-basename" as="xs:string"/>
-    <xsl:param name="page-reference" as="attribute(page-reference)"/>
+    <xsl:param name="page-reference" as="xs:string"/>
     <xsl:sequence select="concat('ie_', $file-basename, '_', $page-reference)"/>
   </xsl:function>
 
