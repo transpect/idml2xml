@@ -31,7 +31,8 @@
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso', 'date', 'author', 'personname', 'tfoot', 'thead',
                'css:rules', 'css:rule', 'linked-style', 'inlineequation', 'equation',
-               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style'
+               'styles', 'parastyles', 'inlinestyles', 'objectstyles', 'cellstyles', 'tablestyles', 'style',
+               $level-element-name
               )" as="xs:string+"/>
 
 
@@ -2370,7 +2371,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="0.75">
     <xsl:variable name="orphaned-indexterm-para-candidates" as="element(dbk:para)*"
       select="dbk:para[normalize-space()]
-                      [not(every $n in node() satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable))]
+                      [not(every $n in node() 
+                           satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable | $n/self::dbk:anchor))]
                       [not(matches(@role, '(imprint|index|toc|title|note)'))]
                       [not(.//@condition)]"/>
     <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?">
@@ -2379,7 +2381,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:sequence select="dbk:para[1]"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:sequence select="dbk:para[count($orphaned-indexterm-para-candidates) idiv 2 + 1]"/>
+          <xsl:sequence select="$orphaned-indexterm-para-candidates[count($orphaned-indexterm-para-candidates) idiv 2 + 1]"/>
           <!-- not the last as previously because the last para might get discarded (unanchored table caption 
             continuations, etc., see https://redmine.le-tex.de/issues/5782). 
             The first paras are also likely to be discarded (imprint, ToC, etc.). -->

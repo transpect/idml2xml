@@ -20,7 +20,11 @@
   </xsl:template>
 
   <xsl:template match="idml2xml:index" mode="idml2xml:IndexTerms-extract">
-    <xsl:apply-templates select=".//Topic[CrossReference]" mode="#current" />
+    <xsl:param name="all-pagerefs" as="element(PageReference)*" tunnel="yes"/>
+    <xsl:apply-templates 
+      select=".//Topic[CrossReference] 
+              | .//Topic[empty(CrossReference|Topic[normalize-space(@Name)])]
+                         [not(@Self = $all-pagerefs/@ReferencedTopic)]" mode="#current" />
   </xsl:template>
 
   <xsl:template match="text()" mode="idml2xml:IndexTerms-extract" />
@@ -127,7 +131,7 @@
     <xsl:param name="silent" as="xs:boolean?" tunnel="yes"/>
     <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean" />
     <xsl:variable name="crossrefs" select="CrossReference" as="element(CrossReference)*"/>
-    <xsl:variable name="see-or-seealso" as="element(*)*" select="idml2xml:index-crossrefs(.)"/>
+    <xsl:variable name="see-or-seealso" as="element()*" select="idml2xml:index-crossrefs(.)"/>
     <xsl:if test="exists(Topic) or empty($see-or-seealso)">
       <indexterm>
         <xsl:attribute name="xml:id" 
@@ -188,7 +192,7 @@
     <xsl:param name="silent" as="xs:boolean?" tunnel="yes"/>
     <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean?" />
     <xsl:variable name="crossrefs" select="CrossReference" as="element(CrossReference)*"/>
-    <xsl:variable name="see-or-seealso" as="element(*)*" select="idml2xml:index-crossrefs(.)"/>
+    <xsl:variable name="see-or-seealso" as="element()*" select="idml2xml:index-crossrefs(.)"/>
     <xsl:element name="{$level-element-name[count(current()/ancestor::Topic) + 1]}">
       <xsl:if test="@page-reference">
         <xsl:attribute name="xml:id" select="idml2xml:generate-indexterm-id($idml2xml:basename, @page-reference)" />
@@ -221,7 +225,7 @@
   </xsl:template>
 
 
-  <xsl:function name="idml2xml:index-crossrefs" as="element(*)*"><!-- see or seealso -->
+  <xsl:function name="idml2xml:index-crossrefs" as="item()*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />
     <xsl:for-each select="$topic/CrossReference[matches(@CrossReferenceType, 'Also')]/@ReferencedTopic">
       <xsl:variable name="referenced-topic" select="key('idml2xml:by-Self', replace(., 'Topicn$', ''))" as="element(Topic)*"/>
@@ -293,6 +297,12 @@
             <xsl:if test="current-grouping-key() = '~'">
               <xsl:attribute name="role" select="'hub:not-placed-on-page'"/>
             </xsl:if>
+            <xsl:if test="exists(current-group()/seealso)">
+              <xsl:attribute name="has-seealso"/>
+            </xsl:if>
+            <xsl:if test="exists(current-group()/see)">
+              <xsl:attribute name="has-see"/>
+            </xsl:if>
             <xsl:apply-templates select="*[name() = $level-element-name]" mode="#current"/>
             <xsl:if test="position() = 1">
               <xsl:for-each-group select="current-group()/seealso" group-by=".">
@@ -339,7 +349,9 @@
   </xsl:template>
 
   <!-- eliminate those indexterms whose seealso references have been moved to another indexterm that resides on a page -->
-  <xsl:template match="idml2xml:indexterms/indexterm[empty(see | seealso)][empty(@page-reference)]" 
+  <xsl:template match="idml2xml:indexterms/indexterm[empty(seealso)]
+                                                    [@has-seealso]
+                                                    [empty(@page-reference)]" 
     mode="idml2xml:ConsolidateParagraphStyleRanges"/>
   
   
@@ -351,10 +363,15 @@
     <xsl:variable name="idml2xml:IndexTerms-extract" as="document-node(element(idml2xml:indexterms))">
       <xsl:document>
         <idml2xml:indexterms>
-          <xsl:apply-templates select="/" mode="idml2xml:IndexTerms-extract"/>
+          <xsl:apply-templates select="/" mode="idml2xml:IndexTerms-extract">
+            <xsl:with-param name="all-pagerefs" as="element(PageReference)*" select="//PageReference" tunnel="yes"/>
+          </xsl:apply-templates>
         </idml2xml:indexterms>
       </xsl:document>
     </xsl:variable>
+    <!--<debug>
+      <xsl:sequence select="$idml2xml:IndexTerms-extract"></xsl:sequence>
+    </debug>-->
     <xsl:apply-templates select="$idml2xml:IndexTerms-extract/idml2xml:indexterms" mode="idml2xml:IndexTerms">
       <xsl:with-param name="silent" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
@@ -378,7 +395,10 @@
     </xsl:apply-templates>
   </xsl:template>
   
-  <xsl:template match="indexterm/@page-reference | @in-embedded-story" mode="idml2xml:XML-Hubformat-add-properties" priority="2"/>
+  <xsl:template match="indexterm/@page-reference | @in-embedded-story" 
+    mode="idml2xml:XML-Hubformat-add-properties" priority="2"/>
+  <xsl:template match="@has-seealso | @has-see" 
+    mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2"/>
 
   <xsl:template match="indexterm | *[name() = $level-element-name] | see | seealso" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:param name="PageReference" select="()" as="element(PageReference)?" tunnel="no"/>
