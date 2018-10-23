@@ -371,7 +371,9 @@
 
   <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
   <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($endnotes/@Self, @Self)"/>
-     <idml2xml:genAnchor xml:id="endnote-{$endnote-id}" annotations="Anchor {$endnote-id}"/>
+    <!-- Unsure whether there is a DestinationUniqueKey so that linking from other files would be possible. 
+      Didn’t find an example of EndnoteRange. Leave it as it is for the time being. --> 
+     <idml2xml:genAnchor xml:id="endnote-{$endnote-id}"/>
      <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
 

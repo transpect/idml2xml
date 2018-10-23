@@ -340,7 +340,7 @@
     <xsl:choose>
       <xsl:when
         test="$target-element-name = ('ParagraphDestination', 'HyperlinkTextDestination')">
-        <idml2xml:link linkend="{idml2xml:escape-id(.)}" remap="{$target-element-name}">
+        <idml2xml:link linkend="DUK_{../../@DestinationUniqueKey}" remap="{$target-element-name}" annotations="{idml2xml:escape-id(.)}">
           <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
             <xsl:with-param name="document-context" select="$document-context"/>
           </xsl:call-template>
@@ -348,7 +348,8 @@
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
         <!-- is $document-context/@Name intended? -->
-        <idml2xml:link linkend="id_{$document-context/@Name}" remap="{$target-element-name}">
+        <idml2xml:link linkend="DUK_{../../@DestinationUniqueKey}" remap="{$target-element-name}" 
+          annotations="{idml2xml:escape-id($document-context/@Name)}">
           <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
             <xsl:with-param name="document-context" select="$document-context"/>
           </xsl:call-template>
@@ -421,7 +422,7 @@
                                                 '/'
                                               )
                                             )" as="xs:string"/>
-    <idml2xml:link xlink:href="{$file-uri}?name={$name}" remap="ExternalHyperlinkTextDestination">
+    <idml2xml:link xlink:href="{$file-uri}#{$id-prefix}DUK_{../../@DestinationUniqueKey}" remap="ExternalHyperlinkTextDestination">
       <xsl:apply-templates select="$document-context/(@srcpath, node())" mode="idml2xml:ExtractTagging"/>
     </idml2xml:link>
   </xsl:template>
@@ -438,8 +439,9 @@
   
 
   <xsl:template match="ParagraphDestination | HyperlinkTextDestination" mode="idml2xml:ExtractTagging">
-    <idml2xml:genAnchor xml:id="{idml2xml:escape-id(@Self)}" remap="{local-name()}" 
-      annotations="{replace(@Name, '^.+?/', '')}"/>
+    <idml2xml:genAnchor remap="{local-name()}" annotations="{replace(@Name, '^.+?/', '')}">
+      <xsl:attribute name="xml:id" select="string-join(('DUK', @DestinationUniqueKey), '_')"/>
+    </idml2xml:genAnchor>
   </xsl:template>
 
   <xsl:template match="TextVariableInstance" mode="idml2xml:ExtractTagging">
