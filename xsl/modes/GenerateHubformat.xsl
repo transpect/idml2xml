@@ -476,10 +476,24 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <!-- very basic approach. neither the directions nor the angles or positions are taken into consideration.
             stopped mapping of border colors, because it is only allowed as whole border-image, not for border-right etc. Untergliedern, Fragezeichen ist doof-->
             <xsl:variable name="gradient" select="key('idml2xml:gradient', $val, root($val))[1]" as="element(Gradient)?" />
+            <xsl:variable name="colorStops0" as="document-node()">
+              <xsl:document>
+                <xsl:apply-templates select="$gradient/GradientStop/@StopColor" mode="#current">
+                  <xsl:sort order="ascending" select="../@Location" data-type="number"/>
+                </xsl:apply-templates>  
+              </xsl:document>
+            </xsl:variable>
             <xsl:variable name="colorStops" as="element(idml2xml:attribute)*">
-              <xsl:apply-templates select="$gradient/GradientStop/@StopColor" mode="#current">
-                <xsl:sort order="ascending" select="../@Location" data-type="number"/>
-              </xsl:apply-templates>
+              <xsl:for-each-group select="$colorStops0/idml2xml:attribute" group-starting-with="*[@name = 'css:background-color']">
+                <xsl:if test="current-group()/@name = 'css:background-color'">
+                  <xsl:copy>
+                    <xsl:copy-of select="@name"/>
+                    <!-- question: do we need to subtract fill-tint from 1 to get the CSS saturation percentage? 
+                    Or even more complicated stuff? Is device-cmyk expected at all here in regular CSS? -->
+                    <xsl:value-of select="string-join(current-group()[@name = ('css:background-color', 'fill-tint')], ' ')"/>
+                  </xsl:copy>  
+                </xsl:if>
+              </xsl:for-each-group>
             </xsl:variable>
             <xsl:choose>
               <xsl:when test="$target-name = 'css:background-color'">
