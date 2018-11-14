@@ -113,7 +113,10 @@
       what looks like percent encoding.
       tr:unescape-uri() replaces previous '%3a'→':' replacement for hierarchically organized styles.
       The previous ad-hoc replacement was introduced when tr:unescape-uri() did not exist yet. -->
-    <xsl:sequence select="tr:unescape-uri($stylename)"/>
+    <xsl:if test="matches($stylename, '%(0[0-8BCEF]|1[0-9A-F])', 'i')">
+      <xsl:message select="'Some characters invalid in XML 1.0: ', $stylename"/>
+    </xsl:if>
+    <xsl:sequence select="tr:unescape-uri(replace($stylename, '%(0[0-8BCEF]|1[0-9A-F])', '', 'i'))"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:RemoveTypeFromStyleName" as="xs:string">
