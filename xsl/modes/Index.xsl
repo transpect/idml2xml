@@ -336,7 +336,7 @@
                     (@xml:id, 
                      concat('ie_', $idml2xml:basename, '_', generate-id(..))
                     )[1], 
-                    if (position() gt 1) then position() else ()
+                    if (position() gt 1) then string(position()) else ()
                   ), '__see')"/>
       <xsl:variable name="current-see" as="element(see)" select="."/>
       <xsl:for-each select="$context">
