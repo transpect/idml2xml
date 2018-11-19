@@ -640,4 +640,30 @@
     <!-- discard anchors of Bookmarks and their hyperlinks -->
   </xsl:template>
   
+
+  <!-- MathTools 3 stores math in attributes, not in Properties/MathToolsML
+       Let’s emultate this: --> 
+  <xsl:template match="*[@MathToolsML]/Properties" mode="idml2xml:Document">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <MathToolsML>
+        <xsl:value-of select="../@MathToolsML"/>
+      </MathToolsML>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*[@MathToolsML][empty(Properties)]" mode="idml2xml:Document">
+    <xsl:copy>
+      <xsl:apply-templates select="@* except @MathToolsML" mode="#current"/>
+      <Properties>
+        <MathToolsML>
+          <xsl:value-of select="@MathToolsML"/>
+        </MathToolsML>
+      </Properties>
+      <xsl:apply-templates mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="@MathToolsML" mode="idml2xml:Document"/>
+
 </xsl:stylesheet>
