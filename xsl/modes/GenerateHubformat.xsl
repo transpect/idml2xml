@@ -274,15 +274,17 @@
   </xsl:template>
 
   <xsl:template match="Properties" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates select="node() except MathToolsML[mml:math]" mode="#current"/>
-    <xsl:if test="MathToolsML[mml:math]">
-      <inlineequation role="mathtools">
-        <math xmlns="http://www.w3.org/1998/Math/MathML">
-          <xsl:sequence select="MathToolsML/mml:math/node()"/>
-        </math>
-      </inlineequation>
-    </xsl:if>
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
+  
+  <xsl:template match="MathToolsML[mml:math]" mode="idml2xml:XML-Hubformat-add-properties">
+    <inlineequation role="mathtools">
+      <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <xsl:sequence select="mml:math/node()"/>
+      </math>
+    </inlineequation>
+  </xsl:template>
+  
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
 
   <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">

@@ -641,29 +641,37 @@
   </xsl:template>
   
 
-  <!-- MathTools 3 stores math in attributes, not in Properties/MathToolsML
-       Let’s emultate this: --> 
-  <xsl:template match="*[@MathToolsML]/Properties" mode="idml2xml:Document">
+  <!-- MathTools 3 stores math in attributes, not in Properties/MathToolsML --> 
+  <xsl:template match="*[@MathToolsML]" mode="idml2xml:Document">
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:if test="$srcpaths = 'yes'">
+        <xsl:attribute name="srcpath" select="idml2xml:srcpath(.)" />
+      </xsl:if>
+      <xsl:apply-templates select="@* except @MathToolsML, Properties" mode="#current"/>
       <MathToolsML>
-        <xsl:value-of select="../@MathToolsML"/>
+        <xsl:value-of select="@MathToolsML"/>
       </MathToolsML>
-    </xsl:copy>
-  </xsl:template>
-  
-  <xsl:template match="*[@MathToolsML][empty(Properties)]" mode="idml2xml:Document">
-    <xsl:copy>
-      <xsl:apply-templates select="@* except @MathToolsML" mode="#current"/>
-      <Properties>
-        <MathToolsML>
-          <xsl:value-of select="@MathToolsML"/>
-        </MathToolsML>
-      </Properties>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="node() except Properties" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
   <xsl:template match="@MathToolsML" mode="idml2xml:Document"/>
+  
+  <!-- Let’s move v2 MathToolsML out of Properties, next to Content. -->
+  <xsl:template match="*[Properties/MathToolsML]" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="remove" select="Properties/MathToolsML" tunnel="yes" as="element(MathToolsML)"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="Properties/MathToolsML" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="Properties/MathToolsML" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:param name="remove" as="item()*" tunnel="yes"/>
+    <xsl:if test="empty($remove intersect .)">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
 </xsl:stylesheet>

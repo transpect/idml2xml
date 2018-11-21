@@ -140,10 +140,10 @@
     <xsl:variable name="leaves" as="element(*)+">
       <xsl:choose>
         <xsl:when test="$elt/self::ParagraphStyleRange">
-          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
+          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or empty(*)][idml2xml:same-scope(., $elt)]" />
         </xsl:when>
         <xsl:when test="$elt/self::XMLElement">
-          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or not(*)][idml2xml:same-scope(., $elt)]" />
+          <xsl:sequence select="$elt//*[(name() = $idml2xml:idml-scope-terminal-names) or empty(*)][idml2xml:same-scope(., $elt)]" />
         </xsl:when>
         <xsl:otherwise>
           <idml2xml:error msg="idml2xml:split-at-br in SeparateParagraphs.xsl is only defined for XMLElement or ParagraphStyleRange"/> 
@@ -164,10 +164,6 @@
     <xsl:apply-templates mode="#current">
       <xsl:with-param name="charstylerange" select="." tunnel="yes"/>
     </xsl:apply-templates>
-  </xsl:template>
-
-  <xsl:template match="CharacterStyleRange[descendant::mml:math]" mode="idml2xml:SeparateParagraphs-slice">
-    <xsl:sequence select="."/>
   </xsl:template>
 
   <xsl:template match="CrossReferenceSource" mode="idml2xml:SeparateParagraphs-slice">
