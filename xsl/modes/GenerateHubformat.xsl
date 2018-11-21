@@ -2478,19 +2478,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="rule" select="key('idml2xml:style-by-role', @role)[@layout-type = 'para']" as="element(css:rule)?"/>
     <xsl:variable name="list-style-type" as="xs:string" select="('', ($rule, $context)//@css:list-style-type)[last()]"/>
     <xsl:choose>
-      <xsl:when test="normalize-space(@idml2xml:aux-list-fam) 
+      <xsl:when test="exists(@idml2xml:aux-list-fam) 
                       and 
                       $list-style-type = $numbered-list-styles 
                       and 
                       @idml2xml:aux-list-picture-string ne ''
-                      (: and 
-                      exists(node()) :)(: http://svn.le-tex.de/svn/ltxbase/Difftestdata/Hogrefe/hogrefe.de/ADHOC_MO/02641/idml/101026_02641_ADHOC_MO.idml
+                      and 
+                      (
+                        exists(node()) 
+                        or
+                        exists(following-sibling::*)
+                      ) (: http://svn.le-tex.de/svn/ltxbase/Difftestdata/Hogrefe/hogrefe.de/ADHOC_MO/02641/idml/101026_02641_ADHOC_MO.idml
                                         after 'Das Basisverhalten des Therapeuten sollte' :)
                       ">
         <!-- Apparently it is not necessary that there are nodes. Counterexample: 
           http://svn.le-tex.de/svn/ltxbase/Difftestdata/evolve-hub-lists/idml/M_1_001.idml
           second para with role="Proof_Line-Numbers".
-          The criteria probably is: @idml2xml:aux-list-fam has non-empty value.
+          The criterion seems to be: Either there be nodes or a following-sibling para
         -->
         <xsl:variable name="same-list-family" as="element(dbk:para)*" 
           select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
