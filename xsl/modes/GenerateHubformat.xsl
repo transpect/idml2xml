@@ -930,7 +930,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 'css:color', 'css:border-top-color', 'css:border-left-color', 'css:border-right-color', 'css:border-bottom-color', 'css:border-color')]
+  <xsl:template match="idml2xml:attribute[@name = ('css:background-color', 
+                                                   'css:color', 
+                                                   'css:border-top-color', 
+                                                   'css:border-left-color', 
+                                                   'css:border-right-color', 
+                                                   'css:border-bottom-color', 
+                                                   'css:border-color',
+                                                   'idml2xml:StartRowFillColor',
+                                                   'idml2xml:EndRowFillColor'
+                                                   )]
                                          [$hub-version ne '1.0']" 
     mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- Even if we’re processing local override colors here: 
@@ -1764,6 +1773,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="idml2xml:genTable" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="context-table" select="." as="element(idml2xml:genTable)"/>
+    <xsl:variable name="table-style" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]" as="element(css:rule)?"/>
     <xsl:variable name="head-count" select="number(@idml2xml:header-row-count)" as="xs:double"/>
     <xsl:variable name="body-count" select="number(@idml2xml:body-row-count)" as="xs:double"/>
     <xsl:variable name="foot-count" select="number(@idml2xml:footer-row-count)" as="xs:double"/>
@@ -1793,7 +1803,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <thead>
             <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) lt $head-count]" group-by="@aid:rowname">
               <xsl:call-template name="idml2xml:row">
-                <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:HeaderRegionCellStyle"/>
+                <xsl:with-param name="inherit-cellstyle" select="$table-style/@idml2xml:HeaderRegionCellStyle"/>
+                <xsl:with-param name="table-style" select="$table-style"/>
               </xsl:call-template>
             </xsl:for-each-group>
           </thead>
@@ -1801,7 +1812,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <tbody>
           <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) gt ($head-count - 1) and number(@aid:rowname) lt ($head-count + $body-count)]" group-by="@aid:rowname">
             <xsl:call-template name="idml2xml:row">
-              <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:BodyRegionCellStyle"/>
+              <xsl:with-param name="inherit-cellstyle" select="$table-style/@idml2xml:BodyRegionCellStyle"/>
+              <xsl:with-param name="table-style" select="$table-style"/>
             </xsl:call-template>
           </xsl:for-each-group>
         </tbody>
@@ -1809,7 +1821,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <tfoot>
             <xsl:for-each-group select="*[@aid:table = 'cell'][number(@aid:rowname) ge ($head-count + $body-count)]" group-by="@aid:rowname">
               <xsl:call-template name="idml2xml:row">
-                <xsl:with-param name="inherit-cellstyle" select="//css:rule[@layout-type eq 'table'][@name = $context-table/@aid5:tablestyle]/@idml2xml:FooterRegionCellStyle"/>
+                <xsl:with-param name="inherit-cellstyle" select="$table-style/@idml2xml:FooterRegionCellStyle"/>
+                <xsl:with-param name="table-style" select="$table-style"/>
               </xsl:call-template>
             </xsl:for-each-group>
           </tfoot>
@@ -1826,7 +1839,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template name="idml2xml:row" as="element(dbk:row)*">
     <xsl:param name="inherit-cellstyle" select="''" as="xs:string?" tunnel="no"/>
+    <xsl:param name="table-style" as="element(css:rule)?" tunnel="no"/>
     <row>
+      <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) ne 0">
+        <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:StartRowFillColor"/>
+      </xsl:if>
+      <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) eq 0">
+        <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:EndRowFillColor"/>
+      </xsl:if>
       <xsl:for-each select="current-group()">
         <entry>
           <xsl:apply-templates select="@xml:*, @css:*" mode="#current"/>
