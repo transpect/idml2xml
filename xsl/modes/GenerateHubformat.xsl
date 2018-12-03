@@ -2517,9 +2517,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           The criterion seems to be: Either there be nodes or a following-sibling para
         -->
         <xsl:variable name="same-list-family" as="element(dbk:para)*" 
-          select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()] union current()"/>
-        <xsl:variable name="is-list-item" as="xs:boolean" 
-          select="(($rule, $context)//@css:display)[last()] = 'list-item'"/>
+          select="key('idml2xml:list-para-by-fam', @idml2xml:aux-list-fam)[. &lt;&lt; current()][not(ancestor::dbk:sidebar[@remap = 'HiddenText'])] union current()"/>
+        <xsl:variable name="is-list-item" as="xs:boolean"
+          select="(($rule, $context)//@css:display[not(ancestor::dbk:sidebar[@remap = 'HiddenText'])])[last()] = 'list-item'"/>
         <xsl:variable name="all-list-styles" as="xs:string*"
           select="key('idml2xml:list-styles', $numbered-list-styles)[@*:numbering-level = $rule/@*:numbering-level]/@name"/>
         <xsl:variable name="same-list-famlvl" as="element(dbk:para)*"
