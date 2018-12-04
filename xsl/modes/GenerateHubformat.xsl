@@ -1841,11 +1841,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="inherit-cellstyle" select="''" as="xs:string?" tunnel="no"/>
     <xsl:param name="table-style" as="element(css:rule)?" tunnel="no"/>
     <row>
-      <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) ne 0">
-        <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:StartRowFillColor"/>
-      </xsl:if>
-      <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) eq 0">
-        <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:EndRowFillColor"/>
+      <xsl:if test="$table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount ne 0">
+        <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) ne 0">
+          <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:StartRowFillColor"/>
+        </xsl:if>
+        <xsl:if test="position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) eq 0">
+          <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:EndRowFillColor"/>
+        </xsl:if>
       </xsl:if>
       <xsl:for-each select="current-group()">
         <entry>
