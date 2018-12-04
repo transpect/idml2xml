@@ -154,6 +154,9 @@
       <xsl:copy-of select="idPkg:Preferences"/>
       <idml2xml:hyper>
         <xsl:copy-of select="HyperlinkPageDestination | HyperlinkURLDestination | Hyperlink[not(key('idml2xml:Bookmark-from-Hyperlinks', Properties/Destination)[self::Bookmark])] | HyperlinkPageItemSource" />
+        <xsl:if test="$idml2xml:convert-hidden-toc-refs-to-hyperlinks">
+          <xsl:copy-of select="Hyperlink[key('idml2xml:Bookmark-from-Hyperlinks', Properties/Destination)[self::Bookmark]]"/>
+        </xsl:if>
       </idml2xml:hyper>
       <idml2xml:lang>
         <xsl:copy-of select="Language" />

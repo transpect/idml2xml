@@ -290,6 +290,7 @@
   <xsl:key name="hyperlink-dest-by-self" match="HyperlinkURLDestination | HyperlinkPageDestination | ParagraphDestination | HyperlinkTextDestination" 
     use="@DestinationUniqueKey" />
   <xsl:key name="hyperlinkPageItemSource-by-sourcePageItem" match="HyperlinkPageItemSource" use="@SourcePageItem"/>
+  <xsl:key name="hyperlinkPageItem-by-DestinationPage" match="idml2xml:sidebar" use="@Self"/>
   
   <xsl:template match="*[key('hyperlinkPageItemSource-by-sourcePageItem', @Self)]" mode="idml2xml:ExtractTagging">
     <xsl:apply-templates select="key('hyperlinkPageItemSource-by-sourcePageItem', @Self)" mode="#current">
@@ -297,7 +298,9 @@
     </xsl:apply-templates>
   </xsl:template>
   
-	<xsl:template match="HyperlinkTextSource[@Hidden eq 'true'] | CrossReferenceSource[@Hidden eq 'true']" mode="idml2xml:ExtractTagging">
+  <xsl:template match="HyperlinkTextSource[@Hidden eq 'true'] 
+                                          [if (ancestor::Story/@AppliedTOCStyle != 'n' and $idml2xml:convert-hidden-toc-refs-to-hyperlinks) then false() else true()]
+                     | CrossReferenceSource[@Hidden eq 'true']" mode="idml2xml:ExtractTagging">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
@@ -347,9 +350,9 @@
         </idml2xml:link>
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
-        <!-- is $document-context/@Name intended? -->
-        <idml2xml:link linkend="DUK_{../../@DestinationUniqueKey}" remap="{$target-element-name}" 
-          annotations="{idml2xml:escape-id($document-context/@Name)}">
+        <!-- linkend works in combination with page anchors -->
+        <idml2xml:link linkend="{concat('page_', key('hyperlinkPageItem-by-DestinationPage', $dest/@DestinationPage)/@pos-in-book)}" remap="{$target-element-name}" 
+          annotations="{idml2xml:escape-id(.)}">
           <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
             <xsl:with-param name="document-context" select="$document-context"/>
           </xsl:call-template>

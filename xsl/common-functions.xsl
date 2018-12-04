@@ -14,6 +14,9 @@
   
   <xsl:key name="idml2xml:by-Self" match="*[@Self]" use="@Self" />
   
+  <!-- converts hidden page refs in toc to links pointing to page anchors as created by PageNames script -->
+  <xsl:variable name="idml2xml:convert-hidden-toc-refs-to-hyperlinks" as="xs:boolean" select="false()"/>
+  
   <xsl:variable name="idml2xml:shape-element-names" as="xs:string+"
     select="('Rectangle', 'GraphicLine', 'Oval', 'Polygon', 'MultiStateObject')"/>
   <xsl:variable
