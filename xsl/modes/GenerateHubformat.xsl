@@ -1902,12 +1902,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:when test="$context/*[self::Image | self::*:EPS | self::*:WMF]/Link">
         <xsl:value-of select="concat($archive-dir-uri, 'images/', replace(replace($context/*[self::Image | self::*:EPS | self::*:WMF]/Link/@LinkResourceURI, '^(file:)?(.+)', '$2'), '^.+/(.+)$', '$1'))"/>
       </xsl:when>
-<!--      <xsl:when test="$context/WMF[@ImageTypeName = '$ID/Windows Meta Files']">
+      <!--<xsl:when test="$context/WMF[@ImageTypeName = '$ID/Windows Meta Files']">
         <xsl:value-of select="concat($archive-dir-uri, 'images/wmf-', $context/WMF/@Self, '.wmf')"/>
       </xsl:when>
       <xsl:when test="$context/WMF">
         <xsl:value-of select="concat($archive-dir-uri, 'images/wmf-', $context/WMF/@Self, '.tif')"/>
       </xsl:when>-->
+      <xsl:otherwise>
+        <xsl:value-of select="concat($archive-dir-uri, 'images/', $context/@Self, '-missing.tif')"/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
   
