@@ -561,7 +561,10 @@
             <xsl:attribute name="Self" select="generate-id()"/>
             <xsl:attribute name="ContentType" select="'GraphicType'"/>
             <xsl:apply-templates select="@AppliedObjectStyle" mode="#current"/>
-            <xsl:apply-templates select="*[self::Rectangle | self::Polygon | self::Oval][1]/Properties" mode="#current"/>
+            <Properties>
+              <xsl:apply-templates select="Properties/Label" mode="#current"/>
+              <xsl:apply-templates select="*[self::Rectangle | self::Polygon | self::Oval][1]/Properties/node()[not(self::Label)]" mode="#current"/>
+            </Properties>
             <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
             <xsl:element name="Image">
               <xsl:attribute name="Self" select="generate-id()"/>
