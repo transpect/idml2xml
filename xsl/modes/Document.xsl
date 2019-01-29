@@ -576,6 +576,7 @@
               </xsl:element>
             </xsl:element>
           </xsl:element>
+          <xsl:apply-templates select="TextFrame" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
         <xsl:variable name="objects-coordinates">
