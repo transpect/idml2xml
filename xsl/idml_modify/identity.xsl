@@ -9,7 +9,7 @@
   xmlns:aid5="http://ns.adobe.com/AdobeInDesign/5.0/"
   xmlns:idPkg="http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
   xmlns:idml2xml="http://transpect.io/idml2xml"
-  exclude-result-prefixes="xs c idml2xml aid5 aid xhtml tr"
+  exclude-result-prefixes="xs c idml2xml aid5 aid xhtml tr cx"
   version="2.0">
 
   <xsl:param name="debug" select="'no'"/>
@@ -18,7 +18,7 @@
   <xsl:param name="disable-images" select="'no'"/>
   <xsl:param name="zip-file-uri" as="xs:string" />
 
-  <xsl:template match="* | @*" mode="idml2xml:identity idml2xml:modify">
+  <xsl:template match="node() | @*" mode="idml2xml:identity idml2xml:modify">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
