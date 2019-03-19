@@ -288,47 +288,52 @@
   </xsl:function>-->
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:variable name="context" select="."/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
-      <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
-      <xsl:choose>
-        <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
-          so that Schematron can report non-resolution -->
-          <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
-          <xsl:copy-of select="@AppliedConditions, node()"/>
-        </xsl:when>
-        <xsl:when test="count($story) gt 1">
-          <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="idml2xml:text-content(.)"/>. 
-            Using only the first Story (with @Self <xsl:value-of select="$story/@Self"/>).
-          </xsl:message>
-          <xsl:attribute name="idml2xml:reason" select="'MULT_StoryID'"/>
-          <xsl:copy-of select="@AppliedConditions, node()"/>
-        </xsl:when>
-        <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
-          <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
-          <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(TextFrame)"/>
-          <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
-            as="element(*)"/>
-          <xsl:choose>
-            <xsl:when test="$potential-group/self::Group">
-              <xsl:for-each select="$potential-group">
-                <xsl:apply-templates select="." mode="#current">
-                  <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
-                </xsl:apply-templates>
-              </xsl:for-each>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:for-each select="$potential-group">
-                <xsl:copy>
-                  <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
-                </xsl:copy>
-              </xsl:for-each>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <!-- otherwise: the story is anchored within itself, don’t do anything -->
-      </xsl:choose>
+        <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
+        <xsl:choose>
+          <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
+            so that Schematron can report non-resolution -->
+            <xsl:copy>
+              <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
+              <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+            </xsl:copy>
+          </xsl:when>
+          <xsl:when test="count($story) gt 1">
+            <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="idml2xml:text-content(.)"/>. 
+              Using only the first Story (with @Self <xsl:value-of select="$story[1]/@Self"/>).
+            </xsl:message>
+            <xsl:copy>
+              <xsl:attribute name="idml2xml:reason" select="'MULT_StoryID'"/>
+              <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+            </xsl:copy>    
+          </xsl:when>
+          <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
+            <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
+            <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(TextFrame)"/>
+            <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
+              as="element(*)"/>
+            <xsl:choose>
+              <xsl:when test="$potential-group/self::Group">
+                <xsl:for-each select="$potential-group">
+                  <xsl:apply-templates select="." mode="#current">
+                    <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+                  </xsl:apply-templates>
+                </xsl:for-each>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:for-each select="$potential-group">
+                  <xsl:copy>
+                    <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
+                  </xsl:copy>
+                </xsl:for-each>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <!-- otherwise: the story is anchored within itself, don’t do anything -->
+        </xsl:choose>
       </xsl:for-each>
     </xsl:copy>
   </xsl:template>
