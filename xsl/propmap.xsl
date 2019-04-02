@@ -250,6 +250,7 @@
         <prop name="RightInset" type="length" target-name="css:padding-right" />
         <prop name="ShadowColor" type="color" target-name="shadow-color" />
         <prop name="SpaceAfter" type="length" target-name="css:margin-bottom" />
+        <prop name="SameParaStyleSpacing" type="length" target-name="hub:same-para-style-spacing"/>
         <prop name="SpaceBefore" type="length" target-name="css:margin-top" />
         <prop name="StartParagraph">
           <val eq="NextPage" target-name="css:page-break-before" target-value="always"/>
