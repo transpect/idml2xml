@@ -1330,10 +1330,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:variable name="id-prefix" select="'id_'" as="xs:string"/>
 
-  <xsl:template match="idml2xml:genPara" 
-		mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="idml2xml:genPara" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:variable name="role" as="xs:string?" select="for $s in @aid:pstyle return idml2xml:StyleName(@aid:pstyle)"/>
+    <xsl:variable name="css-rule" select="/dbk:hub/dbk:info/css:rules/css:rule[@name eq $role]" as="element(css:rule)"/>
     <xsl:element name="para">
-      <xsl:variable name="role" as="xs:string?" select="for $s in @aid:pstyle return idml2xml:StyleName(@aid:pstyle)"/>
       <xsl:if test="@aid:pstyle">
 	      <xsl:attribute name="role" select="$role" />
         <xsl:attribute name="idml2xml:layout-type" select="'para'"/>
@@ -1341,9 +1341,27 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:call-template name="idml2xml:list-aux-counter-atts">
         <xsl:with-param name="role" select="$role"/>
       </xsl:call-template>
+      <xsl:if test="$css-rule/@hub:same-para-style-spacing">
+        <xsl:call-template name="idml2xml:same-para-spacing">
+          <xsl:with-param name="role" select="$role" as="xs:string?"/>
+          <xsl:with-param name="css-rule" select="$css-rule" as="element(css:rule)"/>
+        </xsl:call-template>
+      </xsl:if>
       <xsl:apply-templates select="@* except @aid:pstyle" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
+  </xsl:template>
+  
+  <!-- ID same-para-spacing overrides vertical margins for paragraphs of the same style -->
+  
+  <xsl:template name="idml2xml:same-para-spacing">
+    <xsl:param name="role" as="xs:string?"/>
+    <xsl:param name="css-rule" as="element(css:rule)"/>
+    <xsl:variable name="context" select="." as="element(idml2xml:genPara)"/>
+    <xsl:variable name="next-para" select="$context/following-sibling::*[2][self::idml2xml:genPara]" as="element(idml2xml:genPara)?"/>
+    <xsl:if test="for $s in $next-para/@aid:pstyle return idml2xml:StyleName($next-para/@aid:pstyle) = $role">
+      <xsl:attribute name="css:margin-bottom" select="$css-rule/@hub:same-para-style-spacing"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:key name="idml2xml:paras-by-numbering-family" match="idml2xml:genPara" 
