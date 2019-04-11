@@ -972,6 +972,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:when test="@name = 'css:border-right-color'">
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('border-right-tint')])[last()]"/>
         </xsl:when>
+        <xsl:when test="@name = 'idml2xml:StartRowFillColor'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('idml2xml:StartRowFillTint')])[last()]"/>
+        </xsl:when>
+        <xsl:when test="@name = 'idml2xml:EndRowFillColor'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('idml2xml:EndRowFillTint')])[last()]"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint', 'fill-value', 'border-tint')])[last()]"/>
         </xsl:otherwise>
@@ -1862,7 +1868,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="table-style" as="element(css:rule)?" tunnel="no"/>
     <row>
       <xsl:if test="$table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount ne 0">
-        <xsl:if test="$table-style/@idml2xml:StartRowFillColor and
+        <xsl:if test="position() &gt; $table-style/@idml2xml:SkipFirstAlternatingFillRows and 
+                      $table-style/@idml2xml:StartRowFillColor and
                       position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) ne 0">
           <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:StartRowFillColor"/>
         </xsl:if>
