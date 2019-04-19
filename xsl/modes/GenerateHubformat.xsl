@@ -1338,7 +1338,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="idml2xml:genPara" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="role" as="xs:string?" select="for $s in @aid:pstyle return idml2xml:StyleName(@aid:pstyle)"/>
-    <xsl:variable name="css-rule" select="/dbk:hub/dbk:info/css:rules/css:rule[@name eq $role]" as="element(css:rule)"/>
+    <xsl:variable name="css-rule" select="key('idml2xml:css-rule-by-name', $role)[@layout-type = 'para']" 
+      as="element(css:rule)"/>
     <xsl:element name="para">
       <xsl:if test="@aid:pstyle">
 	      <xsl:attribute name="role" select="$role" />
