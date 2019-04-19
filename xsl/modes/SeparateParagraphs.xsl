@@ -253,4 +253,11 @@
   <!-- will be dealt with separately, when pulling down cstyleranges -->
   <xsl:template match="CharacterStyleRange/Properties" mode="idml2xml:SeparateParagraphs-slice"/>
   
+  <!-- became necessary because of Document.xsl r863 -->
+  <xsl:template match="CharacterStyleRange[Content]
+                                          [every $c in * satisfies $c/self::Content[@idml2xml:reason = 'NO_Story']]"
+                mode="idml2xml:SeparateParagraphs-pull-down-psrange"/>
+  
+  
+  
 </xsl:stylesheet>
