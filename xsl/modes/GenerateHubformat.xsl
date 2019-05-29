@@ -1979,7 +1979,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
      <!-- *
           * mediaobject wrapper element
           * -->
-    <mediaobject css:width="{$image-info/@shape-width}" css:height="{$image-info/@shape-height}">
+    <mediaobject>
+      <xsl:if test="exists($image-info/@shape-width)">
+        <xsl:attribute name="css:width" select="$image-info/@shape-width"/>
+      </xsl:if>
+      <xsl:if test="exists($image-info/@shape-height)">
+        <xsl:attribute name="css:height" select="$image-info/@shape-height"/>
+      </xsl:if>
       <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
       <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
         <xsl:if test="$image-info/@alt">
@@ -1992,7 +1998,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
           <xsl:attribute name="role" select="'hub:embedded'"/>
         </xsl:if>
-        <imagedata fileref="{$fileref}" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
+        <imagedata fileref="{$fileref}">
+          <xsl:if test="$image-info/@width">
+            <xsl:attribute name="css:width" select="concat($image-info/@width, 'px')"/>
+          </xsl:if>
+          <xsl:if test="$image-info/@height">
+            <xsl:attribute name="css:height" select="concat($image-info/@height, 'px')"/>
+          </xsl:if>
           <xsl:attribute name="xml:id" select="$id"/>
         </imagedata>
       </imageobject>

@@ -363,7 +363,13 @@
             <xsl:copy-of select="current-group()"/>
           </GroupContainer>
          </xsl:variable>
-        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') return ((//*[self::Rectangle or self::Polygon or self::Oval][ends-with(.//@LinkResourceURI, $i)], (//*[self::Rectangle or self::Polygon or self::Oval][.//KeyValuePair[@Key = 'letex:fileName'][@Value = $i]])))[1]"/>
+        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') 
+                             return ((//*[self::Rectangle or self::Polygon or self::Oval]
+                                         [ends-with(.//@LinkResourceURI, $i)], 
+                                       (//*[self::Rectangle or self::Polygon or self::Oval]
+                                           [.//KeyValuePair[@Key = 'letex:fileName']
+                                           [@Value = $i]])
+                                    ))[1]"/>
         <xsl:if test="current-group()[descendant-or-self::*:Br]">
           <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
         </xsl:if>
@@ -562,13 +568,18 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:choose>
         <xsl:when test="Properties[Label[KeyValuePair[@Key = 'letex:fileName'][matches(@Value, '\S')]]]">
-          <xsl:element name="Rectangle">
+          <xsl:variable name="first-shape" as="element(*)?" 
+            select="(descendant::*[self::Rectangle | self::Polygon | self::Oval])[1]">
+            <!-- descendant instead of child because there can be another group inside the group, see
+            https://redmine.le-tex.de/issues/7076 -->
+          </xsl:variable>
+          <xsl:element name="{($first-shape/name(), 'Rectangle')[1]}">
             <xsl:attribute name="Self" select="generate-id()"/>
             <xsl:attribute name="ContentType" select="'GraphicType'"/>
             <xsl:apply-templates select="@AppliedObjectStyle" mode="#current"/>
             <Properties>
               <xsl:apply-templates select="Properties/Label" mode="#current"/>
-              <xsl:apply-templates select="*[self::Rectangle | self::Polygon | self::Oval][1]/Properties/node()[not(self::Label)]" mode="#current"/>
+              <xsl:apply-templates select="$first-shape/Properties/node()[not(self::Label)]" mode="#current"/>
             </Properties>
             <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
             <xsl:element name="Image">
