@@ -212,7 +212,32 @@
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="$nodes" mode="idml2xml:NestedStyles-apply"/>
+        <xsl:variable name="pre-split-cstyle" as="xs:string?" 
+          select="for $s in $instructions[1]/AppliedCharacterStyle return idml2xml:StyleName($s)"/>
+        <xsl:variable name="pre-split-transformed" as="node()*">
+          <xsl:apply-templates select="$nodes" mode="idml2xml:NestedStyles-apply">
+            <!-- This is for applying the next style in the list to extents /after/ the splitting point, 
+              see https://redmine.le-tex.de/issues/6677 
+            This part of the solution has not been tested thoroughly-->
+            <xsl:with-param name="pre-split-cstyle" as="xs:string?" select="$pre-split-cstyle"/>
+          </xsl:apply-templates>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="every $n in $pre-split-transformed[normalize-space()] 
+                          satisfies ($n/@aid:cstyle = $pre-split-cstyle)">
+            <!-- The to-be-applied cstyle is already present or whitespace-only nodes, cf. UV 00495_Singh_Nekropolis,
+                 Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:when>
+          <xsl:when test="exists($pre-split-cstyle)">
+            <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
+              <xsl:sequence select="$pre-split-transformed"/>
+            </idml2xml:genSpan>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -271,7 +296,10 @@
         <xsl:sequence select="$nodes/self::idml2xml:tab"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'IndentHereTab'">
-        <xsl:sequence select="$nodes/self::idml2xml:tab[@ole = 'indent-to-here']"/>
+        <xsl:sequence select="$nodes/self::idml2xml:tab[@role = 'indent-to-here']"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = '^y'">
+        <xsl:sequence select="$nodes/self::idml2xml:tab[@role = 'right']"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
         <xsl:sequence select="$nodes/(self::idml2xml:sep | self::idml2xml:tab)
