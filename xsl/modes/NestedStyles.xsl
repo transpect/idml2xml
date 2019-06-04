@@ -271,7 +271,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="*[@aid:cstyle]" mode="idml2xml:NestedStyles-apply">
+  <xsl:template match="*[@aid:cstyle][not(normalize-space())]" mode="idml2xml:NestedStyles-apply">
     <xsl:param name="pre-split-cstyle" as="xs:string?" tunnel="yes"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
