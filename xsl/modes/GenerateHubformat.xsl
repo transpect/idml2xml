@@ -304,7 +304,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="raw-output" as="element(*)*">
       <xsl:apply-templates select="$prop" mode="#current">
         <xsl:with-param name="val" select="." tunnel="yes" />
-      </xsl:apply-templates>
+      </xsl:apply-templates>      
       <xsl:if test="empty($prop)">
         <idml2xml:attribute name="idml2xml:{local-name()}"><xsl:value-of select="." /></idml2xml:attribute>
       </xsl:if>
@@ -1869,7 +1869,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="table-style" as="element(css:rule)?" tunnel="no"/>
     <row>
       <xsl:if test="$table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount ne 0">
-        <xsl:if test="position() &gt; $table-style/@idml2xml:SkipFirstAlternatingFillRows and 
+        <xsl:if test="position() &lt;= $table-style/@idml2xml:StartRowFillCount and
+                      position() &gt; $table-style/@idml2xml:SkipFirstAlternatingFillRows and 
                       $table-style/@idml2xml:StartRowFillColor and
                       position() mod ($table-style/@idml2xml:StartRowFillCount + $table-style/@idml2xml:EndRowFillCount) ne 0">
           <xsl:attribute name="css:background-color" select="$table-style/@idml2xml:StartRowFillColor"/>
