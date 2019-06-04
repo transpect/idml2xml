@@ -33,32 +33,53 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current">
-        <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" 
-          select=".//text()[idml2xml:same-scope(., current())]
-                           [not(ancestor::Properties)]
-                           [not(ancestor::idml2xml:link)](: https://redmine.le-tex.de/issues/5782#note-43 :)
-                           [if ($separator-regex-chars) 
-                            then matches(., concat('[', $separator-regex-chars, ']'))
-                            else false()
-                           ]"/>
-        <xsl:with-param name="regex" tunnel="yes" 
+        <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" as="text()*">
+          <xsl:choose>
+            <xsl:when test="$separator-regex-chars">
+              <xsl:sequence 
+                select=".//text()[idml2xml:same-scope(., current())]
+                                 [not(ancestor::Properties)]
+                                 [not(ancestor::idml2xml:link)](: https://redmine.le-tex.de/issues/5782#note-43 :)
+                                 [matches(., concat('[', $separator-regex-chars, ']'))]"/>
+            </xsl:when>
+            <xsl:when test="$instructions[1]/Delimiter = 'Dropcap'">
+              <xsl:sequence 
+                select="(.//text()[idml2xml:same-scope(., current())]
+                                  [not(ancestor::Properties)]
+                                  [not(ancestor::idml2xml:link)]
+                                  [matches(., '^\w')])[1]"/>
+            </xsl:when>
+          </xsl:choose>
+        </xsl:with-param> 
+        <xsl:with-param name="regex" tunnel="yes" as="xs:string?" 
           select="if ($separator-regex-chars)
                   then concat('[', $separator-regex-chars, ']')
-                  else ()"/>
+                  else if ($instructions[1]/Delimiter = 'Dropcap')
+                       then '^\w'
+                       else ()"/>
+        <xsl:with-param name="instruction" as="element(ListItem)?" select="$instructions[1]" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
 
   <!-- We don’t (yet) support:
-    Sentence AnyCharacter Letters Digits InlineGraphic DropCap EndNestedStyle AutoPageNumber SectionMarker Repeat
+    Sentence AnyCharacter Letters Digits InlineGraphic EndNestedStyle AutoPageNumber SectionMarker Repeat
     We do support:
-    Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord
+    Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord DropCap 
     -->
   
   <xsl:template match="text()" mode="idml2xml:NestedStyles-create-separators">
     <xsl:param name="potentially-sep-containing-text-nodes" as="text()*" tunnel="yes"/>
     <xsl:param name="regex" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="instruction" as="element(ListItem)?" tunnel="yes"/>
     <xsl:choose>
+      <xsl:when test="$regex 
+                      and ($instruction/Delimiter = 'Dropcap')
+                      and (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
+        <xsl:value-of select="replace(., '^(\w).+$', '$1')"/>
+        <idml2xml:sep role="Dropcap"/>
+        <xsl:value-of select="replace(., '^\w', '')"/>
+      </xsl:when>
       <xsl:when test="$regex and
                       (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
         <xsl:variable name="context" select="." as="text()"/>
@@ -180,14 +201,15 @@
                                        then $nodes[. &lt;&lt; $splitting-point] 
                                        else $nodes"
             mode="idml2xml:NestedStyles-apply">
-            <xsl:with-param name="pre-split-cstyle" select="$pre-split-cstyle"/>
+            <xsl:with-param name="pre-split-cstyle" select="$pre-split-cstyle" tunnel="yes"/>
           </xsl:apply-templates>
         </xsl:variable>
         <xsl:choose>
-          <xsl:when test="every $n in $pre-split-transformed[normalize-space()] 
+          <xsl:when test="every $n in $pre-split-transformed[normalize-space()][not(self::idml2xml:genFrame)] 
                           satisfies ($n/@aid:cstyle = $pre-split-cstyle)">
             <!-- The to-be-applied cstyle is already present or whitespace-only nodes, cf. UV 00495_Singh_Nekropolis,
-                 Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
+                 Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5]
+            idml2xml:genFrame: UV 39001 Story_u3dc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[489]/CharacterStyleRange[2]-->
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
           <xsl:otherwise>
@@ -246,8 +268,8 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="*[@aid:cstyle][not(normalize-space())]" mode="idml2xml:NestedStyles-apply">
-    <xsl:param name="pre-split-cstyle" as="xs:string?"/>
+  <xsl:template match="*[@aid:cstyle]" mode="idml2xml:NestedStyles-apply">
+    <xsl:param name="pre-split-cstyle" as="xs:string?" tunnel="yes"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="$pre-split-cstyle">
@@ -288,6 +310,10 @@
       <xsl:when test="$instruction/Delimiter = ('EnSpace', 'EmSpace', 'ForcedLineBreak', 'NonbreakingSpace')">
         <xsl:sequence 
           select="$nodes/self::idml2xml:sep[matches(., concat('^[', idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), ']$'))]"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter = ('Dropcap')">
+        <xsl:sequence 
+          select="$nodes/self::idml2xml:sep[@role = 'Dropcap']"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'EndNestedStyle'">
         <xsl:sequence select="$nodes/self::idml2xml:tab[@role eq 'end-nested-style']"/>
