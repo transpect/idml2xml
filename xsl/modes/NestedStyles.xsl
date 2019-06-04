@@ -251,7 +251,10 @@
                  Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
-          <xsl:when test="exists($pre-split-cstyle)">
+          <xsl:when test="exists($pre-split-cstyle)
+                          and empty($pre-split-transformed[normalize-space()][@aid:cstyle = $pre-split-cstyle])
+                          and exists($pre-split-transformed[normalize-space()])">
+            <!-- the latter is an ad-hoc condition for UV 39002, Story_u3e45.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[76] -->
             <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
               <xsl:sequence select="$pre-split-transformed"/>
             </idml2xml:genSpan>
