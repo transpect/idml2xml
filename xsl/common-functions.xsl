@@ -157,26 +157,11 @@
   
   <xsl:function name="idml2xml:style-ancestors-and-self" as="element(*)+">
     <xsl:param name="style" as="element(*)"/>
-    <xsl:choose>
-      <xsl:when test="$style/Properties/BasedOn">
-        <xsl:message>ST: <xsl:value-of select="$style/@Self"/></xsl:message>
-        <xsl:message >BO: <xsl:value-of select="$style/Properties/BasedOn"/></xsl:message>
-        <xsl:message>KEY:
-          <xsl:value-of select="key('idml2xml:style-by-Name', replace($style/Properties/BasedOn, '^ParagraphStyle/', ''), root($style))"/>
-        </xsl:message>
-        <xsl:sequence 
-          select="$style, 
-          idml2xml:style-ancestors-and-self(key('idml2xml:style-by-Name', replace($style/Properties/BasedOn, '^ParagraphStyle/', ''), root($style)))"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:sequence select="$style"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:sequence select="$style, for $s in key('idml2xml:by-Self', $style/Properties/BasedOn, root($style[1]))
+                                  return idml2xml:style-ancestors-and-self($s)"/>
   </xsl:function>
   
-  <xsl:key name="idml2xml:BasedOn-by-value"
-    match="BasedOn" 
-    use="." />
+  <xsl:key name="idml2xml:BasedOn-by-value" match="BasedOn" use="." />
   
   <xsl:function name="idml2xml:style-descendants-and-self" as="element(*)+">
     <xsl:param name="style" as="element(*)+"/>

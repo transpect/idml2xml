@@ -25,11 +25,23 @@
   <!-- MODE: idml2xml:NestedStyles-create-separators 
         Make idml2xml:sep elements of the letters that may act as nested style separators -->
 
+  <xsl:function name="idml2xml:dropcap-regex" as="xs:string">
+    <xsl:param name="count" as="xs:integer"/>
+    <xsl:sequence select="concat('^(\S{', $count, '})(.*)$')"/>
+  </xsl:function>
+
   <xsl:template mode="idml2xml:NestedStyles-create-separators" match="*[@aid:pstyle]">
+    <xsl:variable name="nested-style-cascade" as="element(*)*" 
+      select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))"/>
     <xsl:variable name="instructions" as="element(ListItem)*" 
-      select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
+      select="($nested-style-cascade)[ListItem][last()]/ListItem"/>
     <xsl:variable name="separator-regex-chars" as="xs:string?"
       select="string-join(for $i in $instructions return idml2xml:NestedStyles-Delimiter-to-regex-chars($i), '')"/>
+    <xsl:variable name="style-cascade" as="element(*)*" 
+      select="for $s in key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle)) 
+              return idml2xml:style-ancestors-and-self($s)"/>
+    <xsl:variable name="dropcap-regex" as="xs:string?" 
+      select="for $d in ($style-cascade/@DropCapCharacters)[last()][. > 0] return idml2xml:dropcap-regex(xs:integer($d))"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current">
@@ -47,7 +59,7 @@
                 select="(.//text()[idml2xml:same-scope(., current())]
                                   [not(ancestor::Properties)]
                                   [not(ancestor::idml2xml:link)]
-                                  [matches(., '^\w')])[1]"/>
+                                  [matches(., $dropcap-regex)])[1]"/>
             </xsl:when>
           </xsl:choose>
         </xsl:with-param> 
@@ -55,7 +67,7 @@
           select="if ($separator-regex-chars)
                   then concat('[', $separator-regex-chars, ']')
                   else if ($instructions[1]/Delimiter = 'Dropcap')
-                       then '^\w'
+                       then $dropcap-regex
                        else ()"/>
         <xsl:with-param name="instruction" as="element(ListItem)?" select="$instructions[1]" tunnel="yes"/>
       </xsl:apply-templates>
@@ -76,9 +88,9 @@
       <xsl:when test="$regex 
                       and ($instruction/Delimiter = 'Dropcap')
                       and (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
-        <xsl:value-of select="replace(., '^(\w).+$', '$1')"/>
+        <xsl:value-of select="replace(., $regex, '$1')"/>
         <idml2xml:sep role="Dropcap"/>
-        <xsl:value-of select="replace(., '^\w', '')"/>
+        <xsl:value-of select="replace(., $regex, '$2')"/>
       </xsl:when>
       <xsl:when test="$regex and
                       (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
