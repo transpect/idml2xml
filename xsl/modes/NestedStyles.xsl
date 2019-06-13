@@ -41,9 +41,14 @@
       select="for $s in key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle)) 
               return idml2xml:style-ancestors-and-self($s)"/>
     <xsl:variable name="dropcap-regex" as="xs:string?" 
-      select="for $d in ($style-cascade/@DropCapCharacters)[last()][. > 0] return idml2xml:dropcap-regex(xs:integer($d))"/>
+      select="for $d in (/idml2xml:doc/*:Preferences/TextDefault/@DropCapCharacters,
+                         $style-cascade/@DropCapCharacters)[last()][. > 0] 
+              return idml2xml:dropcap-regex(xs:integer($d))"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$instructions[1]/Delimiter = 'Dropcap' and empty($dropcap-regex)">
+        <xsl:attribute name="idml2xml:dropcaps" select="'none'"/>
+      </xsl:if>
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="potentially-sep-containing-text-nodes" tunnel="yes" as="text()*">
           <xsl:choose>
@@ -54,7 +59,7 @@
                                  [not(ancestor::idml2xml:link)](: https://redmine.le-tex.de/issues/5782#note-43 :)
                                  [matches(., concat('[', $separator-regex-chars, ']'))]"/>
             </xsl:when>
-            <xsl:when test="$instructions[1]/Delimiter = 'Dropcap'">
+            <xsl:when test="$instructions[1]/Delimiter = 'Dropcap' and exists($dropcap-regex)">
               <xsl:sequence 
                 select="(.//text()[idml2xml:same-scope(., current())]
                                   [not(ancestor::Properties)]
@@ -190,14 +195,15 @@
     <xsl:variable name="instructions" as="element(ListItem)+" 
       select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
     <xsl:copy copy-namespaces="no">
-      <xsl:copy-of select="@*, Properties"/>
-      <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, $instructions)"/>
+      <xsl:copy-of select="@* except @idml2xml:dropcaps, Properties"/>
+      <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, $instructions, @idml2xml:dropcaps)"/>
     </xsl:copy>
   </xsl:template>
     
   <xsl:function name="idml2xml:apply-nested-style" as="node()*">
     <xsl:param name="nodes" as="node()*"/>
     <xsl:param name="instructions" as="element(ListItem)*"/>
+    <xsl:param name="dropcaps-flag" as="attribute(idml2xml:dropcaps)?"/>
     <xsl:variable name="splitting-point-candidates" as="element(*)*" 
       select="idml2xml:NestedStyles-splitting-point-candidates($nodes, $instructions[1])"/>
     <!--<cands>
@@ -224,6 +230,9 @@
             idml2xml:genFrame: UV 39001 Story_u3dc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[489]/CharacterStyleRange[2]-->
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
+          <xsl:when test="$dropcaps-flag = 'none'">
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:when>
           <xsl:otherwise>
             <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
               <xsl:sequence select="$pre-split-transformed"/>
@@ -238,7 +247,9 @@
         <xsl:choose>
           <xsl:when test="exists($instructions[2])">
             <xsl:sequence
-              select="idml2xml:apply-nested-style($splitting-point/following-sibling::node(), $instructions[position() gt 1])"/>
+              select="idml2xml:apply-nested-style($splitting-point/following-sibling::node(), 
+                                                  $instructions[position() gt 1], 
+                                                  $dropcaps-flag)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="$splitting-point/following-sibling::node()" mode="idml2xml:NestedStyles-apply"/>
@@ -261,6 +272,9 @@
                           satisfies ($n/@aid:cstyle = $pre-split-cstyle)">
             <!-- The to-be-applied cstyle is already present or whitespace-only nodes, cf. UV 00495_Singh_Nekropolis,
                  Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:when>
+          <xsl:when test="$dropcaps-flag = 'none'">
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
           <xsl:when test="exists($pre-split-cstyle)
