@@ -274,6 +274,11 @@
                  Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5] -->
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
+          <xsl:when test="$instructions[1]/Delimiter = ('AnyCharacter', 'Letters', 'Digits', 'InlineGraphic', 
+                                                        'EndNestedStyle', 'AutoPageNumber', 'SectionMarker', 'Repeat')">
+            <!-- not implemented yet -->
+            <xsl:sequence select="$pre-split-transformed"/>
+          </xsl:when>
           <xsl:when test="$dropcaps-flag = 'none'">
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
