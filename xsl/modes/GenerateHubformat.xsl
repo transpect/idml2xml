@@ -312,7 +312,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:sequence select="$raw-output" />
   </xsl:template>
   
-  <xsl:template match="Properties/SameParaStyleSpacing[. eq 'SetIgnore']" mode="idml2xml:XML-Hubformat-add-properties"/>
+  <xsl:template match="Properties/SameParaStyleSpacing[. eq 'SetIgnore']" mode="idml2xml:XML-Hubformat-add-properties" priority="1"/>
 
   <xsl:template match="*[name() = $idml2xml:shape-element-names]/@Self" mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <idml2xml:attribute name="{name()}">
