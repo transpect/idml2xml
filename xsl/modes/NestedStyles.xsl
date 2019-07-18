@@ -75,6 +75,11 @@
                        then $dropcap-regex
                        else ()"/>
         <xsl:with-param name="instruction" as="element(ListItem)?" select="$instructions[1]" tunnel="yes"/>
+        <xsl:with-param name="regex-type" as="xs:string?" select="if ($separator-regex-chars)
+                                                                 then 'sep'
+                                                                 else if ($instructions[1]/Delimiter = 'Dropcap')
+                                                                       then 'dropcap'
+                                                                       else ()" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
@@ -89,8 +94,9 @@
     <xsl:param name="potentially-sep-containing-text-nodes" as="text()*" tunnel="yes"/>
     <xsl:param name="regex" as="xs:string?" tunnel="yes"/>
     <xsl:param name="instruction" as="element(ListItem)?" tunnel="yes"/>
+    <xsl:param name="regex-type" as="xs:string?" tunnel="yes"/>
     <xsl:choose>
-      <xsl:when test="$regex 
+      <xsl:when test="$regex and $regex-type eq 'dropcap'
                       and ($instruction/Delimiter = 'Dropcap')
                       and (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
         <xsl:value-of select="replace(., $regex, '$1')"/>
