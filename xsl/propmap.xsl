@@ -271,7 +271,7 @@
         <prop name="TextLeftInset" type="length" target-name="css:padding-left" />
         <prop name="TextRightInset" type="length" target-name="css:padding-right" />
         <prop name="TextTopInset" type="length" target-name="css:padding-top" />
-        <prop name="TintValue" type="percentage" target-name="fill-tint"/>
+        <prop name="TintValue" type="percentage" target-name="fill-value"/>
         <prop name="TopInset" type="length" target-name="css:padding-top" />
         <prop name="Underline" target-name="css:text-decoration-line">
           <val eq="true" target-value="underline"/>
