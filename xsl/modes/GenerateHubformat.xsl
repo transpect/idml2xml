@@ -981,7 +981,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('idml2xml:EndRowFillTint')])[last()]"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('fill-tint', 'fill-value', 'border-tint')])[last()]"/>
+          <xsl:sequence select="(
+                                  ($style | ..)/idml2xml:attribute[@name = 'fill-tint'], 
+                                  ($style | ..)/idml2xml:attribute[@name = 'fill-value'],
+                                  ($style | ..)/idml2xml:attribute[@name = 'border-tint']
+                                )[last()]"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable> 
