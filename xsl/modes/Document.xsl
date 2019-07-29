@@ -508,7 +508,7 @@
       <xsl:attribute name="idml2xml:layer" select="key('encript-layername',.)/@Name" />
     </xsl:if>
   </xsl:template>
-   <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames">
+   <xsl:template match="@AppliedObjectStyle" mode="idml2xml:DocumentResolveTextFrames idml2xml:SeparateParagraphs-pull-down-psrange">
     <xsl:if test="not(. = 'n')">
       <xsl:attribute name="idml2xml:objectstyle" select="replace( idml2xml:substr( 'a', ., 'ObjectStyle/' ), '%3a', ':' )" />
     </xsl:if>
