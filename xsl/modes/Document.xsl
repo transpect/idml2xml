@@ -251,7 +251,7 @@
   <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]
                                                [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
     use="string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
-  
+<!--  use Kombi ref, anchor textframes without StoryID if there is a matching figure href -->
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
 
@@ -293,8 +293,17 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
         <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
+        <xsl:variable name="figure-or-group" select="for $i in tokenize(normalize-space(idml2xml:text-content(current())), ' ') 
+                                                     return ((//*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
+                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $i)]]],
+                                                                //*[self::Rectangle or self::Polygon or self::Oval]
+                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $i)], 
+                                                               (//*[self::Rectangle or self::Polygon or self::Oval]
+                                                                   [.//KeyValuePair[@Key = 'letex:fileName']
+                                                                   [replace(@Value,'\.w+$','') = $i]])
+                                                            ))[1]"/>
         <xsl:choose>
-          <xsl:when test="count($story) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
+          <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
             <xsl:copy>
               <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
@@ -309,6 +318,34 @@
               <xsl:attribute name="idml2xml:reason" select="'MULT_StoryID'"/>
               <xsl:copy-of select="$context/@AppliedConditions, node()"/>
             </xsl:copy>    
+          </xsl:when>
+          <xsl:when test="count($figure-or-group) gt 0">
+            <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
+            <xsl:variable name="anchored-frame" select="$figure-or-group/TextFrame" as="element(TextFrame)?"/>
+            <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)"/>
+            <xsl:choose>
+              <xsl:when test="$anchored-story">
+                <xsl:choose>
+                  <xsl:when test="$potential-group/self::Group">
+                    <xsl:for-each select="$potential-group">
+                      <xsl:apply-templates select="." mode="#current">
+                        <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+                      </xsl:apply-templates>
+                    </xsl:for-each>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:for-each select="$potential-group">
+                      <xsl:copy>
+                        <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
+                      </xsl:copy>
+                    </xsl:for-each>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy-of select="$figure-or-group"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
             <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
