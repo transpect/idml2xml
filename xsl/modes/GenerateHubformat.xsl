@@ -1214,6 +1214,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 mode="idml2xml:XML-Hubformat-properties2atts" />
 
   <xsl:template match="dbk:tabs[following-sibling::dbk:tabs]" mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template match="idml2xml:genFrame[@idml2xml:elementName='TextFrame'][every $elt in * satisfies $elt[self::idml2xml:genPara[idml2xml:genSpan/idml2xml:genFrame]]]" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:apply-templates select="descendant::idml2xml:genFrame" mode="#current"/>
+  </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
