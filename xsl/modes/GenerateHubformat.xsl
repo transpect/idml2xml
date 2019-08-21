@@ -1215,10 +1215,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="dbk:tabs[following-sibling::dbk:tabs]" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
-  <xsl:template match="idml2xml:genFrame[@idml2xml:elementName='TextFrame'][every $elt in * satisfies $elt[self::idml2xml:genPara[idml2xml:genSpan/idml2xml:genFrame]]]" mode="idml2xml:XML-Hubformat-add-properties">
-    <xsl:apply-templates select="descendant::idml2xml:genFrame" mode="#current"/>
-  </xsl:template>
-
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-extract-frames -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1238,7 +1234,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="/*/idml2xml:genFrame (: unanchored frames :)" mode="idml2xml:XML-Hubformat-extract-frames">
-    <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
+    <!-- Not sure whether the following commented-out apply-templates is still needed for some IDML files.
+      In the case of Campus/ap/51120, a frame that contains a table with the text "company is fixed. When the" was 
+      duplicated because 2 genFrames were converted by this apply-templates, but the second of which was converted
+      again as part of the first. Therefore I (GI, 2019-08-21) replaced this template with the identity template. --> 
+      <!--<xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
+                         mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>-->
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:function name="idml2xml:text-after" as="xs:boolean">
@@ -1263,7 +1267,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        doesn’t match. But the immediately preceding template would match indeed, effectively
        throwing away the figure caption in case of Hogrefe 101026_02142_FPT Abbildung 1. §§§ Create a test case 
   
-      GI 2015-11-23: This template lead to duplicated content in Klett WIV/input/2015-10-22/DO01800021_S008_S019_01_Unit.idml
+      GI 2015-11-23: This template led to duplicated content in Klett WIV/input/2015-10-22/DO01800021_S008_S019_01_Unit.idml
       The output was ok without this template. If this change is incompatible with 101026_02142_FPT, we need to adapt
       the matching patterns.
 
@@ -1288,51 +1292,32 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template mode="idml2xml:XML-Hubformat-extract-frames-genFrame idml2xml:XML-Hubformat-extract-frames" priority="3"
     match="idml2xml:genFrame[not(node())]" />
 
-
-
-	<xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
-		[text()[matches(., '\S')]]"
-		mode="idml2xml:XML-Hubformat-extract-frames" priority="3">
-		<!-- wasn't handled yet. may occur after anchorings. not sure whether those elements should be pulled out earlier.
+  <xsl:template match="idml2xml:genSpan[*[name() = $idml2xml:shape-element-names]]
+                                       [text()[matches(., '\S')]]"
+                mode="idml2xml:XML-Hubformat-extract-frames" priority="3">
+    <!-- wasn't handled yet. may occur after anchorings. not sure whether those elements should be pulled out earlier.
           example: Hogrefe PPP 02384 -->
-		<!-- MP: I replaced the for-each-group. In chb/bw/69891 it produced wrong results. there was an image between two textnodes. the text was grouped together, the image placed afterwards.-->
-		<xsl:variable name="context" select="." as="element(*)"/>
-		<xsl:variable name="nodes" select="text(), node()[name() = $idml2xml:shape-element-names][not($context/@remap eq 'HiddenText')]" as="node()*"/>
-		<!--<xsl:for-each-group select="node()" group-by="name() and .">
+    <!-- MP: I replaced the for-each-group. In chb/bw/69891 it produced wrong results. there was an image between two textnodes. the text was grouped together, the image placed afterwards.-->
+    <xsl:variable name="context" select="." as="element(*)"/>
+    <xsl:variable name="nodes" select="text(), node()[name() = $idml2xml:shape-element-names][not($context/@remap eq 'HiddenText')]" as="node()*"/>
+    <xsl:for-each select="node()">
       <xsl:variable name="pos" select="position()" as="xs:integer"/>
       <xsl:choose>
-        <xsl:when test="current-grouping-key() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
-          <xsl:apply-templates select="current-group()" mode="#current"/>
+        <xsl:when test="current() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
+          <xsl:apply-templates select="." mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
           <idml2xml:genSpan>
             <xsl:apply-templates select="$context/@*" mode="#current"/>
-            <xsl:if test="count($text-nodes) gt 1">
-              <xsl:attribute name="srcpath" select="string-join((@srcpath, string($pos)), ';n=')"/>
+            <xsl:if test="count($nodes) gt 1">
+              <xsl:attribute name="srcpath" select="string-join(($context/@srcpath, string($pos)), ';n=')"/>
             </xsl:if>
-            <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:apply-templates select="." mode="#current"/>
           </idml2xml:genSpan>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:for-each-group>-->
-		<xsl:for-each select="node()">
-			<xsl:variable name="pos" select="position()" as="xs:integer"/>
-			<xsl:choose>
-				<xsl:when test="current() = $idml2xml:shape-element-names and not($context/@remap eq 'HiddenText')">
-					<xsl:apply-templates select="." mode="#current"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<idml2xml:genSpan>
-						<xsl:apply-templates select="$context/@*" mode="#current"/>
-						<xsl:if test="count($nodes) gt 1">
-							<xsl:attribute name="srcpath" select="string-join(($context/@srcpath, string($pos)), ';n=')"/>
-						</xsl:if>
-						<xsl:apply-templates select="." mode="#current"/>
-					</idml2xml:genSpan>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:for-each>
-	</xsl:template>
+    </xsl:for-each>
+  </xsl:template>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-remap-para-and-span -->

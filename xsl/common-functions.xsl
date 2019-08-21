@@ -216,7 +216,7 @@
                           or $elt/self::Story
                           or $elt/self::XmlStory 
                           or $elt/@idml2xml:story
-                          or $elt/self::idml2xml:genFrame[not(idml2xml:genFrame)]
+                          or $elt/self::idml2xml:genFrame[empty(idml2xml:genFrame)]
                           " />
   </xsl:function>
 
