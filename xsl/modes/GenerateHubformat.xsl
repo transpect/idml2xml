@@ -1220,11 +1220,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="*[@aid:pstyle]
-                        [.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" mode="idml2xml:XML-Hubformat-extract-frames">
-    <xsl:variable name="frames" as="element(idml2xml:genFrame)+">
-      <xsl:sequence select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
-    </xsl:variable>
-    <xsl:variable name="frames-after-text" select="$frames[not(idml2xml:text-after(., current()))]" as="element(idml2xml:genFrame)*" />
+                        [.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" 
+                mode="idml2xml:XML-Hubformat-extract-frames">
+    <xsl:variable name="frames" as="element(idml2xml:genFrame)+" 
+      select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
+    <xsl:variable name="frames-after-text" select="$frames[not(idml2xml:text-after(., current()))]" 
+      as="element(idml2xml:genFrame)*" />
     <xsl:apply-templates select="$frames except $frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
     <xsl:copy>
       <xsl:copy-of select="@*"/>
@@ -1275,12 +1276,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       Groups will be carried along in ExtractTagging
   -->
   <xsl:template match="idml2xml:genFrame[ancestor::idml2xml:genFrame[@idml2xml:elementName eq 'Group'][*/@aid:cstyle]]" 
-    mode="idml2xml:XML-Hubformat-extract-frames">
+                mode="idml2xml:XML-Hubformat-extract-frames" priority="1">
     <idml2xml:genAnchor xml:id="{generate-id()}"/>
     <xsl:apply-templates select="." mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
   </xsl:template>
   
-
+  <xsl:template match="idml2xml:genFrame[@idml2xml:elementName = 'TextFrame']
+                                        [parent::idml2xml:genFrame[@idml2xml:elementName eq 'Group']]" 
+                mode="idml2xml:XML-Hubformat-extract-frames">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <!-- Keep TextFrames in idml2app/Federal_Maritime_and_Hydrographic_Agency_313006_1_En/M_2_012.idml
+    that were lost due to commit #888 (c808eb7). This is a quick fix just minutes ahead of the nightly tests… -->
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
