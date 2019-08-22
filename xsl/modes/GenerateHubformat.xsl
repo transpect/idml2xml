@@ -1220,10 +1220,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="*[@aid:pstyle]
-                        [.//idml2xml:genFrame[idml2xml:same-scope(., current())]]" 
+                        [.//idml2xml:genFrame[idml2xml:same-scope(., current())]]
+                                             [empty(parent::idml2xml:genFrame[@idml2xml:elementName = 'Group'])]" 
                 mode="idml2xml:XML-Hubformat-extract-frames">
     <xsl:variable name="frames" as="element(idml2xml:genFrame)+" 
-      select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
+      select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]
+                                  [empty(parent::idml2xml:genFrame[@idml2xml:elementName = 'Group'])]"/>
     <xsl:variable name="frames-after-text" select="$frames[not(idml2xml:text-after(., current()))]" 
       as="element(idml2xml:genFrame)*" />
     <xsl:apply-templates select="$frames except $frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
