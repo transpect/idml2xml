@@ -156,6 +156,7 @@
             select="distinct-values(for $cr in $crossrefs return replace($cr/@ReferencedTopic, 'Topicn$', ''))"/>
         </xsl:if>
         <primary>
+          <xsl:call-template name="idml2xml:generated-sortas"/>
           <xsl:apply-templates select="@SortOrder" mode="#current"/>
           <xsl:copy-of select="@in-embedded-story" />
           <xsl:value-of select="@Name"/>
@@ -175,6 +176,7 @@
           <xsl:attribute name="pagenum-is-from-freely-placed-textframe" select="'yes'"/>
         </xsl:if>
         <primary>
+          <xsl:call-template name="idml2xml:generated-sortas"/>
           <xsl:apply-templates select="@SortOrder" mode="#current"/>
           <xsl:copy-of select="@in-embedded-story"/>
           <xsl:value-of select="@Name"/>
@@ -212,6 +214,7 @@
       <xsl:if test="$pagenum-is-from-freely-placed-textframe">
         <xsl:attribute name="pagenum-is-from-freely-placed-textframe" select="'yes'"/>
       </xsl:if>
+      <xsl:call-template name="idml2xml:generated-sortas"/>
       <xsl:apply-templates select="@SortOrder" mode="#current"/>
       <xsl:copy-of select="@in-embedded-story"/>
       <xsl:value-of select="@Name"/>
@@ -221,6 +224,20 @@
     </xsl:if>
     <xsl:if test="exists($see-or-seealso)">
       <xsl:sequence select="$see-or-seealso"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="idml2xml:generated-sortas">
+    <xsl:variable name="normalized" as="xs:string" 
+      select="normalize-space(
+                replace(
+                  replace(@Name, '^\p{P}+', ''),
+                  '\W+',
+                  ' '
+                )
+              )"/>
+    <xsl:if test="not($normalized = @Name)">
+      <xsl:attribute name="sortas" select="$normalized"/>
     </xsl:if>
   </xsl:template>
 
