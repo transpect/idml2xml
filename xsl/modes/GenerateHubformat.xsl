@@ -14,7 +14,7 @@
     xmlns:hub = "http://transpect.io/hub"
     xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg xs xlink dbk tr css hub mml"
+    exclude-result-prefixes="idPkg aid aid5 xs xlink dbk tr css hub mml"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -1067,7 +1067,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="if (exists(parent::css:rule)) then ()
               else key(
                 'idml2xml:css-rule-by-name', 
-                ../idml2xml:attribute[@name eq 'idml2xml:StyleNameEscape']
+                idml2xml:StyleName(../idml2xml:attribute[@name = 'aid:pstyle'])
               )"/>
     <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-format'])[last()],

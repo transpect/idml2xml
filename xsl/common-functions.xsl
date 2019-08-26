@@ -104,6 +104,7 @@
   </xsl:function>
 
   <xsl:function name="idml2xml:StyleName" as="xs:string">
+    <!-- Same arguments as idml2xml:StyleNameEscape -->
     <xsl:param name="stylename" as="item()"/>
     <xsl:choose>
       <xsl:when test="$stylename instance of xs:string">
