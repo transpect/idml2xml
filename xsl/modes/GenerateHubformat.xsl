@@ -1229,13 +1229,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                    else true()]"/>
     <xsl:variable name="frames-after-text" select="$frames[not(idml2xml:text-after(., current()))]" 
       as="element(idml2xml:genFrame)*" />
-    <xsl:comment>before</xsl:comment>
     <xsl:apply-templates select="$frames except $frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:apply-templates mode="#current" />
     </xsl:copy>
-    <xsl:comment>after</xsl:comment>
     <xsl:apply-templates select="$frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
   </xsl:template>
 
@@ -1300,9 +1298,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:attribute name="linkend" select="generate-id()" />
-      <xsl:comment>a</xsl:comment>
       <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
-      <xsl:comment>b</xsl:comment>
     </xsl:copy>
   </xsl:template>
 
