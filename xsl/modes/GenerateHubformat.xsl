@@ -14,7 +14,7 @@
     xmlns:hub = "http://transpect.io/hub"
     xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid5 aid xs xlink dbk tr css hub"
+    exclude-result-prefixes="idPkg xs xlink dbk tr css hub mml"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -797,7 +797,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:key name="idml2xml:style" 
     match="CellStyle | CharacterStyle | ObjectStyle | ParagraphStyle | TableStyle" 
-    use="idml2xml:StyleNameEscape(@Self)" />
+    use="(@idml2xml:sne, idml2xml:StyleNameEscape(@Self))[1]" />
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-properties2atts -->
@@ -828,8 +828,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:function name="idml2xml:text-lang" as="xs:string?">
     <xsl:param name="text" as="element(idml2xml:genPara)"/>
-    <xsl:variable name="style-name" select="idml2xml:StyleNameEscape($text/@aid:pstyle)" as="xs:string"/>    
-    <xsl:variable name="lang-by-style" select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@name eq $style-name][@layout-type = 'para']/@xml:lang[last()]" as="attribute(xml:lang)?"/>
+    <xsl:variable name="lang-by-style" as="attribute(xml:lang)?" 
+      select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@idml2xml:sne = $text/@idml2xml:sne]
+                                                                 [@layout-type = 'para']/@xml:lang[last()]"/>
     <xsl:variable name="lang-override" select="$text/@xml:lang" as="attribute(xml:lang)?"/>
     <xsl:sequence select="($lang-override, $lang-by-style)[1]"/>
   </xsl:function>
@@ -1066,9 +1067,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       select="if (exists(parent::css:rule)) then ()
               else key(
                 'idml2xml:css-rule-by-name', 
-                idml2xml:StyleNameEscape(
-                  ../idml2xml:attribute[@name eq 'aid:pstyle']
-                )
+                ../idml2xml:attribute[@name eq 'idml2xml:StyleNameEscape']
               )"/>
     <xsl:attribute name="css:list-style-type" select="idml2xml:numbered-list-style-type(
                                                         (($style, ..)/idml2xml:attribute[@name eq 'numbering-format'])[last()],
@@ -1225,14 +1224,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 mode="idml2xml:XML-Hubformat-extract-frames">
     <xsl:variable name="frames" as="element(idml2xml:genFrame)+" 
       select=".//idml2xml:genFrame[idml2xml:same-scope(., current())]
-                                  [empty(parent::idml2xml:genFrame[@idml2xml:elementName = 'Group'])]"/>
+                                  [if(self::idml2xml:genFrame[@idml2xml:elementName = 'TextFrame'])
+                                   then empty(parent::idml2xml:genFrame[@idml2xml:elementName = 'Group'])
+                                   else true()]"/>
     <xsl:variable name="frames-after-text" select="$frames[not(idml2xml:text-after(., current()))]" 
       as="element(idml2xml:genFrame)*" />
+    <xsl:comment>before</xsl:comment>
     <xsl:apply-templates select="$frames except $frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:apply-templates mode="#current" />
     </xsl:copy>
+    <xsl:comment>after</xsl:comment>
     <xsl:apply-templates select="$frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
   </xsl:template>
 
@@ -1297,7 +1300,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:attribute name="linkend" select="generate-id()" />
+      <xsl:comment>a</xsl:comment>
       <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
+      <xsl:comment>b</xsl:comment>
     </xsl:copy>
   </xsl:template>
 
@@ -1714,7 +1719,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 		mode="idml2xml:XML-Hubformat-remap-para-and-span" />
   
   <xsl:template match="idml2xml:parsep"
-    mode="idml2xml:XML-Hubformat-remap-para-and-span" />
+    mode="idml2xml:XML-Hubformat-remap-para-and-span" >
+  </xsl:template>
 
   <xsl:template match="idml2xml:tab" mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <tab>
@@ -2388,7 +2394,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@parastyle" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
-      match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle" 
+      match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle | @idml2xml:sne | @idml2xml:rst" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 

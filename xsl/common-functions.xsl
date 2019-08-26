@@ -104,22 +104,47 @@
   </xsl:function>
 
   <xsl:function name="idml2xml:StyleName" as="xs:string">
-    <xsl:param name="stylename" as="xs:string"/>
-    <xsl:sequence select="idml2xml:StyleNameEscape( idml2xml:RemoveTypeFromStyleName( $stylename) )"/>
+    <xsl:param name="stylename" as="item()"/>
+    <xsl:choose>
+      <xsl:when test="$stylename instance of xs:string">
+        <xsl:sequence select="idml2xml:StyleNameEscape(idml2xml:RemoveTypeFromStyleName( $stylename ))"/>
+      </xsl:when>
+      <xsl:when test="$stylename/self::attribute()">
+        <xsl:sequence select="($stylename/../@idml2xml:rst, 
+                               idml2xml:StyleName(string($stylename)))[1]"/>
+      </xsl:when>
+      <xsl:when test="$stylename/self::*">
+        <xsl:sequence select="($stylename/@idml2xml:rst, 
+                               idml2xml:StyleName(string($stylename)))[1]"/>
+      </xsl:when>
+    </xsl:choose>
+    
   </xsl:function>
 
   <xsl:function name="idml2xml:StyleNameEscape" as="xs:string">
-    <xsl:param name="stylename" as="xs:string?"/>
-    <!-- Convertes strings that originate from both ParagraphStyle/@Name and ParagraphStyle/@Selfor.
+    <xsl:param name="stylename" as="item()?"/><!-- String, attribute, or BasedOn element -->
+    <!-- Converts strings that originate from both ParagraphStyle/@Name and ParagraphStyle/@Self.
       ParagraphStyle/@Name is a Unicode literal while ParagraphStyle/@Self is hex-escaped. 
       This converts hex-escaped to unicode. It may go wrong if the unicode string already contains 
       what looks like percent encoding.
       tr:unescape-uri() replaces previous '%3a'→':' replacement for hierarchically organized styles.
       The previous ad-hoc replacement was introduced when tr:unescape-uri() did not exist yet. -->
-    <xsl:if test="matches($stylename, '%(0[0-8BCEF]|1[0-9A-F])', 'i')">
-      <xsl:message select="'Some characters invalid in XML 1.0: ', $stylename"/>
-    </xsl:if>
-    <xsl:sequence select="tr:unescape-uri(replace($stylename, '%(0[0-8BCEF]|1[0-9A-F])', '', 'i'))"/>
+    <xsl:choose>
+      <xsl:when test="$stylename instance of xs:string">
+        <xsl:if test="matches($stylename, '%(0[0-8BCEF]|1[0-9A-F])', 'i')">
+          <xsl:message select="'Some characters invalid in XML 1.0: ', $stylename"/>
+        </xsl:if>
+        <xsl:sequence select="tr:unescape-uri(replace($stylename, '%(0[0-8BCEF]|1[0-9A-F])', '', 'i'))"/>
+      </xsl:when>
+      <xsl:when test="$stylename/self::attribute()">
+        <xsl:sequence select="($stylename/../@idml2xml:sne, 
+                               idml2xml:StyleNameEscape(string($stylename)))[1]"/>
+      </xsl:when>
+      <xsl:when test="$stylename/self::*">
+        <xsl:sequence select="($stylename/@idml2xml:sne, 
+                               idml2xml:StyleNameEscape(string($stylename)))[1]"/>
+      </xsl:when>
+    </xsl:choose>  
   </xsl:function>
 
   <xsl:function name="idml2xml:RemoveTypeFromStyleName" as="xs:string">

@@ -734,4 +734,28 @@
     </xsl:if>
   </xsl:template>
 
+  <!-- To speed things up. idml2xml:StyleNameEscape() is moderately expensive but it is called often in template
+    match predicates -->
+  <xsl:template match="CellStyle/@Self | CharacterStyle/@Self | ObjectStyle/@Self | ParagraphStyle/@Self | TableStyle/@Self
+    | @AppliedCharacterStyle[not(ends-with(base-uri(), '/Styles.xml'))] 
+    | @AppliedParagraphStyle[not(ends-with(base-uri(), '/Styles.xml'))] 
+    | @AppliedCellStyle[not(ends-with(base-uri(), '/Styles.xml'))] 
+    | @AppliedTableStyle[not(ends-with(base-uri(), '/Styles.xml'))] 
+    | @AppliedObjectStyle[not(ends-with(base-uri(), '/Styles.xml'))]"
+    mode="idml2xml:Document" priority="2">
+    <xsl:next-match/>
+    <xsl:variable name="sne" as="xs:string" select="idml2xml:StyleNameEscape(string(.))"/>
+    <xsl:attribute name="idml2xml:sne" select="$sne"/>
+    <xsl:attribute name="idml2xml:rst" select="idml2xml:RemoveTypeFromStyleName($sne)"/>
+  </xsl:template>
+  
+  <xsl:template match="Properties/BasedOn" mode="idml2xml:Document" priority="2">
+    <xsl:copy>
+      <xsl:variable name="sne" as="xs:string" select="idml2xml:StyleNameEscape(string(.))"/>
+      <xsl:attribute name="idml2xml:sne" select="$sne"/>
+      <xsl:attribute name="idml2xml:rst" select="idml2xml:RemoveTypeFromStyleName($sne)"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
 </xsl:stylesheet>

@@ -223,7 +223,7 @@
       <xsl:sequence select="$see-or-seealso"/>
     </xsl:if>
   </xsl:template>
-  
+
 
   <xsl:function name="idml2xml:index-crossrefs" as="item()*"><!-- see or seealso -->
     <xsl:param name="topic" as="element(Topic)" />

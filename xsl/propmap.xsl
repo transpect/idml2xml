@@ -48,6 +48,8 @@
         <prop name="aid5:tablestyle" type="passthru" />
         <prop name="idml2xml:objectstyle" type="passthru" />
         <prop name="idml2xml:layer" type="passthru" />
+        <prop name="idml2xml:sne" type="passthru" /><!-- StyleNameEscape -->
+        <prop name="idml2xml:rst" type="passthru" /><!-- RemoveStyleType -->
         <prop name="aid:table" type="passthru" />
         <prop name="aid:ccols" type="passthru" />
         <prop name="aid:colname" type="passthru" />
