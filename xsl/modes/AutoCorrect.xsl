@@ -81,7 +81,7 @@
   </xsl:template>
 
   <xsl:template match="idml2xml:ParagraphStyleRange[matches(@idml2xml:reason, 'cp1')]" mode="idml2xml:AutoCorrect">
-    <idml2xml:genPara idml2xml:reason="cp1 ac1" aid:pstyle="{@AppliedParagraphStyle}">
+    <idml2xml:genPara idml2xml:reason="cp1 ac1" aid:pstyle="{@AppliedParagraphStyle}" srcpath="{@srcpath}">
       <xsl:apply-templates mode="#current" />
     </idml2xml:genPara>
   </xsl:template>
