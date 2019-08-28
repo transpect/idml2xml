@@ -1064,7 +1064,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                              [. = 'idml2xml:numbered']"
     mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="style" as="element(css:rule)?"
-      select="if (exists(parent::css:rule)) then ()
+      select="if (exists(parent::css:rule or parent::TextDefault)) then ()
               else key(
                 'idml2xml:css-rule-by-name', 
                 idml2xml:StyleName(../idml2xml:attribute[@name = 'aid:pstyle'])
