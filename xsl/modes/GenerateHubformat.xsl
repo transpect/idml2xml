@@ -2396,7 +2396,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </phrase>
   </xsl:template>
 
-  <xsl:template match="@parastyle" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
+  <xsl:template match="@parastyle | @hub:same-para-style-spacing" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template 
       match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle | @idml2xml:sne | @idml2xml:rst" 
