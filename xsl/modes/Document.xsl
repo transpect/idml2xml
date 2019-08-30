@@ -293,16 +293,15 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
         <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
-        <xsl:variable name="figure-or-group" select="for $i in tokenize(normalize-space(idml2xml:text-content(current())), ' ') 
-                                                     return ((//*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
-                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $i)]]],
+        <xsl:variable name="figure-or-group" select="(//*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
+                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))]]],
                                                                 //*[self::Rectangle or self::Polygon or self::Oval]
-                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $i)], 
+                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))], 
                                                                (//*[self::Rectangle or self::Polygon or self::Oval]
                                                                    [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                   [replace(@Value,'\.w+$','') = $i]])
-                                                            ))[1]"/>
-        <xsl:choose>
+                                                                   [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
+                                                            )[1]"/>
+          <xsl:choose>
           <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
             <xsl:copy>
@@ -322,19 +321,20 @@
           <xsl:when test="count($figure-or-group) gt 0 and not(count($story) eq 1)">
             <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
             <xsl:variable name="anchored-frame" select="$figure-or-group/TextFrame" as="element(TextFrame)?"/>
-            <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)"/>
+            <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)?"/>
+            <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
             <xsl:choose>
               <xsl:when test="$anchored-story">
                 <xsl:choose>
-                  <xsl:when test="$potential-group/self::Group">
-                    <xsl:for-each select="$potential-group">
+                  <xsl:when test="$potential-group1/self::Group">
+                    <xsl:for-each select="$potential-group1">
                       <xsl:apply-templates select="." mode="#current">
                         <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
                       </xsl:apply-templates>
                     </xsl:for-each>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:for-each select="$potential-group">
+                    <xsl:for-each select="$potential-group1">
                       <xsl:copy>
                         <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
                       </xsl:copy>
