@@ -252,7 +252,8 @@
                                                [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
     use="string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
 <!--  use Kombi ref, anchor textframes without StoryID if there is a matching figure href -->
-  <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
+  <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']
+                                                  | EndnoteTextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
 
   <xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
@@ -320,7 +321,7 @@
           </xsl:when>
           <xsl:when test="count($figure-or-group) gt 0 and not(count($story) eq 1)">
             <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
-            <xsl:variable name="anchored-frame" select="$figure-or-group/TextFrame" as="element(TextFrame)?"/>
+            <xsl:variable name="anchored-frame" select="$figure-or-group/(TextFrame | EndnoteTextFrame)" as="element(*)?"/>
             <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)?"/>
             <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
             <xsl:choose>
@@ -349,7 +350,7 @@
           </xsl:when>
           <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
             <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
-            <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(TextFrame)"/>
+            <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(*)"/>
             <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
               as="element(*)"/>
             <xsl:choose>
@@ -369,7 +370,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <!-- otherwise: the story is anchored within itself, don’t do anything -->
+          <!-- otherwise: the story is anchored within itself or it is an anchored EndnoteTextFrame, don’t do anything -->
         </xsl:choose>
       </xsl:for-each>
     </xsl:copy>

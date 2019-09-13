@@ -370,21 +370,28 @@
   <xsl:key name="endnote-siblings" use="@ParentStory" match="EndnoteRange"/>
 
   <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
-  <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($endnotes/@Self, @Self)"/>
+    <xsl:variable name="endnote-id-A" as="xs:integer*" select="index-of($endnotes/@Self, @Self)"/>
+    <xsl:if test="count($endnote-id-A) gt 1">
+      <xsl:message select="'AAAAAAAAAAAA ', $endnote-id-A , ' :: ', for $a in $endnotes/@Self return string($a), ' :: ',distinct-values($endnotes/@Self), ' :: ', string(@Self)"></xsl:message>
+    </xsl:if>
     <!-- Unsure whether there is a DestinationUniqueKey so that linking from other files would be possible. 
       Didn’t find an example of EndnoteRange. Leave it as it is for the time being. --> 
-     <idml2xml:genAnchor xml:id="endnote-{$endnote-id}"/>
+     <idml2xml:genAnchor xml:id="endnote-{$endnote-id-A}"/>
      <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:variable name="endnote-id" as="xs:integer?" select="index-of($endnotes/@Self, @EndnoteTextRange)"/>
+    <xsl:variable name="endnote-id-B" as="xs:integer*" select="index-of($endnotes/@Self, @EndnoteTextRange)"/>
+    <xsl:if test="count($endnote-id-B) gt 1">
+      <xsl:message select="'BBBBBBBBBB ', distinct-values($endnotes/@Self), ' :: ', string(@EndnoteTextRange),  ' :: ',distinct-values($endnotes/@Self)"></xsl:message>
+    </xsl:if>
 
-    <xsl:variable name="endnote-number" as="xs:integer?" select="index-of(key('endnote-siblings', key('endnoterange-by-endnote', @Self)/@ParentStory)/@Self, @EndnoteTextRange)"/>
+    <xsl:variable name="endnote-number" as="xs:integer*" 
+      select="index-of(key('endnote-siblings', key('endnoterange-by-endnote', @Self)/@ParentStory)/@Self, @EndnoteTextRange)"/>
 <!--    <idml2xml:genSpan aid:cstyle="endnote-marker">
       <xsl:apply-templates select="@srcpath" mode="#current"/>-->
-      <idml2xml:genAnchor xml:id="endnoteAnchor-{$endnote-id}"/>
-      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id}"><xsl:value-of select="$endnote-number"/></idml2xml:link>
+      <idml2xml:genAnchor xml:id="endnoteAnchor-{$endnote-id-B}"/>
+      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id-B}"><xsl:value-of select="$endnote-number"/></idml2xml:link>
     <!--</idml2xml:genSpan>-->
   </xsl:template>
 
