@@ -2349,14 +2349,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        <xsl:copy/>
      </xsl:if>
    </xsl:template>
-   
-  <!-- §§§ GI 2012-09-30 Needs review.
-       Are there any dbk:phrase[@role='br'], or is it dbk:br now?
-       Should it apply to dbk:br?
-       -->
-  <xsl:template match="dbk:phrase[@role='br'][ following-sibling::*[ self::dbk:para ] ] |
-		       dbk:phrase[@role='br'][ not(following-sibling::*) and parent::dbk:para ]" 
-		mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <!-- Unwrap tables in a character style region if there's no other content in that region than the tables.
        Reason: tables in phrases are not permitted by the document model.
