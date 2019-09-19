@@ -14,7 +14,7 @@
     xmlns:hub = "http://transpect.io/hub"
     xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns="http://docbook.org/ns/docbook"
-    exclude-result-prefixes="idPkg aid aid5 xs xlink dbk tr css hub mml"
+    exclude-result-prefixes="idPkg aid aid5 xs xlink dbk tr css hub mml idml2xml"
     >
 
   <xsl:import href="../propmap.xsl"/>
@@ -199,6 +199,12 @@
         mode="#current">
         <xsl:sort select="@Name"/>
       </xsl:apply-templates>
+      <xsl:if test="count(idml2xml:layers/Layer) gt 1">
+        <xsl:for-each select="idml2xml:layers/Layer">
+          <xsl:sort select="position()" order="descending"/>
+          <css:rule layout-type="layer" name="{@Name}" css:z-index="{position()}"/>
+        </xsl:for-each>
+      </xsl:if>
     </css:rules>
   </xsl:template>
   
@@ -286,6 +292,8 @@
   </xsl:template>
   
   <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
+
+  <xsl:template match="idml2xml:layers" mode="idml2xml:XML-Hubformat-add-properties"/>
 
   <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
     <!-- what is this for? Had to exclude Link bc otherwise the URI would be duplicated --> 
@@ -2498,7 +2506,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
       	<xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
-        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(distinct-values(//@*[local-name()='layer'])) &gt; 1"/>
+        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(/dbk:hub/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
       </xsl:apply-templates>
       <xsl:if test="not($orphaned-indexterm-para)">
         <para>

@@ -173,6 +173,9 @@
       <idml2xml:endnotes>
         <xsl:copy-of select="EndnoteOption"/>
       </idml2xml:endnotes>
+      <idml2xml:layers>
+        <xsl:sequence select="Layer"/>
+      </idml2xml:layers>
       <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
         value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
         don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 
