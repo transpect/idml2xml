@@ -2506,7 +2506,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
       	<xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
-        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(/dbk:hub/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
+        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
       </xsl:apply-templates>
       <xsl:if test="not($orphaned-indexterm-para)">
         <para>
