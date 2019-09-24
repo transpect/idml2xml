@@ -556,7 +556,7 @@
         <prop name="TopRightCornerRadius" type="length" target-name="css:border-top-right-radius"/>
         <prop name="BottomLeftCornerRadius" type="length" target-name="css:border-bottom-left-radius"/>
         <prop name="BottomRightCornerRadius" type="length" target-name="css:border-bottom-right-radius"/>
-        <prop name="Tracking" implement="maybe later" />
+        <prop name="Tracking" type="one-thousandth-em-length" target-name="css:letter-spacing"/>
         <prop name="OTFFigureStyle" implement="maybe later" />
         <prop name="DesiredWordSpacing" implement="maybe later" />
         <prop name="MaximumWordSpacing" implement="maybe later" />

@@ -559,6 +559,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length($val)" /></idml2xml:attribute>
       </xsl:when>
 
+      <xsl:when test=". eq 'one-thousandth-em-length'">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="concat(xs:double($val) div 1000, 'em')"/></idml2xml:attribute>
+      </xsl:when>
+
       <xsl:when test=". eq 'linear'">
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
       </xsl:when>
