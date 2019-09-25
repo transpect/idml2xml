@@ -132,6 +132,7 @@
     <xsl:param name="pagenum-is-from-freely-placed-textframe" as="xs:boolean" />
     <xsl:variable name="crossrefs" select="CrossReference" as="element(CrossReference)*"/>
     <xsl:variable name="see-or-seealso" as="element()*" select="idml2xml:index-crossrefs(.)"/>
+    <!--<xsl:if test="matches(@Name, 'Diagnose')"><xsl:message select="@Name, '-\-\-', $see-or-seealso, '##', exists($see-or-seealso)"/></xsl:if>-->
     <xsl:if test="exists(Topic) or empty($see-or-seealso)">
       <indexterm>
         <xsl:attribute name="xml:id" 
@@ -219,7 +220,7 @@
     <xsl:if test="exists(Topic) or empty($see-or-seealso)">
       <xsl:apply-templates mode="#current" />
     </xsl:if>
-    <xsl:if test="exists($see-or-seealso)">
+    <xsl:if test="exists($see-or-seealso) and not(exists(Topic))">
       <xsl:sequence select="$see-or-seealso"/>
     </xsl:if>
   </xsl:template>
