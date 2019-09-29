@@ -372,6 +372,8 @@
   <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:variable name="endnote-id-A" as="xs:integer*" select="index-of($endnotes/@Self, @Self)"/>
     <xsl:if test="count($endnote-id-A) gt 1">
+      <!-- May happen if an additional StoryID/StoryRef placement was applied to the endnote frame,
+      as in https://redmine.le-tex.de/issues/7430 -->
       <xsl:message select="'AAAAAAAAAAAA ', $endnote-id-A , ' :: ', for $a in $endnotes/@Self return string($a), ' :: ',distinct-values($endnotes/@Self), ' :: ', string(@Self)"></xsl:message>
     </xsl:if>
     <!-- Unsure whether there is a DestinationUniqueKey so that linking from other files would be possible. 
