@@ -43,7 +43,6 @@
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
-
   <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource | Footnote | Endnote 
                        | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
     mode="idml2xml:Document">
@@ -326,7 +325,6 @@
             <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
             <xsl:variable name="anchored-frame" select="$figure-or-group/(TextFrame | EndnoteTextFrame)" as="element(*)?"/>
             <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)?"/>
-            <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
             <xsl:choose>
               <xsl:when test="$anchored-story">
                 <xsl:choose>
@@ -340,6 +338,7 @@
                   <xsl:otherwise>
                     <xsl:for-each select="$potential-group1">
                       <xsl:copy>
+                        <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
                         <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
                       </xsl:copy>
                     </xsl:for-each>
@@ -347,7 +346,11 @@
                 </xsl:choose>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:copy-of select="$figure-or-group"/>
+                <xsl:element name="{name($figure-or-group)}">
+                  <xsl:copy-of select="$figure-or-group/@*"/>
+                  <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
+                  <xsl:copy-of select="$figure-or-group/node()"/>
+                </xsl:element>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
