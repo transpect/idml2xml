@@ -842,7 +842,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="text" as="element(idml2xml:genPara)"/>
     <xsl:variable name="lang-by-style" as="attribute(xml:lang)?" 
       select="$text/ancestor::dbk:hub/dbk:info/css:rules/css:rule[@idml2xml:sne = $text/@idml2xml:sne]
-                                                                 [@layout-type = 'para']/@xml:lang[last()]"/>
+                                                                 [@layout-type = 'para'][1]/@xml:lang[last()]"/>
     <xsl:variable name="lang-override" select="$text/@xml:lang" as="attribute(xml:lang)?"/>
     <xsl:sequence select="($lang-override, $lang-by-style)[1]"/>
   </xsl:function>
