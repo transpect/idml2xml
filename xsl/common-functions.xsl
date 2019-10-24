@@ -34,6 +34,8 @@
     'idml2xml:genCell', 'Group')" 
     as="xs:string+" />
 
+  <xsl:variable name="idml2xml:output-full-background-images" select="false()" as="xs:boolean"/>
+
   <!-- GI 2015-11-01: Created this function ad hoc as a replacement for predicates 
     [name() = $idml2xml:idml-scope-terminal-names]. Reason: After ExtractTagging, there may by custom tags for table cells.
     I didn’t analyze yet whether is-scope-terminal and is-scope-origin should mean the same thing (i.e., should
@@ -337,7 +339,7 @@
 
   <!-- Document functions -->
 
-  <xsl:key name="idml2xml:corresponding-master-spread" match="MasterSpread" use="@Self"/>
+  <!--<xsl:key name="idml2xml:corresponding-master-spread" match="MasterSpread" use="@Self"/>-->
 
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
@@ -352,11 +354,66 @@
        <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
      </PathPointArray>
     -->
+    <!-- workspace / spread -->
+    <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
+    <xsl:variable name="spread-x" as="xs:double"
+      select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])"/>
+    <xsl:variable name="spread-y" as="xs:double"
+      select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
 
     <!-- Message that an item will be removed will also be output for textframes containing continued stories -->
 
-    <!-- workspace / spread -->
-    <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
+
+    <!-- item non-transformed coordinations -->
+            <xsl:variable name="item-pathpoints" as="node()*"
+              select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+            <xsl:variable name="item-x-center" as="xs:double?"
+              select="if($item/@ItemTransform) then
+                      xs:double(tokenize($item/@ItemTransform, ' ')[5]) else 0"/>
+            <xsl:variable name="item-y" as="xs:double"
+              select="if($item/@ItemTransform)
+                      then xs:double(tokenize($item/@ItemTransform, ' ')[6]) else 0"/>
+            <xsl:variable name="item-left" as="xs:double"
+              select="if($item-pathpoints[1]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] ) else 0"/>
+            <xsl:variable name="item-top" as="xs:double"
+              select="if($item-pathpoints[1]/@Ancho)
+                      then xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] ) else 0"/>
+            <xsl:variable name="item-right" as="xs:double"
+              select="if($item-pathpoints[3]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] ) else 0"/>
+            <xsl:variable name="item-bottom" as="xs:double"
+              select="if($item-pathpoints[3]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] ) else 0"/>
+            <xsl:variable name="group-x" as="xs:double"
+              select="if($item/ancestor::Group) 
+                      then sum(
+                              for $group in $item/ancestor::Group
+                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
+                            )
+                      else 0"/>
+            <xsl:variable name="item-real-center-x" as="xs:double"
+              select="$spread-x + $item-x-center + $group-x"/>
+            <xsl:variable name="item-real-left-x" as="xs:double"
+              select="$item-real-center-x + $item-left"/>
+            <xsl:variable name="item-real-right-x" as="xs:double"
+              select="$item-real-center-x + $item-right"/>
+
+
+    <!--<xsl:variable name="spread-all-pages-min-x" as="xs:double"
+      select="min(for $p in $corresponding-spread/Page return ($spread-x + xs:double( tokenize($p/@ItemTransform, ' ' )[5])))"/>
+    <xsl:variable name="spread-all-pages-max-x" as="xs:double"
+      select="max(for $p in $corresponding-spread/Page return ($spread-x + xs:double( tokenize($p/@ItemTransform, ' ' )[5])))"/>
+    <xsl:variable name="spread-all-pages-min-y" as="xs:double"
+      select="min(for $p in $corresponding-spread/Page return ($spread-y + xs:double( tokenize($p/@ItemTransform, ' ' )[6])))"/>
+    <xsl:variable name="spread-all-pages-max-y" as="xs:double"
+      select="max(for $p in $corresponding-spread/Page return ($spread-y + xs:double( tokenize($p/@ItemTransform, ' ' )[6])))"/>
+      <xsl:message select="'#############################', $item/@Self"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-min-x:', $spread-all-pages-min-x"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-max-x:', $spread-all-pages-max-x"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-min-y:', $spread-all-pages-min-y"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-max-y:', $spread-all-pages-max-y"/>
+    <xsl:message select="'___X:', $item-real-left-x, 'and', $item-real-right-x"/>-->
 
     <xsl:choose>
       <xsl:when test="empty($corresponding-spread)">
@@ -366,6 +423,12 @@
       <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 9) ne '1 0 0 1 '">
         <xsl:message
           select="'      WARNING: Spread for', local-name($item), string($item/@Self), 'does not fit standard settings. Item will be exported.'"/>
+        <xsl:sequence select="true()"/>
+      </xsl:when>
+
+      <!-- (background) image spanning all pages -->
+      <xsl:when test="    $item/self::Rectangle 
+                      and $idml2xml:output-full-background-images">
         <xsl:sequence select="true()"/>
       </xsl:when>
 
@@ -409,45 +472,8 @@
                   therefore the following variable declaration is not really exact -->
             <xsl:variable name="spread-binding" as="xs:string"
               select="if($corresponding-spread/@BindingLocation = 0) then 'left' else 'right'"/>
-            <xsl:variable name="spread-x" as="xs:double"
-              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])"/>
-            <!--        <xsl:variable name="spread-y" as="xs:double"
-              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
--->
 
-            <!-- item non-transformed coordinations -->
-            <xsl:variable name="item-pathpoints" as="node()*"
-              select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
-            <xsl:variable name="item-x-center" as="xs:double"
-              select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
-            <xsl:variable name="item-y" as="xs:double"
-              select="xs:double(tokenize($item/@ItemTransform, ' ')[6])"/>
-            <xsl:variable name="item-left" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] )"/>
-            <xsl:variable name="item-top" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] )"/>
-            <xsl:variable name="item-right" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] )"/>
-            <xsl:variable name="item-bottom" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] )"/>
-            <xsl:variable name="group-x" as="xs:double"
-              select="if($item/ancestor::Group) 
-                      then sum(
-                              for $group in $item/ancestor::Group
-                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
-                            )
-                      else 0"/>
- 
-<!--            <xsl:message select="'top:', $item-top, ' left:', $item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
-
-            <xsl:variable name="item-real-center-x" as="xs:double"
-              select="$spread-x + $item-x-center + $group-x"/>
-
-            <xsl:variable name="item-real-left-x" as="xs:double"
-              select="$item-real-center-x + $item-left"/>
-
-            <xsl:variable name="item-real-right-x" as="xs:double"
-              select="$item-real-center-x + $item-right"/>
+            
 
             <!--        <xsl:variable name="corresponding-page" as="element(Page)?"
               select="if ($item/ancestor::Group)

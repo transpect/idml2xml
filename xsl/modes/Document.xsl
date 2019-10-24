@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
+    xmlns:math="http://www.w3.org/2005/xpath-functions/math"
     exclude-result-prefixes = "idPkg aid5 aid xs"
 >
 
@@ -19,13 +20,11 @@
                         idPkg:Spread | 
                         idPkg:Story |
                         idPkg:Styles |
-                        idPkg:Tags" 
+                        idPkg:Tags |
+                        idPkg:BackingStory" 
                 mode="idml2xml:Document">
     <xsl:apply-templates select="document(@src)" mode="#current"/>
   </xsl:template>
-
-  <!-- unplaced XML: -->
-  <xsl:template match=" idPkg:BackingStory" mode="idml2xml:Document" />
     
   <xsl:template match="/processing-instruction()" mode="idml2xml:Document" />
 
@@ -116,14 +115,15 @@
       </idml2xml:namespaces>
       <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)*"/>
       <xsl:for-each select="$spreads">
-        <xsl:variable name="pos" select="position()" as="xs:integer" />
-        <idml2xml:sidebar remap="Spread" xml:id="spread_{position()}">
+        <xsl:variable name="spread-pos" select="position()" as="xs:integer"/>
+        <idml2xml:sidebar remap="Spread" xml:id="idml2xml_spread_{$spread-pos}">
           <xsl:for-each select="*[local-name() = ('Page', 'TextFrame', 'EndnoteTextFrame', 'Group', $idml2xml:shape-element-names)]">
-            <anchor linkend="{lower-case(local-name())}_{position()}" Self="{@Self}"/>
+            <anchor idml2xml:id="idml2xml_spread{$spread-pos}_item{position()}" idml2xml:condition="idml2xml_{lower-case(local-name())}_{@Self}"/>
           </xsl:for-each>
         </idml2xml:sidebar>
         <xsl:for-each select="Page">
-          <idml2xml:sidebar remap="Page" pos-in-book="{@Name}" pos-in-doc="{position()}" xml:id="page_{position()}" Self="{@Self}">
+          <xsl:variable name="doc-position" select="count(preceding::Page[not(../self::MasterSpread)]) + 1" as="xs:integer"/>
+          <idml2xml:sidebar remap="Page" idml2xml:pos-in-book="{@Name}" idml2xml:pos-in-doc="{$doc-position}" idml2xml:id="idml2xml_page_{@Self}">
             <xsl:attribute name="idml2xml:width" 
               select="concat(
                       tokenize(
@@ -134,7 +134,7 @@
           <xsl:attribute name="idml2xml:height" 
             select="concat(
                       tokenize(
-                        (@GeometricBounds, //DocumentPreference/@PageWidth)[1],
+                        (@GeometricBounds, //DocumentPreference/@PageHeight)[1],
                         ' ')[3], 
                       'pt'
                     )"/>
@@ -172,34 +172,65 @@
       <idml2xml:endnotes>
         <xsl:copy-of select="EndnoteOption"/>
       </idml2xml:endnotes>
+      <idml2xml:tags>
+        <xsl:sequence select="idPkg:Tags"/>
+      </idml2xml:tags>
       <idml2xml:layers>
         <xsl:sequence select="Layer"/>
       </idml2xml:layers>
-      <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
-        value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
-        don’t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore don’t have a Spread 
-        ancestor. 
-        In addition, if $use-StoryID-conditional-text-for-anchoring is true, processing of TextFrames will be suppressed if
-        they contain a Story whose StoryID conditional text matches a StoryRef somewhere else. The first TextFrame that contains
-        such a StoryID will be processed in lieu of any StoryRef conditional text with the same content. -->
-      <!--<xsl:apply-templates 
-        select=".//TextFrame[@PreviousTextFrame eq 'n']
-                            [$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
-                            [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))],
-                //Spread/*[name() = $idml2xml:shape-element-names],
-                //XmlStory" 
-        mode="idml2xml:DocumentResolveTextFrames"/>-->
+      <idml2xml:backingstory>
+        <xsl:sequence select="idPkg:BackingStory/XmlStory"/>
+      </idml2xml:backingstory>
       <xsl:apply-templates 
-        select="idPkg:Spread/Spread/(
-                                         TextFrame[idml2xml:is-story-origin(.)]
-                                     (:  | EndnoteTextFrame[idml2xml:is-story-origin(.)] :) 
-                                       | Group[.//(  TextFrame[idml2xml:is-story-origin(.)] 
-                                                   | *[name() = $idml2xml:shape-element-names])]
-                                       | *[name() = $idml2xml:shape-element-names]
-                                    ),
-                //XmlStory" 
-        mode="idml2xml:DocumentResolveTextFrames"/>
+        select="idPkg:Spread/Spread, //XmlStory[not(ancestor::idPkg:BackingStory)]" mode="idml2xml:DocumentResolveTextFrames"/>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="Spread" mode="idml2xml:DocumentResolveTextFrames">
+  <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
+    value of idml2xml:item-is-on-workspace() becomes significant. This function will return false() for TextFrames that
+    donâ€™t have a Spread ancestor. TextFrames that are anchored are contained in a story and therefore donâ€™t have a Spread 
+    ancestor. 
+    In addition, if $use-StoryID-conditional-text-for-anchoring is true, processing of TextFrames will be suppressed if
+    they contain a Story whose StoryID conditional text matches a StoryRef somewhere else. The first TextFrame that contains
+    such a StoryID will be processed in lieu of any StoryRef conditional text with the same content. -->
+  <!--<xsl:apply-templates 
+    select=".//TextFrame[@PreviousTextFrame eq 'n']
+                        [$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
+                        [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))],
+            //Spread/*[name() = $idml2xml:shape-element-names],
+            //XmlStory" 
+    mode="idml2xml:DocumentResolveTextFrames"/>-->
+    <xsl:variable name="spread-x" as="xs:double"
+      select="xs:double(tokenize(@ItemTransform, ' ')[5])"/>
+    <xsl:variable name="spread-y" as="xs:double"
+      select="xs:double(tokenize(@ItemTransform, ' ')[6])"/>
+    <xsl:apply-templates 
+        select="(
+                     TextFrame[idml2xml:is-story-origin(.)]
+                 (:  | EndnoteTextFrame[idml2xml:is-story-origin(.)] :) 
+                   | Group[.//(  TextFrame[idml2xml:is-story-origin(.)] 
+                               | *[name() = $idml2xml:shape-element-names])]
+                   | *[name() = $idml2xml:shape-element-names]
+                )" 
+        mode="idml2xml:DocumentResolveTextFrames">
+        <xsl:with-param name="spread-pages" as="element(page)*" tunnel="yes">
+          <xsl:if test="@GridStartingPoint != 'TopOutside'">
+            <xsl:message select="'WARNING: Page with GridStartingPoint other than ''TopOutside''. Unimplemented!'"/>
+          </xsl:if>
+          <xsl:for-each select="Page">
+            <page nr="{@Name}" width="{tokenize(@GeometricBounds, ' ')[4]}"
+              height="{tokenize(@GeometricBounds, ' ')[3]}"
+              x-left="{$spread-x + xs:double( tokenize(@ItemTransform, ' ' )[5])}"
+              x-center="{$spread-x + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[4]) div 2)}" 
+              x-right="{$spread-x + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[4]))}" 
+              y-top="{$spread-y + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[3]) div 2)}"
+              y-bottom="{$spread-y + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[3]) div 2)}"
+              padding-left="{MarginPreference/@Left}" 
+              padding-right="{MarginPreference/@Right}"/>
+          </xsl:for-each>
+        </xsl:with-param>
+      </xsl:apply-templates>
   </xsl:template>
 
 
@@ -246,7 +277,7 @@
   </xsl:function>-->
 
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
-       they’d be concatenated) -->
+       theyâ€™d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
     use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef']//Content return idml2xml:text-content($r)"/>
   <!-- we do not allow StoryIDs/StoryRefs that consist of whistespace only -->
@@ -305,7 +336,7 @@
                                                                    [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
                                                             )[1]"/>
           <xsl:choose>
-          <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
+          <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesnâ€™t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
             <xsl:copy>
               <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
@@ -376,7 +407,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <!-- otherwise: the story is anchored within itself or it is an anchored EndnoteTextFrame, don’t do anything -->
+          <!-- otherwise: the story is anchored within itself or it is an anchored EndnoteTextFrame, donâ€™t do anything -->
         </xsl:choose>
       </xsl:for-each>
     </xsl:copy>
@@ -467,7 +498,7 @@
   </xsl:template>
 
   <!-- dissolve pstyleranges in hidden text that serves a pseudo-anchoring purpose 
-        and that doesn’t contain a paragraph break -->
+        and that doesnâ€™t contain a paragraph break -->
   <xsl:template match="ParagraphStyleRange[every $br in .//Br[idml2xml:same-scope(., current())]
                                            satisfies ($br/ancestor::*/@AppliedConditions = ('Condition/StoryRef', 'Condition/FigureRef'))]
                                           [not( (ancestor::Story[1]//ParagraphStyleRange)[last()] )]" 
@@ -639,25 +670,25 @@
           <xsl:apply-templates select="TextFrame" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
-        <xsl:variable name="objects-coordinates">
-        <xsl:apply-templates select="*" mode="idml2xml:Geometry"/>
-      </xsl:variable>
-      <xsl:variable name="ordered-objects">
-        <xsl:for-each-group select="$objects-coordinates/point" group-by="replace(@coord-y, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
-          <!--  inaccuracies on positioning in InDesign will be softened by using only two numbers after comma. 
-            Perhaps rounding might be better, but we'll watch this -->
-          <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
-          <xsl:for-each-group select="current-group()" group-by="replace(@coord-x, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
-            <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
-            <xsl:sequence select="current-group()"/>
-          </xsl:for-each-group>
-        </xsl:for-each-group>
-      </xsl:variable>
-<!--      <xsl:message select="'→→→→→ Grouped object‘s first points on page, sorted ascending: ', $ordered-objects"/>-->
-      <xsl:for-each select="($ordered-objects/point | Group)">
-        <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
-      </xsl:for-each>
-      </xsl:otherwise>
+          <xsl:variable name="objects-coordinates">
+            <xsl:apply-templates select="*" mode="idml2xml:Geometry"/>
+          </xsl:variable>
+          <xsl:variable name="ordered-objects">
+            <xsl:for-each-group select="$objects-coordinates/point" group-by="replace(@coord-y, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
+              <!--  inaccuracies on positioning in InDesign will be softened by using only two numbers after comma. 
+                Perhaps rounding might be better, but we'll watch this -->
+              <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
+              <xsl:for-each-group select="current-group()" group-by="replace(@coord-x, '^(.+?)((\.\d{2})\d*)?$', '$1$3')">
+                <xsl:sort select="current-grouping-key()" data-type="number" order="ascending"/>
+                <xsl:sequence select="current-group()"/>
+              </xsl:for-each-group>
+            </xsl:for-each-group>
+          </xsl:variable>
+<!--      <xsl:message select="'â†’â†’â†’â†’â†’ Grouped objectâ€˜s first points on page, sorted ascending: ', $ordered-objects"/>-->
+          <xsl:for-each select="($ordered-objects/point | Group)">
+            <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
+          </xsl:for-each>
+        </xsl:otherwise>
       </xsl:choose>
       <!-- what if there are objects in the group without coordinates? -->
       <!-- perhaps the inner groups shall be sorted by the objects inside -->
@@ -724,7 +755,7 @@
 
   <xsl:template match="@MathToolsML" mode="idml2xml:Document"/>
   
-  <!-- Let’s move v2 MathToolsML out of Properties, next to Content. -->
+  <!-- Letâ€™s move v2 MathToolsML out of Properties, next to Content. -->
   <xsl:template match="*[Properties/MathToolsML]" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current">
@@ -756,6 +787,139 @@
     <xsl:attribute name="idml2xml:rst" select="idml2xml:RemoveTypeFromStyleName($sne)"/>
   </xsl:template>
   
+  <xsl:template match="Page/@Self | Group/@Self" mode="idml2xml:Document">
+    <xsl:next-match/>
+    <xsl:if test="$fixed-layout = 'yes'">
+      <xsl:attribute name="idml2xml:id" select="concat('idml2xml_', lower-case(local-name(..)), '_', .)"/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template mode="idml2xml:DocumentResolveTextFrames" priority="+1"
+    match="*[local-name() = ('TextFrame', 'EndnoteTextFrame', $idml2xml:shape-element-names)]/@Self" name="add-rotation-transform-property">
+    <xsl:variable name="const-pi" select="math:pi()"/>
+    <xsl:variable name="const" select="180 div $const-pi"/>
+    <xsl:variable name="val1" select="math:acos(xs:double(tokenize(../@ItemTransform, ' ')[1])) * $const" as="xs:double"/>
+    <xsl:variable name="is-beyond-180" as="xs:boolean" select="number(tokenize(../@ItemTransform)[2]) gt 0"/>
+    <xsl:variable name="val2" select="math:asin(-1 * xs:double(tokenize(../@ItemTransform, ' ')[2])) * $const" as="xs:double"/>
+    <xsl:variable name="idml-deg-val" as="xs:double" select="if ($is-beyond-180)
+                                                          then round(360 - $val1, 3)
+                                                          else round($val1, 3)"/>
+    <xsl:variable name="deg-val" as="xs:double" select="360 - $idml-deg-val"/>
+    <xsl:if test="$val1 != 0">
+      <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $deg-val, 'deg)')"/>
+      <xsl:attribute name="idml2xml:transform-origin" select="'top left'"/>
+      <!--<xsl:message select="xs:string(.), ';', ..//@LinkResourceURI/tokenize(., '/')[last()], '###### DEGREE:', $deg-val,  '(idml-deg-val:', $idml-deg-val, ')'"/>-->
+    </xsl:if>
+    <xsl:next-match>
+      <xsl:with-param name="rotate-degree-val" as="xs:double" tunnel="yes"
+        select="if($val1 != 0) then $deg-val else 0"/>
+    </xsl:next-match>
+  </xsl:template>
+
+  <xsl:template mode="idml2xml:DocumentResolveTextFrames"
+    match="*[$fixed-layout = 'yes']
+            [local-name() = ('TextFrame', 'EndnoteTextFrame', $idml2xml:shape-element-names)]/@Self">
+    <xsl:param name="spread-pages" as="element(page)*" tunnel="yes"/>
+    <xsl:param name="rotate-degree-val" select="0" as="xs:double" tunnel="yes"/>
+    <xsl:next-match/>
+    <xsl:variable name="item" select=".." as="element()"/>
+    <xsl:attribute name="idml2xml:id" select="concat('idml2xml_', lower-case(local-name($item)), '_', .)"/>
+    <xsl:if test="../local-name() = ('TextFrame', 'Rectangle')">
+      <xsl:variable name="page-width" select="xs:double(tokenize(($item/preceding-sibling::Page/@GeometricBounds, //DocumentPreference/@PageWidth)[1], ' ')[4])"/>
+      <xsl:variable name="page-height" select="xs:double(tokenize(($item/preceding-sibling::Page/@GeometricBounds, //DocumentPreference/@PageHeight)[1], ' ')[3])"/>
+      <xsl:variable name="spread-x" as="xs:double"
+        select="xs:double(tokenize(ancestor::Spread/@ItemTransform, ' ')[5])"/>
+      <xsl:variable name="spread-y" as="xs:double"
+        select="xs:double(tokenize(ancestor::Spread/@ItemTransform, ' ')[6])"/>
+      <xsl:variable name="group-x" as="xs:double"
+              select="if($item/ancestor::Group) 
+                      then sum(
+                              for $group in $item/ancestor::Group
+                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
+                            )
+                      else 0"/>
+      <xsl:variable name="group-y" as="xs:double"
+              select="if($item/ancestor::Group) 
+                      then sum(
+                              for $group in $item/ancestor::Group
+                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[6] )
+                            )
+                      else 0"/>
+      <xsl:variable name="item-pathpoints" as="node()*"
+        select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+      <xsl:variable name="item-x-center" as="xs:double"
+        select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
+      <xsl:variable name="item-left" as="xs:double"
+        select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] )"/>
+      <xsl:variable name="item-right" as="xs:double"
+        select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] )"/>
+      <xsl:variable name="item-real-center-x" as="xs:double"
+        select="$spread-x + $item-x-center + $group-x"/>
+      <xsl:variable name="item-width" as="xs:double"
+        select="$item-right - $item-left"/>
+      <xsl:variable name="item-x-center" as="xs:double"
+        select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
+      <xsl:variable name="item-real-right-x" as="xs:double"
+        select="$item-real-center-x + $item-right"/>
+      <xsl:variable name="item-top" as="xs:double"
+        select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] )"/>
+      <xsl:variable name="item-real-left-x" as="xs:double"
+        select="$item-real-center-x + $item-left"/>
+      <xsl:variable name="item-y-center" as="xs:double"
+        select="xs:double(tokenize($item/@ItemTransform, ' ')[6])"/>
+      <xsl:variable name="item-bottom" as="xs:double"
+        select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] )"/>
+      <xsl:attribute name="idml2xml:position" select="'absolute'"/>
+      <xsl:attribute name="idml2xml:width" select="$item-right - $item-left"/>
+      <xsl:attribute name="idml2xml:height" select="$item-bottom - $item-top"/>
+      <xsl:variable name="corresponding-pages" as="element(page)*"
+        select="$spread-pages
+                   [
+                     (xs:double(@x-left) le $item-real-left-x and xs:double(@x-right) gt $item-real-left-x)
+                     or
+                     count($spread-pages) = 1
+                     or
+                     (
+                       not($spread-pages[xs:double(@x-left) le $item-real-left-x])
+                       and
+                       @x-left = min($spread-pages/@x-left)
+                     )
+                   ]"/>
+      <xsl:variable name="corresponding-page" as="element(page)?" select="($corresponding-pages)[1]"/>
+      <xsl:variable name="top"
+        select="$item-y-center + $item-top + $group-y + ($corresponding-page/@height div 2)"/>
+      <xsl:variable name="left"
+        select="if(xs:double($corresponding-page/@x-left) ge 0) 
+                then $item-real-left-x
+                else $item-real-left-x - xs:double($corresponding-page/@x-left)"/>
+      <xsl:attribute name="idml2xml:top" select="if(contains(xs:string($top), 'E')) then '0' else $top"/>
+
+
+      <!--x' = x * cos# - y * sin#         y' = x * sin# + y * cos #-->
+      <xsl:message select="xs:double($corresponding-page/@x-left), xs:string(.), '___ left: ', $left, 'new:', $left * math:cos(xs:double(tokenize(../@ItemTransform, ' ')[1])) - $item-top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
+      <xsl:attribute name="idml2xml:left" select="if(contains(xs:string($left), 'E')) then '0' else $left"/>
+      
+       <!-- <xsl:message select="'===', xs:string(.)"/>
+        <xsl:message select="'top-x :', $left"/>
+        <xsl:if test="not(substring(../@ItemTransform, 0, 9) ne '1 0 0 1 ')">
+          <xsl:message select="'top-x'':', $left * math:cos(xs:double(tokenize(../@ItemTransform, ' ')[1])) - $top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
+        </xsl:if>
+        <xsl:message select="'- - -'"/>
+        <xsl:message select="'top-y :', $left"/>
+        <xsl:if test="not(substring(../@ItemTransform, 0, 9) ne '1 0 0 1 ')">
+          <xsl:message select="'top-y'':', $left * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1])) + $top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
+        </xsl:if>-->
+      
+      <xsl:if test="name(..) = 'Rectangle'">
+        <xsl:attribute name="idml2xml:page-nr" 
+          select="$corresponding-pages/@nr"/>
+      </xsl:if>
+    </xsl:if>
+    <xsl:if test="exists($item/preceding-sibling::*[name() = $idml2xml:shape-element-names] union $item/following-sibling::*[name() = $idml2xml:shape-element-names])">
+      <xsl:attribute name="idml2xml:z-index" select="count($item/preceding-sibling::*[name() = $idml2xml:shape-element-names]) + 1"/>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="Properties/BasedOn" mode="idml2xml:Document" priority="2">
     <xsl:copy>
       <xsl:variable name="sne" as="xs:string" select="idml2xml:StyleNameEscape(string(.))"/>

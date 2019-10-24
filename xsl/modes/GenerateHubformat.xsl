@@ -26,7 +26,7 @@
       name="hubformat-elementnames-whitelist"
       select="('alt', 'anchor', 'book', 'hub', 'Body', 'para', 'info', 'informaltable', 'table', 'tgroup', 
                'colspec', 'tbody', 'row', 'entry', 'mediaobject', 'inlinemediaobject', 'tab', 'tabs', 'br',
-               'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar',
+               'imageobject', 'imagedata', 'phrase', 'emphasis', 'sidebar', 'div',
                'superscript', 'subscript', 'link', 'xref', 'footnote', 'note', 'mml:math', 
                'keywordset', 'keyword', 'indexterm', 'primary', 'secondary', 'tertiary',
                'see', 'seealso', 'date', 'author', 'personname', 'tfoot', 'thead',
@@ -79,6 +79,11 @@
           <xsl:if test="idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering">
             <keyword role="endnote-restart">
               <xsl:value-of select="if (starts-with(idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering, 'Continuous')) then 'false' else 'true'"/>
+            </keyword>
+          </xsl:if>
+          <xsl:if test="idml2xml:tags/idPkg:Tags">
+            <keyword role="tags-list">
+              <xsl:value-of select="string-join(idml2xml:tags/idPkg:Tags/XMLTag/@Name, '&#x20;')"/>
             </keyword>
           </xsl:if>
         </keywordset>
@@ -291,9 +296,28 @@
     </inlineequation>
   </xsl:template>
   
-  <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties" />
-
+  <xsl:template match="Properties/BasedOn" mode="idml2xml:XML-Hubformat-add-properties"/>
   <xsl:template match="idml2xml:layers" mode="idml2xml:XML-Hubformat-add-properties"/>
+  <xsl:template match="idml2xml:tags" mode="idml2xml:XML-Hubformat-add-properties"/>
+  
+  <xsl:template match="idml2xml:sidebar" mode="idml2xml:XML-Hubformat-add-properties">
+    <div xml:id="{@xml:id}">
+      <xsl:if test="@remap = 'Page'">
+        <xsl:attribute name="css:margin-top" select="tokenize(@idml2xml:margin, ' ')[1]"/>
+        <xsl:attribute name="css:margin-right" select="tokenize(@idml2xml:margin, ' ')[2]"/>
+        <xsl:attribute name="css:margin-bottom" select="tokenize(@idml2xml:margin, ' ')[3]"/>
+        <xsl:attribute name="css:margin-left" select="tokenize(@idml2xml:margin, ' ')[4]"/>
+      </xsl:if>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </div>
+  </xsl:template>
+  <xsl:template match="idml2xml:sidebar[$fixed-layout = 'no']" mode="idml2xml:XML-Hubformat-add-properties" priority="1"/>
+
+  <xsl:template match="idml2xml:sidebar/@remap" mode="idml2xml:XML-Hubformat-add-properties">
+    <xsl:attribute name="remap" select="concat('idml2xml:', .)"/>
+  </xsl:template>
+
+  <xsl:template match="idml2xml:sidebar/@*[local-name() = ('pos-in-book', 'pos-in-doc', 'Self')]" mode="idml2xml:XML-Hubformat-add-properties"/>
 
   <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
     <!-- what is this for? Had to exclude Link bc otherwise the URI would be duplicated --> 
@@ -332,6 +356,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <xsl:copy>
       <xsl:copy-of select="@*, node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]
+                        [@idml2xml:no-fileref-image = 'yes']" 
+                mode="idml2xml:XML-Hubformat-add-properties" priority="5">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:sequence select="node()"/>
     </xsl:copy>
   </xsl:template>
   
@@ -555,12 +588,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
       <xsl:when test=". eq 'lang'"/>
 
+      <xsl:when test=". eq 'length' and ../@name = ('idml2xml:width', 'idml2xml:height')">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length(replace($val, '\p{L}+$', ''))" /></idml2xml:attribute>
+      </xsl:when>
+
       <xsl:when test=". eq 'length'">
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length($val)" /></idml2xml:attribute>
       </xsl:when>
 
       <xsl:when test=". eq 'one-thousandth-em-length'">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="concat(xs:double($val) div 1000, 'em')"/></idml2xml:attribute>
+        <xsl:variable name="letter-spacing-val" as="xs:string"
+          select="idml2xml:calculate-letter-spacing-value($val)"/>
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$letter-spacing-val"/></idml2xml:attribute>
       </xsl:when>
 
       <xsl:when test=". eq 'linear'">
@@ -674,6 +713,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
 
+  <xsl:function name="idml2xml:calculate-letter-spacing-value" as="xs:string">
+    <xsl:param name="val" as="xs:string"/>
+    <xsl:sequence select="concat(replace(replace(xs:string(xs:double($val) * 0.001), '(\.\d\d)\d*$', '$1'), '^0\.00', '0'), 'em')"/>
+  </xsl:function>
+
   <xsl:function name="idml2xml:bullet-list-style-type" as="xs:string">
     <xsl:param name="styled-element" as="element(*)"/><!-- ParagraphStyle, idml2xml:genPara, etc. -->
     <!-- To do: provide the reserved names from http://www.w3.org/TR/css3-lists/#ua-stylesheet for the corresponding chars --> 
@@ -732,7 +776,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
-    <xsl:sequence select="concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')" />
+    <xsl:sequence select="if($val != '')
+                          then concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')
+                          else ''"/>
   </xsl:function>
 
   <xsl:template match="val/@match" mode="idml2xml:XML-Hubformat-add-properties" as="element(*)?">
@@ -750,7 +796,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template name="idml2xml:XML-Hubformat-atts" as="element(*)?">
-    <xsl:variable name="target-val" select="(../@target-value, ../../@target-value)[last()]" as="xs:string?" />
+    <xsl:param name="val" as="node()" tunnel="yes" />
+    <xsl:variable name="target-val" as="xs:string?">
+      <xsl:choose>
+        <xsl:when test="../@type = 'length'">
+          <xsl:value-of select="idml2xml:pt-length($val)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="(../@target-value, ../../@target-value)[last()]"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <xsl:if test="exists($target-val)">
       <idml2xml:attribute name="{(../@target-name, ../../@target-name)[last()]}"><xsl:value-of select="$target-val" /></idml2xml:attribute>
     </xsl:if>
@@ -1274,6 +1330,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           )" />
   </xsl:function>
 
+  <xsl:template match="idml2xml:div" mode="idml2xml:XML-Hubformat-extract-frames">
+    <div>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </div>
+  </xsl:template>
+
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames">
     <idml2xml:genAnchor xml:id="{generate-id()}"/>    
   </xsl:template>
@@ -1342,6 +1404,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][@idml2xml:no-fileref-image = 'yes']" mode="idml2xml:XML-Hubformat-extract-frames">
+    <div>
+      <xsl:apply-templates select="@xml:id union @idml2xml:* union @css:*" mode="#current"/>
+      <xsl:apply-templates select="@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+      <xsl:variable name="image-info" as="element(image)">
+        <xsl:apply-templates select="." mode="idml2xml:Images"/>
+      </xsl:variable>
+      <xsl:if test="exists($image-info/@shape-width)">
+        <xsl:attribute name="css:width" select="$image-info/@shape-width"/>
+      </xsl:if>
+      <xsl:if test="exists($image-info/@shape-height)">
+        <xsl:attribute name="css:height" select="$image-info/@shape-height"/>
+      </xsl:if>
+    </div>
   </xsl:template>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1644,8 +1722,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="idml2xml:layout-type" select="'object'"/>
   </xsl:template>
 
-   <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <xsl:attribute name="idml2xml:layer" select="."/>
+  <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:if test="not(. = parent::*/parent::*/@idml2xml:layer)">
+      <xsl:attribute name="idml2xml:layer" select="."/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="@idml2xml:label" mode="idml2xml:XML-Hubformat-remap-para-and-span">
@@ -1974,7 +2054,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-  
+
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
 
     <xsl:variable name="suffix" as="xs:string"
@@ -2010,45 +2090,75 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
      <!-- *
           * mediaobject wrapper element
           * -->
-    <mediaobject>
-      <xsl:if test="exists($image-info/@shape-width)">
-        <xsl:attribute name="css:width" select="$image-info/@shape-width"/>
-      </xsl:if>
-      <xsl:if test="exists($image-info/@shape-height)">
-        <xsl:attribute name="css:height" select="$image-info/@shape-height"/>
-      </xsl:if>
-      <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
-      <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
-        <xsl:if test="$image-info/@alt">
-          <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
-        </xsl:if>
-      <imageobject>
-        <xsl:if test="$preserve-original-image-refs eq 'yes' and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]">
-          <xsl:attribute name="condition" select="'web'"/>
-        </xsl:if>
-        <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
-          <xsl:attribute name="role" select="'hub:embedded'"/>
-        </xsl:if>
-        <imagedata fileref="{$fileref}">
-          <xsl:if test="$image-info/@width">
-            <xsl:attribute name="css:width" select="concat($image-info/@width, 'px')"/>
+    <xsl:variable name="mediaobject-element" as="element()">
+      <mediaobject>
+        <xsl:if test="$fixed-layout = 'yes'">
+          <xsl:attribute name="xml:id" select="@idml2xml:id"/>
+          <xsl:attribute name="css:top" select="concat(@idml2xml:top, 'pt')"/>
+          <xsl:attribute name="css:left" select="concat(@idml2xml:left, 'pt')"/>
+          <xsl:if test="@idml2xml:transform">
+            <xsl:attribute name="css:transform" select="@idml2xml:transform"/>
           </xsl:if>
-          <xsl:if test="$image-info/@height">
-            <xsl:attribute name="css:height" select="concat($image-info/@height, 'px')"/>
+          <xsl:if test="@idml2xml:position">
+            <xsl:attribute name="css:position" select="@idml2xml:position"/>
           </xsl:if>
-          <xsl:attribute name="xml:id" select="$id"/>
-        </imagedata>
-      </imageobject>
-      <!-- generate a 2nd image object to preserve the original file 
-           reference if the export script had generated a filename label. -->
-      <xsl:if test="$preserve-original-image-refs eq 'yes' 
-                    and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]
-                    and @idml2xml:rectangle-embedded-source eq 'false'">
-        <imageobject condition="print" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
-          <imagedata fileref="{$LinkResourceURI}"/>
+        </xsl:if>
+        <xsl:if test="exists($image-info/@shape-width)">
+          <xsl:attribute name="css:width" select="$image-info/@shape-width"/>
+        </xsl:if>
+        <xsl:if test="exists($image-info/@shape-height)">
+          <xsl:attribute name="css:height" select="$image-info/@shape-height"/>
+        </xsl:if>
+        <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
+        <xsl:if test="@idml2xml:z-index">
+          <xsl:attribute name="css:z-index" select="@idml2xml:z-index"/>
+        </xsl:if>
+        <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
+          <xsl:if test="$image-info/@alt">
+            <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
+          </xsl:if>
+        <imageobject>
+          <xsl:if test="$preserve-original-image-refs eq 'yes' and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]">
+            <xsl:attribute name="condition" select="'web'"/>
+          </xsl:if>
+          <xsl:if test="@idml2xml:rectangle-embedded-source eq 'true'">
+            <xsl:attribute name="role" select="'hub:embedded'"/>
+          </xsl:if>
+          <imagedata fileref="{$fileref}">
+            <xsl:if test="$image-info/@width">
+              <xsl:attribute name="css:width" 
+                select="concat($image-info/@width, if($fixed-layout = 'yes') then 'pt' else 'px')"/>
+            </xsl:if>
+            <xsl:if test="$image-info/@height">
+              <xsl:attribute name="css:height" 
+                select="concat($image-info/@height, if($fixed-layout = 'yes') then 'pt' else 'px')"/>
+            </xsl:if>
+            <xsl:attribute name="xml:id" select="$id"/>
+          </imagedata>
         </imageobject>
-      </xsl:if>
-    </mediaobject>
+        <!-- generate a 2nd image object to preserve the original file 
+             reference if the export script had generated a filename label. -->
+        <xsl:if test="$preserve-original-image-refs eq 'yes' 
+                      and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]
+                      and @idml2xml:rectangle-embedded-source eq 'false'">
+          <imageobject condition="print" css:width="{$image-info/@width}px" css:height="{$image-info/@height}px">
+            <imagedata fileref="{$LinkResourceURI}"/>
+          </imageobject>
+        </xsl:if>
+      </mediaobject>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$fixed-layout = 'yes'">
+        <para>
+          <anchor xml:id="page_{@idml2xml:page-nr}_{substring-after(@idml2xml:id, 'idml2xml_rectangle_')}"/>
+          <xsl:sequence select="$mediaobject-element"/>
+          <anchor xml:id="pageend_{@idml2xml:page-nr}_{substring-after(@idml2xml:id, 'idml2xml_rectangle_')}"/>
+        </para>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$mediaobject-element"/>
+      </xsl:otherwise>
+    </xsl:choose>
 
     <!--  * 
           * generate virtual result documents, which will be decoded by idml_tagged2hub.xpl,
@@ -2073,6 +2183,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </data>
       </xsl:result-document>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="*[name() = $idml2xml:shape-element-names]/@*" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:copy/>
   </xsl:template>
   
 
@@ -2340,7 +2454,33 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@*[matches(name(), '^(css:|xml:lang)')]
                          [key('idml2xml:css-rule-by-name', ../@role)/@*[name() = name(current())]
                                                                        [. = current()]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-     
+  
+  <xsl:variable name="idml2xml:font-weight-name-value-map" as="element()*">
+    <map value="100" name="thin"/>
+    <map value="200" name="extralight"/>
+    <map value="200" name="ultralight"/>
+    <map value="300" name="light"/>
+    <map value="400" name="normal"/>
+    <map value="400" name="regular"/>
+    <map value="500" name="medium"/>
+    <map value="600" name="semibold"/>
+    <map value="600" name="ultrabold"/>
+    <map value="700" name="bold"/>
+    <map value="800" name="extrabold"/>
+    <map value="900" name="black"/>
+    <map value="900" name="heavy"/>
+  </xsl:variable>
+
+  <xsl:variable name="idml2xml:font-weight-name-value-map-attribute-names" as="xs:string+"
+    select="('css:font-weight')"/>
+
+  <xsl:template mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"
+    match="@*[name() = $idml2xml:font-weight-name-value-map-attribute-names]
+             (:[$numeric-font-weight-values = 'yes']:)
+             [lower-case(replace(., '[-]', '')) = $idml2xml:font-weight-name-value-map/@name]">
+    <xsl:attribute name="css:font-weight" select="$idml2xml:font-weight-name-value-map[@name = lower-case(replace(current(), '[-]', ''))]/@value"/>
+  </xsl:template>
+
    <!-- Make css:rule/@name and @role unique in case that there are rules with the same name, but different
    layout types: -->
    

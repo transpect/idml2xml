@@ -93,6 +93,8 @@
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
   <xsl:param name="process-embedded-images" as="xs:string" select="'yes'"/>
   <xsl:param name="preserve-original-image-refs" as="xs:string" select="'no'"/>
+  <xsl:param name="fixed-layout" as="xs:string" select="'no'"/>
+  <xsl:param name="numeric-font-weight-values" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
 
