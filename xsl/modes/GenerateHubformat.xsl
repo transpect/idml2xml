@@ -587,9 +587,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'lang'"/>
-
-      <xsl:when test=". eq 'length' and ../@name = ('idml2xml:width', 'idml2xml:height')">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="idml2xml:pt-length(replace($val, '\p{L}+$', ''))" /></idml2xml:attribute>
+      
+      <xsl:when test=". eq 'length' and ../@name = ('idml2xml:width', 'idml2xml:height', 'idml2xml:top', 'idml2xml:left')">
+        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="concat(xs:integer(round(xs:double(replace($val, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/></idml2xml:attribute>
       </xsl:when>
 
       <xsl:when test=". eq 'length'">
@@ -772,7 +772,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
     </xsl:choose>
   </xsl:function>
-  
 
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
