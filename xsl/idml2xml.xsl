@@ -40,6 +40,8 @@
   <xsl:import href="modes/Index.xsl"/>
   <!-- Images: extract image properties (width, height, resizing and other) -->
   <xsl:import href="modes/Images.xsl"/>
+  
+  <xsl:import href="rotate.xsl"/>
 
 
   <!-- If you are running individual modes with Saxon, it might happen that the output contains only text nodes.

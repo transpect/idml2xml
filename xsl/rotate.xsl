@@ -23,9 +23,10 @@
     <xsl:variable name="xoffset" as="xs:double" select="$ppt-tokens[1]"/>
     <xsl:variable name="yoffset" as="xs:double" select="- $ppt-tokens[2]"/>
     <css:transform>
+      <xsl:attribute name="id" select="lower-case(local-name($it/..)) || '_' || $it/../@Self"/>
       <xsl:attribute name="rotate" select="$angle-deg || 'deg'"/>
       <xsl:attribute name="top" select="$it-tokens[6] - $yoffset"/>
-      <xsl:attribute name="left" select="$it-tokens[5] - $xoffset"/>
+      <xsl:attribute name="left" select="$it-tokens[5] + $xoffset"/>
       <xsl:attribute name="translateX" select="$it-tokens[5]"/>
       <xsl:attribute name="translateY" select="- $it-tokens[6]"/>
     </css:transform>

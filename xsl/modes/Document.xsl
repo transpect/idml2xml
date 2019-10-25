@@ -6,6 +6,7 @@
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
+    xmlns:css = "http://www.w3.org/1996/css"
     xmlns:math="http://www.w3.org/2005/xpath-functions/math"
     exclude-result-prefixes = "idPkg aid5 aid xs"
 >
@@ -857,8 +858,6 @@
         select="$spread-x + $item-x-center + $group-x"/>
       <xsl:variable name="item-width" as="xs:double"
         select="$item-right - $item-left"/>
-      <xsl:variable name="item-x-center" as="xs:double"
-        select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
       <xsl:variable name="item-real-right-x" as="xs:double"
         select="$item-real-center-x + $item-right"/>
       <xsl:variable name="item-top" as="xs:double"
@@ -892,12 +891,20 @@
         select="if(xs:double($corresponding-page/@x-left) ge 0) 
                 then $item-real-left-x
                 else $item-real-left-x - xs:double($corresponding-page/@x-left)"/>
-      <xsl:attribute name="idml2xml:top" select="if(contains(xs:string($top), 'E')) then '0' else $top"/>
 
+      <xsl:variable name="css-transform" as="element(css:transform)?"
+        select="idml2xml:ItemTransform2css($item/@ItemTransform, $item-pathpoints[1])"/>
+      
 
-      <!--x' = x * cos# - y * sin#         y' = x * sin# + y * cos #-->
-      <xsl:message select="xs:double($corresponding-page/@x-left), xs:string(.), '___ left: ', $left, 'new:', $left * math:cos(xs:double(tokenize(../@ItemTransform, ' ')[1])) - $item-top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
-      <xsl:attribute name="idml2xml:left" select="if(contains(xs:string($left), 'E')) then '0' else $left"/>
+      <!--x' = x * cosT - y * sinT         y' = x * sinT + y * cosT-->
+      <xsl:message select="xs:string(.), 
+        $css-transform,
+        '&#xa;item-x-center:', $item-x-center, 
+        '&#xa;item-y-center:', $item-y-center,
+        '&#xa;_top: ', $top, ':::', $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2),
+        '&#xa;_left: ', $left"/>
+      <xsl:attribute name="idml2xml:top" select="if(contains(xs:string($css-transform/@top), 'E')) then '0' else $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2)"/>
+      <xsl:attribute name="idml2xml:left" select="if(contains(xs:string($css-transform/@left), 'E')) then '0' else $css-transform/@left"/>
       
        <!-- <xsl:message select="'===', xs:string(.)"/>
         <xsl:message select="'top-x :', $left"/>
