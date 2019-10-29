@@ -30,7 +30,7 @@
       </xsl:variable>
       <xsl:apply-templates select="  (
                                        if($fixed-layout = 'yes')
-                                       then TextFrame
+                                       then (TextFrame | Group)
                                        else TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
                                      )
                                    | *[name() = $idml2xml:shape-element-names] 
@@ -192,14 +192,20 @@
   <xsl:template match="TextFrame" mode="idml2xml:ExtractTagging">
     <xsl:choose>
       <xsl:when test="$fixed-layout = 'yes'">
-        <idml2xml:div>
-          <xsl:apply-templates select="@idml2xml:*, node()" mode="#current"/>
+        <idml2xml:div remap="{name()}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
         </idml2xml:div>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates mode="#current"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="Group[$fixed-layout = 'yes']" mode="idml2xml:ExtractTagging">
+    <idml2xml:div remap="{name()}">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </idml2xml:div>
   </xsl:template>
 
   <!--<xsl:template match="Column" mode="idml2xml:ExtractTagging">

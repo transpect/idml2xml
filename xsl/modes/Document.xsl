@@ -337,7 +337,7 @@
                                                                    [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
                                                             )[1]"/>
           <xsl:choose>
-          <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesnâ€™t resolve, reproduce applied conditions and content 
+          <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
             <xsl:copy>
               <xsl:attribute name="idml2xml:reason" select="'NO_Story'"/>
@@ -685,7 +685,7 @@
               </xsl:for-each-group>
             </xsl:for-each-group>
           </xsl:variable>
-<!--      <xsl:message select="'â†’â†’â†’â†’â†’ Grouped objectâ€˜s first points on page, sorted ascending: ', $ordered-objects"/>-->
+<!--      <xsl:message select="'→→→→→ Grouped object’s first points on page, sorted ascending: ', $ordered-objects"/>-->
           <xsl:for-each select="($ordered-objects/point | Group)">
             <xsl:apply-templates select="$all-objects[@Self = current()/@Self]" mode="#current"/>
           </xsl:for-each>
@@ -795,34 +795,12 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template mode="idml2xml:DocumentResolveTextFrames" priority="+1"
-    match="*[local-name() = ('TextFrame', 'EndnoteTextFrame', $idml2xml:shape-element-names)]/@Self" name="add-rotation-transform-property">
-    <xsl:variable name="const-pi" select="math:pi()"/>
-    <xsl:variable name="const" select="180 div $const-pi"/>
-    <xsl:variable name="val1" select="math:acos(xs:double(tokenize(../@ItemTransform, ' ')[1])) * $const" as="xs:double"/>
-    <xsl:variable name="is-beyond-180" as="xs:boolean" select="number(tokenize(../@ItemTransform)[2]) gt 0"/>
-    <xsl:variable name="val2" select="math:asin(-1 * xs:double(tokenize(../@ItemTransform, ' ')[2])) * $const" as="xs:double"/>
-    <xsl:variable name="idml-deg-val" as="xs:double" select="if ($is-beyond-180)
-                                                          then round(360 - $val1, 3)
-                                                          else round($val1, 3)"/>
-    <xsl:variable name="deg-val" as="xs:double" select="360 - $idml-deg-val"/>
-    <xsl:if test="$val1 != 0">
-      <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $deg-val, 'deg)')"/>
-      <xsl:attribute name="idml2xml:transform-origin" select="'top left'"/>
-      <!--<xsl:message select="xs:string(.), ';', ..//@LinkResourceURI/tokenize(., '/')[last()], '###### DEGREE:', $deg-val,  '(idml-deg-val:', $idml-deg-val, ')'"/>-->
-    </xsl:if>
-    <xsl:next-match>
-      <xsl:with-param name="rotate-degree-val" as="xs:double" tunnel="yes"
-        select="if($val1 != 0) then $deg-val else 0"/>
-    </xsl:next-match>
-  </xsl:template>
-
   <xsl:template mode="idml2xml:DocumentResolveTextFrames"
     match="*[$fixed-layout = 'yes']
-            [local-name() = ('TextFrame', 'EndnoteTextFrame', $idml2xml:shape-element-names)]/@Self">
+            [local-name() = ('TextFrame', 'EndnoteTextFrame', 'Group', $idml2xml:shape-element-names)]/@Self">
     <xsl:param name="spread-pages" as="element(page)*" tunnel="yes"/>
-    <xsl:param name="rotate-degree-val" select="0" as="xs:double" tunnel="yes"/>
     <xsl:next-match/>
+    <xsl:copy-of select="../(@* except @Self)" />
     <xsl:variable name="item" select=".." as="element()"/>
     <xsl:attribute name="idml2xml:id" select="concat('idml2xml_', lower-case(local-name($item)), '_', .)"/>
     <xsl:if test="../local-name() = ('TextFrame', 'Rectangle')">
@@ -846,8 +824,10 @@
                                return xs:double( tokenize( $group/@ItemTransform, ' ' )[6] )
                             )
                       else 0"/>
-      <xsl:variable name="item-pathpoints" as="node()*"
-        select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+      <xsl:variable name="item-pathpoint-array" as="element(PathPointArray)"
+        select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray"/>
+      <xsl:variable name="item-pathpoints" as="element(PathPointType)*"
+        select="$item-pathpoint-array/PathPointType"/>
       <xsl:variable name="item-x-center" as="xs:double"
         select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
       <xsl:variable name="item-left" as="xs:double"
@@ -893,19 +873,28 @@
                 else $item-real-left-x - xs:double($corresponding-page/@x-left)"/>
 
       <xsl:variable name="css-transform" as="element(css:transform)?"
-        select="idml2xml:ItemTransform2css($item/@ItemTransform, $item-pathpoints[1])"/>
+        select="idml2xml:ItemTransform2css(reverse($item/ancestor-or-self::*/@ItemTransform), $item-pathpoint-array)">
+        <!-- the most specific transformation is on the left -->
+      </xsl:variable>
       
-
-      <!--x' = x * cosT - y * sinT         y' = x * sinT + y * cosT-->
-      <xsl:message select="xs:string(.), 
+      <xsl:message select="'RRRRRRRRR '"></xsl:message>
+      <xsl:for-each select="reverse($item/ancestor-or-self::*/@ItemTransform/..)">
+        <xsl:message><xsl:copy copy-namespaces="no">
+          <xsl:copy-of select="@ItemTransform"/>
+        </xsl:copy></xsl:message>
+      </xsl:for-each>
+      <xsl:message select="'Compound transformation: ', idml2xml:chain-ItemTransforms(reverse($item/ancestor-or-self::*/@ItemTransform)),
+        $css-transform"></xsl:message>
+      <!--<xsl:message select="xs:string(.), 
         $css-transform,
         '&#xa;item-x-center:', $item-x-center, 
         '&#xa;item-y-center:', $item-y-center,
         '&#xa;_top: ', $top, ':::', $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2),
-        '&#xa;_left: ', $left"/>
-      <xsl:attribute name="idml2xml:top" select="if(contains(xs:string($css-transform/@top), 'E')) then '0' else $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2)"/>
-      <xsl:attribute name="idml2xml:left" select="if(contains(xs:string($css-transform/@left), 'E')) then '0' else $css-transform/@left"/>
-      
+        '&#xa;_left: ', $left"/>-->
+      <xsl:attribute name="idml2xml:top" select="$css-transform/@top + ($corresponding-page/@height div 2)"/>
+      <xsl:attribute name="idml2xml:left" select="$css-transform/@left"/>
+      <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $css-transform/@rotate, ')')"/>
+      <xsl:attribute name="idml2xml:transform-origin" select="$css-transform/@transform-origin"/>
        <!-- <xsl:message select="'===', xs:string(.)"/>
         <xsl:message select="'top-x :', $left"/>
         <xsl:if test="not(substring(../@ItemTransform, 0, 9) ne '1 0 0 1 ')">

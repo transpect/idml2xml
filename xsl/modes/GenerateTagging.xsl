@@ -229,6 +229,12 @@
       <xsl:apply-templates select="@*:objectstyle, @idml2xml:layer" mode="idml2xml:GenerateTagging-attr" />
     </XMLElement>
   </xsl:template>
+  
+  <xsl:template match="Group[$fixed-layout = 'yes'] | Group[$fixed-layout = 'yes']/TextFrame" mode="idml2xml:GenerateTagging">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template match="@idml2xml:layer" mode="idml2xml:GenerateTagging-attr">
     <XMLAttribute Name="{name()}" Value="{.}" />
