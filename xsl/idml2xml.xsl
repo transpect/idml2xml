@@ -41,8 +41,6 @@
   <!-- Images: extract image properties (width, height, resizing and other) -->
   <xsl:import href="modes/Images.xsl"/>
   
-  <xsl:import href="rotate.xsl"/>
-
 
   <!-- If you are running individual modes with Saxon, it might happen that the output contains only text nodes.
     We believe this to be a Saxon bug. Supply '!method=xml' as in this example:
