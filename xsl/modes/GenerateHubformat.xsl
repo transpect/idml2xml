@@ -2093,10 +2093,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <mediaobject>
         <xsl:if test="$fixed-layout = 'yes'">
           <xsl:attribute name="xml:id" select="@idml2xml:id"/>
-          <xsl:attribute name="css:top" select="concat(@idml2xml:top, 'pt')"/>
-          <xsl:attribute name="css:left" select="concat(@idml2xml:left, 'pt')"/>
+          <xsl:attribute name="css:top" select="concat(xs:integer(round(xs:double(replace(@idml2xml:top, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
+          <xsl:attribute name="css:left" select="concat(xs:integer(round(xs:double(replace(@idml2xml:left, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
           <xsl:if test="@idml2xml:transform">
             <xsl:attribute name="css:transform" select="@idml2xml:transform"/>
+          </xsl:if>
+          <xsl:if test="@idml2xml:transform-origin">
+            <xsl:attribute name="css:transform-origin" select="@idml2xml:transform-origin"/>
           </xsl:if>
           <xsl:if test="@idml2xml:position">
             <xsl:attribute name="css:position" select="@idml2xml:position"/>

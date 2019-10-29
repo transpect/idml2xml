@@ -851,31 +851,24 @@
       <xsl:attribute name="idml2xml:position" select="'absolute'"/>
       <xsl:attribute name="idml2xml:width" select="$item-right - $item-left"/>
       <xsl:attribute name="idml2xml:height" select="$item-bottom - $item-top"/>
+      <xsl:variable name="css-transform" as="element(css:transform)?"
+        select="idml2xml:ItemTransform2css(reverse($item/ancestor-or-self::*/@ItemTransform), $item-pathpoint-array)">
+        <!-- the most specific transformation is on the left -->
+      </xsl:variable>
       <xsl:variable name="corresponding-pages" as="element(page)*"
         select="$spread-pages
                    [
-                     (xs:double(@x-left) le $item-real-left-x and xs:double(@x-right) gt $item-real-left-x)
+                     (xs:double(@x-left) le xs:double($css-transform/@left) and xs:double(@x-right) gt xs:double($css-transform/@left))
                      or
                      count($spread-pages) = 1
                      or
                      (
-                       not($spread-pages[xs:double(@x-left) le $item-real-left-x])
+                       not($spread-pages[xs:double(@x-left) le xs:double($css-transform/@left)])
                        and
                        @x-left = min($spread-pages/@x-left)
                      )
                    ]"/>
       <xsl:variable name="corresponding-page" as="element(page)?" select="($corresponding-pages)[1]"/>
-      <xsl:variable name="top"
-        select="$item-y-center + $item-top + $group-y + ($corresponding-page/@height div 2)"/>
-      <xsl:variable name="left"
-        select="if(xs:double($corresponding-page/@x-left) ge 0) 
-                then $item-real-left-x
-                else $item-real-left-x - xs:double($corresponding-page/@x-left)"/>
-
-      <xsl:variable name="css-transform" as="element(css:transform)?"
-        select="idml2xml:ItemTransform2css(reverse($item/ancestor-or-self::*/@ItemTransform), $item-pathpoint-array)">
-        <!-- the most specific transformation is on the left -->
-      </xsl:variable>
       
       <!--<xsl:message select="'RRRRRRRRR '"></xsl:message>
       <xsl:for-each select="reverse($item/ancestor-or-self::*/@ItemTransform/..)">
@@ -892,19 +885,14 @@
         '&#xa;_top: ', $top, ':::', $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2),
         '&#xa;_left: ', $left"/>-->
       <xsl:attribute name="idml2xml:top" select="$css-transform/@top + ($corresponding-page/@height div 2)"/>
-      <xsl:attribute name="idml2xml:left" select="$css-transform/@left"/>
-      <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $css-transform/@rotate, ')')"/>
-      <xsl:attribute name="idml2xml:transform-origin" select="$css-transform/@transform-origin"/>
-       <!-- <xsl:message select="'===', xs:string(.)"/>
-        <xsl:message select="'top-x :', $left"/>
-        <xsl:if test="not(substring(../@ItemTransform, 0, 9) ne '1 0 0 1 ')">
-          <xsl:message select="'top-x'':', $left * math:cos(xs:double(tokenize(../@ItemTransform, ' ')[1])) - $top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
-        </xsl:if>
-        <xsl:message select="'- - -'"/>
-        <xsl:message select="'top-y :', $left"/>
-        <xsl:if test="not(substring(../@ItemTransform, 0, 9) ne '1 0 0 1 ')">
-          <xsl:message select="'top-y'':', $left * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1])) + $top * math:sin(xs:double(tokenize(../@ItemTransform, ' ')[1]))"/>
-        </xsl:if>-->
+      <xsl:attribute name="idml2xml:left" 
+        select="if(xs:double($corresponding-page/@x-left) ge 0) 
+                then $css-transform/@left
+                else $css-transform/@left - xs:double($corresponding-page/@x-left)"/>
+      <xsl:if test="$css-transform/@rotate != '360deg'">
+        <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $css-transform/@rotate, ')')"/>
+        <xsl:attribute name="idml2xml:transform-origin" select="$css-transform/@transform-origin"/>
+      </xsl:if>
       
       <xsl:if test="name(..) = 'Rectangle'">
         <xsl:attribute name="idml2xml:page-nr" 
