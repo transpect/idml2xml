@@ -877,14 +877,14 @@
         <!-- the most specific transformation is on the left -->
       </xsl:variable>
       
-      <xsl:message select="'RRRRRRRRR '"></xsl:message>
+      <!--<xsl:message select="'RRRRRRRRR '"></xsl:message>
       <xsl:for-each select="reverse($item/ancestor-or-self::*/@ItemTransform/..)">
         <xsl:message><xsl:copy copy-namespaces="no">
           <xsl:copy-of select="@ItemTransform"/>
         </xsl:copy></xsl:message>
-      </xsl:for-each>
-      <xsl:message select="'Compound transformation: ', idml2xml:chain-ItemTransforms(reverse($item/ancestor-or-self::*/@ItemTransform)),
-        $css-transform"></xsl:message>
+      </xsl:for-each>-->
+      <!--<xsl:message select="'Compound transformation: ', idml2xml:chain-ItemTransforms(reverse($item/ancestor-or-self::*/@ItemTransform)),
+        $css-transform"></xsl:message>-->
       <!--<xsl:message select="xs:string(.), 
         $css-transform,
         '&#xa;item-x-center:', $item-x-center, 
