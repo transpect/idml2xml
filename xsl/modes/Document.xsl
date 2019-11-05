@@ -127,18 +127,18 @@
           <idml2xml:sidebar remap="Page" idml2xml:pos-in-book="{@Name}" idml2xml:pos-in-doc="{$doc-position}" idml2xml:id="idml2xml_page_{@Self}">
             <xsl:attribute name="idml2xml:width" 
               select="concat(
-                      tokenize(
-                        (@GeometricBounds, //DocumentPreference/@PageWidth)[1],
-                        ' ')[4], 
-                      'pt'
-                    )"/>
+                        (
+                          xs:double(tokenize(@GeometricBounds, ' ')[4]) - xs:double(tokenize(@GeometricBounds, ' ')[2]),
+                          //DocumentPreference/@PageWidth
+                        )[1],
+                      'pt')"/>
           <xsl:attribute name="idml2xml:height" 
             select="concat(
-                      tokenize(
-                        (@GeometricBounds, //DocumentPreference/@PageHeight)[1],
-                        ' ')[3], 
-                      'pt'
-                    )"/>
+                        (
+                          xs:double(tokenize(@GeometricBounds, ' ')[3]) - xs:double(tokenize(@GeometricBounds, ' ')[1]),
+                          //DocumentPreference/@PageHeight
+                        )[1],
+                      'pt')"/>
           <xsl:attribute name="idml2xml:margin" 
             select="concat(
                       (MarginPreference/@Top, //MarginPreference/@Top)[1], 'pt ',
@@ -220,20 +220,28 @@
             <xsl:message select="'WARNING: Page with GridStartingPoint other than ''TopOutside''. Unimplemented!'"/>
           </xsl:if>
           <xsl:for-each select="Page">
-            <page nr="{@Name}" width="{tokenize(@GeometricBounds, ' ')[4]}"
-              height="{tokenize(@GeometricBounds, ' ')[3]}"
+            <xsl:variable name="page-width" as="xs:double"
+              select="xs:double(tokenize(@GeometricBounds, ' ')[4]) - xs:double(tokenize(@GeometricBounds, ' ')[2])"/>
+            <xsl:variable name="page-height" as="xs:double"
+              select="xs:double(tokenize(@GeometricBounds, ' ')[3]) - xs:double(tokenize(@GeometricBounds, ' ')[1])"/>
+            <page nr="{@Name}" 
+              width="{$page-width}"
+              height="{$page-height}"
+              spread-x="{$spread-x}"
+              x-offset="{tokenize(@GeometricBounds, ' ')[2]}"
               x-left="{  $spread-x 
                        + xs:double( tokenize(@ItemTransform, ' ' )[5])}"
               x-center="{  $spread-x 
                          + xs:double( tokenize(@ItemTransform, ' ' )[5]) 
-                         + (xs:double(tokenize(@GeometricBounds, ' ')[4]) div 2)}" 
+                         + ($page-width div 2)}" 
               x-right="{$spread-x + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[4]))}" 
-              page-offset-x="{xs:double(tokenize(@GeometricBounds, ' ')[1])}"
+              page-y="{tokenize(@ItemTransform, ' ' )[6]}"
+              spread-y="{$spread-y}"
+              y-offset="{tokenize(@GeometricBounds, ' ')[3]}"
               y-top="{  $spread-y
-                      + xs:double( tokenize(@ItemTransform, ' ' )[5]) 
-                      + (xs:double(tokenize(@GeometricBounds, ' ')[3]) div 2)}"
-              page-offset-y="{xs:double(tokenize(@GeometricBounds, ' ')[2])}"
-              y-bottom="{$spread-y + xs:double( tokenize(@ItemTransform, ' ' )[5]) + (xs:double(tokenize(@GeometricBounds, ' ')[3]) div 2)}"
+                      + xs:double( tokenize(@ItemTransform, ' ' )[6]) 
+                      + ($page-height div 2)}"
+              y-bottom="{$spread-y + xs:double( tokenize(@ItemTransform, ' ' )[5]) + ($page-height div 2)}"
               padding-left="{MarginPreference/@Left}" 
               padding-right="{MarginPreference/@Right}"/>
           </xsl:for-each>
@@ -811,8 +819,6 @@
     <xsl:variable name="item" select=".." as="element()"/>
     <xsl:attribute name="idml2xml:id" select="concat('idml2xml_', lower-case(local-name($item)), '_', .)"/>
     <xsl:if test="../local-name() = ('TextFrame', 'Rectangle')">
-      <xsl:variable name="page-width" select="xs:double(tokenize(($item/preceding-sibling::Page/@GeometricBounds, //DocumentPreference/@PageWidth)[1], ' ')[4])"/>
-      <xsl:variable name="page-height" select="xs:double(tokenize(($item/preceding-sibling::Page/@GeometricBounds, //DocumentPreference/@PageHeight)[1], ' ')[3])"/>
       <xsl:variable name="spread-x" as="xs:double"
         select="xs:double(tokenize(ancestor::Spread/@ItemTransform, ' ')[5])"/>
       <xsl:variable name="spread-y" as="xs:double"
@@ -877,27 +883,17 @@
                    ]"/>
       <xsl:variable name="corresponding-page" as="element(page)?" select="($corresponding-pages)[1]"/>
       
-      <!--<xsl:message select="'RRRRRRRRR '"></xsl:message>
-      <xsl:for-each select="reverse($item/ancestor-or-self::*/@ItemTransform/..)">
-        <xsl:message><xsl:copy copy-namespaces="no">
-          <xsl:copy-of select="@ItemTransform"/>
-        </xsl:copy></xsl:message>
-      </xsl:for-each>-->
-      <!--<xsl:message select="'Compound transformation: ', idml2xml:chain-ItemTransforms(reverse($item/ancestor-or-self::*/@ItemTransform)),
-        $css-transform"></xsl:message>-->
-      <!--<xsl:message select="xs:string(.), 
-        $css-transform,
-        '&#xa;item-x-center:', $item-x-center, 
-        '&#xa;item-y-center:', $item-y-center,
-        '&#xa;_top: ', $top, ':::', $css-transform/@top + $item-y-center + $group-y + ($corresponding-page/@height div 2),
-        '&#xa;_left: ', $left"/>-->
       <xsl:attribute name="idml2xml:top" 
-        select="  $css-transform/@top 
-                + ($corresponding-page/@height div 2)"/>
+        select="  $css-transform/@top
+                - xs:double($corresponding-page/@spread-y)
+                + xs:double($corresponding-page/@page-y) 
+                + $corresponding-page/@y-offset"/>
       <xsl:attribute name="idml2xml:left" 
         select="if(xs:double($corresponding-page/@x-left) ge 0) 
-                then   $css-transform/@left 
+                then   $css-transform/@left
+                     - xs:double($corresponding-page/@x-offset)
                 else   $css-transform/@left 
+                     - xs:double($corresponding-page/@x-offset)
                      - xs:double($corresponding-page/@x-left)"/>
       <xsl:if test="$css-transform/@rotate != '360deg'">
         <xsl:attribute name="idml2xml:transform" select="concat('rotate(', $css-transform/@rotate, ')')"/>
