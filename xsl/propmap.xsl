@@ -557,6 +557,49 @@
         <prop name="BottomLeftCornerRadius" type="length" target-name="css:border-bottom-left-radius"/>
         <prop name="BottomRightCornerRadius" type="length" target-name="css:border-bottom-right-radius"/>
         <prop name="Tracking" type="one-thousandth-em-length" target-name="css:letter-spacing"/>
+        <!-- para borders -->
+        <prop name="ParagraphBorderOn" target-name="hub:para-border">
+          <val match="true" target-value="true"/>
+          <val match="false" target-value="false"/>
+        </prop>
+        <prop name="ParagraphBorderTopOffset" type="length" target-name="hub:para-border-padding-top"/>
+        <prop name="ParagraphBorderRightOffset" type="length" target-name="hub:para-border-padding-right"/>
+        <prop name="ParagraphBorderBottomOffset" type="length" target-name="hub:para-border-padding-bottom"/>
+        <prop name="ParagraphBorderLeftOffset" type="length" target-name="hub:para-border-padding-left"/>
+        <prop name="ParagraphBorderTopLineWeight" type="length" target-name="hub:para-border-top-width"/>
+        <prop name="ParagraphBorderRightLineWeight" type="length" target-name="hub:para-border-right-width"/>
+        <prop name="ParagraphBorderBottomLineWeight" type="length" target-name="hub:para-border-bottom-width"/>
+        <prop name="ParagraphBorderLeftLineWeight" type="length" target-name="hub:para-border-left-width"/>
+        <prop name="ParagraphBorderColor" type="color" target-name="hub:para-border-color"/>
+        <prop name="ParagraphBorderType" target-name="hub:para-border-style">
+          <val eq="n" target-value="none"/>
+          <val match="Solid" target-value="solid"/>
+          <val match="ThickThick" target-value="double"/>
+          <val match="ThickThin" target-value="groove"/>
+          <val match="ThickThinThick" target-value="groove"/>
+          <val match="ThinThick" target-value="ridge"/>
+          <val match="ThinThickThin" target-value="ridge"/>
+          <val match="ThinThin" target-value="double"/>
+          <val match="Canned\sDashed\s3x2" target-value="dashed"/>
+          <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="Canned\sDotted" target-value="dotted"/>
+          <val match="Japanese\sDots" target-value="dotted"/>
+          <val match="Wavy" target-value="groove"/>
+          <val match="Left\sSlant\sHash" target-value="dashed"/>
+          <val match="Right\sSlant\sHash" target-value="dashed"/>
+          <val match="Straight\sHash" target-value="dashed"/>
+          <val match="White\sDiamond" target-value="dashed"/>
+        </prop>
+        <!-- para shading -->
+        <prop name="ParagraphShadingOn" target-name="hub:para-background">
+          <val match="true" target-value="true"/>
+          <val match="false" target-value="false"/>
+        </prop>
+        <prop name="ParagraphShadingColor" type="color" target-name="hub:para-background-color"/>
+        <prop name="ParagraphShadingTopOffset" type="length" target-name="hub:para-background-padding-top"/>
+        <prop name="ParagraphShadingRightOffset" type="length" target-name="hub:para-background-padding-right"/>
+        <prop name="ParagraphShadingBottomOffset" type="length" target-name="hub:para-background-padding-bottom"/>
+        <prop name="ParagraphShadingLeftOffset" type="length" target-name="hub:para-background-padding-left"/>
         <prop name="OTFFigureStyle" implement="maybe later" />
         <prop name="DesiredWordSpacing" implement="maybe later" />
         <prop name="MaximumWordSpacing" implement="maybe later" />

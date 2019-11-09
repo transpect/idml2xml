@@ -2174,6 +2174,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- was only a temporary means in order to mark inactive lists -->
   </xsl:template>
   
+  <xsl:template match="css:rule[@hub:para-border eq 'false']/@*[starts-with(name(), 'hub:para-border')]
+                      |css:rule[@hub:para-background eq 'false']/@*[starts-with(name(), 'hub:para-background')]" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
+  <xsl:template match="css:rule[@hub:para-border eq 'true']/@*[starts-with(name(), 'hub:para-border')]
+                      |css:rule[@hub:para-background eq 'true']/@*[starts-with(name(), 'hub:para-background')]" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:attribute name="{local-name()}" select="."/>
+  </xsl:template>
+  
   <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
   </xsl:template>
