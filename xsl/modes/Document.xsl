@@ -225,11 +225,15 @@
     </xsl:if>
   </xsl:template>
   
-   <xsl:template match="Group[not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]"
+   <xsl:template match="Group[not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
+                             [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
+                                                         satisfies 
+                                                         (
+                                                            some $token in tokenize(idml2xml:text-content($ref), ' ') 
+                                                            satisfies (matches(replace(current()//KeyValuePair[@Key = 'letex:fileName'][1]/@Value,'\.\w+$',''),$token))
+                                                          )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
     <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
-     <!--<xsl:message select="$do-not-discard-kombiref-anchored-group"></xsl:message>-->
-     <!--<xsl:message><xsl:next-match/></xsl:message>-->
     <xsl:if test="$do-not-discard-kombiref-anchored-group">
       <xsl:next-match/>
     </xsl:if>
@@ -308,14 +312,14 @@
         <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
         <xsl:variable name="figure-or-group" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
                                                                  [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                                 [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]]]],
+                                                                                 [replace(@Value,'\.\w+$','') = idml2xml:text-content(current())]]]],
                                                        //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
                                                           [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))]]],
                                                       //*[self::Rectangle or self::Polygon or self::Oval]
                                                          [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))], 
                                                      (//*[self::Rectangle or self::Polygon or self::Oval]
                                                          [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                         [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
+                                                                         [replace(@Value,'\.\w+$','') = idml2xml:text-content(current())]])
                                                      )[1]"/>
           <xsl:choose>
           <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
