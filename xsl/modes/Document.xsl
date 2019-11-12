@@ -224,6 +224,16 @@
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
+  
+   <xsl:template match="Group[not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]"
+    mode="idml2xml:DocumentResolveTextFrames" priority="6">
+    <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
+     <!--<xsl:message select="$do-not-discard-kombiref-anchored-group"></xsl:message>-->
+     <!--<xsl:message><xsl:next-match/></xsl:message>-->
+    <xsl:if test="$do-not-discard-kombiref-anchored-group">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
 
@@ -253,7 +263,7 @@
   <xsl:key name="Story-by-StoryID" match="Story[.//@AppliedConditions[. = 'Condition/StoryID']]
                                                [matches(string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), ''), '\S')]" 
     use="string-join(for $e in .//*[@AppliedConditions = 'Condition/StoryID'] return idml2xml:text-content($e), '')"/>
-<!--  use Kombi ref, anchor textframes without StoryID if there is a matching figure href -->
+  <!--  use Kombi ref, anchor textframes without StoryID if there is a matching figure href -->
   <xsl:key name="TextFrame-by-ParentStory" match="TextFrame[@PreviousTextFrame eq 'n']
                                                   | EndnoteTextFrame[@PreviousTextFrame eq 'n']" use="@ParentStory"/>
   <xsl:key name="Story-by-Self" match="Story" use="@Self"/>
@@ -296,14 +306,17 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
         <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
-        <xsl:variable name="figure-or-group" select="(//*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
-                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))]]],
-                                                                //*[self::Rectangle or self::Polygon or self::Oval]
-                                                                 [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))], 
-                                                               (//*[self::Rectangle or self::Polygon or self::Oval]
-                                                                   [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                   [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
-                                                            )[1]"/>
+        <xsl:variable name="figure-or-group" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
+                                                                 [.//KeyValuePair[@Key = 'letex:fileName']
+                                                                                 [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]]]],
+                                                       //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
+                                                          [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))]]],
+                                                      //*[self::Rectangle or self::Polygon or self::Oval]
+                                                         [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))], 
+                                                     (//*[self::Rectangle or self::Polygon or self::Oval]
+                                                         [.//KeyValuePair[@Key = 'letex:fileName']
+                                                                         [replace(@Value,'\.w+$','') = idml2xml:text-content(current())]])
+                                                     )[1]"/>
           <xsl:choose>
           <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
@@ -329,9 +342,10 @@
               <xsl:when test="$anchored-story">
                 <xsl:choose>
                   <xsl:when test="$potential-group1/self::Group">
+                    <xsl:copy><xsl:attribute  name="idml2xml:reason" select="string-join(('KOMBI_Ref',current()),' ')"/></xsl:copy>
                     <xsl:for-each select="$potential-group1">
                       <xsl:apply-templates select="." mode="#current">
-                        <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+                        <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean"/>
                       </xsl:apply-templates>
                     </xsl:for-each>
                   </xsl:when>
@@ -407,13 +421,16 @@
             <xsl:copy-of select="current-group()"/>
           </GroupContainer>
          </xsl:variable>
-        <xsl:copy-of select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') 
-                             return ((//*[self::Rectangle or self::Polygon or self::Oval]
-                                         [ends-with(.//@LinkResourceURI, $i)], 
-                                       (//*[self::Rectangle or self::Polygon or self::Oval]
+        <xsl:apply-templates select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') 
+                             return ((//*[self::Rectangle or self::Polygon or self::Oval or self::Group]
                                            [.//KeyValuePair[@Key = 'letex:fileName']
-                                           [@Value = $i]])
-                                    ))[1]"/>
+                                           [@Value = $i]]),
+                                      (//*[self::Rectangle or self::Polygon or self::Oval]
+                                         [ends-with(.//@LinkResourceURI, $i)]
+                                       
+                                    ))[1]" mode="#current">
+          <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+        </xsl:apply-templates>
         <xsl:if test="current-group()[descendant-or-self::*:Br]">
           <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
         </xsl:if>
@@ -450,9 +467,19 @@
                                  (
                                     some $token in tokenize(idml2xml:split-figure-ref($ref), ' ') 
                                     satisfies (ends-with(current()//@LinkResourceURI, $token) or ($token = current()//KeyValuePair[@Key = 'letex:fileName']/@Value))
-                                  )
-                                  ]"
-    mode="idml2xml:DocumentResolveTextFrames" priority="3"/>
+                                  )]
+                       | *[self::Group][some $ref in //*[@AppliedConditions eq 'Condition/FigureRef']
+                                 satisfies 
+                                 (
+                                    some $token in tokenize(idml2xml:split-figure-ref($ref), ' ') 
+                                    satisfies ( $token = current()//KeyValuePair[@Key = 'letex:fileName'][1]/@Value)
+                                  )]"
+    mode="idml2xml:DocumentResolveTextFrames" priority="3">
+    <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
+    <xsl:if test="$do-not-discard-anchored-group">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:function name="idml2xml:text-content" as="xs:string?">
     <xsl:param name="elt" as="element(*)?"/>
