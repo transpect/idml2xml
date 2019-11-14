@@ -211,6 +211,9 @@
   <xsl:template match="ParagraphStyle | CharacterStyle | TableStyle | CellStyle | ObjectStyle" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:param name="wrap-in-style-element" select="true()" as="xs:boolean"/>
     <xsl:param name="version" tunnel="yes" as="xs:string"/>
+    <xsl:variable name="mergeable-atts" as="element(*)*">
+      <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn or self::MathToolsML[mml:math])]" mode="#current" />
+    </xsl:variable>
     <xsl:variable name="atts" as="node()*">
       <xsl:if test="self::ParagraphStyle[not(Properties/BasedOn)]">
         <xsl:apply-templates select="/*/idPkg:Preferences/TextDefault/(
@@ -230,9 +233,6 @@
                                      else ()" mode="#current">
         <xsl:with-param name="wrap-in-style-element" select="false()"/>
       </xsl:apply-templates>
-      <xsl:variable name="mergeable-atts" as="element(*)*">
-        <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn or self::MathToolsML[mml:math])]" mode="#current" />
-      </xsl:variable>
       <xsl:for-each-group select="$mergeable-atts[self::idml2xml:attribute]" group-by="@name">
         <xsl:variable name="att" as="element(idml2xml:attribute)">
           <idml2xml:attribute name="{current-grouping-key()}"><xsl:value-of select="distinct-values(current-group())" /></idml2xml:attribute>
@@ -312,7 +312,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="raw-output" as="element(*)*">
       <xsl:apply-templates select="$prop" mode="#current">
         <xsl:with-param name="val" select="." tunnel="yes" />
-      </xsl:apply-templates>      
+      </xsl:apply-templates>
       <xsl:if test="empty($prop)">
         <idml2xml:attribute name="idml2xml:{local-name()}"><xsl:value-of select="." /></idml2xml:attribute>
       </xsl:if>
@@ -470,17 +470,26 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 )" mode="#current" />
             </idml2xml:attribute>
             <xsl:choose>
-              <xsl:when test="matches($target-name, 'css:border-((top|bottom|left|right)-)?color')">
+              <xsl:when test="matches($target-name, 'css:border-((top|bottom|left|right)-)?color')"> 
                 <!-- if borders are tinted no new fill-value attribute must be created! -->
-                <xsl:if test=" $tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
+                <xsl:if test="$tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
                   <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom|left|right)-)?color', 'border-$1tint')}">
+                    <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
+                  </idml2xml:attribute>
+                </xsl:if>
+              </xsl:when>
+              <xsl:when test="contains($target-name, 'hub:para-border-color')
+                           or contains($target-name, 'hub:para-border-gap-color')
+                           or contains($target-name, 'hub:para-background-color')"> 
+                <xsl:if test="$tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
+                  <idml2xml:attribute name="{$target-name}">
                     <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
                   </idml2xml:attribute>
                 </xsl:if>
               </xsl:when>
               <xsl:otherwise>
                 <!-- standard case if background-color-->
-                <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current" />
+                <xsl:apply-templates select="$tint-decl/@TintValue" mode="#current"/>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
@@ -628,6 +637,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'percentage'">
+        
         <xsl:if test="$val castable as xs:double and not(number($val) = -1)">
           <idml2xml:attribute name="{../@target-name}">
             <xsl:value-of select="format-number($val*.01, '##0.00###')" />
@@ -955,7 +965,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                                    'css:border-bottom-color', 
                                                    'css:border-color',
                                                    'idml2xml:StartRowFillColor',
-                                                   'idml2xml:EndRowFillColor'
+                                                   'idml2xml:EndRowFillColor',
+                                                   'hub:para-background-color',
+                                                   'hub:para-border-color',
+                                                   'hub:para-border-gap-color'
                                                    )]
                                          [$hub-version ne '1.0']" 
     mode="idml2xml:XML-Hubformat-properties2atts">
@@ -993,6 +1006,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:when test="@name = 'idml2xml:EndRowFillColor'">
           <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('idml2xml:EndRowFillTint')])[last()]"/>
         </xsl:when>
+        <xsl:when test="@name = 'hub:para-border-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('hub:para-border-tint')])[last()]"/>
+        </xsl:when>
+        <xsl:when test="@name = 'hub:para-border-gap-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('hub:para-border-gap-tint')])[last()]"/>
+        </xsl:when>
+        <xsl:when test="@name = 'hub:para-background-color'">
+          <xsl:sequence select="(($style | ..)/idml2xml:attribute[@name = ('hub:para-background-tint')])[last()]"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:sequence select="(
                                   ($style | ..)/idml2xml:attribute[@name = 'fill-tint'], 
@@ -1001,7 +1023,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 )[last()]"/>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:variable> 
+    </xsl:variable>
     <xsl:variable name="tinted" as="xs:string">
       <xsl:choose>
         <xsl:when test="matches(., '^device-cmyk')">
@@ -1049,17 +1071,50 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     (will be handled by css:color) -->
   </xsl:template>
   
-  <xsl:template match="idml2xml:attribute[@name = ('fill-tint','fill-value', 'css:border-top-color-text-color', 'css:border-bottom-color-text-color', 'css:text-decoration-color-text-color', 'border-tint', 'border-left-tint', 'border-right-tint','border-top-tint', 'border-bottom-tint')]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:TopRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomLeftCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-right-radius'][following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomRightCornerOption', 'idml2xml:CornerOption')][. = 'None']]" mode="idml2xml:XML-Hubformat-properties2atts"/>
-	<xsl:template match="idml2xml:attribute[matches(@name, 'css:border(-(top|left|right|bottom))?-(width|color|style)')][following-sibling::idml2xml:attribute[@name = 'idml2xml:EnableStrokeAndCornerOptions'][. = 'false']]" mode="idml2xml:XML-Hubformat-properties2atts" priority="5"/>
-
+  <xsl:template match="idml2xml:attribute[@name = ('fill-tint',
+                                                   'fill-value',
+                                                   'css:border-top-color-text-color', 
+                                                   'css:border-bottom-color-text-color', 
+                                                   'css:text-decoration-color-text-color', 
+                                                   'border-tint', 
+                                                   'border-left-tint', 
+                                                   'border-right-tint',
+                                                   'border-top-tint', 
+                                                   'border-bottom-tint',
+                                                   'hub:para-border-tint',
+                                                   'hub:para-border-gap-tint',
+                                                   'hub:para-background-tint')]" 
+                mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-left-radius']
+                                         [following-sibling::idml2xml:attribute[@name = ('idml2xml:TopLeftCornerOption', 
+                                                                                         'idml2xml:CornerOption')][. = 'None']]"
+                mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-top-right-radius']
+                                         [following-sibling::idml2xml:attribute[@name = ('idml2xml:TopRightCornerOption', 
+                                                                                         'idml2xml:CornerOption')][. = 'None']]" 
+                mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-left-radius']
+                                         [following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomLeftCornerOption',
+                                                                                         'idml2xml:CornerOption')][. = 'None']]" 
+                mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+  <xsl:template match="idml2xml:attribute[@name = 'css:border-bottom-right-radius']
+                                         [following-sibling::idml2xml:attribute[@name = ('idml2xml:BottomRightCornerOption', 
+                                                                                         'idml2xml:CornerOption')][. = 'None']]" 
+                mode="idml2xml:XML-Hubformat-properties2atts"/>
+  
+	<xsl:template match="idml2xml:attribute[matches(@name, 'css:border(-(top|left|right|bottom))?-(width|color|style)')]
+	                                       [following-sibling::idml2xml:attribute[@name = 'idml2xml:EnableStrokeAndCornerOptions']
+	                                                                             [. = 'false']]" 
+                mode="idml2xml:XML-Hubformat-properties2atts" priority="5"/>
+  
   <xsl:template match="idml2xml:attribute[matches(@name, '^css:pseudo-marker')]" mode="idml2xml:XML-Hubformat-properties2atts">
     <!-- list-type: Hub 1.0 -->
     <xsl:variable name="last-numbering-style" as="element(idml2xml:attribute)?"
-      select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]" />
+                  select="../idml2xml:attribute[@name = ('BulletsAndNumberingListType', 'list-type', 'css:list-style-type')][last()]"/>
     <xsl:choose>
       <xsl:when test="$last-numbering-style = 'NoList'"/>
       <xsl:when test="$last-numbering-style = 'idml2xml:numbered'"/>
@@ -2174,13 +2229,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- was only a temporary means in order to mark inactive lists -->
   </xsl:template>
   
-  <xsl:template match="css:rule[@hub:para-border eq 'false']/@*[starts-with(name(), 'hub:para-border')]
-                      |css:rule[@hub:para-background eq 'false']/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="css:rule[(@hub:para-border eq 'false') or not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
+                      |css:rule[(@hub:para-background eq 'false') or not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
+                mode="idml2xml:XML-Hubformat-add-properties"/>
   
   <xsl:template match="css:rule[@hub:para-border eq 'true']/@*[starts-with(name(), 'hub:para-border')]
                       |css:rule[@hub:para-background eq 'true']/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+                      mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:attribute name="{local-name()}" select="."/>
   </xsl:template>
   

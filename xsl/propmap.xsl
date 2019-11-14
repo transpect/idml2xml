@@ -571,6 +571,9 @@
         <prop name="ParagraphBorderBottomLineWeight" type="length" target-name="hub:para-border-bottom-width"/>
         <prop name="ParagraphBorderLeftLineWeight" type="length" target-name="hub:para-border-left-width"/>
         <prop name="ParagraphBorderColor" type="color" target-name="hub:para-border-color"/>
+        <prop name="ParagraphBorderGapColor" type="color" target-name="hub:para-border-gap-color"/>
+        <prop name="ParagraphBorderTint" type="percentage" target-name="hub:para-border-tint"/>
+        <prop name="ParagraphBorderGapTint" type="percentage" target-name="hub:para-border-gap-tint"/>
         <prop name="ParagraphBorderType" target-name="hub:para-border-style">
           <val eq="n" target-value="none"/>
           <val match="Solid" target-value="solid"/>
@@ -596,6 +599,7 @@
           <val match="false" target-value="false"/>
         </prop>
         <prop name="ParagraphShadingColor" type="color" target-name="hub:para-background-color"/>
+        <prop name="ParagraphShadingTint" type="percentage" target-name="hub:para-background-tint"/>
         <prop name="ParagraphShadingTopOffset" type="length" target-name="hub:para-background-padding-top"/>
         <prop name="ParagraphShadingRightOffset" type="length" target-name="hub:para-background-padding-right"/>
         <prop name="ParagraphShadingBottomOffset" type="length" target-name="hub:para-background-padding-bottom"/>
