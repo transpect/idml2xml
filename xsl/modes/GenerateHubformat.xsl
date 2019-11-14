@@ -478,11 +478,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                   </idml2xml:attribute>
                 </xsl:if>
               </xsl:when>
-              <xsl:when test="contains($target-name, 'hub:para-border-color')
-                           or contains($target-name, 'hub:para-border-gap-color')
-                           or contains($target-name, 'hub:para-background-color')"> 
+              <xsl:when test="matches($target-name, '^hub:para-(background|(border(-gap)?))-color$')"> 
                 <xsl:if test="$tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
-                  <idml2xml:attribute name="{$target-name}">
+                  <idml2xml:attribute name="{replace($target-name, '(hub:para-(background|(border(-gap)?))-)color$', '$1tint')}">
                     <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
                   </idml2xml:attribute>
                 </xsl:if>
