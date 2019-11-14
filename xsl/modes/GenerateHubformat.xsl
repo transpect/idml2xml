@@ -2231,11 +2231,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="css:rule[(@hub:para-border eq 'false') or not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
                       |css:rule[(@hub:para-background eq 'false') or not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-add-properties"/>
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <xsl:template match="css:rule[@hub:para-border eq 'true']/@*[starts-with(name(), 'hub:para-border')]
                       |css:rule[@hub:para-background eq 'true']/@*[starts-with(name(), 'hub:para-background')]" 
-                      mode="idml2xml:XML-Hubformat-add-properties">
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{local-name()}" select="."/>
   </xsl:template>
   
