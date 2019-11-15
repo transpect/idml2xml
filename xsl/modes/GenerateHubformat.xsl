@@ -2227,8 +2227,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- was only a temporary means in order to mark inactive lists -->
   </xsl:template>
   
+  <!-- remove css properties in css:rules where para-borders and para-backgrounds are not activated -->
   <xsl:template match="css:rule[(@hub:para-border eq 'false') or not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
-                      |css:rule[(@hub:para-background eq 'false') or not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
+                      |css:rule[(@hub:para-background eq 'false') or not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]
+                      |dbk:para[@*[starts-with(name(), 'hub:para-border')] and not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
+                      |dbk:para[@*[starts-with(name(), 'hub:para-background')] and not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <xsl:template match="css:rule[@hub:para-border eq 'true']/@*[starts-with(name(), 'hub:para-border')]
