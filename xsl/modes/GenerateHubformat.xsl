@@ -1769,12 +1769,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </sidebar>
   </xsl:template>
 
-  <xsl:template match="@idml2xml:objectstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="@idml2xml:objectstyle" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
     <xsl:attribute name="role" select="idml2xml:StyleName(.)"/>
     <xsl:attribute name="idml2xml:layout-type" select="'object'"/>
   </xsl:template>
 
-  <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+  <xsl:template match="@idml2xml:layer" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
     <xsl:if test="not(. = parent::*/parent::*/@idml2xml:layer)">
       <xsl:attribute name="idml2xml:layer" select="."/>
     </xsl:if>
@@ -2159,7 +2159,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
      <!-- *
           * mediaobject wrapper element
           * -->
-    <xsl:variable name="mediaobject-element" as="element()">
+    <xsl:variable name="mediaobject-element" as="element(dbk:mediaobject)">
       <mediaobject>
         <xsl:if test="$fixed-layout = 'yes'">
           <xsl:attribute name="xml:id" select="@idml2xml:id"/>
