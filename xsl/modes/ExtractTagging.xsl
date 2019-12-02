@@ -22,14 +22,21 @@
       </xsl:if>
       <xsl:sequence select="(idPkg:Graphic, idPkg:Styles, idPkg:Preferences, idml2xml:layers,
                             idml2xml:endnotes, idml2xml:hyper, idml2xml:index, idml2xml:indexterms, 
-                            idml2xml:lang, idml2xml:cond, idml2xml:numbering)" />
+                            idml2xml:lang, idml2xml:cond, idml2xml:numbering, idml2xml:tags,
+                            idml2xml:sidebar[$fixed-layout = 'yes'])" />
       <xsl:apply-templates select="XmlStory" mode="#current"/>
       <xsl:variable name="processed-stories" as="xs:string*">
         <xsl:apply-templates select="XmlStory" mode="idml2xml:ExtractTagging-gather-IDs"/>
       </xsl:variable>
-      <xsl:apply-templates select="  TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
+      <xsl:apply-templates select="  (
+                                       if($fixed-layout = 'yes')
+                                       then (TextFrame | Group)
+                                       else TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
+                                     )
                                    | *[name() = $idml2xml:shape-element-names] 
-                                   | XMLElement" mode="#current"/>
+                                   | XMLElement" mode="#current">
+        <xsl:with-param name="processed-stories" select="distinct-values($processed-stories)" tunnel="yes"/>
+      </xsl:apply-templates>
     </idml2xml:doc>
   </xsl:template>
 
@@ -166,15 +173,39 @@
   </xsl:template>
   <xsl:template match="*[local-name() eq 'Br'][preceding-sibling::ParagraphStyleRange and following-sibling::ParagraphStyleRange]" mode="idml2xml:ExtractTagging" />
 
-  <xsl:template match="	TextFrame |
-		       Story |
-		       XmlStory | 
-		       ParagraphStyleRange |
-		       CharacterStyleRange |
-		       Table | Row | Cell[node()]
-		       "
-		mode="idml2xml:ExtractTagging">
+  <xsl:template match=" XmlStory | 
+           ParagraphStyleRange |
+           CharacterStyleRange |
+           Table | Row | Cell[node()]
+           "
+    mode="idml2xml:ExtractTagging">
     <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="Story" mode="idml2xml:ExtractTagging">
+    <xsl:param name="processed-stories" tunnel="yes"/>
+    <xsl:if test="not(@Self = $processed-stories)">
+      <xsl:apply-templates mode="#current"/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="TextFrame" mode="idml2xml:ExtractTagging">
+    <xsl:choose>
+      <xsl:when test="$fixed-layout = 'yes'">
+        <idml2xml:div remap="{name()}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </idml2xml:div>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="Group[$fixed-layout = 'yes']" mode="idml2xml:ExtractTagging">
+    <idml2xml:div remap="{name()}">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </idml2xml:div>
   </xsl:template>
 
   <!--<xsl:template match="Column" mode="idml2xml:ExtractTagging">
@@ -227,6 +258,7 @@
                                              'AnchoredObjectSetting',
                                              'TextWrapPreference',
                                              'InCopyExportOption',
+                                             'ObjectExportOption',
                                              'FrameFittingOption'))]" 
                 mode="idml2xml:ExtractTagging" priority="3">
     <xsl:apply-templates mode="#current"/>
@@ -236,9 +268,19 @@
                         [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
                         [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]
                         [empty(TextFrame | Group)]" mode="idml2xml:ExtractTagging" priority="3">
-    <xsl:if test="@ContentType ne 'Unassigned'">
-      <xsl:message select="concat('IDML2XML warning in ExtractTagging: ', name(), ' ', @Self, ' with unknown xml structure.')" />
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="$fixed-layout = 'yes'">
+        <xsl:copy>
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:attribute name="idml2xml:no-fileref-image" select="'yes'"/>
+          <xsl:apply-templates select="node()" mode="#current"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="@ContentType ne 'Unassigned'">
+        <xsl:message select="concat('IDML2XML warning in ExtractTagging: ', name(), ' ', @Self, ' with unknown xml structure.')"/>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
   </xsl:template>
   
   <!-- Shouldn't happen if paragraph tagging and styling are coherent -->

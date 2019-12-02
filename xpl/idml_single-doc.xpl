@@ -21,6 +21,8 @@
   <p:option name="all-styles" required="false" select="'no'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
   <p:option name="process-embedded-images" required="false" select="'yes'"/>
+  <p:option name="fixed-layout" required="false" select="'no'"/>
+  <p:option name="numeric-font-weight-values" required="false" select="'no'"/>
   <p:option name="preserve-original-image-refs" required="false" select="'no'"/>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
@@ -207,7 +209,7 @@
       </p:output>
       
       <tr:propagate-caught-error name="forward-error" code="IDML_single-doc">
-        <p:with-option name="fail-on-error" select="$fail-on-error"></p:with-option>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
         <p:input port="source">
           <p:pipe port="error" step="catch"/>
         </p:input>

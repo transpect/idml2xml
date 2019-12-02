@@ -40,7 +40,7 @@
   <xsl:import href="modes/Index.xsl"/>
   <!-- Images: extract image properties (width, height, resizing and other) -->
   <xsl:import href="modes/Images.xsl"/>
-
+  
 
   <!-- If you are running individual modes with Saxon, it might happen that the output contains only text nodes.
     We believe this to be a Saxon bug. Supply '!method=xml' as in this example:
@@ -93,6 +93,8 @@
   <xsl:param name="discard-tagging" as="xs:string" select="'no'"/>
   <xsl:param name="process-embedded-images" as="xs:string" select="'yes'"/>
   <xsl:param name="preserve-original-image-refs" as="xs:string" select="'no'"/>
+  <xsl:param name="fixed-layout" as="xs:string" select="'no'"/>
+  <xsl:param name="numeric-font-weight-values" as="xs:string" select="'no'"/>
   <xsl:param name="debug" select="'0'" as="xs:string"/>
   <xsl:param name="debugdir" select="'debug'" as="xs:string"/>
 

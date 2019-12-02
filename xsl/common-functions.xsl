@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
     xmlns:tr="http://transpect.io"
+    xmlns:math="http://www.w3.org/2005/xpath-functions/math"
+    xmlns:css="http://www.w3.org/1996/css"
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
-    exclude-result-prefixes = "xs idPkg"
+    exclude-result-prefixes = "xs idPkg css math"
 >
   
   <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
@@ -33,6 +35,8 @@
     select="($idml2xml:idml-content-element-names-without-textSource, 'Br', 'idml2xml:genFrame', 'Footnote', 'Table', 'Story', 'XmlStory', 'Cell', 
     'idml2xml:genCell', 'Group')" 
     as="xs:string+" />
+
+  <xsl:variable name="idml2xml:output-full-background-images" select="false()" as="xs:boolean"/>
 
   <!-- GI 2015-11-01: Created this function ad hoc as a replacement for predicates 
     [name() = $idml2xml:idml-scope-terminal-names]. Reason: After ExtractTagging, there may by custom tags for table cells.
@@ -337,7 +341,7 @@
 
   <!-- Document functions -->
 
-  <xsl:key name="idml2xml:corresponding-master-spread" match="MasterSpread" use="@Self"/>
+  <!--<xsl:key name="idml2xml:corresponding-master-spread" match="MasterSpread" use="@Self"/>-->
 
   <xsl:function name="idml2xml:item-is-on-workspace">
     <xsl:param name="item" as="element(*)"/>
@@ -352,11 +356,66 @@
        <PathPoint Anchor="{$right} {$top}" LeftDirection="{$right} {$top}" RightDirection="{$right} {$top}"/>
      </PathPointArray>
     -->
+    <!-- workspace / spread -->
+    <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
+    <xsl:variable name="spread-x" as="xs:double"
+      select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])"/>
+    <xsl:variable name="spread-y" as="xs:double"
+      select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
 
     <!-- Message that an item will be removed will also be output for textframes containing continued stories -->
 
-    <!-- workspace / spread -->
-    <xsl:variable name="corresponding-spread" as="element(Spread)?" select="$item/ancestor::Spread"/>
+
+    <!-- item non-transformed coordinations -->
+            <xsl:variable name="item-pathpoints" as="node()*"
+              select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
+            <xsl:variable name="item-x-center" as="xs:double?"
+              select="if($item/@ItemTransform) then
+                      xs:double(tokenize($item/@ItemTransform, ' ')[5]) else 0"/>
+            <xsl:variable name="item-y" as="xs:double"
+              select="if($item/@ItemTransform)
+                      then xs:double(tokenize($item/@ItemTransform, ' ')[6]) else 0"/>
+            <xsl:variable name="item-left" as="xs:double"
+              select="if($item-pathpoints[1]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] ) else 0"/>
+            <xsl:variable name="item-top" as="xs:double"
+              select="if($item-pathpoints[1]/@Ancho)
+                      then xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] ) else 0"/>
+            <xsl:variable name="item-right" as="xs:double"
+              select="if($item-pathpoints[3]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] ) else 0"/>
+            <xsl:variable name="item-bottom" as="xs:double"
+              select="if($item-pathpoints[3]/@Anchor)
+                      then xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] ) else 0"/>
+            <xsl:variable name="group-x" as="xs:double"
+              select="if($item/ancestor::Group) 
+                      then sum(
+                              for $group in $item/ancestor::Group
+                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
+                            )
+                      else 0"/>
+            <xsl:variable name="item-real-center-x" as="xs:double"
+              select="$spread-x + $item-x-center + $group-x"/>
+            <xsl:variable name="item-real-left-x" as="xs:double"
+              select="$item-real-center-x + $item-left"/>
+            <xsl:variable name="item-real-right-x" as="xs:double"
+              select="$item-real-center-x + $item-right"/>
+
+
+    <!--<xsl:variable name="spread-all-pages-min-x" as="xs:double"
+      select="min(for $p in $corresponding-spread/Page return ($spread-x + xs:double( tokenize($p/@ItemTransform, ' ' )[5])))"/>
+    <xsl:variable name="spread-all-pages-max-x" as="xs:double"
+      select="max(for $p in $corresponding-spread/Page return ($spread-x + xs:double( tokenize($p/@ItemTransform, ' ' )[5])))"/>
+    <xsl:variable name="spread-all-pages-min-y" as="xs:double"
+      select="min(for $p in $corresponding-spread/Page return ($spread-y + xs:double( tokenize($p/@ItemTransform, ' ' )[6])))"/>
+    <xsl:variable name="spread-all-pages-max-y" as="xs:double"
+      select="max(for $p in $corresponding-spread/Page return ($spread-y + xs:double( tokenize($p/@ItemTransform, ' ' )[6])))"/>
+      <xsl:message select="'#############################', $item/@Self"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-min-x:', $spread-all-pages-min-x"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-max-x:', $spread-all-pages-max-x"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-min-y:', $spread-all-pages-min-y"/>
+    <xsl:message select="xs:string($corresponding-spread/@Self), 'spread-all-pages-max-y:', $spread-all-pages-max-y"/>
+    <xsl:message select="'___X:', $item-real-left-x, 'and', $item-real-right-x"/>-->
 
     <xsl:choose>
       <xsl:when test="empty($corresponding-spread)">
@@ -366,6 +425,12 @@
       <xsl:when test="substring($corresponding-spread/@ItemTransform, 0, 9) ne '1 0 0 1 '">
         <xsl:message
           select="'      WARNING: Spread for', local-name($item), string($item/@Self), 'does not fit standard settings. Item will be exported.'"/>
+        <xsl:sequence select="true()"/>
+      </xsl:when>
+
+      <!-- (background) image spanning all pages -->
+      <xsl:when test="    $item/self::Rectangle 
+                      and $idml2xml:output-full-background-images">
         <xsl:sequence select="true()"/>
       </xsl:when>
 
@@ -409,45 +474,8 @@
                   therefore the following variable declaration is not really exact -->
             <xsl:variable name="spread-binding" as="xs:string"
               select="if($corresponding-spread/@BindingLocation = 0) then 'left' else 'right'"/>
-            <xsl:variable name="spread-x" as="xs:double"
-              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[5])"/>
-            <!--        <xsl:variable name="spread-y" as="xs:double"
-              select="xs:double(tokenize($corresponding-spread/@ItemTransform, ' ')[6])" />
--->
 
-            <!-- item non-transformed coordinations -->
-            <xsl:variable name="item-pathpoints" as="node()*"
-              select="$item/Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType"/>
-            <xsl:variable name="item-x-center" as="xs:double"
-              select="xs:double(tokenize($item/@ItemTransform, ' ')[5])"/>
-            <xsl:variable name="item-y" as="xs:double"
-              select="xs:double(tokenize($item/@ItemTransform, ' ')[6])"/>
-            <xsl:variable name="item-left" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[1] )"/>
-            <xsl:variable name="item-top" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[1]/@Anchor, ' ' )[2] )"/>
-            <xsl:variable name="item-right" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[1] )"/>
-            <xsl:variable name="item-bottom" as="xs:double"
-              select="xs:double( tokenize( $item-pathpoints[3]/@Anchor, ' ' )[2] )"/>
-            <xsl:variable name="group-x" as="xs:double"
-              select="if($item/ancestor::Group) 
-                      then sum(
-                              for $group in $item/ancestor::Group
-                               return xs:double( tokenize( $group/@ItemTransform, ' ' )[5] )
-                            )
-                      else 0"/>
- 
-<!--            <xsl:message select="'top:', $item-top, ' left:', $item-left, ' right:', $item-right, ' bottom:',$item-bottom"/>-->
-
-            <xsl:variable name="item-real-center-x" as="xs:double"
-              select="$spread-x + $item-x-center + $group-x"/>
-
-            <xsl:variable name="item-real-left-x" as="xs:double"
-              select="$item-real-center-x + $item-left"/>
-
-            <xsl:variable name="item-real-right-x" as="xs:double"
-              select="$item-real-center-x + $item-right"/>
+            
 
             <!--        <xsl:variable name="corresponding-page" as="element(Page)?"
               select="if ($item/ancestor::Group)
@@ -639,5 +667,91 @@
                 then $replaced
                 else idml2xml:replaces( $replaced, $search-and-replacement[ position() gt 2 ])"/>
   </xsl:function>
+
+
+  <!-- Rotations and Other Transformations -->
+
+  <xsl:variable name="idml2xml:rad2deg" as="xs:double" select="180 div math:pi()"/>
+  
+  <!-- see https://www.indiscripts.com/blog/public/data/coordinate-spaces-and-transformations-5/CoordinateSpacesTransfos01-05.pdf -->
+  
+  <xsl:function name="idml2xml:ItemTransform2css" as="element(css:transform)">
+    <xsl:param name="it" as="attribute(ItemTransform)+"/>
+    <xsl:param name="ppa" as="element(PathPointArray)"/><!-- 1st in PathPointArray, that is, top left -->
+    <xsl:variable name="id" as="attribute(ItemTransform)">
+      <xsl:attribute name="ItemTransform" select="'1 0 0 1 0 0'"/>
+    </xsl:variable>
+    <xsl:variable name="chained" as="attribute(ItemTransform)" select="idml2xml:chain-ItemTransforms($it)"/>
+    <xsl:variable name="it-tokens" as="xs:double+" select="tokenize($chained) ! number(.)"/>
+    <xsl:variable name="acos" as="xs:double" select="math:acos($it-tokens[1])"/>
+    <xsl:variable name="beyond-180" as="xs:boolean" select="$it-tokens[2] gt 0"/>
+    <xsl:variable name="angle-deg" as="xs:double" select="if ($beyond-180)
+                                                          then 360 - $acos *$idml2xml:rad2deg 
+                                                          else $acos * $idml2xml:rad2deg"/>
+    <xsl:variable name="ppt-upper-left-tokens" as="xs:double+" select="tokenize($ppa/PathPointType[1]/@Anchor) ! number(.)"/>
+    <xsl:variable name="ul-vec" as="map(xs:string, xs:double)" 
+      select="map{'x':$ppt-upper-left-tokens[1], 'y':$ppt-upper-left-tokens[2]}"/>
+    <xsl:variable name="new-ul-vec" as="map(xs:string, xs:double)" select="idml2xml:apply-ItemTransform($chained, $ul-vec)"/>
+    <css:transform>
+      <xsl:attribute name="id" select="lower-case(local-name($it[1]/..)) || '_' || $it[1]/../@Self"/>
+      <xsl:attribute name="rotate" select="round(360 - $angle-deg,5) || 'deg'"/>
+      <xsl:attribute name="top" select="round($new-ul-vec?y,5)"/>
+      <xsl:attribute name="left" select="round($new-ul-vec?x,5)"/>
+      <xsl:attribute name="transform-origin" select="'top left'"/>
+    </css:transform>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:chain-ItemTransforms" as="attribute(ItemTransform)">
+    <xsl:param name="it" as="attribute(ItemTransform)*"/>
+    <xsl:choose>
+      <xsl:when test="count($it) = 0">
+        <xsl:attribute name="ItemTransform" select="'1.0 0 0 1 0 0'"/>
+      </xsl:when>
+      <xsl:when test="count($it) = 1">
+        <xsl:sequence select="$it"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="_1" select="tokenize($it[1]) ! number(.)" as="xs:double+"/>
+        <xsl:variable name="_2" select="tokenize(idml2xml:chain-ItemTransforms(subsequence($it, 2))) ! number(.)" as="xs:double+"/>
+        <xsl:attribute name="ItemTransform" separator=" ">
+          <xsl:sequence select="$_1[1] * $_2[1] + $_1[2] * $_2[3]"/>
+          <xsl:sequence select="$_1[1] * $_2[2] + $_1[2] * $_2[4]"/>
+          <xsl:sequence select="$_1[3] * $_2[1] + $_1[4] * $_2[3]"/>
+          <xsl:sequence select="$_1[3] * $_2[2] + $_1[4] * $_2[4]"/>
+          <xsl:sequence select="$_1[5] * $_2[1] + $_1[6] * $_2[3] + $_2[5]"/>
+          <xsl:sequence select="$_1[5] * $_2[2] + $_1[6] * $_2[4] + $_2[6]"/>
+        </xsl:attribute>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:apply-ItemTransform" as="map(xs:string, xs:double)"><!-- keys x and y -->
+    <xsl:param name="transform" as="attribute(ItemTransform)"/>
+    <xsl:param name="vec" as="map(xs:string, xs:double)"/>
+    <xsl:variable name="t" select="tokenize($transform) ! number(.)" as="xs:double+"/>
+    <xsl:map>
+      <xsl:map-entry key="'x'" select="$vec?x * $t[1] + $vec?y * $t[3] + $t[5]"/>
+      <xsl:map-entry key="'y'" select="$vec?x * $t[2] + $vec?y * $t[4] + $t[6]"/>
+    </xsl:map>
+  </xsl:function>
+  
+  <xsl:variable name="rotation-input" as="element(input)">
+    <input ItemTransform="{math:sqrt(2) div 2} .1 0 1 4 5">
+      <PathPointArray>
+        <PathPointType Anchor="40.18503937007874 -389.97244094488195"
+          LeftDirection="40.18503937007874 -389.97244094488195" RightDirection="40.18503937007874 -389.97244094488195"/>
+        <PathPointType Anchor="40.18503937007874 389.26377952832286"
+          LeftDirection="40.18503937007874 389.26377952832286" RightDirection="40.18503937007874 389.26377952832286"/>
+        <PathPointType Anchor="553.6732283464568 389.26377952832286"
+          LeftDirection="553.6732283464568 389.26377952832286" RightDirection="553.6732283464568 389.26377952832286"/>
+        <PathPointType Anchor="553.6732283464568 -389.97244094488195"
+          LeftDirection="553.6732283464568 -389.97244094488195" RightDirection="553.6732283464568 -389.97244094488195"/>
+      </PathPointArray>
+    </input>
+  </xsl:variable>
+  
+  <xsl:template name="rotation-test">
+    <xsl:message select="idml2xml:ItemTransform2css($rotation-input/@ItemTransform, $rotation-input/PathPointArray)"/>
+  </xsl:template>
 
 </xsl:stylesheet>

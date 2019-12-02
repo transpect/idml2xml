@@ -48,6 +48,16 @@
         <prop name="aid5:tablestyle" type="passthru" />
         <prop name="idml2xml:objectstyle" type="passthru" />
         <prop name="idml2xml:layer" type="passthru" />
+        <prop name="idml2xml:width" type="length" target-name="css:width"/>
+        <prop name="idml2xml:position" type="linear" target-name="css:position"/>
+        <prop name="idml2xml:height" type="length" target-name="css:height"/>
+        <prop name="idml2xml:z-index" type="linear" target-name="css:z-index"/>
+        <prop name="idml2xml:transform" type="linear" target-name="css:transform"/>
+        <prop name="idml2xml:transform-origin" type="linear" target-name="css:transform-origin"/>
+        <prop name="idml2xml:top" type="length" target-name="css:top"/>
+        <prop name="idml2xml:left" type="length" target-name="css:left"/>
+        <prop name="idml2xml:id" type="linear" target-name="xml:id"/>
+        <prop name="idml2xml:condition" type="linear" target-name="condition"/>
         <prop name="idml2xml:sne" type="passthru" /><!-- StyleNameEscape -->
         <prop name="idml2xml:rst" type="passthru" /><!-- RemoveStyleType -->
         <prop name="aid:table" type="passthru" />
@@ -790,7 +800,10 @@
         <prop name="OTFStretchedAlternate" implement="maybe later" />
         <prop name="KeyboardDirection" implement="maybe later" />
         <prop name="KeyboardShortcut" implement="maybe later" />
-        <prop name="Leading" implement="maybe later" />
+        <prop name="Leading" target-name="css:line-height">
+          <val eq="Auto" target-value="normal" target-name="css:line-height"/>
+          <val match="^\d+$" type="length" target-name="css:line-height"/>
+        </prop>
         <prop name="RuleAboveColor" type="color" target-name="css:border-top-color"/>
         <prop name="RuleBelowColor" type="color" target-name="css:border-bottom-color"/>
         <prop name="RuleAboveType" target-name="css:border-top-style">

@@ -26,6 +26,8 @@
       the file reference from the image export script.    
     </p:documentation>
   </p:option>
+  <p:option name="fixed-layout" required="false" select="'no'"/>
+  <p:option name="numeric-font-weight-values" required="false" select="'no'"/>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
   <p:option name="build-MathML-from-MathTools" required="false" select="'yes'">
@@ -115,6 +117,8 @@
     <p:with-option name="all-styles" select="$all-styles"/>  
     <p:with-option name="discard-tagging" select="$discard-tagging"/>
     <p:with-option name="process-embedded-images" select="$process-embedded-images"/>
+    <p:with-option name="fixed-layout" select="$fixed-layout"/>
+    <p:with-option name="numeric-font-weight-values" select="$numeric-font-weight-values"/>
     <p:with-option name="preserve-original-image-refs" select="$preserve-original-image-refs"/>
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>

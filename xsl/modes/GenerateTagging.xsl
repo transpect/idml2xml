@@ -229,6 +229,12 @@
       <xsl:apply-templates select="@*:objectstyle, @idml2xml:layer" mode="idml2xml:GenerateTagging-attr" />
     </XMLElement>
   </xsl:template>
+  
+  <xsl:template match="Group[$fixed-layout = 'yes'] | Group[$fixed-layout = 'yes']/TextFrame" mode="idml2xml:GenerateTagging">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template match="@idml2xml:layer" mode="idml2xml:GenerateTagging-attr">
     <XMLAttribute Name="{name()}" Value="{.}" />
@@ -239,6 +245,18 @@
 
   <xsl:template match="@*:objectstyle" mode="idml2xml:GenerateTagging-attr">
     <XMLAttribute Name="{name()}" Value="{.}" />
+  </xsl:template>
+
+  <xsl:template match="idml2xml:backingstory" mode="idml2xml:GenerateTagging"/>
+
+  <!-- wrap optional backingstory tagging for images "not placed in a layout" (see IDML specification) -->
+  <xsl:template match="/Document/Rectangle[Image/@Self = /*/idml2xml:backingstory//XMLElement/@XMLContent]" mode="idml2xml:GenerateTagging" priority="2">
+    <xsl:variable name="corr-xmlel" as="element(XMLElement)"
+      select="/*/idml2xml:backingstory//XMLElement[@XMLContent = current()/Image/@Self]"/>
+    <XMLElement MarkupTag="{$corr-xmlel/@MarkupTag}" XMLContent="{@Self}" Self="{$corr-xmlel/@Self}">
+      <xsl:attribute name="idml2xml:tag-source" select="'embedded'"/>
+      <xsl:next-match/>
+    </XMLElement>
   </xsl:template>
   
 </xsl:stylesheet>
