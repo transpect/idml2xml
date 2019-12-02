@@ -2561,7 +2561,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"
     match="@*[name() = $idml2xml:font-weight-name-value-map-attribute-names]
-             (:[$numeric-font-weight-values = 'yes']:)
+             [$numeric-font-weight-values = 'yes']
              [lower-case(replace(., '[-]', '')) = $idml2xml:font-weight-name-value-map/@name]">
     <xsl:attribute name="css:font-weight" select="$idml2xml:font-weight-name-value-map[@name = lower-case(replace(current(), '[-]', ''))]/@value"/>
   </xsl:template>
