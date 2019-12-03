@@ -305,7 +305,7 @@
         <!-- For Condition elements: -->
         <prop name="Visible" target-name="css:display" hubversion="1.1">
           <val eq="false" target-value="none"/>
-          <val eq="true"/>
+          <!-- <val eq="true"/> --><!-- Visible="true": unnecessary css:display attribute -->
         </prop>
         <prop name="xlink:href" type="passthru"/>
 
