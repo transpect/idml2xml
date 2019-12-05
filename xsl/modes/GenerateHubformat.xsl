@@ -1374,7 +1374,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="ancestor" as="element(*)" />
     <xsl:sequence select="matches(
                             string-join(
-                              $ancestor//text()[. &gt;&gt; $elt][parent::node()[not(matches(@condition, 'Page(Start|End)'))]] 
+                              $ancestor//text()[. &gt;&gt; $elt]
+                                               [parent::node()[not(matches(@condition, 'Page(Start|End)'))]]
+                                               [empty(ancestor::Note)]
                               except $ancestor//idml2xml:genFrame//text(),
                               ''
                             ),
@@ -1984,7 +1986,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                   ''
                 )
               )" as="xs:string?"/>
-    <xsl:message select="'AAAAAAAAa', $alternative-image-name"></xsl:message>
     <informaltable>
       <xsl:attribute name="role" select="idml2xml:StyleName(@aid5:tablestyle)"/>
       <xsl:attribute name="idml2xml:layout-type" select="'table'"/>
