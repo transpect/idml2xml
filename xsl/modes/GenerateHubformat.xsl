@@ -595,7 +595,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
       <xsl:when test=". eq 'lang'"/>
       
-      <xsl:when test=". eq 'length' and ../@name = ('idml2xml:width', 'idml2xml:height', 'idml2xml:top', 'idml2xml:left')">
+      <xsl:when test=". eq 'length' 
+                      and ../@name = ('idml2xml:width', 'idml2xml:height', 'idml2xml:top', 'idml2xml:left')
+                      and not($val/../name() = 'idml2xml:genTable')">
         <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="concat(xs:integer(round(xs:double(replace($val, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/></idml2xml:attribute>
       </xsl:when>
 
@@ -784,7 +786,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
     <xsl:sequence select="if($val != '')
-                          then concat(xs:string(xs:integer(xs:double($val) * 100) * 0.01), 'pt')
+                          then concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')
                           else ''"/>
   </xsl:function>
 
