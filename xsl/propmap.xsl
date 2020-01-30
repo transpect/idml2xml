@@ -802,7 +802,7 @@
         <prop name="KeyboardShortcut" implement="maybe later" />
         <prop name="Leading" target-name="css:line-height">
           <val eq="Auto" target-value="normal" target-name="css:line-height"/>
-          <val match="^\d+$" type="length" target-name="css:line-height"/>
+          <val match="^\d+(\.\d+)?$" type="length" target-name="css:line-height"/>
         </prop>
         <prop name="RuleAboveColor" type="color" target-name="css:border-top-color"/>
         <prop name="RuleBelowColor" type="color" target-name="css:border-bottom-color"/>
