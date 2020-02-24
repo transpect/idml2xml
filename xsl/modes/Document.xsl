@@ -351,6 +351,7 @@
                           else false())"/>
   </xsl:function>-->
 
+
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:variable name="context" select="."/>
     <xsl:copy copy-namespaces="no">
@@ -434,9 +435,16 @@
               </xsl:when>
               <xsl:otherwise>
                 <xsl:for-each select="$potential-group">
-                  <xsl:copy>
-                    <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
-                  </xsl:copy>
+                 <xsl:choose>
+                   <xsl:when test="$potential-group[self::TextFrame[@PreviousTextFrame eq 'n']]">
+                     <xsl:call-template name="textframes"/>
+                   </xsl:when>
+                   <xsl:otherwise>
+                      <xsl:copy>
+                        <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
+                      </xsl:copy>
+                   </xsl:otherwise>
+                 </xsl:choose>
                 </xsl:for-each>
               </xsl:otherwise>
             </xsl:choose>
@@ -597,7 +605,7 @@
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
 
-  <xsl:template match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template name="textframes" match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy>
       <xsl:if test="Properties/Label/KeyValuePair[@Key='letex:category']">
         <xsl:attribute name="idml2xml:label" select="Properties/Label/KeyValuePair[@Key='letex:category']/@Value"/>
