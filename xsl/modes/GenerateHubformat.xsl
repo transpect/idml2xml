@@ -2662,14 +2662,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="dbk:anchor" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
-<!--    <xsl:param name=""></xsl:param>-->
-  </xsl:template>
-  
-  <xsl:template match="dbk:anchor[@role]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3.5">
-    <xsl:copy-of select="."/><!-- hub:endnote, hub:endnote-reference -->
-  </xsl:template>
-
   <xsl:template 
       match="*[not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
