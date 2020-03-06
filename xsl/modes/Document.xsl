@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="3.0"
     xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
@@ -6,9 +5,10 @@
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
+    xmlns:tr="http://transpect.io"
     xmlns:css = "http://www.w3.org/1996/css"
     xmlns:math="http://www.w3.org/2005/xpath-functions/math"
-    exclude-result-prefixes = "idPkg aid5 aid xs"
+    exclude-result-prefixes = "idPkg aid5 aid xs tr"
 >
 
   <!--== mode: Document ==-->
@@ -103,6 +103,8 @@
   </xsl:template>
 
   <xsl:template match="/Document" mode="idml2xml:DocumentStoriesSorted">
+    <xsl:variable name="endnote-number-start" as="xs:integer?" 
+      select="for $i in EndnoteOption/@StartEndnoteNumberAt return xs:integer($i)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:attribute name="TOCStyle_Title" select="//TOCStyle[@Title ne ''][1]/@Title"/>
@@ -183,7 +185,9 @@
         <xsl:sequence select="idPkg:BackingStory/XmlStory"/>
       </idml2xml:backingstory>
       <xsl:apply-templates 
-        select="idPkg:Spread/Spread, //XmlStory[not(ancestor::idPkg:BackingStory)]" mode="idml2xml:DocumentResolveTextFrames"/>
+        select="idPkg:Spread/Spread, //XmlStory[not(ancestor::idPkg:BackingStory)]" mode="idml2xml:DocumentResolveTextFrames">
+        <xsl:with-param name="endnote-number-start" select="$endnote-number-start" as="xs:integer?" tunnel="yes"/>
+      </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
   
@@ -623,6 +627,21 @@
     <xsl:attribute name="ParentStory" select="ancestor::Story[1]/@Self"/>
     <!-- add an attribute to find out whether the endnote is in the same textframe. this makes renumbering easier later -->
   </xsl:template>
+  
+  <xsl:template match="EndnoteRange/@Self" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:param name="endnote-number-start" as="xs:integer?" tunnel="yes"/>
+    <xsl:param name="endnotes" as="element(EndnoteRange)*" tunnel="yes"/>
+    <xsl:next-match/>
+    <xsl:attribute name="idml2xml:per-story-endnote-num" select="$endnote-number-start - 1 + tr:index-of($endnotes, ..)"/>
+  </xsl:template>
+  
+  <xsl:template match="Story[@IsEndnoteStory = 'true'] | XmlStory[@IsEndnoteStory = 'true']" 
+    mode="idml2xml:DocumentResolveTextFrames" priority="6">
+    <xsl:next-match>
+      <xsl:with-param name="endnotes" as="element(EndnoteRange)*" tunnel="yes" select="descendant::EndnoteRange"/>
+    </xsl:next-match>
+  </xsl:template>
+
 
   <xsl:function name="idml2xml:is-group-without-frame" as="xs:boolean">
     <xsl:param name="group" as="element(Group)"/>
@@ -957,5 +976,6 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-  
+
+
 </xsl:stylesheet>

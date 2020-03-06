@@ -76,9 +76,13 @@
               <xsl:value-of select="if (starts-with(idPkg:Preferences/FootnoteOption/Properties/RestartNumbering, 'Dont')) then 'false' else 'true'"/>
             </keyword>
           </xsl:if>
-          <xsl:if test="idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering">
+          <xsl:variable name="endnote-number-reset" as="xs:string?" 
+            select="idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering">
+            <!-- 'StoryRestart', 'Continuous' -->
+          </xsl:variable>
+          <xsl:if test="exists($endnote-number-reset)">
             <keyword role="endnote-restart">
-              <xsl:value-of select="if (starts-with(idml2xml:endnotes/EndnoteOption/Properties/RestartEndnoteNumbering, 'Continuous')) then 'false' else 'true'"/>
+              <xsl:value-of select="if ($endnote-number-reset = 'Continuous') then 'false' else 'true'"/>
             </keyword>
           </xsl:if>
           <xsl:if test="idml2xml:tags/idPkg:Tags">
@@ -1751,8 +1755,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:function>
 
   <xsl:template match="idml2xml:genAnchor" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <anchor xml:id="{$id-prefix}{idml2xml:normalize-name(@*:id)}" >
-      <xsl:apply-templates select="@annotations" mode="#current"/>
+    <anchor xml:id="{$id-prefix}{idml2xml:normalize-name(@*:id)}">
+      <xsl:apply-templates select="@role | @annotations" mode="#current"/>
     </anchor>
   </xsl:template>
 
@@ -2345,6 +2349,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- mode: XML-Hubformat-cleanup-paras-and-br -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
+  <xsl:template match="/" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:next-match>
+      <xsl:with-param name="recount-endnotes" as="xs:boolean" tunnel="yes" 
+        select="dbk:hub/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'endnote-restart'] = 'true'"/>
+      <xsl:with-param name="endnote-ids" as="xs:string*" tunnel="yes" 
+        select="descendant::dbk:link[@remap = 'Endnote']"/>
+    </xsl:next-match>
+  </xsl:template>
+  
   <xsl:template match="css:rule[@layout-type eq 'cell'][not(@name = distinct-values(//dbk:entry/@role))]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- delete special unused cell styles: HeaderRegionCellStyle, BodyRegionCellStyle, FooterRegionCellStyle-->
     <xsl:if test="$all-styles = 'yes'">
@@ -2635,6 +2648,27 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template 
       match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle | @idml2xml:sne | @idml2xml:rst" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
+
+  <xsl:template match="dbk:link[@remap = 'Endnote']/text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:param name="recount-endnotes" as="xs:boolean" tunnel="yes"/>
+    <xsl:param name="endnotes" as="element(dbk:link)*" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="$recount-endnotes">
+        <xsl:value-of select="tr:index-of($endnotes, ..)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:anchor" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
+<!--    <xsl:param name=""></xsl:param>-->
+  </xsl:template>
+  
+  <xsl:template match="dbk:anchor[@role]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3.5">
+    <xsl:copy-of select="."/><!-- hub:endnote, hub:endnote-reference -->
+  </xsl:template>
 
   <xsl:template 
       match="*[not( name() = ($hubformat-elementnames-whitelist, tokenize($hub-other-elementnames-whitelist,',')) )]" 

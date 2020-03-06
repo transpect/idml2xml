@@ -5,8 +5,9 @@
     xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
+    xmlns:saxon="http://saxon.sf.net/"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
-  exclude-result-prefixes="idPkg aid5 aid xs"
+  exclude-result-prefixes="idPkg aid5 aid xs saxon"
 >
 
   <xsl:template match="idml2xml:genSpan[not(@*)]" mode="idml2xml:AutoCorrect">
@@ -282,60 +283,67 @@
   <xsl:template match="*[idml2xml:parsep]" mode="idml2xml:AutoCorrect-clean-up">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="*" group-starting-with="idml2xml:parsep">
-        <xsl:choose>
-          <xsl:when test="self::idml2xml:parsep">
-            <xsl:choose>
-              <xsl:when test="(count(current-group()[self::idml2xml:genPara]) gt 1)
-                              and 
-                              (every $elt in current-group() satisfies $elt[not(idml2xml:is-dissolvable-anchor-genPara(.))])">
-                <!--  hogrefe.de/PPP/02773/idml/101026_02773_PPP.idml, paras splitted by crossreference source-->
-                <xsl:for-each-group select="current-group()" group-adjacent="boolean(self::idml2xml:genPara)">
-                  <xsl:choose>
-                    <xsl:when test="current-group()[self::idml2xml:genPara] 
-                                                    and count(distinct-values(current-group()/@aid:pstyle)) = 1
-                                                    and (contains(current-group()[2]/@srcpath, replace(current-group()[1]/@srcpath, '^.+?(Stories/Story_u35c9d.xml\?).+$', '$1')))">
-                     <xsl:element name="genPara" namespace="http://transpect.io/idml2xml">
-                       <xsl:apply-templates select="current-group()[1]/@*, current-group()/node()" mode="#current"/>
-                     </xsl:element>
-                  </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:apply-templates select="current-group()" mode="#current"/>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </xsl:for-each-group>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:if test="(count(current-group()[self::idml2xml:genPara]) gt 1
-                               ) and
-                               current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]">
-                  <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
-                  <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!, <xsl:value-of select="count(current-group()[not(self::idml2xml:parsep)]
-                    [not(idml2xml:is-dissolvable-anchor-genPara(.))]
-                    )"/>
-                  </xsl:comment>
-                  <xsl:comment>
-                    <xsl:for-each select="current-group()">
-                      <xsl:sequence select="name(.)"/>
-                    </xsl:for-each>
-                  </xsl:comment>
-                  <!-- this case wasn't thought of and has to be handled! -->
-                </xsl:if>
-                <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
-                  mode="#current">
-                  <xsl:with-param name="insert-anchor" select="current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]/*" tunnel="yes"/>
-                </xsl:apply-templates>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates select="current-group()" mode="#current"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each-group>
+      <xsl:call-template name="idml2xml:process-para-containers-in-AutoCorrect-clean-up"/>
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template name="idml2xml:process-para-containers-in-AutoCorrect-clean-up">
+    <xsl:for-each-group select="*" group-starting-with="idml2xml:parsep">
+      <!-- an EndnoteRange that comprises multiple paras is in Hogrefe’s 101024_86048b_PRG,
+      see https://redmine.le-tex.de/issues/8143 -->
+      <xsl:choose>
+        <xsl:when test="self::idml2xml:parsep">
+          <xsl:choose>
+            <xsl:when test="(count(current-group()[self::idml2xml:genPara]) gt 1)
+                            and 
+                            (every $elt in current-group() satisfies $elt[not(idml2xml:is-dissolvable-anchor-genPara(.))])">
+              <!--  hogrefe.de/PPP/02773/idml/101026_02773_PPP.idml, paras splitted by crossreference source-->
+              <xsl:for-each-group select="current-group()" group-adjacent="boolean(self::idml2xml:genPara)">
+                <xsl:choose>
+                  <xsl:when test="current-group()[self::idml2xml:genPara] 
+                                                  and count(distinct-values(current-group()/@aid:pstyle)) = 1
+                                                  and (contains(current-group()[2]/@srcpath, replace(current-group()[1]/@srcpath, '^.+?(Stories/Story_u35c9d.xml\?).+$', '$1')))">
+                   <xsl:element name="genPara" namespace="http://transpect.io/idml2xml">
+                     <xsl:apply-templates select="current-group()[1]/@*, current-group()/node()" mode="#current"/>
+                   </xsl:element>
+                </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:apply-templates select="current-group()" mode="#current"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:for-each-group>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:if test="(count(current-group()[self::idml2xml:genPara]) gt 1
+                             ) and
+                             current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]">
+                <xsl:message select="'AutoCorrect-clean-up: More than one para: ' , current-group()[last()]"/>
+                <xsl:comment>❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧❧ unhandled!!!, <xsl:value-of select="count(current-group()[not(self::idml2xml:parsep)]
+                  [not(idml2xml:is-dissolvable-anchor-genPara(.))]
+                  )"/>
+                </xsl:comment>
+                <xsl:comment>
+                  <xsl:for-each select="current-group()">
+                    <xsl:sequence select="name(.)"/>
+                  </xsl:for-each>
+                </xsl:comment>
+                <!-- this case wasn't thought of and has to be handled! -->
+              </xsl:if>
+              <xsl:apply-templates select="current-group()[not(idml2xml:is-dissolvable-anchor-genPara(.))]"
+                mode="#current">
+                <xsl:with-param name="insert-anchor" select="current-group()[idml2xml:is-dissolvable-anchor-genPara(.)]/*" tunnel="yes"/>
+              </xsl:apply-templates>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="current-group()" mode="#current"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each-group>
+  </xsl:template>
+
+
   <xsl:template match="*[@aid:pstyle]" mode="idml2xml:AutoCorrect-clean-up" priority="5">
     <xsl:param name="insert-anchor" as="element(idml2xml:genAnchor)*" tunnel="yes"/>
     <xsl:choose>
@@ -365,36 +373,46 @@
                           (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
   </xsl:function>
 
-  <xsl:variable name="endnotes" as="element(EndnoteRange)*" select="//EndnoteRange"/>
-  <xsl:key name="endnoterange-by-endnote" match="EndnoteRange" use="@SourceEndnote"/>
-  <xsl:key name="endnote-siblings" use="@ParentStory" match="EndnoteRange"/>
-
-  <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:variable name="endnote-id-A" as="xs:integer*" select="index-of($endnotes/@Self, @Self)"/>
-    <xsl:if test="count($endnote-id-A) gt 1">
-      <!-- May happen if an additional StoryID/StoryRef placement was applied to the endnote frame,
-      as in https://redmine.le-tex.de/issues/7430 -->
-      <xsl:message select="'AAAAAAAAAAAA ', $endnote-id-A , ' :: ', for $a in $endnotes/@Self return string($a), ' :: ',distinct-values($endnotes/@Self), ' :: ', string(@Self)"></xsl:message>
-    </xsl:if>
-    <!-- Unsure whether there is a DestinationUniqueKey so that linking from other files would be possible. 
-      Didn’t find an example of EndnoteRange. Leave it as it is for the time being. --> 
-     <idml2xml:genAnchor xml:id="endnote-{$endnote-id-A}"/>
-     <xsl:apply-templates select="node()" mode="#current"/>
+  <xsl:template match="EndnoteRange" mode="idml2xml:AutoCorrect-clean-up" priority="1">
+    <xsl:variable name="anchor" as="element(idml2xml:genAnchor)">
+      <idml2xml:genAnchor xml:id="en-{@Self}" role="hub:endnote"/>  
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="exists(idml2xml:parsep)">
+        <xsl:call-template name="idml2xml:process-para-containers-in-AutoCorrect-clean-up">
+          <xsl:with-param name="first-endnote-para-anchor" tunnel="yes" select="$anchor"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$anchor"/>
+        <xsl:apply-templates mode="#current"/>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="idml2xml:genPara[following-sibling::*[1]/self::EndnoteRange]
+                                       [empty(node())]" mode="idml2xml:AutoCorrect-clean-up"/>
+  
+  <xsl:template match="idml2xml:genPara[preceding-sibling::*[1]/self::EndnoteRange]
+                                       [empty(node())]" mode="idml2xml:AutoCorrect-clean-up"/>
+  
+  <xsl:template match="EndnoteRange/idml2xml:genPara[1]/node()[1]" mode="idml2xml:AutoCorrect-clean-up" priority="1">
+    <xsl:param name="first-endnote-para-anchor" as="element(idml2xml:genAnchor)?" tunnel="yes"/>
+    <xsl:sequence select="$first-endnote-para-anchor"/>
+    <xsl:next-match/>
+  </xsl:template>
+  
+  <xsl:template match="EndnoteRange//idml2xml:tab[@role = 'footnotemarker']" mode="idml2xml:AutoCorrect-clean-up">
+    <idml2xml:genSpan aid:cstyle="hub:identifier">
+      <xsl:value-of select="ancestor::EndnoteRange[1]/@idml2xml:per-story-endnote-num"/>
+    </idml2xml:genSpan>
   </xsl:template>
 
   <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
-    <xsl:variable name="endnote-id-B" as="xs:integer*" select="index-of($endnotes/@Self, @EndnoteTextRange)"/>
-    <xsl:if test="count($endnote-id-B) gt 1">
-      <xsl:message select="'BBBBBBBBBB ', distinct-values($endnotes/@Self), ' :: ', string(@EndnoteTextRange),  ' :: ',distinct-values($endnotes/@Self)"></xsl:message>
-    </xsl:if>
-
-    <xsl:variable name="endnote-number" as="xs:integer*" 
-      select="index-of(key('endnote-siblings', key('endnoterange-by-endnote', @Self)/@ParentStory)/@Self, @EndnoteTextRange)"/>
-<!--    <idml2xml:genSpan aid:cstyle="endnote-marker">
-      <xsl:apply-templates select="@srcpath" mode="#current"/>-->
-      <idml2xml:genAnchor xml:id="endnoteAnchor-{$endnote-id-B}"/>
-      <idml2xml:link remap="Endnote" linkend="endnote-{$endnote-id-B}"><xsl:value-of select="$endnote-number"/></idml2xml:link>
-    <!--</idml2xml:genSpan>-->
+    <idml2xml:genAnchor xml:id="endnoteAnchor-{@Self}" role="hub:endnote-reference"/>
+    <idml2xml:link remap="Endnote" linkend="en-{@EndnoteTextRange}">
+      <xsl:value-of select="@idml2xml:per-story-endnote-num"/>
+    </idml2xml:link>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -52,12 +52,17 @@
   <xsl:function name="tr:identical-self-object-suffix" as="xs:string">
     <xsl:param name="self-object" as="element(*)"/>
     <xsl:variable name="identical-Self-objects" select="key('idml2xml:by-Self', $self-object/@Self, root($self-object))" as="element(*)+" />
-    <xsl:variable name="my-number" as="xs:integer"
-      select="index-of(for $o in $identical-Self-objects return generate-id($o), generate-id($self-object))" />
+    <xsl:variable name="my-number" as="xs:integer" select="tr:index-of($identical-Self-objects, $self-object)" />
     <xsl:sequence
       select="if ($my-number gt 1)
               then concat('_', string($my-number))
               else ''"/>
+  </xsl:function>
+  
+  <xsl:function name="tr:index-of" as="xs:integer*">
+    <xsl:param name="nodes" as="node()*"/>
+    <xsl:param name="node" as="node()*"/>
+    <xsl:sequence select="index-of(for $n in $nodes return $n/generate-id(), for $m in $node return $m/generate-id())"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:substr">
