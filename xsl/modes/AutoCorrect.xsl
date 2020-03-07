@@ -411,7 +411,7 @@
   <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
     <idml2xml:genAnchor xml:id="endnoteAnchor-{@Self}" role="hub:endnote-reference"/>
     <idml2xml:link remap="Endnote" linkend="en-{@EndnoteTextRange}">
-      <xsl:value-of select="@idml2xml:per-story-endnote-num"/>
+      <xsl:value-of select="key('by-Self', @EndnoteTextRange)/@idml2xml:per-story-endnote-num"/>
     </idml2xml:link>
   </xsl:template>
 
