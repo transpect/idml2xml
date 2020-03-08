@@ -404,7 +404,9 @@
   
   <xsl:template match="EndnoteRange//idml2xml:tab[@role = 'footnotemarker']" mode="idml2xml:AutoCorrect-clean-up">
     <idml2xml:genSpan aid:cstyle="hub:identifier">
-      <xsl:value-of select="ancestor::EndnoteRange[1]/@idml2xml:per-story-endnote-num"/>
+      <idml2xml:link remap="Endnote" linkend="endnoteAnchor-{ancestor::EndnoteRange[1]/@SourceEndnote}">
+        <xsl:value-of select="ancestor::EndnoteRange[1]/@idml2xml:per-story-endnote-num"/>
+      </idml2xml:link>
     </idml2xml:genSpan>
   </xsl:template>
 
