@@ -1740,7 +1740,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
+  <xsl:template match="idml2xml:link/@idml2xml:id" mode="idml2xml:XML-Hubformat-remap-para-and-span">
+    <xsl:attribute name="xml:id" select="concat($id-prefix, .)"/>
+  </xsl:template>
 
 
   <xsl:template match="idml2xml:xref" mode="idml2xml:XML-Hubformat-remap-para-and-span_DISABLED">
@@ -2354,8 +2357,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:next-match>
       <xsl:with-param name="recount-endnotes" as="xs:boolean" tunnel="yes" 
         select="dbk:hub/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'endnote-restart'] = 'true'"/>
-      <xsl:with-param name="endnote-ids" as="xs:string*" tunnel="yes" 
-        select="descendant::dbk:link[@remap = 'Endnote']"/>
+      <xsl:with-param name="endnotes" as="element(dbk:link)*" tunnel="yes" 
+        select="descendant::dbk:link[@remap = 'EndnoteRange']"/>
     </xsl:next-match>
   </xsl:template>
   
@@ -2659,7 +2662,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       match="@*:AppliedParagraphStyle | @*:AppliedCharacterStyle | @idml2xml:sne | @idml2xml:rst" 
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
-  <xsl:template match="dbk:link[@remap = 'Endnote']/text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="dbk:link[@remap = 'EndnoteRange']/text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:param name="recount-endnotes" as="xs:boolean" tunnel="yes"/>
     <xsl:param name="endnotes" as="element(dbk:link)*" tunnel="yes"/>
     <xsl:choose>
@@ -2670,6 +2673,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:next-match/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:link[@remap = 'EndnoteMarker']/text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:apply-templates select="key('idml2xml:linking-item-by-linkend', ../@linkend)/text()" mode="#current"/>
   </xsl:template>
   
   <xsl:template 

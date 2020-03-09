@@ -453,7 +453,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <!-- otherwise: the story is anchored within itself or it is an anchored EndnoteTextFrame, donâ€™t do anything -->
+          <!-- otherwise: the story is anchored within itself or it is an anchored EndnoteTextFrame, don’t do anything -->
         </xsl:choose>
       </xsl:for-each>
     </xsl:copy>
@@ -622,23 +622,17 @@
 
   <xsl:key name="EndnoteTextFrameStory" match="Story[@IsEndnoteStory = 'true']" use="(descendant::EndnoteRange)[1]/@SourceEndnote"/>
   
-  <xsl:template match="EndnoteRange/@SourceEndnote" mode="idml2xml:DocumentResolveTextFrames">
-    <xsl:copy/>
-    <xsl:attribute name="ParentStory" select="ancestor::Story[1]/@Self"/>
-    <!-- add an attribute to find out whether the endnote is in the same textframe. this makes renumbering easier later -->
-  </xsl:template>
-  
-  <xsl:template match="EndnoteRange/@Self" mode="idml2xml:DocumentResolveTextFrames">
+  <xsl:template match="Endnote/@Self" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:param name="endnote-number-start" as="xs:integer?" tunnel="yes"/>
-    <xsl:param name="endnotes" as="element(EndnoteRange)*" tunnel="yes"/>
+    <xsl:param name="endnotes" as="element(Endnote)*" tunnel="yes"/>
     <xsl:next-match/>
     <xsl:attribute name="idml2xml:per-story-endnote-num" select="$endnote-number-start - 1 + tr:index-of($endnotes, ..)"/>
   </xsl:template>
   
-  <xsl:template match="Story[@IsEndnoteStory = 'true'] | XmlStory[@IsEndnoteStory = 'true']" 
+  <xsl:template match="Story[not(@IsEndnoteStory = 'true')] | XmlStory[not(@IsEndnoteStory = 'true')]" 
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
     <xsl:next-match>
-      <xsl:with-param name="endnotes" as="element(EndnoteRange)*" tunnel="yes" select="descendant::EndnoteRange"/>
+      <xsl:with-param name="endnotes" as="element(Endnote)*" tunnel="yes" select="descendant::Endnote"/>
     </xsl:next-match>
   </xsl:template>
 

@@ -404,16 +404,16 @@
   
   <xsl:template match="EndnoteRange//idml2xml:tab[@role = 'footnotemarker']" mode="idml2xml:AutoCorrect-clean-up">
     <idml2xml:genSpan aid:cstyle="hub:identifier">
-      <idml2xml:link remap="Endnote" linkend="endnoteAnchor-{ancestor::EndnoteRange[1]/@SourceEndnote}">
-        <xsl:value-of select="ancestor::EndnoteRange[1]/@idml2xml:per-story-endnote-num"/>
+      <idml2xml:link remap="EndnoteMarker" linkend="endnoteAnchor-{ancestor::EndnoteRange[1]/@SourceEndnote}">
+        <xsl:value-of select="key('by-Self', ancestor::EndnoteRange[1]/@SourceEndnote)/@idml2xml:per-story-endnote-num"/>
       </idml2xml:link>
     </idml2xml:genSpan>
   </xsl:template>
 
   <xsl:template match="Endnote" mode="idml2xml:AutoCorrect-clean-up">
-    <idml2xml:genAnchor xml:id="endnoteAnchor-{@Self}" role="hub:endnote-reference"/>
-    <idml2xml:link remap="Endnote" linkend="en-{@EndnoteTextRange}">
-      <xsl:value-of select="key('by-Self', @EndnoteTextRange)/@idml2xml:per-story-endnote-num"/>
+    <idml2xml:link remap="EndnoteRange" linkend="en-{@EndnoteTextRange}">
+      <xsl:attribute name="xml:id" select="string-join(('endnoteAnchor', @Self), '-')"/>
+      <xsl:value-of select="@idml2xml:per-story-endnote-num"/>
     </idml2xml:link>
   </xsl:template>
 
