@@ -2355,7 +2355,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="/" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:next-match>
-      <xsl:with-param name="recount-endnotes" as="xs:boolean" tunnel="yes" 
+      <xsl:with-param name="storywise-endnotes" as="xs:boolean" tunnel="yes" 
         select="dbk:hub/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'endnote-restart'] = 'true'"/>
       <xsl:with-param name="endnotes" as="element(dbk:link)*" tunnel="yes" 
         select="descendant::dbk:link[@remap = 'EndnoteRange']"/>
@@ -2663,10 +2663,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" />
 
   <xsl:template match="dbk:link[@remap = 'EndnoteRange']/text()" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:param name="recount-endnotes" as="xs:boolean" tunnel="yes"/>
+    <xsl:param name="storywise-endnotes" as="xs:boolean" tunnel="yes"/>
     <xsl:param name="endnotes" as="element(dbk:link)*" tunnel="yes"/>
     <xsl:choose>
-      <xsl:when test="$recount-endnotes">
+      <xsl:when test="not($storywise-endnotes)">
         <xsl:value-of select="tr:index-of($endnotes, ..)"/>
       </xsl:when>
       <xsl:otherwise>
