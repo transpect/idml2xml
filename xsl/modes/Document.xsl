@@ -280,7 +280,7 @@
                              [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
                                                          satisfies 
                                                          (
-                                                            some $token in tokenize(idml2xml:text-content($ref), ' ') 
+                                                            some $token in tokenize(idml2xml:text-content($ref), ' ')[not(matches(.,'^\s*$'))] 
                                                             satisfies (matches(replace(current()//KeyValuePair[@Key = 'letex:fileName'][1]/@Value,'\.\w+$',''),$token))
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
