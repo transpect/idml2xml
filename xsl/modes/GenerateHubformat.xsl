@@ -2407,11 +2407,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:for-each select="('Top', 'Right', 'Bottom', 'Left')[
                               $context/@*/local-name() = concat(., 'EdgeStrokePriority')
                             ]">
-	<!-- overwrite border-width when opposite entry border-width is set to '0pt' with more priority -->
+        <!-- overwrite border-width when opposite entry border-width is set to '0pt' with more priority -->
         <xsl:call-template name="idml2xml:set-zero-border-width-for-opposite-entry">
           <xsl:with-param name="entry" select="$context"/>
           <xsl:with-param name="direction" select="current()"/>
         </xsl:call-template>
+      </xsl:for-each>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
