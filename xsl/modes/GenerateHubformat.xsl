@@ -2400,28 +2400,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <!-- set or overwrite border-*-width attributes, when opposite cell is set to '0pt' and has more priority -->
-  <xsl:template match="dbk:entry[@idml2xml:AppliedCellStylePriority or @idml2xml:*[ends-with(name(), 'Priority')]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="dbk:entry[@idml2xml:AppliedCellStylePriority]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:variable name="context" select="." as="element(dbk:entry)"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each select="('Top', 'Right', 'Bottom', 'Left')">
-        <!-- set border to zero, if none are set, AppliedCellStylePriority=0 and inherited cell style has some -->
-        <xsl:if test="$context/@idml2xml:AppliedCellStylePriority = '0'
-                      and not(
-                        $context/@*[starts-with(name(), concat('css:border-', lower-case(current()), '-width'))]
-                      ) 
-                      and key('idml2xml:css-rule-by-name', $context/@role, root($context))/@css:*[starts-with(name(), concat('css:border-', lower-case(current()), '-width'))][not(. = '0pt')]">
-          <xsl:attribute name="{concat('css:border-', lower-case(current()), '-width')}" select="'0pt'"/>
-        </xsl:if>
-
-        <!-- overwrite border-width when opposite entry border-width is set to '0pt' with more priority -->
-        <xsl:if test="$context/@*/local-name() = concat(current(), 'EdgeStrokePriority')">
-          <xsl:call-template name="idml2xml:set-zero-border-width-for-opposite-entry">
-            <xsl:with-param name="entry" select="$context"/>
-            <xsl:with-param name="direction" select="current()"/>
-          </xsl:call-template>
-        </xsl:if>
-      </xsl:for-each>
+      <xsl:for-each select="('Top', 'Right', 'Bottom', 'Left')[
+                              $context/@*/local-name() = concat(., 'EdgeStrokePriority')
+                            ]">
+	<!-- overwrite border-width when opposite entry border-width is set to '0pt' with more priority -->
+        <xsl:call-template name="idml2xml:set-zero-border-width-for-opposite-entry">
+          <xsl:with-param name="entry" select="$context"/>
+          <xsl:with-param name="direction" select="current()"/>
+        </xsl:call-template>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
