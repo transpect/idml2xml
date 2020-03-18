@@ -477,6 +477,7 @@
   
   <xsl:template match="*[@AppliedConditions eq 'Condition/FigureRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:copy copy-namespaces="no">
+      <xsl:variable name="context" select="."/>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each-group select="*" group-ending-with="Br">
         <xsl:variable name="group-container" as="element(*)?">
@@ -484,16 +485,27 @@
             <xsl:copy-of select="current-group()"/>
           </GroupContainer>
          </xsl:variable>
-        <xsl:apply-templates select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') 
-                             return ((//*[self::Rectangle or self::Polygon or self::Oval or self::Group]
-                                           [.//KeyValuePair[@Key = 'letex:fileName']
-                                           [@Value = $i]]),
-                                      (//*[self::Rectangle or self::Polygon or self::Oval]
-                                         [ends-with(.//@LinkResourceURI, $i)]
-                                       
-                                    ))[1]" mode="#current">
-          <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
-        </xsl:apply-templates>
+        <xsl:variable name="figure-or-group" select="for $i in tokenize(normalize-space(idml2xml:text-content($group-container)), ' ') 
+                                            return ((//*[self::Rectangle or self::Polygon or self::Oval or self::Group]
+                                                          [.//KeyValuePair[@Key = 'letex:fileName']
+                                                          [@Value = $i]]),
+                                                     (//*[self::Rectangle or self::Polygon or self::Oval]
+                                                        [ends-with(.//@LinkResourceURI, $i)]
+                                                      
+                                                   ))[1]"/>
+        <xsl:choose>
+          <xsl:when test="$figure-or-group">
+            <xsl:apply-templates select="$figure-or-group" mode="#current">
+              <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+            </xsl:apply-templates>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy>
+              <xsl:attribute name="idml2xml:reason" select="'NO_Figure'"/>
+              <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+            </xsl:copy>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:if test="current-group()[descendant-or-self::*:Br]">
           <xsl:copy-of select="current-group()[descendant-or-self::*:Br]"/>"
         </xsl:if>
