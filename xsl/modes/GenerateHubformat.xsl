@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet 
-    version="2.0"
+<xsl:stylesheet version="2.0"
     xmlns:xsl = "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs = "http://www.w3.org/2001/XMLSchema"
     xmlns:css="http://www.w3.org/1996/css"
@@ -2393,7 +2392,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                       |css:rule[@hub:para-background eq 'true']/@*[starts-with(name(), 'hub:para-background')]" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{local-name()}" select="."/>
-  </xsl:template>
+  </xsl:template>        
   
   <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
@@ -2771,11 +2770,39 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                     (key('idml2xml:style-by-role', @role)/@css:list-style-type, @css:list-style-type)[last()] = $numbered-list-styles]"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:apply-templates mode="#current">
-        <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
-      	<xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
-        <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
-      </xsl:apply-templates>
+      <!-- wrap adjacent paras with the same para-background or 
+           para-border properties into a sidebar -->
+      <xsl:for-each-group select="*" 
+                          group-adjacent="string-join(for $i in @role 
+                                                      return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]
+                                                                                                 [   @hub:para-background eq 'true'
+                                                                                                  or @hub:para-border eq 'true']
+                                                                                                 /@*[starts-with(name(), 'hub:para-')],
+                                                      '-')">
+        <xsl:choose>
+          <xsl:when test="string-length(current-grouping-key()) ne 0">
+            <sidebar role="{string-join(for $i in current-group()[1]/@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]
+                                                                                   /(@hub:para-background, @hub:para-border)[. eq 'true']/name(),
+                                        ' ')}">
+              <xsl:apply-templates select="current-group()" mode="#current">
+                <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
+                <xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
+                <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" 
+                                select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
+              </xsl:apply-templates>
+            </sidebar>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="current-group()" mode="#current">
+              <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
+              <xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
+              <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" 
+                              select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
+            </xsl:apply-templates>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
       <xsl:if test="not($orphaned-indexterm-para)">
         <para>
           <xsl:call-template name="orphaned-indexterms"/>
