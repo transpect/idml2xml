@@ -2705,10 +2705,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                        | dbk:linked-style/@name
                        | @hub:numbering-inline-stylename" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:attribute name="{name()}" select="replace(replace(replace(., '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
+    <xsl:attribute name="{name()}" select="idml2xml:normalize-css-names(.)"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
         that should be treated equivalently by adding a tilde, followed by arbitrary name components -->
   </xsl:template>
+  
+  <xsl:function name="idml2xml:normalize-css-names" as="xs:string">
+    <xsl:param name="name" as="xs:string"/>
+    <xsl:value-of select="replace(replace(replace($name, '[^_~&#x2dc;a-zA-Z0-9-]', '_'), '[~&#x2dc;]', '_-_'), '^(\I)', '_$1')"/>
+  </xsl:function>
 
   <!-- for finding sidebar[@linkend] to a given anchor[@xml:id]: -->
   <xsl:key name="idml2xml:linking-item-by-id" match="*[@linkend]" use="@linkend" />
@@ -2823,13 +2828,19 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:copy>
       <xsl:apply-templates select="@*, css:rule" mode="#current"/>
       <xsl:for-each select="css:rule[(@hub:para-background, @hub:para-border) = 'true']">
-        <css:rule name="{@name}_{string-join((@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), '-')}" 
+        <css:rule name="{idml2xml:normalize-css-names(concat(@name, 
+                                                             '_', 
+                                                             string-join((@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), 
+                                                                         '-')))}" 
                   native-name="{@native-name}_{string-join((@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), '-')}"
                   layout-type="object">
           <xsl:for-each select="@*[starts-with(name(), 'hub:para-')]
                                   [not(name() = ('hub:para-background', 'hub:para-border'))]
                                   [not(starts-with(name(), 'hub:para-border-padding-'))] (: currently not applicable in css :)">
-            <xsl:attribute name="{replace(name(), '^hub:para-', 'css:')}" select="."/>
+            <xsl:attribute name="{replace(replace(name(), '^hub:para-', 'css:'),
+                                          'css:background-padding',
+                                          'css:padding')}" 
+                           select="."/>
           </xsl:for-each>
         </css:rule>
       </xsl:for-each>
