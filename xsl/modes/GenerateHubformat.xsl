@@ -2822,7 +2822,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:for-each select="@*[starts-with(name(), 'hub:para-')]
                                   [not(name() = ('hub:para-background', 'hub:para-border'))]
                                   [not(starts-with(name(), 'hub:para-border-padding-'))] (: currently not applicable in css :)">
-            <xsl:attribute name="{replace(local-name(), '^para-', 'css:')}" select="."/>
+            <xsl:attribute name="{replace(name(), '^hub:para-', 'css:')}" select="."/>
           </xsl:for-each>
         </css:rule>
       </xsl:for-each>
