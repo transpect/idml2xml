@@ -505,6 +505,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 root($val)
                 )" mode="#current" />
             </idml2xml:attribute>
+            <xsl:if test="matches($target-name, '(Start|End)RowFillColor')">
+              <xsl:if test="$tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
+                <idml2xml:attribute name="{replace($target-name, 'Color', 'Tint')}">
+                  <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
+                </idml2xml:attribute>
+              </xsl:if>
+            </xsl:if>
             <xsl:choose>
               <xsl:when test="matches($target-name, 'css:border-((top|bottom|left|right)-)?color')"> 
                 <!-- if borders are tinted no new fill-value attribute must be created! -->
