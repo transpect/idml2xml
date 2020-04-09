@@ -2790,10 +2790,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:variable name="applied-css-rule" as="element(css:rule)" 
                           select="for $i in current-group()[1]/@role 
                                   return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]"/>
-            <sidebar role="{concat($applied-css-rule/@name, 
-                                   '_', 
-                                   string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), 
-                                               '-'))}"
+            <sidebar role="{idml2xml:normalize-css-names(concat($applied-css-rule/@name, 
+                                                         '_', 
+                                                         string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), 
+                                                                     '-')))}"
                      remap="{string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/name(),
                                          ' ')}">
               <xsl:apply-templates select="current-group()" mode="#current">
