@@ -2382,17 +2382,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:line-height[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <!-- remove css properties in css:rules where para-borders and para-backgrounds are not activated -->
-  <xsl:template match="css:rule[(@hub:para-border eq 'false') or not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
-                      |css:rule[(@hub:para-background eq 'false') or not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]
+  <xsl:template match="css:rule[@hub:para-border]/@*[starts-with(name(), 'hub:para-border')]
+                      |css:rule[@hub:para-background]/@*[starts-with(name(), 'hub:para-background')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-border')] and not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-background')] and not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
-  
-  <xsl:template match="css:rule[@hub:para-border eq 'true']/@*[starts-with(name(), 'hub:para-border')]
-                      |css:rule[@hub:para-background eq 'true']/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
-    <xsl:attribute name="{local-name()}" select="."/>
-  </xsl:template>        
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>        
   
   <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
@@ -2775,16 +2769,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:for-each-group select="*" 
                           group-adjacent="string-join(for $i in @role 
                                                       return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]
-                                                                                                 [   @hub:para-background eq 'true'
-                                                                                                  or @hub:para-border eq 'true']
+                                                                                                 [(@hub:para-background, 
+                                                                                                   @hub:para-border) = 'true']
                                                                                                  /@*[starts-with(name(), 'hub:para-')],
                                                       '-')">
         <xsl:choose>
           <xsl:when test="string-length(current-grouping-key()) ne 0">
-            <sidebar role="{string-join(for $i in current-group()[1]/@role 
-                                        return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]
-                                                                                   /(@hub:para-background, @hub:para-border)[. eq 'true']/name(),
-                                        ' ')}">
+            <xsl:variable name="applied-css-rule" as="element(css:rule)" 
+                          select="for $i in current-group()[1]/@role 
+                                  return /dbk:hub/dbk:info/css:rules/css:rule[@name eq $i]"/>
+            <sidebar role="{concat($applied-css-rule/@name, 
+                                   '_', 
+                                   string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), 
+                                               '-'))}"
+                     remap="{string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/name(),
+                                         ' ')}">
               <xsl:apply-templates select="current-group()" mode="#current">
                 <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
                 <xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
@@ -2808,6 +2807,25 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:call-template name="orphaned-indexterms"/>
         </para>
       </xsl:if>
+    </xsl:copy>
+  </xsl:template>
+  
+  <!-- generate css:rules for para background and para borders -->
+  <xsl:template match="css:rules[css:rule[(@hub:para-background, @hub:para-border) = 'true']]" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, css:rule" mode="#current"/>
+      <xsl:for-each select="css:rule[(@hub:para-background, @hub:para-border) = 'true']">
+        <css:rule name="{@name}_{string-join((@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), '-')}" 
+                  native-name="{@native-name}_{string-join((@hub:para-background, @hub:para-border)[. eq 'true']/local-name(), '-')}"
+                  layout-type="object">
+          <xsl:for-each select="@*[starts-with(name(), 'hub:para-')]
+                                  [not(name() = ('hub:para-background', 'hub:para-border'))]
+                                  [not(starts-with(name(), 'hub:para-border-padding-'))] (: currently not applicable in css :)">
+            <xsl:attribute name="{replace(local-name(), '^para-', 'css:')}" select="."/>
+          </xsl:for-each>
+        </css:rule>
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
   
