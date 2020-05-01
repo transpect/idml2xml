@@ -596,11 +596,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'condition'">
-        <idml2xml:attribute name="remap">HiddenText</idml2xml:attribute>
-        <idml2xml:attribute name="condition">
-          <xsl:value-of select="replace($val, 'Condition/', '')"/>
-        </idml2xml:attribute>
-        <xsl:apply-templates select="key('idml2xml:by-Self', tokenize($val, '\s+'), root($val))/@Visible" mode="#current"/>
+        <xsl:if test="normalize-space($val)">
+          <idml2xml:attribute name="remap">HiddenText</idml2xml:attribute>
+          <idml2xml:attribute name="condition">
+            <xsl:value-of select="replace($val, 'Condition/', '')"/>
+          </idml2xml:attribute>
+          <xsl:apply-templates select="key('idml2xml:by-Self', tokenize($val, '\s+'), root($val))/@Visible" mode="#current"/>
+        </xsl:if>
       </xsl:when>
 
       <xsl:when test=". eq 'lang'"/>

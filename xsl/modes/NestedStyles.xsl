@@ -111,7 +111,7 @@
             <!-- Record ancestors that are not plain character style ranges so that we can report them later 
                  if they are split at this separator’s position: -->
             <idml2xml:sep ancestors="{$context/(ancestor::* intersect ancestor::*[@aid:pstyle][1]/descendant::*)
-                                                  [not(self::idml2xml:genSpan[not(@AppliedConditions)])]/name()}">
+                                                  [not(self::idml2xml:genSpan[not(@AppliedConditions[normalize-space()])])]/name()}">
               <xsl:sequence select="."/>
             </idml2xml:sep>
           </xsl:matching-substring>

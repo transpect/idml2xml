@@ -19,7 +19,7 @@
 
   <xsl:template match="idml2xml:genSpan[*[name() = ($idml2xml:shape-element-names, 'idml2xml:genFrame')]]
                                        [every $n in node() satisfies (name($n) = ($idml2xml:shape-element-names, 'idml2xml:genFrame'))]
-                                       [not(@AppliedConditions)]"
+                                       [not(@AppliedConditions[normalize-space()])]"
     mode="idml2xml:AutoCorrect" priority="1.5">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
@@ -235,7 +235,7 @@
                                        [count(*) = (1, 2)]
                                        [every $text in text() satisfies (not(matches($text, '\S')))]
                                        [every $node in node()[not(self::text())] satisfies ($node/local-name() = ('Rectangle', 'genTable', 'Properties'))]
-                                       [not(@AppliedConditions) and Rectangle]" 
+                                       [not(@AppliedConditions[normalize-space()]) and Rectangle]" 
                 mode="idml2xml:AutoCorrect-clean-up" priority="3">
     <xsl:apply-templates select="*[self::idml2xml:genTable or self::Rectangle]" mode="#current"/>
   </xsl:template>
