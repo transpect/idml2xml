@@ -309,7 +309,9 @@
         </prop>
         <prop name="xlink:href" type="passthru"/>
 
-        <prop name="NumberingApplyRestartPolicy" target-name="hub:restart-at-higher-level" type="linear"/>
+        <prop name="NumberingApplyRestartPolicy" target-name="hub:restart" type="linear"/>
+        <prop name="idml2xml:NumberingRestartPoliciesLowerLevel" target-name="hub:restart-at-lower-level" type="linear"/>
+        <prop name="idml2xml:NumberingRestartPoliciesUpperLevel" target-name="hub:restart-at-upper-level" type="linear"/>
         <prop name="BulletsAlignment" implement="maybe later" />
         <prop name="NumberingAlignment" implement="maybe later" />
         <prop name="BulletsTextAfter" implement="maybe later" />

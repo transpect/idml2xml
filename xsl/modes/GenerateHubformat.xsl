@@ -1586,12 +1586,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:if>
       <xsl:variable name="preceding-same-family" as="element(idml2xml:genPara)*" 
         select="key('idml2xml:paras-by-numbering-family', $numfam)[. &lt;&lt; current()]"/>
-      <xsl:variable name="preceding-higher" as="element(idml2xml:genPara)*" 
-        select="$preceding-same-family[(if (@aid:pstyle)
-                                        then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
-                                        else (),
-                                        @*:numbering-level)[last()]
-                                       &lt; $numlvl]"/>
       <xsl:variable name="preceding-same" as="element(idml2xml:genPara)*"
         select="$preceding-same-family[(if (@aid:pstyle)
                                         then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
@@ -1600,7 +1594,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                        = $numlvl]"/>
       <!-- reminder: higher level means lower level number -->
       <xsl:variable name="restart-at-higher-level" as="xs:boolean"
-        select="($pstyle/@hub:restart-at-higher-level, @hub:restart-at-higher-level)[last()] = 'true'"/>
+        select="($pstyle/@hub:restart, @hub:restart)[last()] = 'true'"/>
+      <xsl:variable name="restart-level" as="xs:integer?"
+        select="for $lvl in ($pstyle/@hub:restart-at-upper-level, @hub:restart-at-upper-level)[last()]
+                  return xs:integer($lvl)"/>
+      <xsl:variable name="preceding-higher" as="element(idml2xml:genPara)*" 
+        select="if ($restart-level eq 0) 
+                then ($preceding-same-family[(if (@aid:pstyle)
+                                               then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
+                                               else (),
+                                               @*:numbering-level)[last()] 
+                                               &lt; $numlvl])
+                else $preceding-same-family[(if (@aid:pstyle)
+                                             then key('idml2xml:style-by-role', idml2xml:StyleName(@aid:pstyle))/@*:numbering-level 
+                                             else (),
+                                             @*:numbering-level)[last()] 
+                                             = $restart-level]"/>
       <xsl:variable name="continue" as="xs:boolean"
         select="($text-default/@hub:numbering-continue, $pstyle/@hub:numbering-continue, @hub:numbering-continue)[last()] = 'true'"/>
       <xsl:variable name="restart" as="xs:boolean"
@@ -2507,7 +2516,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none' or matches(., '^-')] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
-  <xsl:template match="@css:border-bottom | @css:border-top| @hub:restart-at-higher-level 
+  <xsl:template match="@css:border-bottom | @css:border-top| @[matches(name(), 'hub:restart')]
     | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
     | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam | @idml2xml:aux-list-picture-string
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
@@ -2926,21 +2935,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:variable name="start" as="element(dbk:para)?" 
           select="(($same-list-famlvl)[@idml2xml:aux-list-restart = 'true'])[last()]"/>
         <xsl:variable name="in-between" as="element(dbk:para)*"
-          select="$same-list-famlvl[not(@css:display = 'block')]
-                                   [(@role = $all-list-styles 
-                                     or (
-                                      @css:list-style-type
-                                      and
-                                      @css:list-style-type = $numbered-list-styles
-                                      and
-                                      @css:display = 'list-item'
-                                     )
-                                  )
-                                  and
-                                  (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()] 
-                                   = $numbered-list-styles
-                                 ]
-                                 [. &gt;&gt; $start]"/>
+                    select="$same-list-famlvl[not(@css:display = 'block')]
+                                             [(@role = $all-list-styles
+                                               or (
+                                                @css:list-style-type
+                                                and
+                                                @css:list-style-type = $numbered-list-styles
+                                                and
+                                                @css:display = 'list-item'
+                                               )
+                                            )
+                                            and
+                                            (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()]
+                                             = $numbered-list-styles
+                                           ]
+                                           [. &gt;&gt; $start]"/>        
         <xsl:variable name="list-start" as="xs:string"
           select="(($start/@hub:numbering-starts-at, key('idml2xml:style-by-role', $start/@role)/@hub:numbering-starts-at)[1], '1')[1]"/>
         <xsl:variable name="override" as="xs:integer?" 
@@ -2959,44 +2968,21 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           (@css:list-style-type, key('idml2xml:style-by-role', @role)/@css:list-style-type)[1] = $numbered-list-styles
                         ]
                       ) + 1"/>
-<!--            <xsl:if test="@srcpath='Stories/Story_u105.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[47]'">
-              <xsl:message>
-                <xsl:element name="phrase">
-              <xsl:attribute name="role" select="'hub:identifier'"/>
-              <!-\- The picture strings are not reproduced 1:1 according to their levels -\->
-              <xsl:variable name="picture-string"
-                select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
-              <xsl:variable name="picture-result"
-                select="(
-                          replace(
-                            replace(
-                              $picture-string, 
-                              '\^#', 
-                              idml2xml:numbering-format($list-style-type)
-                            ), 
-                            '(\^[tm&gt;&lt;=pJBeH\|/\.]|\^\d\.?)',
-                            ''
-                          ), 
-                          $list-style-type
-                        )[1]"
-                as="xs:string"/>
-              <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
-              <!-\-    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
-    								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
-    							</xsl:if>-\->
-            </xsl:element>
-              </xsl:message>
-            </xsl:if>-->
+            <xsl:variable name="picture-string"
+              select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
             <xsl:element name="phrase">
               <xsl:attribute name="role" select="'hub:identifier'"/>
-              <!-- The picture strings are not reproduced 1:1 according to their levels -->
-              <xsl:variable name="picture-string"
-                select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
+              <!-- The picture strings should now be reproduced 1:1 according to their levels -->              
+              <xsl:variable name="prefix" select="substring-before($picture-string, '^')" as="xs:string?"/>
+              <xsl:if test="$prefix">
+                <xsl:value-of select="$prefix"/>
+              </xsl:if>
+              <xsl:variable name="stripped-picture-string" select="if ($prefix) then replace($picture-string, $prefix, '') else $picture-string" as="xs:string"/>
               <xsl:variable name="picture-result"
                 select="(
                           replace(
                             replace(
-                              $picture-string, 
+                              $stripped-picture-string, 
                               '\^#', 
                               idml2xml:numbering-format($list-style-type)
                             ), 
@@ -3006,11 +2992,29 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           $list-style-type
                         )[1]"
                 as="xs:string"/>
+              <xsl:if test="@idml2xml:aux-list-level ne '1'">
+                <xsl:variable name="pre" as="xs:string*">
+                <xsl:for-each select="tokenize($stripped-picture-string, '\^')[normalize-space()]">
+                  <xsl:if test="replace(current(), '\D', '')[normalize-space()]">
+                    <xsl:variable name="pre-same-list-famlvl" as="element(dbk:para)*"
+                      select="$same-list-family[@idml2xml:aux-list-level = replace(current(), '\D', '')]"/>
+                    <xsl:variable name="pre-start" as="element(dbk:para)?" 
+                      select="(($pre-same-list-famlvl)[@idml2xml:aux-list-restart = 'true'])[last()]"/>
+                    <xsl:value-of select="concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+1, '.')"/>
+                  </xsl:if>
+                </xsl:for-each>
+                </xsl:variable>
+                <xsl:value-of select="string-join($pre, '')"/>
+              </xsl:if>
+                            
               <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
               <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
     							</xsl:if>-->
             </xsl:element>
+            <xsl:if test="ends-with($picture-string, '^t')">
+              <tab>&#x9;</tab>
+            </xsl:if>
           </xsl:if>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:if test=". is $orphaned-indexterm-para">
@@ -3024,7 +3028,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
     <!-- the problem still exists that lists may not be recognized after style name mapping because of the indentation.-->
   </xsl:template>
-	
+  
   <xsl:function name="idml2xml:numbering-format" as="xs:string">
     <xsl:param name="list-style-type" as="xs:string"/>
     <xsl:choose>

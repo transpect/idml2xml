@@ -867,6 +867,16 @@
     <xsl:attribute name="idml2xml:rst" select="idml2xml:RemoveTypeFromStyleName($sne)"/>
   </xsl:template>
   
+  <xsl:template match="ParagraphStyle/Properties/NumberingRestartPolicies" mode="idml2xml:Document">
+    <xsl:next-match/>
+    <idml2xml:NumberingRestartPoliciesLowerLevel>
+      <xsl:value-of select="@LowerLevel"/>
+    </idml2xml:NumberingRestartPoliciesLowerLevel>
+    <idml2xml:NumberingRestartPoliciesUpperLevel>
+      <xsl:value-of select="@UpperLevel"/>
+    </idml2xml:NumberingRestartPoliciesUpperLevel>
+  </xsl:template>
+  
   <xsl:template match="Page/@Self | Group/@Self" mode="idml2xml:Document">
     <xsl:next-match/>
     <xsl:if test="$fixed-layout = 'yes'">
