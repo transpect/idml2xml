@@ -2516,7 +2516,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@css:border-bottom-width[../@css:border-bottom = 'none'] | @css:padding-bottom[../@css:border-bottom = 'none' or matches(., '^-')] | @css:border-bottom-color[../@css:border-bottom = 'none'] | @css:border-bottom-style[../@css:border-bottom = 'none']"
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
-  <xsl:template match="@css:border-bottom | @css:border-top| @[matches(name(), 'hub:restart')]
+  <xsl:template match="@css:border-bottom | @css:border-top| @*[matches(name(), 'hub:restart')]
     | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
     | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam | @idml2xml:aux-list-picture-string
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
