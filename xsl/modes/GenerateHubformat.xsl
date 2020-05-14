@@ -3007,14 +3007,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 <xsl:value-of select="string-join($pre, '')"/>
               </xsl:if>
                             
-              <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
+              <xsl:if test="matches($stripped-picture-string, '\^#')">             
+                <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
+              </xsl:if>
               <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
     							</xsl:if>-->
-            </xsl:element>
-            <xsl:if test="ends-with($picture-string, '^t')">
-              <tab>&#x9;</tab>
-            </xsl:if>
+            </xsl:element>            
           </xsl:if>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:if test=". is $orphaned-indexterm-para">
