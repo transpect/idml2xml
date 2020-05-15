@@ -2997,10 +2997,26 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 <xsl:for-each select="tokenize($stripped-picture-string, '\^')[normalize-space()]">
                   <xsl:if test="replace(current(), '\D', '')[normalize-space()]">
                     <xsl:variable name="pre-same-list-famlvl" as="element(dbk:para)*"
-                      select="$same-list-family[@idml2xml:aux-list-level = replace(current(), '\D', '')]"/>
+                      select="$same-list-family[@idml2xml:aux-list-level = replace(current(), '\D', '')]
+                                               [not(@css:display = 'block')]
+                                               [(@role = $all-list-styles
+                                               or (
+                                               @css:list-style-type
+                                               and
+                                               @css:list-style-type = $numbered-list-styles
+                                               and
+                                               @css:display = 'list-item'
+                                               )
+                                               )
+                                               or
+                                               (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()]
+                                               = $numbered-list-styles
+                                               ]"/>
                     <xsl:variable name="pre-start" as="element(dbk:para)?" 
-                      select="(($pre-same-list-famlvl)[@idml2xml:aux-list-restart = 'true'])[last()]"/>
-                    <xsl:value-of select="concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+1, '.')"/>
+                      select="(($pre-same-list-famlvl)[@hub:numbering-starts-at or @idml2xml:aux-list-restart = 'true'])[last()]"/>
+                    <xsl:value-of select=" if ($pre-start/@hub:numbering-starts-at) 
+                      then concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+xs:integer($pre-start/@hub:numbering-starts-at), '.')
+                      else concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+1, '.')"/>
                   </xsl:if>
                 </xsl:for-each>
                 </xsl:variable>
