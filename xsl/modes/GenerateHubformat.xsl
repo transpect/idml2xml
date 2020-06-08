@@ -2949,7 +2949,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                             (key('idml2xml:style-by-role', @role)[@css:display = 'list-item']/@css:list-style-type, @css:list-style-type)[last()]
                                              = $numbered-list-styles
                                            ]
-                                           [. &gt;&gt; $start]"/>        
+                                           [. &gt;&gt; $start]
+                                           [normalize-space()]"/>        
         <xsl:variable name="list-start" as="xs:string"
           select="(($start/@hub:numbering-starts-at, key('idml2xml:style-by-role', $start/@role)/@hub:numbering-starts-at)[1], '1')[1]"/>
         <xsl:variable name="override" as="xs:integer?" 
