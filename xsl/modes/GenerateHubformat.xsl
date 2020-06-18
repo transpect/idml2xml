@@ -3040,9 +3040,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
     							</xsl:if>-->
             </xsl:element>    
-            <xsl:if test="ends-with($picture-string, '^t')">
+            <!--<xsl:if test="ends-with($picture-string, '^t')">
                 <tab>&#x9;</tab>
-            </xsl:if>
+            </xsl:if>  
+            We need to not create this tab because otherwise some ordered list items will be recognized as variable list items
+    due to hub:is-variable-list-listitem-with-phrase-identifier(). They belong to a list that is neither itemized,
+    ordered, nor variable an will be processed using this fallback template:
+  <xsl:template match="orderedlist[some $x in listitem/para[1] 
+                                   satisfies exists($x//phrase[hub:same-scope(., $x)][hub:is-identifier(.)])
+                                   and not(hub:is-ordered-list(.)) 
+                                   and not(hub:is-itemized-list(.)) 
+                                   and not(hub:is-variable-list(.))]" mode="hub:lists">
+    ………
+  Test file: http://svn.le-tex.de/svn/ltxbase/Difftestdata/Hogrefe/hogrefe.ch/PRG/86048/idml/101024_86048_PRG.idml 
+  The list starts with "A. Ein durchgehendes Muster von Unaufmerksamkeit und/oder Hyperaktivität"
+  
+  We cannot simply remove the tab before nesting the lists because the variable list detection by tab is actually used.
+            -->
             
           </xsl:if>
           <xsl:apply-templates select="node()" mode="#current"/>
