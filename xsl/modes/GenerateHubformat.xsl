@@ -65,6 +65,11 @@
               <xsl:value-of select="/*/@TOCStyle_Title"/>
             </keyword>
           </xsl:if>
+          <xsl:if test="/*/@ChapterNumber">
+            <keyword role="chapter-number">
+              <xsl:value-of select="/*/@ChapterNumber"/>
+            </keyword>
+          </xsl:if>
           <xsl:if test="/*/@TypeAreaWidth">
             <keyword role="type-area-width">
               <xsl:value-of select="/*/@TypeAreaWidth"/>
@@ -2987,7 +2992,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                               '\^#', 
                               idml2xml:numbering-format($list-style-type)
                             ), 
-                            '(\^[tm&gt;&lt;=pJBeH\|/\.]|\^\d\.?)',
+                            '(\^[tm&gt;&lt;=pJBeH\|/\.]\.?|\^\d\.?)',
                             ''
                           ), 
                           $list-style-type
@@ -2996,7 +3001,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               <xsl:if test="@idml2xml:aux-list-level ne '1'">
                 <xsl:variable name="pre" as="xs:string*">
                 <xsl:for-each select="tokenize($stripped-picture-string, '\^')[normalize-space()]">
-                  <xsl:if test="replace(current(), '\D', '')[normalize-space()]">
+                  <xsl:if test="matches(current(), 'H\.')">
+                    <xsl:value-of select="concat(root($context)//dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'chapter-number'], '.')"/>
+                  </xsl:if>
+                  <xsl:if test="replace(current(), '\D', '')[normalize-space()]">      
                     <xsl:variable name="pre-same-list-famlvl" as="element(dbk:para)*"
                       select="$same-list-family[@idml2xml:aux-list-level = replace(current(), '\D', '')]
                                                [not(@css:display = 'block')]
@@ -3017,20 +3025,25 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                       select="(($pre-same-list-famlvl)[@hub:numbering-starts-at or @idml2xml:aux-list-restart = 'true'])[last()]"/>
                     <xsl:value-of select=" if ($pre-start/@hub:numbering-starts-at) 
                       then concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+xs:integer($pre-start/@hub:numbering-starts-at), '.')
-                      else concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+1, '.')"/>
+                      else concat(count($pre-same-list-famlvl[. &gt;&gt; $pre-start])+1, '.')"/>                    
                   </xsl:if>
                 </xsl:for-each>
                 </xsl:variable>
+                
                 <xsl:value-of select="string-join($pre, '')"/>
               </xsl:if>
                             
-              <xsl:if test="matches($stripped-picture-string, '\^#')">             
+              <xsl:if test="matches($stripped-picture-string, '\^#')">  
                 <xsl:number format="{idml2xml:numbering-format($picture-result)}" value="($override, $list-item-position)[1]"/>
               </xsl:if>
               <!--    							<xsl:if test="$context[@srcpath = 'Stories/Story_u2cc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[12]/CharacterStyleRange[2]/Table[1]/Cell[3]/ParagraphStyleRange[5]']">
     								<xsl:message select="'###########',$override, '|||', $list-item-position, ' ❧❧❧ ', idml2xml:numbering-format($list-style-type), '  |||| ', $picture-string, '  |||| ', $picture-result"/>
     							</xsl:if>-->
-            </xsl:element>            
+            </xsl:element>    
+            <xsl:if test="ends-with($picture-string, '^t')">
+                <tab>&#x9;</tab>
+            </xsl:if>
+            
           </xsl:if>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:if test=". is $orphaned-indexterm-para">
