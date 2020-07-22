@@ -2979,7 +2979,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             <xsl:element name="phrase">
               <xsl:attribute name="role" select="'hub:identifier'"/>
               <!-- The picture strings should now be reproduced 1:1 according to their levels -->              
-              <xsl:variable name="prefix" select="substring-before($picture-string, '^')[not(matches(.,'^\($'))]" as="xs:string?"/>
+              <xsl:variable name="prefix" select="substring-before($picture-string, '^')[not(matches(.,'^\(\d?\.?$'))]" as="xs:string?"/>
               <xsl:if test="$prefix">
                 <xsl:value-of select="$prefix"/>
               </xsl:if>
