@@ -357,7 +357,7 @@
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
                           else false())"/>
   </xsl:function>-->
-
+  <xsl:key name="Every-TextFrame-by-ParentStory" match="TextFrame" use="@ParentStory"/>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">
     <xsl:variable name="context" select="."/>
@@ -430,6 +430,7 @@
           <xsl:when test="not($story/@Self = ancestor::Story/@Self)">
             <!-- If the looked-up story has the same @Self as the current StoryRef, do nothing. -->
             <xsl:variable name="anchored-frame" select="key('TextFrame-by-ParentStory', $story/@Self)" as="element(*)"/>
+            <xsl:variable name="all-anchored-frames" select="key('Every-TextFrame-by-ParentStory', $story/@Self)" as="element(*)*"/>
             <xsl:variable name="potential-group" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]"
               as="element(*)"/>
             <xsl:choose>
@@ -444,7 +445,15 @@
                 <xsl:for-each select="$potential-group">
                  <xsl:choose>
                    <xsl:when test="$potential-group[self::TextFrame[@PreviousTextFrame eq 'n']]">
-                     <xsl:call-template name="textframes"/>
+                     <xsl:variable name="reason-attr" as="attribute(idml2xml:reason)">
+                       <xsl:attribute name="idml2xml:reason" select="'Group-threaded'"/>
+                        <!-- this warns if a group is anchored that consists of a textframe which is threaded to a textframe outside the group -->
+                      </xsl:variable>
+                     <xsl:call-template name="textframes">
+                       <xsl:with-param name="reason-attribute"  select="if (count($all-anchored-frames) gt 1 and not($all-anchored-frames/parent::Group[TextFrame[@PreviousTextFrame = 'n']]))
+                         then $reason-attr else ()"/>
+                       
+                     </xsl:call-template>
                    </xsl:when>
                    <xsl:otherwise>
                       <xsl:copy>
@@ -625,9 +634,13 @@
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
 
   <xsl:template name="textframes" match="TextFrame[@PreviousTextFrame eq 'n']" mode="idml2xml:DocumentResolveTextFrames">
+    <xsl:param name="reason-attribute"  as="attribute(idml2xml:reason)?"/>
     <xsl:copy>
       <xsl:if test="Properties/Label/KeyValuePair[@Key='letex:category']">
         <xsl:attribute name="idml2xml:label" select="Properties/Label/KeyValuePair[@Key='letex:category']/@Value"/>
+      </xsl:if>
+     <xsl:if test="exists($reason-attribute)">
+        <xsl:sequence select="$reason-attribute"/>
       </xsl:if>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
