@@ -2760,25 +2760,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>  
   
   <xsl:template match="/*" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="0.75">
-    <xsl:variable name="orphaned-indexterm-para-candidates" as="element(dbk:para)*"
-      select="dbk:para[normalize-space()]
-                      [not(every $n in node() 
-                           satisfies ($n/self::dbk:mediaobject | $n/self::dbk:informaltable | $n/self::dbk:anchor))]
-                      [not(matches(@role, '(imprint|index|toc|title|note)'))]
-                      [not(.//@condition)]"/>
-    <xsl:variable name="orphaned-indexterm-para" as="element(dbk:para)?">
-      <xsl:choose>
-        <xsl:when test="count($orphaned-indexterm-para-candidates) = 0">
-          <xsl:sequence select="dbk:para[1]"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:sequence select="$orphaned-indexterm-para-candidates[count($orphaned-indexterm-para-candidates) idiv 2 + 1]"/>
-          <!-- not the last as previously because the last para might get discarded (unanchored table caption 
-            continuations, etc., see https://redmine.le-tex.de/issues/5782). 
-            The first paras are also likely to be discarded (imprint, ToC, etc.). -->
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
     <xsl:variable name="all-list-paras" as="element(dbk:para)*"
                  select="/dbk:hub//dbk:para[
                                     (
@@ -2813,7 +2794,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                      remap="{string-join($applied-css-rule/(@hub:para-background, @hub:para-border)[. eq 'true']/name(),
                                          ' ')}">
               <xsl:apply-templates select="current-group()" mode="#current">
-                <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
                 <xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
                 <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" 
                                 select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
@@ -2822,7 +2802,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="current-group()" mode="#current">
-              <xsl:with-param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes" select="$orphaned-indexterm-para"/>
               <xsl:with-param name="all-list-paras" as="element(dbk:para)*" tunnel="yes" select="$all-list-paras"/>
               <xsl:with-param name="multiple-layers" as="xs:boolean" tunnel="yes" 
                               select="count(/dbk:hub/dbk:info/css:rules/css:rule[@layout-type = 'layer']) &gt; 1"/>
@@ -2830,14 +2809,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each-group>
-      <xsl:if test="not($orphaned-indexterm-para)">
-        <para>
-          <xsl:call-template name="orphaned-indexterms"/>
-        </para>
-      </xsl:if>
     </xsl:copy>
   </xsl:template>
-  
+
+  <xsl:template match="/*/dbk:info" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()" mode="#current"/>
+      <xsl:call-template name="orphaned-indexterms"/>
+    </xsl:copy>
+  </xsl:template>
+
   <!-- generate css:rules for para background and para borders -->
   <xsl:template match="css:rules[css:rule[(@hub:para-background, @hub:para-border) = 'true']]" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
@@ -2864,16 +2845,22 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <xsl:template name="orphaned-indexterms">
-    <xsl:for-each select="//idml2xml:indexterms/dbk:indexterm[not(@page-reference)]">
-      <xsl:copy copy-namespaces="no">
-        <xsl:apply-templates select="@* except @see-crossref-topics, node()" mode="#current"/>
-        <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
-          <see>
-            <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
-          </see>
-        </xsl:if>
-      </xsl:copy>
-    </xsl:for-each>
+    <xsl:variable name="orphaned-indexterms" as="element(dbk:indexterm)*" 
+      select="//idml2xml:indexterms/dbk:indexterm[not(@page-reference)]"/>
+    <xsl:if test="exists($orphaned-indexterms)">
+      <itermset>
+        <xsl:for-each select="$orphaned-indexterms">
+          <xsl:copy copy-namespaces="no">
+            <xsl:apply-templates select="@* except @see-crossref-topics, node()" mode="#current"/>
+            <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
+              <see>
+                <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
+              </see>
+            </xsl:if>
+          </xsl:copy>
+        </xsl:for-each>
+      </itermset>  
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="dbk:para" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
