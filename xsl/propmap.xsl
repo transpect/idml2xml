@@ -149,6 +149,7 @@
           <val match="Medium" target-name="css:pseudo-marker_font-weight" target-value="normal" />
           <val match="Regular" target-name="css:pseudo-marker_font-weight" target-value="normal" />
           <val match="Roman" target-name="css:pseudo-marker_font-weight" target-value="normal" />
+          <val match="Black|Heavy" target-name="css:pseudo-marker_font-weight" target-value="900" />
         </prop>
         <prop name="Capitalization">
           <val eq="SmallCaps" target-name="css:font-variant" target-value="small-caps"/>
@@ -184,9 +185,11 @@
           <val eq="Light" target-name="css:font-weight" target-value="300" />
           <val match="^\d+ Light$" target-name="css:font-style" target-value="normal" />
           <val match="Semi[bB]old" target-name="css:font-weight" target-value="600" />
-          <val match="Black" target-name="css:font-weight" target-value="900" />
+          <val match="(Black|Heavy)" target-name="css:font-weight" target-value="900" />
           <val eq="Black" target-name="css:font-style" target-value="normal" />
           <val eq="Black" target-name="css:font-weight" target-value="900" />
+          <val eq="Heavy" target-name="css:font-style" target-value="normal" />
+          <val eq="Heavy" target-name="css:font-weight" target-value="900" />
           <val match="(Italic|Kursiv)" target-name="css:font-style" target-value="italic" />
           <val eq="Italic" target-name="css:font-style" target-value="italic" />
           <val eq="Italic" target-name="css:font-weight" target-value="normal" />
