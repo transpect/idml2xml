@@ -2099,10 +2099,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" as="xs:integer"/>
           <xsl:choose>
             <xsl:when test="number(@aid:ccols) gt 1">
+              <xsl:variable name="colwidths" select="../Column/@SingleColumnWidth" as="xs:double*"/>
               <xsl:attribute name="namest" select="concat('c',$col)"/>
               <xsl:attribute name="nameend" select="concat('c',$col + $colspan - 1)"/>
-              <xsl:attribute name="css:width" 
-                select="idml2xml:pt-length(string(sum(../Column/@SingleColumnWidth[position() = ($col to $col + $colspan - 1)])))"/>
+              <xsl:attribute name="css:width" select="idml2xml:pt-length(string(sum($colwidths[position() = ($col to $col + $colspan - 1)])))"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:attribute name="colname" select="concat('c',number(@aid:colname)+1)"/>
