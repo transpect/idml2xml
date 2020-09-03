@@ -619,6 +619,14 @@
         <prop name="ParagraphShadingRightOffset" type="length" target-name="hub:para-background-padding-right"/>
         <prop name="ParagraphShadingBottomOffset" type="length" target-name="hub:para-background-padding-bottom"/>
         <prop name="ParagraphShadingLeftOffset" type="length" target-name="hub:para-background-padding-left"/>
+
+        <prop name="RotationAngle"  >
+          <val match="(270|90)" target-name="css:text-orientation" target-value="sideways" />
+          <val match="(270|90)" target-name="css:writing-mode" target-value="vertical-lr" />
+           <!-- Text Rotation in Cells. rotate doesn't enlarge cells automatically whereas text-orientation does. -->
+          <!--<val eq="180" target-name="css:transform" target-value="rotate(180deg)" />-->
+        </prop>
+        
         <prop name="OTFFigureStyle" implement="maybe later" />
         <prop name="DesiredWordSpacing" implement="maybe later" />
         <prop name="MaximumWordSpacing" implement="maybe later" />
