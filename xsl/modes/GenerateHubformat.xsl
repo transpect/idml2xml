@@ -2529,11 +2529,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
     <xsl:template match="dbk:entry[key('idml2xml:style-by-role', @role)[@css:vertical-align = 'top' or not(@css:vertical-align)]]/@css:vertical-align[. = 'top']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
-  <xsl:template match="  @css:border-top-color[. = 'transparent'][../@css:border-top-width[. = '0pt']] 
-                       | @css:border-bottom-color[. = 'transparent'][../@css:border-bottom-width[. = '0pt']] 
-                       | @css:border-top-style[../@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] 
-                       | @css:border-bottom-style[../@css:border-bottom-width[. = '0pt']][../@css:border-bottom-color[. = 'transparent']]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="  @css:border-top-color[. = 'transparent'][..[not(self::css:rule)]/@css:border-top-width[. = '0pt']] 
+                       | @css:border-bottom-color[. = 'transparent'][..[not(self::css:rule)]/@css:border-bottom-width[. = '0pt']] 
+                       | @css:border-top-style[..[not(self::css:rule)]/@css:border-top-width[. = '0pt']][../@css:border-top-color[. = 'transparent']] 
+                       | @css:border-bottom-style[..[not(self::css:rule)]/@css:border-bottom-width[. = '0pt']][../@css:border-bottom-color[. = 'transparent']]" 
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- MP: shouldn't left and right styles also be cleaned? I preserved the top and border attributes in css:rules to avoid heritage problems on table cells (especially style)-->
+  </xsl:template>
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
