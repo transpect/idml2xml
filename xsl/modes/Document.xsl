@@ -109,7 +109,10 @@
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:attribute name="TOCStyle_Title" select="//TOCStyle[@Title ne ''][1]/@Title"/>
       <xsl:if test="//ChapterNumberPreference[@ChapterNumber ne ''][1]/@ChapterNumber">
-        <xsl:attribute name="ChapterNumber" select="//ChapterNumberPreference[@ChapterNumber ne ''][1]/@ChapterNumber"/>
+        <xsl:attribute name="ChapterNumber">
+          <xsl:number value="//ChapterNumberPreference[@ChapterNumber ne ''][1]/@ChapterNumber" 
+            format="{substring-before(//ChapterNumberPreference[@ChapterNumber ne ''][1]/Properties/ChapterNumberFormat, ',')}"/>
+        </xsl:attribute>
       </xsl:if>
       <idml2xml:namespaces>
         <xsl:for-each-group

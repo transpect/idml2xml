@@ -2987,7 +2987,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           $list-style-type
                         )[1]"
                 as="xs:string"/>
-              <xsl:if test="@idml2xml:aux-list-level ne '1'">
+              <xsl:if test="@idml2xml:aux-list-level ne '1' or matches($stripped-picture-string, '\^H')">
                 <xsl:variable name="pre" as="xs:string*">
                 <xsl:for-each select="tokenize($stripped-picture-string, '\^')[normalize-space()]">
                   <xsl:if test="matches(current(), 'H\.')">
