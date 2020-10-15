@@ -283,14 +283,16 @@
   </xsl:template>
   
    <xsl:template match="Group[not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
+                             [not(ancestor::Story[1]//*[@AppliedConditions eq 'Condition/StoryID'])]
                              [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
                                                          satisfies 
                                                          (
                                                             some $token in tokenize(idml2xml:text-content($ref), ' ')[not(matches(.,'^\s*$'))] 
-                                                            satisfies (matches(replace(current()//KeyValuePair[@Key = 'letex:fileName'][1]/@Value,'\.\w+$',''),$token))
+                                                            satisfies (matches(replace((current()//KeyValuePair[@Key = 'letex:fileName']/@Value)[1],'\.\w+$',''),$token))
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
     <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
+    <!--  momentarily groups are discarded if containing image name contains a string that equals a StoryRef condition of the document-->
     <xsl:if test="$do-not-discard-kombiref-anchored-group">
       <xsl:next-match/>
     </xsl:if>
