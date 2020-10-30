@@ -1695,7 +1695,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                            or 
                            @aid:table = ('table')
                          ) or
-                         (exists(Rectangle) and @condition)
+                         (exists(*[name() = $idml2xml:shape-element-names]) and @condition)
                        ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span">
     <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/>
