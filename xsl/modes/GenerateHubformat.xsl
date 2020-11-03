@@ -363,7 +363,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" 
                 mode="idml2xml:XML-Hubformat-add-properties" priority="4">
     <xsl:copy>
-      <xsl:copy-of select="@*, node()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <!-- InDesgin CC: sidebars can be nested in Rectangles, https://redmine.le-tex.de/issues/9285 so children must be processed -->
+      <!-- <xsl:copy-of select="@*, node()"/>-->
     </xsl:copy>
   </xsl:template>
 
@@ -371,8 +373,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                         [@idml2xml:no-fileref-image = 'yes']" 
                 mode="idml2xml:XML-Hubformat-add-properties" priority="5">
     <xsl:copy>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:sequence select="node()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <!-- InDesgin CC: sidebars can be nested in Rectangles, https://redmine.le-tex.de/issues/9285 so children must be processed-->
+      <!-- <xsl:sequence select="node()"/>-->
     </xsl:copy>
   </xsl:template>
   
