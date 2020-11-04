@@ -2198,17 +2198,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="mediaobject-element" as="element(dbk:mediaobject)">
       <mediaobject>
         <xsl:if test="$fixed-layout = 'yes'">
-          <xsl:attribute name="xml:id" select="@idml2xml:id"/>
-          <xsl:attribute name="css:top" select="concat(xs:integer(round(xs:double(replace(@idml2xml:top, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
-          <xsl:attribute name="css:left" select="concat(xs:integer(round(xs:double(replace(@idml2xml:left, '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
-          <xsl:if test="@idml2xml:transform">
-            <xsl:attribute name="css:transform" select="@idml2xml:transform"/>
+          <xsl:attribute name="xml:id" select="(@xml:id, @idml2xml:id)[1]"/>
+          <xsl:attribute name="css:top" select="concat(xs:integer(round(xs:double(replace((@idml2xml:top, @css:top, 0)[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
+          <xsl:attribute name="css:left" select="concat(xs:integer(round(xs:double(replace((@idml2xml:left, @css:left, 0)[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
+          <xsl:if test="@idml2xml:transform or @css:transform">
+            <xsl:attribute name="css:transform" select="(@css:transform, @idml2xml:transform)[1]"/>
           </xsl:if>
-          <xsl:if test="@idml2xml:transform-origin">
-            <xsl:attribute name="css:transform-origin" select="@idml2xml:transform-origin"/>
+          <xsl:if test="@idml2xml:transform-origin or @css:transform-origin">
+            <xsl:attribute name="css:transform-origin" select="(@css:transform-origin, @idml2xml:transform-origin)[1]"/>
           </xsl:if>
-          <xsl:if test="@idml2xml:position">
-            <xsl:attribute name="css:position" select="@idml2xml:position"/>
+          <xsl:if test="@idml2xml:position or @css:position">
+            <xsl:attribute name="css:position" select="(@css:position, @idml2xml:position)[1]"/>
           </xsl:if>
         </xsl:if>
         <xsl:if test="exists($image-info/@shape-width)">
@@ -2217,10 +2217,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:if test="exists($image-info/@shape-height)">
           <xsl:attribute name="css:height" select="$image-info/@shape-height"/>
         </xsl:if>
-        <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
-        <xsl:if test="@idml2xml:z-index">
-          <xsl:attribute name="css:z-index" select="@idml2xml:z-index"/>
+        <xsl:if test="@idml2xml:z-index or @css:z-index">
+          <xsl:attribute name="css:z-index" select="(@css:z-index, @idml2xml:z-index)[1]"/>
         </xsl:if>
+        <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
         <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
           <xsl:if test="$image-info/@alt">
             <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
@@ -2258,9 +2258,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:choose>
       <xsl:when test="$fixed-layout = 'yes'">
         <para>
-          <anchor xml:id="page_{@idml2xml:page-nr}_{substring-after(@idml2xml:id, 'idml2xml_rectangle_')}"/>
+          <anchor xml:id="page_{@idml2xml:page-nr}_{substring-after((@xml:id, @idml2xml:id)[1], 'idml2xml_rectangle_')}"/>
           <xsl:sequence select="$mediaobject-element"/>
-          <anchor xml:id="pageend_{@idml2xml:page-nr}_{substring-after(@idml2xml:id, 'idml2xml_rectangle_')}"/>
+          <anchor xml:id="pageend_{@idml2xml:page-nr}_{substring-after((@xml:id, @idml2xml:id)[1], 'idml2xml_rectangle_')}"/>
         </para>
       </xsl:when>
       <xsl:otherwise>
