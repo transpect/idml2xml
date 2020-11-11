@@ -394,7 +394,7 @@
       </xsl:when>
       <xsl:when test="$target-element-name eq 'HyperlinkPageDestination'">
         <!-- linkend works in combination with page anchors -->
-        <idml2xml:link linkend="{concat('page_', key('hyperlinkPageItem-by-DestinationPage', $dest/@DestinationPage)/@pos-in-book)}" remap="{$target-element-name}" 
+        <idml2xml:link linkend="{concat('page_', key('hyperlinkPageItem-by-DestinationPage', $dest/@DestinationPage)/@idml2xml:pos-in-book)}" remap="{$target-element-name}" 
           annotations="{idml2xml:escape-id(.)}">
           <xsl:call-template name="idml2xml:extract-tagging_render-link-document-context">
             <xsl:with-param name="document-context" select="$document-context"/>

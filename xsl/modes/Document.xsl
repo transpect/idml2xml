@@ -132,7 +132,7 @@
         </idml2xml:sidebar>
         <xsl:for-each select="Page">
           <xsl:variable name="doc-position" select="count(preceding::Page[not(../self::MasterSpread)]) + 1" as="xs:integer"/>
-          <idml2xml:sidebar remap="Page" idml2xml:pos-in-book="{@Name}" idml2xml:pos-in-doc="{$doc-position}" idml2xml:id="idml2xml_page_{@Self}">
+          <idml2xml:sidebar remap="Page" Self="{@Self}" idml2xml:pos-in-book="{@Name}" idml2xml:pos-in-doc="{$doc-position}" idml2xml:id="idml2xml_page_{@Self}">
             <xsl:attribute name="idml2xml:width" 
               select="concat(
                         (
