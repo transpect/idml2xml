@@ -2405,6 +2405,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <!-- was only a temporary means in order to mark inactive lists -->
   </xsl:template>
   
+  <xsl:template match="dbk:link[@xlink:href = ''][not(matches(., '\w'))]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+     <xsl:apply-templates select="node()" mode="#current" />
+  </xsl:template>
+  
   <xsl:template match="@css:line-height[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
   <!-- remove css properties in css:rules where para-borders and para-backgrounds are not activated -->
