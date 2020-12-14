@@ -2192,6 +2192,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                      )
                    ) 
               else $LinkResourceURI"/>
+    <xsl:variable name="alt-text" as="xs:string?" 
+                  select="(Properties/Label/KeyValuePair[@Key = 'letex:altText']/@Value,
+                           replace($image-info/@alt, '&#xD;(&#xA;)?', ' '))[1]"/>
      <!-- *
           * mediaobject wrapper element
           * -->
@@ -2222,8 +2225,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:if>
         <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
         <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
-          <xsl:if test="$image-info/@alt">
-            <alt><xsl:value-of select="replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')"/></alt>
+          <xsl:if test="$alt-text">
+            <alt><xsl:value-of select="$alt-text"/></alt>
           </xsl:if>
         <imageobject>
           <xsl:if test="$preserve-original-image-refs eq 'yes' and Properties/Label/KeyValuePair[@Key = ('letex:fileName', 'px:bildFileName')]">
