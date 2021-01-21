@@ -800,7 +800,7 @@
     <xsl:variable name="transformation-matrix" as="xs:double*" 
       select="for $value in tokenize((@ItemTransform, '1 0 0 1 0 0')[1], ' ') return xs:double($value)"/>
     <xsl:variable name="id" select="@Self"/>
-    <xsl:variable name="original-point-array" as="element(point)+">
+    <xsl:variable name="original-point-array" as="element(point)*">
       <xsl:for-each select="Properties/PathGeometry/GeometryPathType/PathPointArray/PathPointType">
         <!-- put all points into new elements -->
         <point>
@@ -822,7 +822,7 @@
         </point>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:variable name="lowest-y" select="min($translated-point-array//@coord-y)" as="xs:double"/>
+    <xsl:variable name="lowest-y" select="min($translated-point-array//@coord-y)" as="xs:double?"/>
     <xsl:variable name="point-with-lowest-y-coords" as="element(point)*">
       <!-- in IDML the center of the spread is 0,0. the top of the page and the right page have negative y and x values-->
       <xsl:perform-sort select="$translated-point-array[@coord-y = $lowest-y]">
