@@ -805,7 +805,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:function name="idml2xml:pt-length" as="xs:string" >
     <xsl:param name="val" as="xs:string"/>
-    <xsl:sequence select="if($val != '')
+    <xsl:sequence select="if(not($val = ('', 'NaN')))
                           then concat(xs:string(xs:integer(xs:double($val) * 20) * 0.05), 'pt')
                           else ''"/>
   </xsl:function>
