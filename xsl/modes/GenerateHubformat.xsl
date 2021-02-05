@@ -525,7 +525,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                 <!-- if borders are tinted no new fill-value attribute must be created! -->
                 <xsl:if test="$tint-decl/@TintValue castable as xs:integer and not(xs:integer($tint-decl/@TintValue) eq -1)">
                   <idml2xml:attribute name="{replace($target-name, '^css:border-((top|bottom|left|right)-)?color', 'border-$1tint')}">
-                    <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
+                     <xsl:value-of select="round(xs:double($tint-decl/@TintValue)*100) * 0.0001" />
                   </idml2xml:attribute>
                 </xsl:if>
               </xsl:when>
@@ -1108,7 +1108,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:sequence
             select="idml2xml:tint-dec-rgb-triple(
                                 for $i in (tr:rgb-string-to-dec-triple(.)) return number($i), 
-                                ($last-fill-tint, 1.0)[1]
+                                if (tokenize($last-fill-tint, '\s+')[last()] castable as xs:double) then number(tokenize($last-fill-tint, '\s+')[last()]) else 1.0
                               )"
             />
         </xsl:when>
