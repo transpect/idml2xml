@@ -324,8 +324,8 @@
         <prop name="AutoLeading" implement="maybe later" />
         <prop name="BaselineShift" implement="maybe later" />
         <prop name="Composer" implement="maybe later" />
-        <prop name="DropCapCharacters" implement="maybe later" />
-        <prop name="DropCapLines" implement="maybe later" />
+        <prop name="DropCapCharacters" type="linear" target-name="hub:drop-cap-chars"/>
+        <prop name="DropCapLines" type="linear" target-name="hub:drop-cap-lines" />
         <prop name="HyphenateAfterFirst" implement="maybe later" />
         <prop name="HyphenateBeforeLast" implement="maybe later" />
         <prop name="HyphenateCapitalizedWords" implement="maybe later" />
