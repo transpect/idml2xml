@@ -632,7 +632,12 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
 
       <xsl:when test=". eq 'linear'">
-        <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
+        <xsl:choose>
+          <xsl:when test="../@target-name = ('hub:drop-cap-chars', 'hub:drop-cap-lines') and xs:integer($val) eq 0"/>
+          <xsl:otherwise>
+            <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 
       <xsl:when test=". eq 'list-type-declaration'">
