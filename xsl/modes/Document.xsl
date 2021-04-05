@@ -319,7 +319,7 @@
   </xsl:function>-->
 
   <!-- there may be multiple StoryRefs in a Story, but only one StoryID (if there were multiple StoryIDs,
-       theyâ€™d be concatenated) -->
+       they’d be concatenated) -->
   <xsl:key name="referencing-Story-by-StoryID" match="Story[.//*[@AppliedConditions eq 'Condition/StoryRef']]"
     use="for $r in .//*[@AppliedConditions eq 'Condition/StoryRef']//Content return idml2xml:text-content($r)"/>
   <!-- we do not allow StoryIDs/StoryRefs that consist of whistespace only -->
@@ -369,19 +369,22 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
-        <xsl:variable name="story" select="key('Story-by-StoryID', idml2xml:text-content(current()))" as="element(Story)*"/>
+        <xsl:variable name="text-content" as="xs:string" select="idml2xml:text-content(.)"/>
+        <xsl:variable name="story" select="key('Story-by-StoryID', $text-content)" as="element(Story)*"/>
         <xsl:variable name="figure-or-group" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
                                                                  [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                                 [replace(@Value,'\.\w+$','') = idml2xml:text-content(current())]]]],
+                                                                                 [replace(@Value,'\.\w+$','') = $text-content]]]],
                                                        //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
-                                                          [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))]]],
+                                                          [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $text-content)]]],
                                                       //*[self::Rectangle or self::Polygon or self::Oval]
-                                                         [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , idml2xml:text-content(current()))], 
+                                                         [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $text-content)], 
                                                      (//*[self::Rectangle or self::Polygon or self::Oval]
                                                          [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                         [replace(@Value,'\.\w+$','') = idml2xml:text-content(current())]])
+                                                                         [replace(@Value,'\.\w+$','') = $text-content]])
                                                      )[1]"/>
-          <xsl:choose>
+        <xsl:variable name="conventionally-anchored-story" as="element(Story)*" 
+          select="key('Story-by-Self', ancestor::Story//TextFrame/@ParentStory)"/>
+        <xsl:choose>
           <xsl:when test="count($story) eq 0 and count($figure-or-group) eq 0"><!-- doesn’t resolve, reproduce applied conditions and content 
             so that Schematron can report non-resolution -->
             <xsl:copy>
@@ -389,8 +392,17 @@
               <xsl:copy-of select="$context/@AppliedConditions, node()"/>
             </xsl:copy>
           </xsl:when>
+          <xsl:when test="$story/@Self = $conventionally-anchored-story/@Self">
+            <xsl:message>The story with StoryID "<xsl:value-of select="$text-content"/>" seems to be anchored conventionally, too. 
+              Using the conventionally anchored story with @Self="<xsl:value-of select="$story/@Self"/>".
+            </xsl:message>
+            <xsl:copy>
+              <xsl:attribute name="idml2xml:reason" select="'ConventionallyAnchored'"/>
+              <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+            </xsl:copy>    
+          </xsl:when>
           <xsl:when test="count($story) gt 1">
-            <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="idml2xml:text-content(.)"/>. 
+            <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="$text-content"/>. 
               Using only the first Story (with @Self <xsl:value-of select="$story[1]/@Self"/>).
             </xsl:message>
             <xsl:copy>
