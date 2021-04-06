@@ -392,15 +392,6 @@
               <xsl:copy-of select="$context/@AppliedConditions, node()"/>
             </xsl:copy>
           </xsl:when>
-          <xsl:when test="$story/@Self = $conventionally-anchored-story/@Self">
-            <xsl:message>The story with StoryID "<xsl:value-of select="$text-content"/>" seems to be anchored conventionally, too. 
-              Using the conventionally anchored story with @Self="<xsl:value-of select="$story/@Self"/>".
-            </xsl:message>
-            <xsl:copy>
-              <xsl:attribute name="idml2xml:reason" select="'ConventionallyAnchored'"/>
-              <xsl:copy-of select="$context/@AppliedConditions, node()"/>
-            </xsl:copy>    
-          </xsl:when>
           <xsl:when test="count($story) gt 1">
             <xsl:message>Multiple occurrences of StoryID <xsl:value-of select="$text-content"/>. 
               Using only the first Story (with @Self <xsl:value-of select="$story[1]/@Self"/>).
@@ -458,6 +449,15 @@
                   </xsl:apply-templates>
                 </xsl:for-each>
               </xsl:when>
+              <xsl:when test="$story/@Self = $conventionally-anchored-story/@Self">
+                <xsl:message>The story with StoryID "<xsl:value-of select="$text-content"/>" seems to be anchored conventionally, too. 
+    Using the conventionally anchored story with @Self="<xsl:value-of select="$story/@Self"/>". 
+                </xsl:message>
+                <xsl:copy>
+                  <xsl:attribute name="idml2xml:reason" select="'ConventionallyAnchored'"/>
+                  <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+                </xsl:copy>
+              </xsl:when>
               <xsl:otherwise>
                 <xsl:for-each select="$potential-group">
                  <xsl:choose>
@@ -467,9 +467,10 @@
                         <!-- this warns if a group is anchored that consists of a textframe which is threaded to a textframe outside the group -->
                       </xsl:variable>
                      <xsl:call-template name="textframes">
-                       <xsl:with-param name="reason-attribute"  select="if (count($all-anchored-frames) gt 1 and not($all-anchored-frames/parent::Group[TextFrame[@PreviousTextFrame = 'n']]))
+                       <xsl:with-param name="reason-attribute"  
+                         select="if (count($all-anchored-frames) gt 1 
+                                     and not($all-anchored-frames/parent::Group[TextFrame[@PreviousTextFrame = 'n']]))
                          then $reason-attr else ()"/>
-                       
                      </xsl:call-template>
                    </xsl:when>
                    <xsl:otherwise>
@@ -656,9 +657,7 @@
       <xsl:if test="Properties/Label/KeyValuePair[@Key='letex:category']">
         <xsl:attribute name="idml2xml:label" select="Properties/Label/KeyValuePair[@Key='letex:category']/@Value"/>
       </xsl:if>
-     <xsl:if test="exists($reason-attribute)">
-        <xsl:sequence select="$reason-attribute"/>
-      </xsl:if>
+      <xsl:sequence select="$reason-attribute"/>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
       <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)" mode="#current"/>
