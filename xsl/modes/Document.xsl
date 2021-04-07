@@ -656,9 +656,11 @@
  but apparently they have already been included by other means: ',
           string-join($objects-already-included-elsewhere/@Self, ', ')"/>
       </xsl:if>
-      <xsl:apply-templates select="@* except @AppliedConditions, * except $objects-already-included-elsewhere" mode="#current"/>
+      <xsl:apply-templates select="@*, * except $objects-already-included-elsewhere" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="@AppliedConditions[. = 'Condition/StoryRef']" mode="idml2xml:SeparateParagraphs-pull-down-psrange"/>
 
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>

@@ -21,6 +21,10 @@
        (i.e., at least one Br between two chunks of text), then the ParagraphStyleRange will
        be pulled inside the XMLElement. Other elements will be wrapped by the ParagraphStyleRange.
        -->
+  
+  <!-- There are templates in mode="idml2xml:SeparateParagraphs-pull-down-psrange" in Document.xsl, too.
+       They are for cleaning up frames that are redundantly anchored by StoryRef. -->
+  
   <xsl:template
     match="ParagraphStyleRange[XMLElement[idml2xml:has-many-paras(.)]][CharacterStyleRange[.//Content[idml2xml:same-scope(., current())]]]" 
     mode="idml2xml:SeparateParagraphs-pull-down-psrange">
