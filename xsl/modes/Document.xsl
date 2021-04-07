@@ -648,7 +648,7 @@
 
   <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef']/*[@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <xsl:variable name="objects-already-included-elsewhere" as="element(*)*"
-      select="*[key('by-Self', @Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]]"/>
+      select="key('by-Self', @Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]"/>
     <xsl:copy>
       <xsl:if test="exists($objects-already-included-elsewhere)">
         <xsl:attribute name="idml2xml:redundant-storyref-for" select="$objects-already-included-elsewhere/@Self"/>
