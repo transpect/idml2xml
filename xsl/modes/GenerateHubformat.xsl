@@ -2553,6 +2553,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   <xsl:template match="@css:border-width[../@layout-type = 'para'][../@css:border-top = 'none'][../@css:border-bottom = 'none']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   <xsl:template match="*[@condition = ('FigureRef', 'StoryID')]/@css:display[. = 'none'] | @condition[. = '']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  <xsl:template match="*[@condition = 'StoryID'][@remap = 'HiddenText']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- GI 2021-04-12: These are probably leftovers from failed or redundant anchorings, why should we keep them? -->
+  </xsl:template>
   <xsl:template match="@css:font-style[matches(., '(normal .+|.+ normal)')]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
       <!-- can happen that several contrary font-style attributes are created. normal won't win then. and to avoid invalid CSS, we discard it -->
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>

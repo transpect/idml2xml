@@ -455,7 +455,7 @@
                 </xsl:message>
                 <xsl:copy>
                   <xsl:attribute name="idml2xml:reason" select="'ConventionallyAnchored'"/>
-                  <xsl:copy-of select="$context/@AppliedConditions, node()"/>
+                  <xsl:apply-templates mode="#current"/>
                 </xsl:copy>
               </xsl:when>
               <xsl:otherwise>
@@ -646,21 +646,23 @@
                                                 ))]" 
                 mode="idml2xml:DocumentResolveTextFrames"/>
 
-  <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef']/*[@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
+  <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef'][*/@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <xsl:variable name="objects-already-included-elsewhere" as="element(*)*"
-      select="key('by-Self', @Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]"/>
+      select="key('by-Self', */@Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]"/>
     <xsl:copy>
       <xsl:if test="exists($objects-already-included-elsewhere)">
         <xsl:attribute name="idml2xml:redundant-storyref-for" select="$objects-already-included-elsewhere/@Self"/>
-        <xsl:message select="'The following objects have been anchored by StoryRef, 
- but apparently they have already been included by other means: ',
+        <xsl:message select="'The following objects have been anchored by StoryRef, but apparently they have already been included by other means: ',
           string-join($objects-already-included-elsewhere/@Self, ', ')"/>
       </xsl:if>
-      <xsl:apply-templates select="@*, * except $objects-already-included-elsewhere" mode="#current"/>
+      <xsl:apply-templates select="@*, * except *[@Self = $objects-already-included-elsewhere/@Self]" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="@AppliedConditions[. = 'Condition/StoryRef']" mode="idml2xml:SeparateParagraphs-pull-down-psrange"/>
+  
+  <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef']/Content[@idml2xml:reason = 'ConventionallyAnchored']"
+    mode="idml2xml:SeparateParagraphs-pull-down-psrange"/>
 
   <xsl:variable name="idml2xml:content-group-children" as="xs:string+"
     select="('TextFrame', 'AnchoredObjectSetting', 'TextWrapPreference', 'ObjectExportOption', $idml2xml:shape-element-names)"/>
