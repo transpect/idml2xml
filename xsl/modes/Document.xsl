@@ -473,6 +473,13 @@
                          then $reason-attr else ()"/>
                      </xsl:call-template>
                    </xsl:when>
+                    <xsl:when test=".[self::EndnoteTextFrame]">
+                     <xsl:element name="TextFrame">
+                       <xsl:attribute name="remap" select="'EndnoteTextFrame'"/>
+                       <xsl:apply-templates select="@*" mode="#current"/>
+                       <xsl:apply-templates select="$story" mode="#current"/>
+                     </xsl:element>
+                   </xsl:when>
                    <xsl:otherwise>
                       <xsl:copy>
                         <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
@@ -676,7 +683,13 @@
       <xsl:sequence select="$reason-attribute"/>
       <xsl:apply-templates select="@* | *" mode="#current" />
       <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
-      <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)" mode="#current"/>
+      <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)
+                                      [not(exists(key('referencing-Story-by-StoryID', string-join(
+                                                  for $ht in .//*[@AppliedConditions = 'Condition/StoryID']
+                                                  return idml2xml:text-content($ht),
+                                                  ''
+                                                )
+                                                )))]" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
