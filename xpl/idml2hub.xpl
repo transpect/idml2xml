@@ -150,8 +150,10 @@
         </p:xslt>
         <p:unescape-markup/>
       </p:viewport>
+      
       <p:delete name="remove-MathTools-Markup" 
-        match="*[@MTMathZone][not(descendant::mml:math or descendant::Rectangle)] | CharacterStyleRange[descendant::mml:math]/Content"/>
+                match="*[@MTMathZone][not(descendant::mml:math or descendant::Rectangle)]
+                      |CharacterStyleRange[descendant::mml:math]/Content[not(normalize-space())]"/>
     </p:when>
     <p:otherwise>
       <p:identity/>
