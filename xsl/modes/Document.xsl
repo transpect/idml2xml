@@ -527,7 +527,7 @@
                                                           [.//KeyValuePair[@Key = 'letex:fileName']
                                                           [@Value = $i]]),
                                                      (//*[self::Rectangle or self::Polygon or self::Oval]
-                                                        [ends-with(.//@LinkResourceURI, $i)]
+                                                        [some $uri in .//@LinkResourceURI satisfies ends-with($uri, $i)]
                                                       
                                                    ))[1]"/>
         <xsl:choose>
