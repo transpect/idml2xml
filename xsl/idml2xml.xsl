@@ -129,7 +129,4 @@
             return concat('XMLTag/', replace($eltname, ':', '%3a'))" 
     as="xs:string*" />
 
-  <xsl:variable name="item-not-on-workspace-pt-tolerance-val" 
-    select="xs:double($item-not-on-workspace-pt-tolerance)" as="xs:double"/>
-
 </xsl:stylesheet>

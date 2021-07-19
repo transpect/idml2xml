@@ -38,6 +38,10 @@
 
   <xsl:variable name="idml2xml:output-full-background-images" select="false()" as="xs:boolean"/>
 
+  <xsl:variable name="item-not-on-workspace-pt-tolerance-val" 
+    select="xs:double($item-not-on-workspace-pt-tolerance)" as="xs:double"/>
+
+
   <!-- GI 2015-11-01: Created this function ad hoc as a replacement for predicates 
     [name() = $idml2xml:idml-scope-terminal-names]. Reason: After ExtractTagging, there may by custom tags for table cells.
     I didn’t analyze yet whether is-scope-terminal and is-scope-origin should mean the same thing (i.e., should
