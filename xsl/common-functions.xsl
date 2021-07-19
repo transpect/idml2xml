@@ -528,15 +528,15 @@
          <xsl:variable name="causes" as="element(cause)+">
             <cause name="item outside single page (left side)" 
               present="{$item-real-right-x lt 0.0001 and $left-page-available and not($right-page-available) and count(root($item)//Spread/Page) eq 1 and 
-                        (: full-width image :) not(abs($item-real-left-x) lt ($spread-x + abs($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset))}"/>
+                        (: full-width image :) not(abs($item-real-left-x) lt ($spread-x + abs($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset + $item-not-on-workspace-pt-tolerance-val))}"/>
             <cause name="no page on left side" 
               present="{$item-real-right-x lt 0.0001 and not($left-page-available) and $right-page-available and not($single-paged-doc)}"/>
             <cause name="no page on right side" 
               present="{$item-real-left-x gt -0.0001 and not($right-page-available) and $left-page-available and not($single-paged-doc)}"/>
             <cause name="item placed outside of page left" 
-              present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + (abs($page-width) + root($item)//DocumentPreference/@DocumentBleedInsideOrLeftOffset)}"/>
+              present="{$item-real-center-x lt 0.0001 and abs($item-real-right-x) gt $spread-x + (abs($page-width) + root($item)//DocumentPreference/@DocumentBleedInsideOrLeftOffset + $item-not-on-workspace-pt-tolerance-val)}"/>
             <cause name="item placed outside of page right" 
-              present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) gt ($spread-x + ($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset)}"/>
+              present="{$item-real-center-x gt -0.0001 and abs($item-real-left-x) ge ($spread-x + ($page-width) + root($item)//DocumentPreference/@DocumentBleedOutsideOrRightOffset + $item-not-on-workspace-pt-tolerance-val)}"/>
           </xsl:variable>
 
             <!-- choose whether the item is on the workspace or not -->

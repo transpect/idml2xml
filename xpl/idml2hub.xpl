@@ -53,6 +53,14 @@
     </p:documentation>
   </p:option>
   <p:option name="mathtype-source-pi" required="false" select="'no'"/>
+  <p:option name="item-not-on-workspace-pt-tolerance" required="false" select="'0.01'">
+    <p:documentation>
+      <p>Tolerance value in point, wether an item is on workspace 
+      or not (=will be removed).</p>
+      <p>Negative values are possible.</p>
+      <p>Default is +0.01 point: sometimes InDesign is calculating and saving i.e. '6.77952…' for i.e. '6.78' in GUI.</p>
+    </p:documentation>
+  </p:option>
       
   <p:input port="xslt-stylesheet">
     <p:document href="../xsl/idml2xml.xsl"/>
@@ -123,6 +131,7 @@
     <p:with-option name="hub-version" select="$hub-version"/>  
     <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>
     <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>
+    <p:with-option name="item-not-on-workspace-pt-tolerance" select="$item-not-on-workspace-pt-tolerance"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </idml2xml:single-doc>
 

@@ -29,6 +29,7 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'debug/status'"/>
+  <p:option name="item-not-on-workspace-pt-tolerance" required="false" select="'0'"/>
   <p:option name="fail-on-error" select="'no'"/>
   
   <p:input port="xslt-stylesheet">
