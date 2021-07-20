@@ -11,6 +11,8 @@
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
     exclude-result-prefixes = "xs idPkg css math"
 >
+
+  <xsl:param name="output-items-not-on-workspace" select="'no'" as="xs:string"/>
   
   <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   
