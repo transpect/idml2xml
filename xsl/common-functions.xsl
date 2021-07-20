@@ -12,7 +12,7 @@
     exclude-result-prefixes = "xs idPkg css math"
 >
 
-  <xsl:param name="output-items-not-on-workspace" select="'no'" as="xs:string"/>
+  <xsl:param name="item-not-on-workspace-pt-tolerance" as="xs:string" select="'1'"/>
   
   <xsl:include href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   
