@@ -350,6 +350,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="wavy"/>
@@ -368,6 +369,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="wavy"/>
@@ -387,6 +389,7 @@
           <val match="/ThinThin$" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -406,6 +409,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -426,6 +430,7 @@
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
           <val match="Left\sSlant\sHash" target-value="dashed"/>
@@ -444,6 +449,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -463,6 +469,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -482,6 +489,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -501,6 +509,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -520,6 +529,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val eq="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
@@ -539,6 +549,7 @@
           <val match="ThinThin" target-value="double"/>
           <val match="Canned\sDashed\s3x2" target-value="dashed"/>
           <val match="Canned\sDashed\s4x4" target-value="dashed"/>
+          <val match="StrokeStyle/$ID/Dashed" target-value="dashed"/>
           <val match="Canned\sDotted" target-value="dotted"/>
           <val match="Japanese\sDots" target-value="dotted"/>
           <val match="Wavy" target-value="groove"/>
