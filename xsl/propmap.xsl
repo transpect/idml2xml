@@ -203,11 +203,14 @@
           <val eq="Medium" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-style" target-value="normal" />
-          <val match="Roman" target-name="css:font-weight" target-value="normal" />
+          <val eq="Roman" target-name="css:font-weight" target-value="normal" />
           <val match="Roman" target-name="css:font-style" target-value="normal" />
         	<!-- One of our customers (Hogrefe) uses a font (Lyon) with cleverly named font-style "Regular Italic" -->
         	<val match="Regular Italic" target-name="css:font-weight" target-value="normal" />
           <val match="Regular Italic" target-name="css:font-style" target-value="italic" />
+          <!-- Aufbau uses font with style "Light Classic Roman" -->
+          <val eq="Light Classic Roman" target-name="css:font-style" target-value="normal" />
+          <val eq="Light Classic Roman" target-name="css:font-weight" target-value="300" />
         </prop>
         <prop name="Hidden" target-name="css:display">
           <val eq="true" target-value="none"/>
