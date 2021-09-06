@@ -1243,6 +1243,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:if test="../idml2xml:attribute[@name eq 'numbering-inline-stylename'][. ne 'CharacterStyle/$ID/[No character style]']">
       <xsl:attribute name="hub:numbering-inline-stylename" select="idml2xml:StyleName((../idml2xml:attribute[@name eq 'numbering-inline-stylename'])[last()])"/>
     </xsl:if>
+    <xsl:if test="../idml2xml:attribute[@name eq 'bullet-inline-stylename'][. ne 'CharacterStyle/$ID/[No character style]']">
+      <xsl:attribute name="hub:bullet-inline-stylename" select="idml2xml:StyleName((../idml2xml:attribute[@name eq 'bullet-inline-stylename'])[last()])"/>
+    </xsl:if>
   	<!--<xsl:if test="../idml2xml:attribute[@name eq 'restart-at-higher-level'][. ne 'true'][(($style, ..)/idml2xml:attribute[@name eq 'numbering-level'])[last()] ne '1']">
       <xsl:attribute name="hub:restart-at-higher-level" select="(($style, ..)/idml2xml:attribute[@name eq 'restart-at-higher-level'])[last()]"/>
     </xsl:if>-->
@@ -1254,7 +1257,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 	
   <xsl:template mode="idml2xml:XML-Hubformat-properties2atts_DISABLED" priority="2" 
-    match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'restart-at-higher-level', 'numbering-continue', 'numbering-level', 'numbering-inline-stylename')]" />
+    match="idml2xml:attribute[@name = ('numbering-starts-at', 'numbering-format', 'numbering-expression', 'restart-at-higher-level', 'numbering-continue', 'numbering-level', 'numbering-inline-stylename', 'bullet-inline-stylename')]" />
   
   <xsl:function name="idml2xml:numbered-list-style-type" as="xs:string">
     <xsl:param name="type-example-string" as="xs:string?"/>
@@ -2433,7 +2436,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- remove css properties in css:rules where para-borders and para-backgrounds are not activated -->
   <xsl:template match="css:rule[@hub:para-border]/@*[starts-with(name(), 'hub:para-border')]
                       |css:rule[@hub:para-background]/@*[starts-with(name(), 'hub:para-background')]
-                      |css:rule/@*[name() = ('css:border-color', 'css:border-style', 'css:border-width')]
+                      |css:rule[@layout-type = ('cell', 'table')]/@*[name() = ('css:border-color', 'css:border-style', 'css:border-width')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-border')] and not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-background')] and not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>         
@@ -2552,7 +2555,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     | @idml2xml:aux-list-level | @idml2xml:layout-type | @idml2xml:aux-list-restart | @hub:numbering-family
     | @hub:numbering-continue | @idml2xml:aux-list-famlvl | @idml2xml:aux-list-fam | @idml2xml:aux-list-picture-string
     | @hub:numbering-picture-string | @*:numbering-starts-at | @*:numbering-level | @numbering-format
-    | @*:numbering-expression | @*:numbering-inline-stylename" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+    | @*:numbering-expression | @*:numbering-inline-stylename | @*:bullet-inline-stylename" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
     <xsl:template match="dbk:entry[key('idml2xml:style-by-role', @role)[@css:vertical-align = 'top' or not(@css:vertical-align)]]/@css:vertical-align[. = 'top']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
   
@@ -2751,7 +2754,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="  @role[not($hub-version eq '1.0')][not(starts-with(., 'hub:'))] 
                        | css:rule/@name 
                        | dbk:linked-style/@name
-                       | @hub:numbering-inline-stylename" 
+                       | @hub:numbering-inline-stylename
+                       | @hub:bullet-inline-stylename" 
                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:attribute name="{name()}" select="idml2xml:normalize-css-names(.)"/>
     <!-- [~˜] is treated as a special character: by convention, typesetters may add style variants
