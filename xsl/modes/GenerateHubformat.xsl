@@ -228,6 +228,16 @@
       <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn or self::MathToolsML[mml:math])]" mode="#current" />
     </xsl:variable>
     <xsl:variable name="atts" as="node()*">
+      <xsl:if test="self::CellStyle[not(Properties/BasedOn)] | self::TableStyle[not(Properties/BasedOn)]">
+        <xsl:apply-templates select="/*/idPkg:Preferences/PageItemDefault/(
+                                        @StrokeWeight
+                                      | @StrokeType
+                                      | @StrokeColor
+                                      | @StrokeTint 
+                                    )" mode="#current">
+            <xsl:with-param name="wrap-in-style-element" select="false()"/>
+          </xsl:apply-templates>
+      </xsl:if>
       <xsl:if test="self::ParagraphStyle[not(Properties/BasedOn)]">
         <xsl:apply-templates select="/*/idPkg:Preferences/TextDefault/(
                                         @NumberingApplyRestartPolicy
@@ -582,7 +592,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
             <xsl:choose>
-              <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color')">
+              <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color') or
+                            ($target-name = 'css:border-color')">
                 <idml2xml:attribute name="{../@target-name}">
                   <xsl:text>transparent</xsl:text>
                 </idml2xml:attribute>
@@ -1983,10 +1994,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:if test="not($context/@*[name() eq $attname])
             and not($context/@*[name() eq concat('css:border-', $direction, '-width')] eq '0pt')"> 
             <xsl:attribute name="{$attname}">
-              <xsl:choose>
-                <xsl:when test=". eq 'color'"><xsl:sequence select="'device-cmyk(0,0,0,1)'"/></xsl:when>
-                <xsl:when test=". eq 'width'"><xsl:sequence select="'0.5pt'"/></xsl:when>
-                <xsl:when test=". eq 'style'"><xsl:sequence select="'solid'"/></xsl:when>
+             <xsl:choose>
+                <xsl:when test=". eq 'color'"><xsl:sequence select="($context/@css:border-color, 'device-cmyk(0,0,0,1)')[1]"/></xsl:when>
+                <xsl:when test=". eq 'width'"><xsl:sequence select="($context/@css:border-width, '0.5pt')[1]"/></xsl:when>
+                <xsl:when test=". eq 'style'"><xsl:sequence select="($context/@css:border-style, 'solid')[1]"/></xsl:when>
               </xsl:choose>
             </xsl:attribute>
           </xsl:if>
@@ -2422,10 +2433,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- remove css properties in css:rules where para-borders and para-backgrounds are not activated -->
   <xsl:template match="css:rule[@hub:para-border]/@*[starts-with(name(), 'hub:para-border')]
                       |css:rule[@hub:para-background]/@*[starts-with(name(), 'hub:para-background')]
+                      |css:rule/@*[name() = ('css:border-color', 'css:border-style', 'css:border-width')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-border')] and not(@hub:para-border)]/@*[starts-with(name(), 'hub:para-border')]
                       |dbk:para[@*[starts-with(name(), 'hub:para-background')] and not(@hub:para-background)]/@*[starts-with(name(), 'hub:para-background')]" 
-                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>        
-  
+                mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>         
+
   <xsl:template match="dbk:link[not(node())]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <!-- Can appear if HyperlinkTextSources are wrapped only around a Br. -->
   </xsl:template>
