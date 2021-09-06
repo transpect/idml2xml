@@ -203,7 +203,7 @@
           <val eq="Medium" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-style" target-value="normal" />
-          <val eq="Roman" target-name="css:font-weight" target-value="normal" />
+          <val match="^((\d+ )?(Condensed ))?Roman( Condensed)?$" target-name="css:font-weight" target-value="normal" />
           <val match="Roman" target-name="css:font-style" target-value="normal" />
         	<!-- One of our customers (Hogrefe) uses a font (Lyon) with cleverly named font-style "Regular Italic" -->
         	<val match="Regular Italic" target-name="css:font-weight" target-value="normal" />
