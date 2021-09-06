@@ -354,6 +354,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="raw-output" as="element(*)*">
       <xsl:apply-templates select="$prop" mode="#current">
         <xsl:with-param name="val" select="." tunnel="yes" />
+        <xsl:with-param name="att-parent" select="if (. instance of attribute()) then .. else ()" as="element()?" tunnel="yes" />
       </xsl:apply-templates>
       <xsl:if test="empty($prop)">
         <idml2xml:attribute name="idml2xml:{local-name()}"><xsl:value-of select="." /></idml2xml:attribute>
@@ -471,6 +472,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="val" as="node()" tunnel="yes">
       <!-- Val may be (see template where with-param name="val" is passed): @* | Properties/* | ListItem/* -->
     </xsl:param>
+    <xsl:param name="att-parent" as="element()?" tunnel="yes" />
     <xsl:choose>
 
       <xsl:when test=". eq 'bullet-char'">
@@ -593,7 +595,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
             <xsl:choose>
               <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color') or
-                            ($target-name = 'css:border-color')">
+                            ($target-name = 'css:border-color' and $att-parent[self::*:PageItemDefault])">
+                <!-- process default values for borders if none are given.-->
                 <idml2xml:attribute name="{../@target-name}">
                   <xsl:text>transparent</xsl:text>
                 </idml2xml:attribute>
