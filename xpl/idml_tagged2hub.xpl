@@ -37,6 +37,7 @@
     <p:pipe port="report" step="properties2atts"/>
     <p:pipe port="report" step="extract-frames"/>
     <p:pipe port="report" step="remap-para-and-span"/>
+    <p:pipe port="report" step="modify-table-styles"/>
     <p:pipe port="report" step="cleanup-paras-and-br"/>
   </p:output>
   <p:output port="result" primary="true">
@@ -122,6 +123,16 @@
     <p:with-option name="source-pi" select="$mathtype-source-pi"/>
   </idml2xml:mathtype2mml>
   
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.13" mode="idml2xml:XML-Hubformat-modify-table-styles" name="modify-table-styles">
+    <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
+    <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>
+    <p:input port="models"><p:empty/></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
+    <p:with-option name="hub-version" select="$hub-version"/>
+  </tr:xslt-mode>
+
   <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.HUB.15" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" name="cleanup-paras-and-br">
     <p:input port="parameters"><p:pipe step="tagged2hub" port="xslt-params" /></p:input>
     <p:input port="stylesheet"><p:pipe step="tagged2hub" port="xslt-stylesheet" /></p:input>

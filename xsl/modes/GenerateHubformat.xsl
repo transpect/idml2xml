@@ -228,16 +228,6 @@
       <xsl:apply-templates select="@*, Properties/*[not(self::BasedOn or self::MathToolsML[mml:math])]" mode="#current" />
     </xsl:variable>
     <xsl:variable name="atts" as="node()*">
-      <xsl:if test="self::CellStyle[not(Properties/BasedOn)] | self::TableStyle[not(Properties/BasedOn)]">
-        <xsl:apply-templates select="/*/idPkg:Preferences/PageItemDefault/(
-                                        @StrokeWeight
-                                      | @StrokeType
-                                      | @StrokeColor
-                                      | @StrokeTint 
-                                    )" mode="#current">
-            <xsl:with-param name="wrap-in-style-element" select="false()"/>
-          </xsl:apply-templates>
-      </xsl:if>
       <xsl:if test="self::ParagraphStyle[not(Properties/BasedOn)]">
         <xsl:apply-templates select="/*/idPkg:Preferences/TextDefault/(
                                         @NumberingApplyRestartPolicy
@@ -354,7 +344,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="raw-output" as="element(*)*">
       <xsl:apply-templates select="$prop" mode="#current">
         <xsl:with-param name="val" select="." tunnel="yes" />
-        <xsl:with-param name="att-parent" select="if (. instance of attribute()) then .. else ()" as="element()?" tunnel="yes" />
       </xsl:apply-templates>
       <xsl:if test="empty($prop)">
         <idml2xml:attribute name="idml2xml:{local-name()}"><xsl:value-of select="." /></idml2xml:attribute>
@@ -472,7 +461,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="val" as="node()" tunnel="yes">
       <!-- Val may be (see template where with-param name="val" is passed): @* | Properties/* | ListItem/* -->
     </xsl:param>
-    <xsl:param name="att-parent" as="element()?" tunnel="yes" />
     <xsl:choose>
 
       <xsl:when test=". eq 'bullet-char'">
@@ -594,8 +582,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <!-- no color in any case for FillColor="Swatch/..."? -->
           <xsl:when test="matches($val, ('^Swatch/None|^n$'))">
             <xsl:choose>
-              <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color') or
-                            ($target-name = 'css:border-color' and $att-parent[self::*:PageItemDefault])">
+              <xsl:when test="matches($target-name, '^css:border-(top|left|right|bottom)-color')">
                 <!-- process default values for borders if none are given.-->
                 <idml2xml:attribute name="{../@target-name}">
                   <xsl:text>transparent</xsl:text>
@@ -1989,7 +1976,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <!-- Apply default cell style (which is solid, black, 0.5pt) -->
   <xsl:template match="dbk:style[parent::dbk:cellstyles] | css:rule[@layout-type eq 'cell']"
-    mode="idml2xml:XML-Hubformat-remap-para-and-span" >
+    mode="idml2xml:XML-Hubformat-modify-table-styles">
     <xsl:variable name="context" select="." as="element(*)"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -2001,9 +1988,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
             and not($context/@*[name() eq concat('css:border-', $direction, '-width')] eq '0pt')"> 
             <xsl:attribute name="{$attname}">
              <xsl:choose>
-                <xsl:when test=". eq 'color'"><xsl:sequence select="($context/@css:border-color, 'device-cmyk(0,0,0,1)')[1]"/></xsl:when>
-                <xsl:when test=". eq 'width'"><xsl:sequence select="($context/@css:border-width, '0.5pt')[1]"/></xsl:when>
-                <xsl:when test=". eq 'style'"><xsl:sequence select="($context/@css:border-style, 'solid')[1]"/></xsl:when>
+                <xsl:when test=". eq 'color'"><xsl:sequence select="'device-cmyk(0,0,0,1)'"/></xsl:when>
+                <xsl:when test=". eq 'width'"><xsl:sequence select="'0.5pt'"/></xsl:when>
+                <xsl:when test=". eq 'style'"><xsl:sequence select="'solid'"/></xsl:when>
               </xsl:choose>
             </xsl:attribute>
           </xsl:if>
@@ -2449,7 +2436,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
   
   <!-- set or overwrite border-*-width attributes, when opposite cell is set to '0pt' and has more priority -->
-  <xsl:template match="dbk:entry[@idml2xml:AppliedCellStylePriority]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  <xsl:template match="dbk:entry[@idml2xml:AppliedCellStylePriority]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br" priority="3">
     <xsl:variable name="context" select="." as="element(dbk:entry)"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -2465,6 +2452,59 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+
+  <xsl:template match="dbk:row/dbk:entry/@colname" mode="idml2xml:XML-Hubformat-modify-table-styles">
+    <!-- adding table style border properties to outer cells -->
+    <xsl:variable name="context" select=".." as="element(dbk:entry)"/>
+    <xsl:variable name="border-props" select="('color', 'style', 'width')" as="xs:string+"/>
+    
+      <xsl:if test="idml2xml:is-outer-cell($context)">
+        <xsl:if test="$context is ../../*[1]">
+          <!-- first column → left border -->
+          <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'left', $border-props, root(..))"/>
+        </xsl:if>
+        <xsl:if test="$context is ../../*[last()]">
+          <!-- last column → right border -->
+         <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'right', $border-props, root(..))"/>
+        </xsl:if>
+        <xsl:if test="$context is ../..[. is ../*[1]]">
+          <!-- first row → top border -->
+          <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'top', $border-props, root(..))"/>
+        </xsl:if>
+        <xsl:if test="$context is ../..[. is ../*[last()]]">
+          <!-- last row → bottom border -->
+          <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'bottom', $border-props, root(..))"/>
+        </xsl:if>
+      </xsl:if>
+
+      <xsl:next-match/>
+  </xsl:template>
+
+  <xsl:function name="idml2xml:create-outer-cell-borders" as="attribute()+">
+    <xsl:param name="context"  as="element(dbk:entry)"/>
+    <xsl:param name="pos" as="xs:string"/>
+    <xsl:param name="border-props" as="xs:string+"/>
+    <xsl:param name="root" as="document-node()"/>
+    <xsl:for-each select="$border-props">
+           <xsl:variable name="current-att-name" select="concat('css:border-', $pos, '-', .)"/>
+           <xsl:attribute name="{$current-att-name}" 
+                        select="if ($context/@*[name() = $current-att-name])
+                                then $context/@*[name() = $current-att-name]
+                                else (key('idml2xml:style-by-role', $context/@role, $root)/@*[name() = $current-att-name],
+                                      $context/ancestor::dbk:informaltable[1]/@*[name() = $current-att-name], 
+                                      key('idml2xml:style-by-role', $context/ancestor::dbk:informaltable[1]/@role, $root)/@*[name() = $current-att-name]
+                                      )[1]"/>
+      </xsl:for-each>
+  </xsl:function>
+
+  <xsl:function name="idml2xml:is-outer-cell" as="xs:boolean">
+   <xsl:param name="entry" as="element(dbk:entry)"/>
+   <xsl:sequence select="$entry[. is ../*[1]] or 
+                         $entry[. is ../*[last()]] or 
+                         $entry/..[. is ../*[1]] or 
+                         $entry/..[. is ../*[last()]]"/>
+  </xsl:function>
+
 <!--  as="attribute()?"-->
   <xsl:template name="idml2xml:set-zero-border-width-for-opposite-entry">
     <xsl:param name="entry" as="element(dbk:entry)" />
@@ -2489,7 +2529,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
-<!--    <xsl:message select="'OPP-ELT: ', $opposite-entry-element"/>-->
     <xsl:variable name="opposite-border-name" as="xs:string"
       select="if($direction eq 'Top') then 'Bottom' 
               else if($direction eq 'Right') then 'Left'
@@ -2504,7 +2543,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 and
                                 number($entry/@idml2xml:AppliedCellStylePriority) ge number(@idml2xml:AppliedCellStylePriority) 
                                 and
-                                $entry/@css:*[local-name() eq concat('border-', lower-case($direction), '-width')] = '0pt'
+                                ( $entry/@css:*[local-name() eq concat('border-', lower-case($direction), '-width')] = '0pt'
+                                  or
+                                  $entry/@css:*[local-name() eq concat('border-', lower-case($direction), '-color')] = 'transparent'
+                                 )
                               )
                               or
                               (
@@ -2514,7 +2556,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 number(@idml2xml:*[local-name() eq concat($opposite-border-name, 'EdgeStrokePriority')]) 
                                   ge number(@idml2xml:AppliedCellStylePriority) 
                                 and
-                                @css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')] = '0pt'
+                                (@css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')] = '0pt'
+                                 or
+                                 @css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-color')] = 'transparent'
+                                 )
                               )
                               or
                               (
@@ -2523,7 +2568,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                 and
                                 number(@idml2xml:AppliedCellStylePriority) gt number($entry/@idml2xml:AppliedCellStylePriority) 
                                 and
-                                key('idml2xml:css-rule-by-name', @role, root($entry))/@css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')][. eq '0pt']
+                                ( 
+                                 key('idml2xml:css-rule-by-name', @role, root($entry))/@css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-width')][. eq '0pt']
+                                 or
+                                 key('idml2xml:css-rule-by-name', @role, root($entry))/@css:*[local-name() eq concat('border-', lower-case($opposite-border-name), '-color')][. eq 'transparent']
+                                )
                               )
                             ])"/>
     </xsl:variable>

@@ -34,6 +34,7 @@
           idml2xml:XML-Hubformat-properties2atts-compound
           idml2xml:XML-Hubformat-extract-frames
           idml2xml:XML-Hubformat-remap-para-and-span
+          idml2xml:XML-Hubformat-modify-table-styles
           idml2xml:XML-Hubformat-cleanup-paras-and-br
           idml2xml:XML-Hubformat-without-srcpath">
     <xsl:copy copy-namespaces="no">
