@@ -2453,26 +2453,40 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="dbk:row/dbk:entry/@colname" mode="idml2xml:XML-Hubformat-modify-table-styles">
+  <xsl:template match="dbk:tgroup" mode="idml2xml:XML-Hubformat-modify-table-styles">
+   <xsl:next-match>
+     <xsl:with-param name="last-col-name" select="dbk:colspec[last()]/@colname" as="xs:string" tunnel="yes"/>
+     <xsl:with-param name="total-row-number" select="count(descendant::dbk:row)" as="xs:integer" tunnel="yes"/>
+   </xsl:next-match>
+  </xsl:template>
+
+  <xsl:template match="dbk:row/dbk:entry/@role" mode="idml2xml:XML-Hubformat-modify-table-styles">
+    <xsl:param name="last-col-name" as="xs:string" tunnel="yes"/>
+    <xsl:param name="total-row-number" as="xs:integer" tunnel="yes"/>
     <!-- adding table style border properties to outer cells -->
     <xsl:variable name="context" select=".." as="element(dbk:entry)"/>
     <xsl:variable name="border-props" select="('color', 'style', 'width')" as="xs:string+"/>
     
-      <xsl:if test="idml2xml:is-outer-cell($context)">
-        <xsl:if test="$context is ../../*[1]">
+    <!-- Is not yet properly implemented for rowspans -->
+      <xsl:if test="idml2xml:is-outer-cell($context, $last-col-name, $total-row-number)">
+        <xsl:if test="exists($context[@colname = 'c1' or @namest = 'c1'])">
           <!-- first column → left border -->
           <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'left', $border-props, root(..))"/>
         </xsl:if>
-        <xsl:if test="$context is ../../*[last()]">
+        <xsl:if test="exists($context[@colname = $last-col-name or @nameend = $last-col-name])">
           <!-- last column → right border -->
          <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'right', $border-props, root(..))"/>
         </xsl:if>
-        <xsl:if test="$context is ../..[. is ../*[1]]">
+        <xsl:if test="exists($context[..[. is ..[empty(preceding-sibling::*[self::dbk:thead|self::dbk:tbody])]/*[1]]])">
           <!-- first row → top border -->
           <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'top', $border-props, root(..))"/>
         </xsl:if>
-        <xsl:if test="$context is ../..[. is ../*[last()]]">
+        <xsl:if test="exists($context[..[. is ..[empty(following-sibling::*[self::dbk:tbody|self::dbk:tfoot])]/*[last()]]])">
           <!-- last row → bottom border -->
+          <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'bottom', $border-props, root(..))"/>
+        </xsl:if>
+         <xsl:if test="exists($context[@morerows + 1 + count(($context/../preceding-sibling::dbk:row, $context/../../preceding-sibling::*/dbk:row)) eq $total-row-number])">
+          <!-- last row with rowspans → bottom border -->
           <xsl:sequence select="idml2xml:create-outer-cell-borders($context, 'bottom', $border-props, root(..))"/>
         </xsl:if>
       </xsl:if>
@@ -2487,22 +2501,27 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:param name="root" as="document-node()"/>
     <xsl:for-each select="$border-props">
            <xsl:variable name="current-att-name" select="concat('css:border-', $pos, '-', .)"/>
-           <xsl:attribute name="{$current-att-name}" 
+           <xsl:variable name="current-att-value" 
                         select="if ($context/@*[name() = $current-att-name])
                                 then $context/@*[name() = $current-att-name]
                                 else (key('idml2xml:style-by-role', $context/@role, $root)/@*[name() = $current-att-name],
                                       $context/ancestor::dbk:informaltable[1]/@*[name() = $current-att-name], 
                                       key('idml2xml:style-by-role', $context/ancestor::dbk:informaltable[1]/@role, $root)/@*[name() = $current-att-name]
                                       )[1]"/>
+      
+           <xsl:attribute name="{$current-att-name}" select="$current-att-value"/>
       </xsl:for-each>
   </xsl:function>
 
   <xsl:function name="idml2xml:is-outer-cell" as="xs:boolean">
    <xsl:param name="entry" as="element(dbk:entry)"/>
-   <xsl:sequence select="$entry[. is ../*[1]] or 
-                         $entry[. is ../*[last()]] or 
-                         $entry/..[. is ../*[1]] or 
-                         $entry/..[. is ../*[last()]]"/>
+   <xsl:param name="last-col-name" as="xs:string" />
+   <xsl:param name="total-row-number" as="xs:integer"/>
+   <xsl:sequence select="$entry[@colname = 'c1' or @namest = 'c1'] or (:first col:)
+                         $entry[@colname = $last-col-name or @nameend = $last-col-name] or (:last col:)
+                         $entry[..[. is ..[empty(preceding-sibling::*[self::dbk:thead|self::dbk:tbody])]/*[1]]] or (:first row:)
+                         $entry[..[. is ..[empty(following-sibling::*[self::dbk:tbody|self::dbk:tfoot])]/*[last()]]] or (:last row:)
+                         $entry[@morerows + 1 + count(($entry/../preceding-sibling::dbk:row, $entry/../../preceding-sibling::*/dbk:row)) eq $total-row-number]"/>
   </xsl:function>
 
 <!--  as="attribute()?"-->
