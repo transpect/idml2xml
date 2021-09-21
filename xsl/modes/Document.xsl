@@ -344,6 +344,7 @@
     <xsl:sequence select="if ($id and $id != '' and count($same-id-stories) eq 1) 
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
                           else false()"/>
+<!-- müsste false ergeben, wenn via KombiRef verankert-->
   </xsl:function>
 
   <!--<xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
@@ -370,7 +371,6 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
         <xsl:variable name="text-content" as="xs:string" select="idml2xml:text-content(.)"/>
-        <xsl:variable name="story" select="key('Story-by-StoryID', $text-content)" as="element(Story)*"/>
         <xsl:variable name="figure-or-group" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
                                                                  [.//KeyValuePair[@Key = 'letex:fileName']
                                                                                  [replace(@Value,'\.\w+$','') = $text-content]]]],
@@ -382,6 +382,9 @@
                                                          [.//KeyValuePair[@Key = 'letex:fileName']
                                                                          [replace(@Value,'\.\w+$','') = $text-content]])
                                                      )[1]"/>
+        <xsl:variable name="combiref-story" select="$figure-or-group/ancestor::Story" as="element(Story)*"/>
+        <xsl:variable name="story" select="key('Story-by-StoryID', $text-content), $combiref-story" as="element(Story)*"/>
+
         <xsl:variable name="conventionally-anchored-story" as="element(Story)*" 
           select="key('Story-by-Self', ancestor::Story//TextFrame/@ParentStory)"/>
         <xsl:choose>
@@ -403,8 +406,12 @@
           </xsl:when>
           <xsl:when test="count($figure-or-group) gt 0 and not(count($story) eq 1)">
             <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
-            <xsl:variable name="anchored-frame" select="$figure-or-group/(TextFrame | EndnoteTextFrame)" as="element(*)?"/>
-            <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)?"/>
+            <xsl:variable name="anchored-frame" select="$figure-or-group/(TextFrame | EndnoteTextFrame)" as="element(*)*"/>
+            <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)*"/>
+<!--            <xsl:variable name="anchored-frame" select="if ($figure-or-group[TextFrame | EndnoteTextFrame]) 
+                                                        then $figure-or-group/(TextFrame | EndnoteTextFrame)
+                                                        else key('Every-TextFrame-by-ParentStory', $figure-or-group/ancestor::Story/@Self)" as="element(*)*"/>
+            <xsl:variable name="potential-group1" select="if ($anchored-frame[ancestor::Group]) then $anchored-frame/ancestor::Group[last()] else $anchored-frame" as="element(*)*"/>-->
             <xsl:choose>
               <xsl:when test="$anchored-story">
                 <xsl:choose>
@@ -416,6 +423,13 @@
                       </xsl:apply-templates>
                     </xsl:for-each>
                   </xsl:when>
+<!--                  <xsl:when test="$potential-group1/self::Story">
+                    <!-\- -\->
+                    <xsl:copy><xsl:attribute  name="idml2xml:reason" select="string-join(('KOMBI_Ref',current()),' ')"/></xsl:copy>
+                    <xsl:for-each select="$potential-group1">
+                      <xsl:apply-templates select="./node()" mode="#current"/>
+                    </xsl:for-each>
+                  </xsl:when>-->
                   <xsl:otherwise>
                     <xsl:for-each select="$potential-group1">
                       <xsl:copy>
@@ -463,13 +477,18 @@
                  <xsl:choose>
                    <xsl:when test="$potential-group[self::TextFrame[@PreviousTextFrame eq 'n']]">
                      <xsl:variable name="reason-attr" as="attribute(idml2xml:reason)">
-                       <xsl:attribute name="idml2xml:reason" select="'Group-threaded'"/>
+                       <xsl:attribute name="idml2xml:reason" select="if ($combiref-story[self::Story]) then concat('KOMBI_Ref_Textframe ', $text-content) else 'Group-threaded'"/>
                         <!-- this warns if a group is anchored that consists of a textframe which is threaded to a textframe outside the group -->
                       </xsl:variable>
                      <xsl:call-template name="textframes">
                        <xsl:with-param name="reason-attribute"  
-                         select="if (count($all-anchored-frames) gt 1 
-                                     and not($all-anchored-frames/parent::Group[TextFrame[@PreviousTextFrame = 'n']]))
+                         select="if (
+                                      (count($all-anchored-frames) gt 1 
+                                        and 
+                                        not($all-anchored-frames/parent::Group[TextFrame[@PreviousTextFrame = 'n']])
+                                       )
+                                       or $combiref-story[self::Story]
+                                     )
                          then $reason-attr else ()"/>
                      </xsl:call-template>
                    </xsl:when>
@@ -653,9 +672,13 @@
                                                 ))]" 
                 mode="idml2xml:DocumentResolveTextFrames"/>
 
+  <xsl:template match="TextFrame[not(starts-with(@idml2xml:reason, 'KOMBI_Ref_Textframe'))][@Self = //TextFrame[starts-with(@idml2xml:reason, 'KOMBI_Ref_Textframe')]/@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
+  <!-- discarding Textframe whose story is anchored by Kombiref -->
+  </xsl:template>
+
   <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef'][*/@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <xsl:variable name="objects-already-included-elsewhere" as="element(*)*"
-      select="key('by-Self', */@Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]"/>
+      select="key('by-Self', */@Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])][empty(@idml2xml:reason[starts-with(., 'KOMBI_Ref_Textframe')]) and not(@Self = //TextFrame[starts-with(@idml2xml:reason, 'KOMBI_Ref_Textframe')]/@Self)]"/>
     <xsl:copy>
       <xsl:if test="exists($objects-already-included-elsewhere)">
         <xsl:attribute name="idml2xml:redundant-storyref-for" select="$objects-already-included-elsewhere/@Self"/>
