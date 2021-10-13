@@ -2494,23 +2494,39 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <xsl:next-match/>
   </xsl:template>
 
-  <xsl:function name="idml2xml:create-outer-cell-borders" as="attribute()+">
+  <xsl:function name="idml2xml:create-outer-cell-borders" as="attribute()*">
     <xsl:param name="context"  as="element(dbk:entry)"/>
     <xsl:param name="pos" as="xs:string"/>
     <xsl:param name="border-props" as="xs:string+"/>
     <xsl:param name="root" as="document-node()"/>
-    <xsl:for-each select="$border-props">
+    <xsl:variable name="border-atts" as="element()*">
+     <xsl:for-each select="$border-props">
            <xsl:variable name="current-att-name" select="concat('css:border-', $pos, '-', .)"/>
-           <xsl:variable name="current-att-value" 
+           <xsl:variable name="current-att-value-cell" 
                         select="if ($context/@*[name() = $current-att-name])
                                 then $context/@*[name() = $current-att-name]
-                                else (key('idml2xml:style-by-role', $context/@role, $root)/@*[name() = $current-att-name],
-                                      $context/ancestor::dbk:informaltable[1]/@*[name() = $current-att-name], 
-                                      key('idml2xml:style-by-role', $context/ancestor::dbk:informaltable[1]/@role, $root)/@*[name() = $current-att-name]
-                                      )[1]"/>
+                                else key('idml2xml:style-by-role', $context/@role, $root)/@*[name() = $current-att-name]"/>
+           <xsl:variable name="current-att-value-table" 
+                        select="($context/ancestor::dbk:informaltable[1]/@*[name() = $current-att-name], 
+                                  key('idml2xml:style-by-role', $context/ancestor::dbk:informaltable[1]/@role, $root)/@*[name() = $current-att-name]
+                                 )[1]"/>
       
-           <xsl:attribute name="{$current-att-name}" select="$current-att-value"/>
+            <border-prop name="{$current-att-name}" value="{($current-att-value-cell, $current-att-value-table)[1]}"/>
       </xsl:for-each>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="some $b in $border-atts[ends-with(@name, '-width')] satisfies ($b/@value[. eq '0pt'])">
+        <xsl:for-each select="$border-atts[ends-with(@name, '-width')]">
+          <!-- when default border properties are added they are not if one value is border-xyz-width="0pt". therefore if width is 0pt no other properties are added-->
+          <xsl:attribute name="{@name}" select="@value"/>
+        </xsl:for-each>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:for-each select="$border-atts">
+          <xsl:attribute name="{@name}" select="@value"/>
+        </xsl:for-each>
+        </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
   <xsl:function name="idml2xml:is-outer-cell" as="xs:boolean">
@@ -2679,7 +2695,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
        Example: css:font-style="italic" is given in css:rule + local override is 
        FontStyle="LF4 SemiLight Italic". This is mapped to css:font-style="italic" as well. 
        Later two <italic>-tags would be created.-->
-  
+
   <xsl:template match="@*[matches(name(), '^(css:|xml:lang)')]
                          [key('idml2xml:css-rule-by-name', ../@role)/@*[name() = name(current())]
                                                                        [. = current()]]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
