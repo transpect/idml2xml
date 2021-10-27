@@ -375,15 +375,17 @@
                                                                  [.//KeyValuePair[@Key = 'letex:fileName']
                                                                                  [replace(@Value,'\.\w+$','') = $text-content]]]],
                                                        //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
-                                                          [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $text-content)]]],
+                                                          [string-join(.//replace(@LinkResourceURI,'^.+/(.+)\.\w+$','$1'),'') = $text-content]]],
                                                       //*[self::Rectangle or self::Polygon or self::Oval]
-                                                         [ends-with(string-join(.//replace(@LinkResourceURI,'\.\w+$',''),'')  , $text-content)], 
+                                                         [string-join(.//replace(@LinkResourceURI,'^.+/(.+)\.\w+$','$1'),'') = $text-content], 
                                                      (//*[self::Rectangle or self::Polygon or self::Oval]
                                                          [.//KeyValuePair[@Key = 'letex:fileName']
                                                                          [replace(@Value,'\.\w+$','') = $text-content]])
                                                      )[1]"/>
         <xsl:variable name="combiref-story" select="$figure-or-group/ancestor::Story" as="element(Story)*"/>
-        <xsl:variable name="story" select="key('Story-by-StoryID', $text-content), $combiref-story" as="element(Story)*"/>
+        <xsl:variable name="story" select="if (count(key('Story-by-StoryID', $text-content)) ge 1) 
+                                           then key('Story-by-StoryID', $text-content)
+                                           else $combiref-story" as="element(Story)*"/>
 
         <xsl:variable name="conventionally-anchored-story" as="element(Story)*" 
           select="key('Story-by-Self', ancestor::Story//TextFrame/@ParentStory)"/>
