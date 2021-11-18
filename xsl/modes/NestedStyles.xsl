@@ -198,8 +198,11 @@
   <xsl:template match="*[@aid:pstyle]
                         [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
                 mode="idml2xml:NestedStyles-apply">
+    <!-- We are not using the last nested styles of sequence that is returned by idml2xml:nested-style because its order has been found to be off.
+        (see https://subversion.le-tex.de/customers/aufbau/content/aufbau/AV/9783841229694_01)
+        Instead, we'll use the most specific instruction from idml2xml:style-ancestors-and-self -->
     <xsl:variable name="instructions" as="element(ListItem)+" 
-      select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))[last()]/ListItem"/>
+      select="idml2xml:style-ancestors-and-self(key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle)))[descendant::AllNestedStyles][1]/Properties/AllNestedStyles/ListItem"/>
     <xsl:copy copy-namespaces="no">
       <xsl:copy-of select="@* except @idml2xml:dropcaps, Properties"/>
       <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, $instructions, @idml2xml:dropcaps)"/>
