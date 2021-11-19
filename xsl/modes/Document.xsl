@@ -281,14 +281,21 @@
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
+<!--(matches(replace((current()//KeyValuePair[@Key = 'letex:fileName']/@Value)[1],'\.\w+$',''),$token)-->
   
-   <xsl:template match="Group[not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
+   <xsl:template match="*[self::Group | self::Rectangle | self::Polygon | self::Oval]
+                              [not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
                              [not(ancestor::Story[1]//*[@AppliedConditions eq 'Condition/StoryID'])]
                              [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
                                                          satisfies 
                                                          (
                                                             some $token in tokenize(idml2xml:text-content($ref), ' ')[not(matches(.,'^\s*$'))] 
-                                                            satisfies (matches(replace((current()//KeyValuePair[@Key = 'letex:fileName']/@Value)[1],'\.\w+$',''),$token))
+                                                            satisfies (
+                                                                       (some $kvp in current()//KeyValuePair[@Key = 'letex:fileName']/@Value satisfies (matches(replace($kvp,'^.+/(.+)\.\w+$','$1'),$token))) 
+                                                                        or
+                                                                       (some $lru in current()//@LinkResourceURI satisfies (matches(replace($lru,'^.+/(.+)\.\w+$','$1'),$token))
+                                                          )
+)
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
     <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
@@ -296,6 +303,7 @@
     <xsl:if test="$do-not-discard-kombiref-anchored-group">
       <xsl:next-match/>
     </xsl:if>
+<xsl:message select="'######', @Self"></xsl:message>
   </xsl:template>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
@@ -418,7 +426,7 @@
               <xsl:when test="$anchored-story">
                 <xsl:choose>
                   <xsl:when test="$potential-group1/self::Group">
-                    <xsl:copy><xsl:attribute  name="idml2xml:reason" select="string-join(('KOMBI_Ref',current()),' ')"/></xsl:copy>
+                    <xsl:copy><xsl:attribute  name="idml2xml:reason" select="string-join(('KOMBI_Ref',current(), 'case1'),' ')"/></xsl:copy>
                     <xsl:for-each select="$potential-group1">
                       <xsl:apply-templates select="." mode="#current">
                         <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean"/>
@@ -435,7 +443,7 @@
                   <xsl:otherwise>
                     <xsl:for-each select="$potential-group1">
                       <xsl:copy>
-                        <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
+                        <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content, 'case2'),' ')"/>
                         <xsl:apply-templates select="@*, node(), $story" mode="#current"/>
                       </xsl:copy>
                     </xsl:for-each>
@@ -445,7 +453,7 @@
               <xsl:otherwise>
                 <xsl:element name="{name($figure-or-group)}">
                   <xsl:copy-of select="$figure-or-group/@*"/>
-                  <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content),' ')"/>
+                  <xsl:attribute name="idml2xml:reason" select="string-join(('KOMBI_Ref',$context/Content, 'case3'),' ')"/>
                   <xsl:copy-of select="$figure-or-group/node()"/>
                 </xsl:element>
               </xsl:otherwise>
@@ -680,7 +688,10 @@
 
   <xsl:template match="*[@AppliedConditions = 'Condition/StoryRef'][*/@Self]" mode="idml2xml:SeparateParagraphs-pull-down-psrange">
     <xsl:variable name="objects-already-included-elsewhere" as="element(*)*"
-      select="key('by-Self', */@Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])][empty(@idml2xml:reason[starts-with(., 'KOMBI_Ref_Textframe')]) and not(@Self = //TextFrame[starts-with(@idml2xml:reason, 'KOMBI_Ref_Textframe')]/@Self)]"/>
+      select="key('by-Self', */@Self)[empty(../@AppliedConditions[. = 'Condition/StoryRef'])]
+                                     [empty(@idml2xml:reason[starts-with(., 'KOMBI_Ref_Textframe')]) 
+                                      and 
+                                      not(@Self = //TextFrame[starts-with(@idml2xml:reason, 'KOMBI_Ref_Textframe')]/@Self)]"/>
     <xsl:copy>
       <xsl:if test="exists($objects-already-included-elsewhere)">
         <xsl:attribute name="idml2xml:redundant-storyref-for" select="$objects-already-included-elsewhere/@Self"/>
