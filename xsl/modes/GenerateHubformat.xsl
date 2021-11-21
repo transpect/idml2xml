@@ -1395,9 +1395,47 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       again as part of the first. Therefore I (GI, 2019-08-21) replaced this template with the identity template. --> 
       <!--<xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
                          mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>-->
-    <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </xsl:copy>
+<!--    <xsl:param name="already-processed-frames" as="element(idml2xml:genFrame)*" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="some $f in $already-processed-frames satisfies ($f is .)"/>
+      <xsl:otherwise>
+        <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
+                             mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
+        <xsl:with-param name="already-processed-frames" select="(., $already-processed-frames)" tunnel="yes"/>
+    </xsl:apply-templates>
+      </xsl:otherwise>
+    </xsl:choose>-->
+    <xsl:message select="'FFFFFFFFF ',  string-join(for $f in descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]
+      return string-join((generate-id($f), $f/@*:layer), '::'), '    ')"></xsl:message>
+<!--    <xsl:variable name="frames-to-process" as="element(idml2xml:genFrame)*"
+      select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
+    <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
+                             mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
+      <xsl:with-param name="already-processed-frames" select="$frames-to-process" tunnel="yes"/>
+    </xsl:apply-templates>-->
+    <xsl:choose>
+      <xsl:when test="not(@idml2xml:elementName = 'Group')
+                      and
+                      exists(*[@aid:pstyle]
+                              [.//idml2xml:genFrame[idml2xml:same-scope(., current())]])
+                      and (
+                        every $child in *
+                        satisfies (exists($child/@aid:pstyle)
+                                   and
+                                   exists($child//idml2xml:genFrame[idml2xml:same-scope(., current())])
+                                  )
+                      )">
+        <!-- avoid duplicate reproduction of genFrames by preceding template, as reported in https://redmine.le-tex.de/issues/7364 -->
+        <xsl:copy>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- retain content in the case reported in https://github.com/transpect/idml2xml/issues/6 -->
+        <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
+                             mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:function name="idml2xml:text-after" as="xs:boolean">
