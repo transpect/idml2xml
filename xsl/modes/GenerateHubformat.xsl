@@ -1389,30 +1389,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   </xsl:template>
 
   <xsl:template match="/*/idml2xml:genFrame (: unanchored frames :)" mode="idml2xml:XML-Hubformat-extract-frames">
-    <!-- Not sure whether the following commented-out apply-templates is still needed for some IDML files.
+    <!-- Not sure whether the following apply-templates is still needed for some IDML files.
       In the case of Campus/ap/51120, a frame that contains a table with the text "company is fixed. When the" was 
       duplicated because 2 genFrames were converted by this apply-templates, but the second of which was converted
-      again as part of the first. Therefore I (GI, 2019-08-21) replaced this template with the identity template. --> 
-      <!--<xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
-                         mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>-->
-<!--    <xsl:param name="already-processed-frames" as="element(idml2xml:genFrame)*" tunnel="yes"/>
-    <xsl:choose>
-      <xsl:when test="some $f in $already-processed-frames satisfies ($f is .)"/>
-      <xsl:otherwise>
-        <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
-                             mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
-        <xsl:with-param name="already-processed-frames" select="(., $already-processed-frames)" tunnel="yes"/>
-    </xsl:apply-templates>
-      </xsl:otherwise>
-    </xsl:choose>-->
-    <xsl:message select="'FFFFFFFFF ',  string-join(for $f in descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]
-      return string-join((generate-id($f), $f/@*:layer), '::'), '    ')"></xsl:message>
-<!--    <xsl:variable name="frames-to-process" as="element(idml2xml:genFrame)*"
-      select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"/>
-    <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
-                             mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
-      <xsl:with-param name="already-processed-frames" select="$frames-to-process" tunnel="yes"/>
-    </xsl:apply-templates>-->
+      again as part of the first. Therefore I (GI, 2019-08-21) replaced this template with the identity template. -->
+    <!-- The template is needed (GI, 2021-11-21). It is now in the xsl:otherwise branch. -->
     <xsl:choose>
       <xsl:when test="not(@idml2xml:elementName = 'Group')
                       and
@@ -1432,12 +1413,17 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       </xsl:when>
       <xsl:otherwise>
         <!-- retain content in the case reported in https://github.com/transpect/idml2xml/issues/6 -->
-        <xsl:apply-templates select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]"  
+        <xsl:apply-templates 
+          select="descendant-or-self::idml2xml:genFrame[idml2xml:same-scope(., current())]
+                                                       [if (parent::idml2xml:genFrame[@idml2xml:elementName = 'Group']) 
+                                                        then not(@idml2xml:elementName = 'TextFrame')
+                                                        else true()
+                                                       ]"  
                              mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
+  
   <xsl:function name="idml2xml:text-after" as="xs:boolean">
     <xsl:param name="elt" as="element(*)" />
     <xsl:param name="ancestor" as="element(*)" />
@@ -1494,8 +1480,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames-genFrame">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
-      <xsl:attribute name="linkend" select="generate-id()" />
-      <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames" />
+      <xsl:attribute name="linkend" select="generate-id()"/>
+      <xsl:apply-templates mode="idml2xml:XML-Hubformat-extract-frames"/>
     </xsl:copy>
   </xsl:template>
 
