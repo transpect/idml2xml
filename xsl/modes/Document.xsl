@@ -281,21 +281,19 @@
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
-<!--(matches(replace((current()//KeyValuePair[@Key = 'letex:fileName']/@Value)[1],'\.\w+$',''),$token)-->
   
-   <xsl:template match="*[self::Group | self::Rectangle | self::Polygon | self::Oval]
-                              [not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
-                             [not(ancestor::Story[1]//*[@AppliedConditions eq 'Condition/StoryID'])]
-                             [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
+   <xsl:template match="*[self::Group | self::Rectangle | self::Polygon | self::Oval[not(..[self::Group])]]
+                         [not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
+                         [not(ancestor::Story[1]//*[@AppliedConditions eq 'Condition/StoryID'])]
+                         [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
                                                          satisfies 
                                                          (
                                                             some $token in tokenize(idml2xml:text-content($ref), ' ')[not(matches(.,'^\s*$'))] 
                                                             satisfies (
-                                                                       (some $kvp in current()//KeyValuePair[@Key = 'letex:fileName']/@Value satisfies (matches(replace($kvp,'^.+/(.+)\.\w+$','$1'),$token))) 
+                                                                       (some $kvp in current()//KeyValuePair[@Key = 'letex:fileName']/@Value satisfies (matches(replace($kvp,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1')))) 
                                                                         or
-                                                                       (some $lru in current()//@LinkResourceURI satisfies (matches(replace($lru,'^.+/(.+)\.\w+$','$1'),$token))
-                                                          )
-)
+                                                                       (some $lru in current()//@LinkResourceURI satisfies (matches(replace($lru,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1'))))
+                                                                       )
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
     <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
@@ -303,7 +301,7 @@
     <xsl:if test="$do-not-discard-kombiref-anchored-group">
       <xsl:next-match/>
     </xsl:if>
-<xsl:message select="'######', @Self"></xsl:message>
+  <!--    <xsl:message select="'######', @Self"/>-->
   </xsl:template>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
