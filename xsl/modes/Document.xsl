@@ -282,7 +282,7 @@
     </xsl:if>
   </xsl:template>
   
-   <xsl:template match="*[self::Group | self::Rectangle | self::Polygon | self::Oval[not(..[self::Group])]]
+   <xsl:template match="*[self::Group | self::Rectangle | self::Polygon | self::Oval][not(..[self::Group])]
                          [not(.//TextFrame[idml2xml:conditional-text-anchored(.)])]
                          [not(ancestor::Story[1]//*[@AppliedConditions eq 'Condition/StoryID'])]
                          [some $ref in //*[@AppliedConditions eq 'Condition/StoryRef']
@@ -296,12 +296,12 @@
                                                                        )
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
-    <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?"/>
+    <xsl:param name="do-not-discard-kombiref-anchored-group" as="xs:boolean?" tunnel="yes"/>
     <!--  momentarily groups are discarded if containing image name contains a string that equals a StoryRef condition of the document-->
     <xsl:if test="$do-not-discard-kombiref-anchored-group">
       <xsl:next-match/>
     </xsl:if>
-  <!--    <xsl:message select="'######', @Self"/>-->
+<!--      <xsl:message select="'######', @Self, '~~', $do-not-discard-kombiref-anchored-group"/>-->
   </xsl:template>
 
   <xsl:template match="Group/TextWrapPreference" mode="idml2xml:DocumentResolveTextFrames"/>
@@ -427,7 +427,7 @@
                     <xsl:copy><xsl:attribute  name="idml2xml:reason" select="string-join(('KOMBI_Ref',current(), 'case1'),' ')"/></xsl:copy>
                     <xsl:for-each select="$potential-group1">
                       <xsl:apply-templates select="." mode="#current">
-                        <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean"/>
+                        <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean" tunnel="yes"/>
                       </xsl:apply-templates>
                     </xsl:for-each>
                   </xsl:when>
@@ -716,7 +716,9 @@
       </xsl:if>
       <xsl:sequence select="$reason-attribute"/>
       <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current" />
+      <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current">
+        <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean" tunnel="yes"/>
+      </xsl:apply-templates>
       <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)
                                       [not(exists(key('referencing-Story-by-StoryID', string-join(
                                                   for $ht in .//*[@AppliedConditions = 'Condition/StoryID']
