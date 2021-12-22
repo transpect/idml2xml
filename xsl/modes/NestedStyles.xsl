@@ -133,7 +133,8 @@
        immediately below the paragraph element, effectively splitting the spans. -->
   
   <xsl:template match="*[@aid:pstyle]
-                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
+                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
+                        [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
                         mode="idml2xml:NestedStyles-pull-up-separators">
     <xsl:variable name="context" select="." as="element(*)" />
     <xsl:copy copy-namespaces="no">
@@ -196,7 +197,8 @@
   <!-- Wrap stretches of text with character styles spans according to the nested style instructions. -->
   
   <xsl:template match="*[@aid:pstyle]
-                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]"
+                        [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
+                        [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
                 mode="idml2xml:NestedStyles-apply">
     <!-- We are not using the last nested styles of sequence that is returned by idml2xml:nested-style because its order has been found to be off.
         (see https://subversion.le-tex.de/customers/aufbau/content/aufbau/AV/9783841229694_01)
