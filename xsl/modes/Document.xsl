@@ -278,7 +278,9 @@
     mode="idml2xml:DocumentResolveTextFrames" priority="4">
     <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
     <xsl:if test="$do-not-discard-anchored-group">
-      <xsl:next-match/>
+      <xsl:next-match>
+        <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+      </xsl:next-match>
     </xsl:if>
   </xsl:template>
   
@@ -616,7 +618,9 @@
     mode="idml2xml:DocumentResolveTextFrames" priority="3">
     <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
     <xsl:if test="$do-not-discard-anchored-group">
-      <xsl:next-match/>
+      <xsl:next-match>
+        <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+      </xsl:next-match>
     </xsl:if>
   </xsl:template>
 
@@ -769,18 +773,27 @@
   <!-- remove items not on workspace other than Spread/Group[TextFrame], Spread/TextFrame  -->
   <xsl:template 
     match="*[
-              name() = $idml2xml:shape-element-names 
-              or Group[not(TextFrame)]
-            ]
-            [
-             (
-               ancestor::Spread 
-               and
-               not(idml2xml:item-is-on-workspace(.))
-             ) 
-             and not($output-items-not-on-workspace = ('yes','1','true'))
-           ]" 
-    mode="idml2xml:DocumentResolveTextFrames" />
+    name() = $idml2xml:shape-element-names 
+    or Group[not(TextFrame)]
+    ]
+    [
+    (
+    ancestor::Spread 
+    and
+    not(idml2xml:item-is-on-workspace(.))
+    ) 
+    and not($output-items-not-on-workspace = ('yes','1','true'))
+    ]" 
+    mode="idml2xml:DocumentResolveTextFrames" >
+    <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
+    <!-- Images that were referenced via FigureRef were still  discarded if they are not on the page (via an xsl:next-match). 
+      If the param is set true() they shall be preserved-->
+    <xsl:if test="$do-not-discard-anchored-group">
+      <xsl:next-match>
+        <xsl:with-param name="do-not-discard-anchored-group" select="true()" as="xs:boolean"/>
+      </xsl:next-match>
+    </xsl:if>
+  </xsl:template>
 
   <!-- element Change: textual changes -->
 
