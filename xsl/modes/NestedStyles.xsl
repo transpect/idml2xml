@@ -291,18 +291,14 @@
           <xsl:when test="$dropcaps-flag = 'none'">
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:when>
-          <!-- following branch was commented out 22-12-21 by MP to avoid application of nested style if condition is not fulfilled 
-                (no tab in para e.g., https://redmine.le-tex.de/issues/11848)
-               the testdata of the beneath mentioned title is no longer using a nested style on the referenced sourcepath.
-           -->
-          <!--  <xsl:when test="exists($pre-split-cstyle)
+            <xsl:when test="exists($pre-split-cstyle)
                           and empty($pre-split-transformed[normalize-space()][@aid:cstyle = $pre-split-cstyle])
                           and exists($pre-split-transformed[normalize-space()])">
-            <!-\- the latter is an ad-hoc condition for UV 39002, Story_u3e45.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[76] -\->
+            <!-- the latter is an ad-hoc condition for UV 39002, Story_u3e45.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[76] -->
             <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
               <xsl:sequence select="$pre-split-transformed"/>
             </idml2xml:genSpan>
-          </xsl:when>-->
+          </xsl:when>
           <xsl:otherwise>
             <xsl:sequence select="$pre-split-transformed"/>
           </xsl:otherwise>
