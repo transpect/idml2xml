@@ -852,7 +852,7 @@
               <xsl:attribute name="srcpath" select="descendant::*[Image][1]/Image/@srcpath"/>
               <xsl:element name="Link">
                 <xsl:attribute name="Self" select="generate-id()"/>
-                <xsl:attribute name="LinkResourceURI" select="concat(replace(*[Image][1]/Image/Link/@LinkResourceURI, '^(.+/).+$', '$1'), Properties/Label/KeyValuePair/@Value)"/>
+                <xsl:attribute name="LinkResourceURI" select="concat(replace(*[Image][1]/Image/Link/@LinkResourceURI, '^(.+/).+$', '$1'), Properties/Label/KeyValuePair[@Key = 'letex:fileName']/@Value)"/>
                 <xsl:attribute name="StoredState" select="'Normal'"/>
               </xsl:element>
             </xsl:element>
