@@ -161,7 +161,7 @@
       </p:viewport>
       
       <p:delete name="remove-MathTools-Markup" 
-                match="*[@MTMathZone][not(descendant::mml:math or descendant::Rectangle)]
+                match="*[@MTMathZone][not(descendant::mml:math or descendant::Rectangle)][not(MathToolsML='')]
                       |CharacterStyleRange[descendant::mml:math]/Content[not(normalize-space())]"/>
     </p:when>
     <p:otherwise>
