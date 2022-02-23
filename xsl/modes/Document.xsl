@@ -274,7 +274,7 @@
 
   <!-- Groups that contain text frames with a StoryID will be moved to the location 
        of the corresponding StoryRef if such exists. They will be removed here -->
-  <xsl:template match="Group[.//TextFrame[idml2xml:conditional-text-anchored(.)]]"
+  <xsl:template match="Group[.//TextFrame[idml2xml:conditional-text-anchored(.)]]" 
     mode="idml2xml:DocumentResolveTextFrames" priority="4">
     <xsl:param name="do-not-discard-anchored-group" as="xs:boolean?"/>
     <xsl:if test="$do-not-discard-anchored-group">
@@ -292,9 +292,9 @@
                                                          (
                                                             some $token in tokenize(idml2xml:text-content($ref), ' ')[not(matches(.,'^\s*$'))] 
                                                             satisfies (
-                                                                       (some $kvp in current()//KeyValuePair[@Key = 'letex:fileName']/@Value satisfies (matches(replace($kvp,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1')))) 
+                                                                       (some $kvp in (current(), key('Story-by-Self', current()//TextFrame/@ParentStory))//KeyValuePair[@Key = 'letex:fileName']/@Value satisfies (matches(replace($kvp,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1')))) 
                                                                         or
-                                                                       (some $lru in current()//@LinkResourceURI satisfies (matches(replace($lru,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1'))))
+                                                                       (some $lru in (current(), key('Story-by-Self', current()//TextFrame/@ParentStory))//@LinkResourceURI satisfies (matches(replace($lru,'^.+/(.+)\.\w+$','$1'),replace($token, '([\.\?\*\(\)\[\]\\])', '\\$1'))))
                                                                        )
                                                           )]"
     mode="idml2xml:DocumentResolveTextFrames" priority="6">
@@ -379,9 +379,9 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each select=".//Content">
         <xsl:variable name="text-content" as="xs:string" select="idml2xml:text-content(.)"/>
-        <xsl:variable name="figure-or-group" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
-                                                                 [.//KeyValuePair[@Key = 'letex:fileName']
-                                                                                 [replace(@Value,'\.\w+$','') = $text-content]]]],
+        <xsl:variable name="anchored-object" select="( //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
+                                                                                    [.//KeyValuePair[@Key = 'letex:fileName']
+                                                                                    [replace(@Value,'\.\w+$','') = $text-content]]]],
                                                        //*[self::Group[*[self::Rectangle or self::Polygon or self::Oval]
                                                           [string-join(.//replace(@LinkResourceURI,'^.+/(.+)\.\w+$','$1'),'') = $text-content]]],
                                                       //*[self::Rectangle or self::Polygon or self::Oval]
@@ -390,6 +390,11 @@
                                                          [.//KeyValuePair[@Key = 'letex:fileName']
                                                                          [replace(@Value,'\.\w+$','') = $text-content]])
                                                      )[1]"/>
+        <xsl:variable name="figure-or-group" select="if (exists(key('TextFrame-by-ParentStory', $anchored-object/ancestor::Story/@Self)/ancestor::Group)) 
+                                                     then (key('TextFrame-by-ParentStory', $anchored-object/ancestor::Story/@Self)/ancestor::Group)[last()]
+                                                     else $anchored-object">
+          <!-- this is for the case where a group contains textframes where the image is included in a para. here we determine the group of those rectangles because they are not in the groups themselves. sigh. -->
+        </xsl:variable>
         <xsl:variable name="combiref-story" select="$figure-or-group/ancestor::Story" as="element(Story)*"/>
         <xsl:variable name="story" select="if (count(key('Story-by-StoryID', $text-content)) ge 1) 
                                            then key('Story-by-StoryID', $text-content)
