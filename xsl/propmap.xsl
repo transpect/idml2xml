@@ -180,6 +180,8 @@
           <val match="(^|\W)Bold" target-name="css:font-weight" target-value="bold" />
           <val eq="Bold" target-name="css:font-style" target-value="normal" />
           <val eq="Bold" target-name="css:font-weight" target-value="bold" />
+          <val eq="SemiLight" target-name="css:font-style" target-value="normal" />
+          <val eq="SemiLight" target-name="css:font-weight" target-value="300" />
           <val match="Light" target-name="css:font-weight" target-value="300" />
           <val eq="Light" target-name="css:font-style" target-value="normal" />
           <val eq="Light" target-name="css:font-weight" target-value="300" />
