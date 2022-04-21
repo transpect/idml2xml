@@ -4,7 +4,10 @@
   xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
   xmlns:idml2xml  = "http://transpect.io/idml2xml"
-  exclude-result-prefixes="aid xs idml2xml">
+  xmlns:functx="http://www.functx.com"
+  exclude-result-prefixes="aid xs idml2xml functx">
+  
+  <xsl:include href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
   
   <!-- Please note that this mode has side effects. For example, it will split links that contain 
        nested style candidates, or it may put spaces that are at the beginning or end of a span 
@@ -345,6 +348,9 @@
         <!-- Problem was here: 00a0, 200a and 202f still count as the same word. so \p{Zs} was replaced by single space characters -->
         <xsl:sequence select="'&#x20;&#x2001;&#x2002;&#x2003;&#x2004;&#x2005;&#x2006;&#x2007;&#x2008;&#x2009;'"/>
       </xsl:when>
+      <xsl:when test="$instruction/Delimiter/@type = 'string'">
+        <xsl:sequence select="functx:escape-for-regex($instruction/Delimiter)"/>
+      </xsl:when>
     </xsl:choose>
   </xsl:function>
   
@@ -375,6 +381,9 @@
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
         <xsl:sequence select="$nodes/(self::idml2xml:sep | self::idml2xml:tab)
           [not(preceding-sibling::node()[1]/(self::idml2xml:sep | self::idml2xml:tab))]"/>
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter/@type = 'string'">
+        <xsl:sequence select="$nodes/self::idml2xml:sep[matches(., concat('^[', idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), ']$'))]"/>
       </xsl:when>
     </xsl:choose>
   </xsl:function>
