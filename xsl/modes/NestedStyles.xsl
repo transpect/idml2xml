@@ -149,11 +149,11 @@
                                     or 
                                     not(node())
                                   ][idml2xml:same-scope(., current())]"
-        group-starting-with="*[idml2xml:is-pull-up-separator(.)]">
-        <xsl:copy-of select="current-group()/(self::*[idml2xml:is-pull-up-separator(.)])"/>
+        group-starting-with="*[idml2xml:is-pull-up-separator(., $context)]">
+        <xsl:copy-of select="current-group()/(self::*[idml2xml:is-pull-up-separator(., $context)])"/>
         <xsl:apply-templates select="$context/node()" mode="idml2xml:NestedStyles-upward-project">
           <xsl:with-param name="restricted-to" 
-            select="current-group()/ancestor-or-self::node()[not(self::*[idml2xml:is-pull-up-separator(.)])]" tunnel="yes"/>
+            select="current-group()/ancestor-or-self::node()[not(self::*[idml2xml:is-pull-up-separator(., $context)])]" tunnel="yes"/>
         </xsl:apply-templates>
       </xsl:for-each-group>  
     </xsl:copy>
@@ -161,6 +161,11 @@
   
   <xsl:function name="idml2xml:is-pull-up-separator" as="xs:boolean">
     <xsl:param name="el" as="element()"/>
+    <xsl:param name="context-para" as="element()"/>
+    <xsl:variable name="nested-style-cascade" as="element(*)*" 
+      select="$context-para/key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))"/>
+    <xsl:variable name="instructions" as="element(ListItem)*" 
+      select="($nested-style-cascade)[ListItem][last()]/ListItem"/>
     <xsl:sequence select="(
                             $el/self::idml2xml:tab
                             or
@@ -172,7 +177,17 @@
                                    every $n in node() 
                                    satisfies $n[self::idml2xml:tab[@role] or self::Properties]
                                  ]
-                          )"/>
+                          )
+                          (:do not pull up separators that extend beyond defined Repetition:)
+                          and count($el/preceding::*[name() = ('idml2xml:tab', 'idml2xml:sep')]
+                                                    [not(self::idml2xml:tab[@role]
+                                                      /parent::idml2xml:genSpan[
+                                                                                every $n in node() 
+                                                                                satisfies $n[self::idml2xml:tab[@role] or self::Properties]
+                                                                                ]
+                                                      )]
+                                                     [ancestor::idml2xml:genPara[1] is $context-para]
+                                    ) &lt; xs:integer(number($instructions[1]/Repetition))"/>
   </xsl:function>
 
   <xsl:template match="node()" mode="idml2xml:NestedStyles-upward-project">
@@ -250,10 +265,15 @@
           <xsl:otherwise>
             <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
               <xsl:sequence select="$pre-split-transformed"/>
+              <xsl:if test="$instructions/Inclusive = 'true'">
+                <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
+              </xsl:if>
             </idml2xml:genSpan>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
+        <xsl:if test="$instructions/Inclusive = 'false'">
+          <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
+        </xsl:if>
         <xsl:if test="$splitting-point/@ancestors != ''">
           <xsl:message>NestedStyles: Separator after '<xsl:value-of select="$nodes[. &lt;&lt; $splitting-point]"/>' 
   has split the following elements: <xsl:value-of select="$splitting-point/@ancestors"/>. Please check.</xsl:message>
