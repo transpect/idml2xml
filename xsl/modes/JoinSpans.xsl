@@ -140,4 +140,17 @@
     <xsl:apply-templates mode="idml2xml:JoinSpans" />
   </xsl:template>
 
+  <xsl:template match="ParagraphStyle | CharacterStyle | CellStyle | TableStyle | ObjectStyle" mode="idml2xml:JoinSpans">
+    <xsl:variable name="styledef" select="key('idml2xml:style-by-Name', @Name)[local-name() = current()/local-name()]" 
+                        as="element(*)+"/>
+    <xsl:choose >
+      <xsl:when test="count($styledef) gt 1 and @Imported = 'true'">
+        <xsl:message select="concat('&#xa;############  [WARNING]: Style ', @Name, ' is contained more than once. The imported version was discarded.')"/>
+      </xsl:when>
+        <xsl:otherwise>
+          <xsl:next-match/>
+        </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 </xsl:stylesheet>
