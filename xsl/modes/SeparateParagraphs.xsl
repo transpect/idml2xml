@@ -193,7 +193,7 @@
             <xsl:apply-templates select="." mode="idml2xml:SeparateParagraphs" />
           </xsl:when>
           <!-- Move a CharacterStyleRange down here, immediately above the rendered content: -->
-          <xsl:when test="exists($charstylerange) and name() = ($idml2xml:idml-content-element-names, 'Footnote', 'Table', 'Group', 'TextVariableInstance')">
+          <xsl:when test="exists($charstylerange) and name() = ($idml2xml:idml-content-element-names, 'Footnote', 'Table', 'Group', 'TextVariableInstance', 'Endnote')">
             <xsl:variable name="new-charstylerange" as="element(CharacterStyleRange)">
               <CharacterStyleRange>
                 <xsl:copy-of select="$charstylerange/(@*, Properties)" />
