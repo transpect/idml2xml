@@ -420,7 +420,7 @@
             </xsl:copy>    
           </xsl:when>
           <xsl:when test="count($figure-or-group) gt 0 and not(count($story) eq 1)">
-            <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)?"/>
+            <xsl:variable name="anchored-story" select="key('Story-by-Self',$figure-or-group/TextFrame/@ParentStory)" as="element(Story)*"/>
             <xsl:variable name="anchored-frame" select="$figure-or-group/(TextFrame | EndnoteTextFrame)" as="element(*)*"/>
             <xsl:variable name="potential-group1" select="($anchored-frame/ancestor::Group[last()], $anchored-frame)[1]" as="element(*)*"/>
 <!--            <xsl:variable name="anchored-frame" select="if ($figure-or-group[TextFrame | EndnoteTextFrame]) 
