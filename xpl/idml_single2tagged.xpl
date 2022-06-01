@@ -36,7 +36,7 @@
     <p:pipe port="report" step="JoinSpans"/>
   </p:output>
   <p:output port="result" primary="true">
-    <p:pipe step="JoinSpans" port="result" />
+    <p:pipe step="nested-styles" port="result" />
   </p:output>
   <p:serialization port="result" omit-xml-declaration="false"/>
   <p:output port="DocumentStoriesSorted">
@@ -148,6 +148,15 @@
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </tr:xslt-mode>
   
+  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:JoinSpans" name="JoinSpans">
+    <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
+    <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+    <p:input port="models"><p:empty/></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
+  </tr:xslt-mode>
+  
   <p:choose name="nested-styles">
     <p:when test="exists(//AllNestedStyles/ListItem)">
       <p:output port="result" primary="true"/>
@@ -156,7 +165,7 @@
         <p:pipe port="report" step="NestedStyles-pull-up-separators"/>
         <p:pipe port="report" step="NestedStyles-apply"/>
       </p:output>
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.54" mode="idml2xml:NestedStyles-create-separators" name="NestedStyles-create-separators">
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-create-separators" name="NestedStyles-create-separators">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -165,7 +174,7 @@
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-pull-up-separators" name="NestedStyles-pull-up-separators">
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-pull-up-separators" name="NestedStyles-pull-up-separators">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -174,7 +183,7 @@
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
       </tr:xslt-mode>
       
-      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.56" mode="idml2xml:NestedStyles-apply" name="NestedStyles-apply">
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.57" mode="idml2xml:NestedStyles-apply" name="NestedStyles-apply">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>
@@ -190,14 +199,7 @@
     </p:otherwise>
   </p:choose>
   
-  <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.60" mode="idml2xml:JoinSpans" name="JoinSpans">
-    <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
-    <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="fail-on-error" select="$fail-on-error"/>
-  </tr:xslt-mode>
+  
   
   <p:sink/>
 
