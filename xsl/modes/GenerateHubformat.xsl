@@ -2235,8 +2235,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
       <mediaobject>
         <xsl:if test="$fixed-layout = 'yes'">
           <xsl:attribute name="xml:id" select="(@xml:id, @idml2xml:id)[1]"/>
-          <xsl:attribute name="css:top" select="concat(xs:integer(round(xs:double(replace((@idml2xml:top, @css:top, 0)[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
-          <xsl:attribute name="css:left" select="concat(xs:integer(round(xs:double(replace((@idml2xml:left, @css:left, 0)[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
+          <xsl:attribute name="css:top" select="concat(xs:integer(round(xs:double(replace((@idml2xml:top, @css:top, '0')[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
+          <xsl:attribute name="css:left" select="concat(xs:integer(round(xs:double(replace((@idml2xml:left, @css:left, '0')[1], '\p{L}+$', '')) * 1000)) * 0.001, 'pt')"/>
           <xsl:if test="@idml2xml:transform or @css:transform">
             <xsl:attribute name="css:transform" select="(@css:transform, @idml2xml:transform)[1]"/>
           </xsl:if>

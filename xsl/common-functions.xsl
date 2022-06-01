@@ -625,8 +625,16 @@
 
   <xsl:function name="idml2xml:get-shape-width" as="xs:double">
     <xsl:param name="shape-element" as="element()"/>
-    <xsl:variable name="CoordinateLeft" select="idml2xml:get-shape-left-coordinate($shape-element)" as="xs:double"/>
-    <xsl:variable name="CoordinateRight" select="idml2xml:get-shape-right-coordinate($shape-element)" as="xs:double"/>
+    <xsl:variable name="CoordinateLeft" as="xs:double"
+      select="if($shape-element/Properties/PathGeometry)
+              then idml2xml:get-shape-left-coordinate($shape-element)
+              (: no PathGeometry element: inline image? :)
+              else 0"/>
+    <xsl:variable name="CoordinateRight" as="xs:double"
+      select="if($shape-element/Properties/PathGeometry)
+              then idml2xml:get-shape-right-coordinate($shape-element)
+              (: no PathGeometry element: inline image? :)
+              else 0"/>
     <xsl:choose>
       <xsl:when test="$CoordinateLeft ge 0 and $CoordinateRight ge 0">
         <xsl:sequence select="abs($CoordinateRight - $CoordinateLeft)"/>
