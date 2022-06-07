@@ -164,6 +164,7 @@
         <p:pipe port="report" step="NestedStyles-create-separators"/>
         <p:pipe port="report" step="NestedStyles-pull-up-separators"/>
         <p:pipe port="report" step="NestedStyles-apply"/>
+        <p:pipe port="report" step="NestedStyles-join"/>
       </p:output>
       <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.55" mode="idml2xml:NestedStyles-create-separators" name="NestedStyles-create-separators">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
@@ -184,6 +185,14 @@
       </tr:xslt-mode>
       
       <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.57" mode="idml2xml:NestedStyles-apply" name="NestedStyles-apply">
+        <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
+        <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
+        <p:input port="models"><p:empty/></p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
+      </tr:xslt-mode>
+      <tr:xslt-mode msg="yes" prefix="idml2xml/idml2xml.57" mode="idml2xml:NestedStyles-join" name="NestedStyles-join">
         <p:input port="parameters"><p:pipe step="single2tagged" port="xslt-params"/></p:input>
         <p:input port="stylesheet"><p:pipe step="single2tagged" port="xslt-stylesheet"/></p:input>
         <p:input port="models"><p:empty/></p:input>

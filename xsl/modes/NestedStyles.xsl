@@ -8,6 +8,7 @@
   exclude-result-prefixes="aid xs idml2xml functx">
   
   <xsl:include href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
+  <xsl:import href="JoinSpans.xsl"/>
   
   <!-- Please note that this mode has side effects. For example, it will split links that contain 
        nested style candidates, or it may put spaces that are at the beginning or end of a span 
@@ -407,5 +408,19 @@
       </xsl:when>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:template match="*[@aid:pstyle]
+    [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
+    [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
+    mode="idml2xml:NestedStyles-join">    
+    <xsl:apply-templates mode="idml2xml:JoinSpans"/>
+  </xsl:template>
+  
+  <xsl:template match="* | @* | comment() | processing-instruction()" priority="-1"
+    mode="idml2xml:NestedStyles-join">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="idml2xml:JoinSpans"/>
+    </xsl:copy>
+  </xsl:template>
   
 </xsl:stylesheet>
