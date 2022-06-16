@@ -266,13 +266,13 @@
           <xsl:otherwise>
             <idml2xml:genSpan aid:cstyle="{$pre-split-cstyle}">
               <xsl:sequence select="$pre-split-transformed"/>
-              <xsl:if test="$instructions[1]/Inclusive = 'true'">
+              <xsl:if test="$instructions[1]/Inclusive = 'true' and not($instructions[1]/Delimiter = 'AnyWord')">
                 <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
               </xsl:if>
             </idml2xml:genSpan>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:if test="$instructions[1]/Inclusive = 'false'">
+        <xsl:if test="$instructions[1]/Inclusive = 'false' or $instructions[1]/Delimiter = 'AnyWord'">
           <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
         </xsl:if>
         <xsl:if test="$splitting-point/@ancestors != ''">
