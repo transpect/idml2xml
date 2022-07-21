@@ -79,9 +79,9 @@
   <xsl:template match="@CrossReferenceType[. eq 'CustomCrossReferenceBefore']" mode="idml2xml:Document">
     <xsl:attribute name="{local-name()}">
       <xsl:choose>
-        <xsl:when test="matches(parent::*/@CustomTypeString, '^(&#xfeff;)?(siehe[\s]auch|see[\s]also|(s\.|siehe\s)a\.)', 'i')">SeeAlso</xsl:when>
+        <xsl:when test="matches(parent::*/@CustomTypeString, '^(&#xfeff;)?(siehe\p{Zs}auch|see\p{Zs}also|(s\.|siehe\p{Zs})a\.)', 'i')">SeeAlso</xsl:when>
+        <xsl:when test="matches(parent::*/@ReferencedTopic, 'Topicn(siehe\p{Zs}auch|see\p{Zs}also|(s\.|siehe\p{Zs})a\.)\s', 'i')">SeeAlso</xsl:when>
         <xsl:when test="matches(parent::*/@CustomTypeString, '^(&#xfeff;)?(siehe|see|s\.)', 'i')">See</xsl:when>
-        <xsl:when test="matches(parent::*/@ReferencedTopic, 'Topicn(siehe[\s]auch|see[\s]also|(s\.|siehe\s)a\.)\s', 'i')">SeeAlso</xsl:when>
         <xsl:when test="matches(parent::*/@ReferencedTopic, 'Topicn(siehe|see|s\.)\s', 'i')">See</xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="." />
