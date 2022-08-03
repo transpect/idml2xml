@@ -155,7 +155,7 @@
         <xsl:apply-templates select="$context/node()" mode="idml2xml:NestedStyles-upward-project">
           <xsl:with-param name="restricted-to" 
                           select="current-group()/ancestor-or-self::node()[not(self::*[idml2xml:is-pull-up-separator(., $context)])]" tunnel="yes"/>
-          <xsl:with-param name="is-generated-wrapper" select="position() gt 1" as="xs:boolean" tunnel="yes"/>
+          <xsl:with-param name="pos" select="position()" as="xs:integer" tunnel="yes"/>
         </xsl:apply-templates>
       </xsl:for-each-group>  
     </xsl:copy>
@@ -194,14 +194,17 @@
 
   <xsl:template match="node()" mode="idml2xml:NestedStyles-upward-project">
     <xsl:param name="restricted-to" as="node()+" tunnel="yes" />
-    <xsl:param name="is-generated-wrapper" select="false()" as="xs:boolean" tunnel="yes"/>
+    <xsl:param name="pos" select="1" as="xs:integer" tunnel="yes"/>
     <xsl:if test="exists(. intersect $restricted-to)">
       <xsl:copy copy-namespaces="no">
         <!-- https://redmine.le-tex.de/issues/13079 
              do not duplicate srcpaths to avoid duplicate element errors later -->
-        <xsl:copy-of select="if($is-generated-wrapper) 
+        <xsl:copy-of select="if($pos gt 1) 
                              then @* except @srcpath
-                             else @*" />
+                             else @*"/>
+        <xsl:if test="$pos gt 1">
+          <xsl:attribute name="srcpath" select="concat(@srcpath, '_', $pos)"/>
+        </xsl:if>
         <xsl:apply-templates mode="#current" />
       </xsl:copy>
     </xsl:if>
