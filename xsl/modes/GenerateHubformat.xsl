@@ -772,8 +772,6 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                                then 'diamond'
                           else if($is-unicode and $char-elt/@BulletCharacterValue = ('9725'))                 (:U+25FD:)
                                then 'box'
-                          else if($is-unicode and $char-elt/@BulletCharacterValue = ('9723'))                 (:U+25FB:)
-                               then '&#x25fb;'
                           else if($is-unicode and $char-elt/@BulletCharacterValue = ('9726'))                 (:U+25FE:)
                                then 'square'
                           else if($is-unicode and $char-elt/@BulletCharacterValue)
