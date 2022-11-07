@@ -327,7 +327,7 @@
 
   <xsl:template match="idml2xml:sidebar/@*[local-name() = ('pos-in-book', 'pos-in-doc', 'Self')]" mode="idml2xml:XML-Hubformat-add-properties"/>
 
-  <xsl:template match="*[self::Properties or self::Image][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
+  <xsl:template match="*[self::Properties or self::Image or self::EPS][parent::*[name() = $idml2xml:shape-element-names]]" mode="idml2xml:XML-Hubformat-add-properties">
     <!-- what is this for? Had to exclude Link bc otherwise the URI would be duplicated --> 
     <xsl:apply-templates select="node() except Link" mode="#current"/>
     <xsl:copy-of select="."/>
@@ -1003,7 +1003,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="TextWrapPreference | FrameFittingOption | ObjectExportOption | AnchoredObjectSetting"
     mode="idml2xml:XML-Hubformat-properties2atts"/>
   
-  <xsl:template match="*[self::*:PDF | self::*:Image][..[*:ObjectExportOption[@CustomAltText ne '$ID/']]]/@Self"  mode="idml2xml:JoinSpans" priority="2">
+  <xsl:template match="*[self::*:PDF | self::*:Image | self::*:EPS][..[*:ObjectExportOption[@CustomAltText ne '$ID/']]]/@Self"  mode="idml2xml:JoinSpans" priority="2">
     <xsl:next-match/>
     <xsl:apply-templates select="../../*:ObjectExportOption/@CustomAltText" mode="#current"/>
   </xsl:template>
