@@ -3008,6 +3008,18 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:if>
   </xsl:template>
   
+  <xsl:template match="dbk:indexterm[not(@role='hub:not-placed-on-page')]/@see-crossref-topics" 
+                 mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <!-- if we have in content something like this:
+    <indexterm xml:id="xyz" see-crossref-topics="u3daTopicnEssen">
+            <primary>Trinken</primary>
+            <secondary>zur Entspannung</secondary>
+     </indexterm>
+     we discard the attribute because no see may be created if children exist. And this attribute might cause problems otherwise.
+    -->
+  </xsl:template>
+    
+  
   <xsl:template match="dbk:para" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
     <xsl:param name="orphaned-indexterm-para" as="element(dbk:para)?" tunnel="yes"/>
     <xsl:choose>
