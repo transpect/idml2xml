@@ -193,9 +193,9 @@
   <xsl:template match="*[not(self::Table or self::Group)][idml2xml:Br]" mode="idml2xml:ConsolidateParagraphStyleRanges">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
-      <xsl:copy-of select="StoryPreference union InCopyExportOption" />
+      <xsl:copy-of select="StoryPreference union InCopyExportOption union GridDataInformation" />
       <xsl:variable name="context" select="." as="element(*)" />
-      <xsl:for-each-group select="* except (StoryPreference union InCopyExportOption)" group-adjacent="not(self::idml2xml:Br)">
+      <xsl:for-each-group select="* except (StoryPreference union InCopyExportOption union GridDataInformation)" group-adjacent="not(self::idml2xml:Br)">
         <xsl:choose>
           <xsl:when test="current-grouping-key()">
             <xsl:variable 
