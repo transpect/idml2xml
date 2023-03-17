@@ -264,4 +264,5 @@
     <xsl:message select="concat('IDML2XML warning in ConsolidateParagraphStyleRanges: ', name(), ' ', @Self, ' will be unwrapped.')" />
   </xsl:template>
 
+  
 </xsl:stylesheet>
