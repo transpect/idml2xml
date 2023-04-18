@@ -268,6 +268,10 @@
                  Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5]
             idml2xml:genFrame: UV 39001 Story_u3dc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[489]/CharacterStyleRange[2]-->
             <xsl:sequence select="$pre-split-transformed"/>
+            <xsl:if test="$instructions[1]/Inclusive = 'true' and not($instructions[1]/Delimiter = 'AnyWord')">
+                <!-- if style is already applied do not kill delimiter (here: tab in Hogrefe_MFB_86013-FnLy) -->
+                <xsl:apply-templates select="$splitting-point" mode="idml2xml:NestedStyles-apply"/>
+              </xsl:if>
           </xsl:when>
           <xsl:when test="$dropcaps-flag = 'none'">
             <xsl:sequence select="$pre-split-transformed"/>
