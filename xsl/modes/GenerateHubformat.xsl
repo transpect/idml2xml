@@ -1310,6 +1310,29 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:template>
   
+  <!-- https://redmine.le-tex.de/issues/14667 
+       remove text-decoration-style if corresponding text-decoration-line is inactive -->
+  
+  <xsl:template match="idml2xml:attribute[@name = 'css:text-decoration-style']" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:variable name="line-atts"            as="xs:string*"
+                  select="tokenize(
+                            string-join(
+                              parent::*/idml2xml:attribute[@name eq 'css:text-decoration-line'], ' '
+                              ), '\s+'
+                          )"/>
+    <xsl:variable name="values-tokenized" as="xs:string+" select="tokenize(., '\s')"/>
+    <xsl:if test="exists($line-atts)">      
+      <xsl:attribute name="{@name}">
+        <xsl:for-each select="$line-atts">
+          <xsl:variable name="pos" select="position()" as="xs:integer"/>
+          <xsl:if test="not(ends-with(., 'none'))">
+            <xsl:sequence select="$values-tokenized[$pos]"/>
+          </xsl:if>
+        </xsl:for-each>  
+      </xsl:attribute>
+    </xsl:if>
+  </xsl:template>
+  
   <!-- aimed at cmyk colors in the 0.0 .. 1.0 value space -->
   <xsl:function name="idml2xml:tint-color" as="xs:string">
     <xsl:param name="color" as="xs:string" />
