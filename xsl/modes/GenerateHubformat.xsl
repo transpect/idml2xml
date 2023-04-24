@@ -1325,7 +1325,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:for-each select="$line-atts">
           <xsl:variable name="pos" select="position()" as="xs:integer"/>
           <xsl:if test="not(ends-with(., 'none'))">
-            <xsl:sequence select="$values-tokenized[$pos]"/>
+            <xsl:sequence select="($values-tokenized[$pos], $values-tokenized[last()])[1]"/>
           </xsl:if>
         </xsl:for-each>  
       </xsl:attribute>
