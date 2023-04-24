@@ -1316,9 +1316,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="idml2xml:attribute[@name = 'css:text-decoration-style']" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:variable name="line-atts"            as="xs:string*"
                   select="tokenize(
-                            string-join(
-                              parent::*/idml2xml:attribute[@name eq 'css:text-decoration-line'], ' '
-                              ), '\s+'
+                            parent::*/idml2xml:attribute[@name eq 'css:text-decoration-line'][last()],
+                            '\s+'
                           )"/>
     <xsl:variable name="values-tokenized" as="xs:string+" select="tokenize(., '\s')"/>
     <xsl:if test="exists($line-atts)">      
