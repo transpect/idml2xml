@@ -224,9 +224,8 @@
   </xsl:template>
 
   <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, 'No.character.style')]
-		                                  (:[parent::idml2xml:genPara[count(descendant::idml2xml:genSpan) = 1]]:)
-  						  [not(@*[not(matches(name(), '^(srcpath|idml2xml|aid|xml)'))])]
-  						  [not(Properties)]" 
+		                                   [parent::idml2xml:genPara[count(descendant::idml2xml:genSpan) = 1]]
+		                                   [not(@*[not(matches(name(), '^(srcpath|idml2xml|aid)'))])]" 
 		mode="idml2xml:AutoCorrect-clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
