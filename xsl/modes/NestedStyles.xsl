@@ -174,22 +174,23 @@
                             $el/self::idml2xml:sep
                           )
                           and 
-                          not($el/self::idml2xml:tab[@role]
+                          idml2xml:is-pullable-tab($el)
+                          (:do not pull up separators that extend beyond defined Repetition (shouldn’t we consider repetition only for the specific delimiter in question?) :)
+                          and count($el/preceding::*[self::idml2xml:sep or idml2xml:is-pullable-tab(.[@role = $el/@role])]
+                                                    [ancestor::idml2xml:genPara[1] is $context-para]
+                                    ) &lt; (if (string($instructions[1]/Repetition) castable as xs:integer)
+                                            then xs:integer(number($instructions[1]/Repetition))
+                                            else 1)"/>
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:is-pullable-tab" as="xs:boolean">
+    <xsl:param name="el" as="element(*)?"/>
+    <xsl:sequence select="exists($el/self::idml2xml:tab[@role[not(. = 'footnotemarker')]])
+                          and empty($el
                                  /parent::idml2xml:genSpan[
                                    every $n in node() 
                                    satisfies $n[self::idml2xml:tab[@role] or self::Properties]
-                                 ]
-                          )
-                          (:do not pull up separators that extend beyond defined Repetition:)
-                          and count($el/preceding::*[name() = ('idml2xml:tab', 'idml2xml:sep')]
-                                                    [not(self::idml2xml:tab[@role]
-                                                      /parent::idml2xml:genSpan[
-                                                                                every $n in node() 
-                                                                                satisfies $n[self::idml2xml:tab[@role] or self::Properties]
-                                                                                ]
-                                                      )]
-                                                     [ancestor::idml2xml:genPara[1] is $context-para]
-                                    ) &lt; xs:integer(number($instructions[1]/Repetition))"/>
+                                 ])"/>
   </xsl:function>
 
   <xsl:template match="node()" mode="idml2xml:NestedStyles-upward-project">
@@ -235,21 +236,24 @@
       select="idml2xml:style-ancestors-and-self(key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle)))[descendant::AllNestedStyles][1]/Properties/AllNestedStyles/ListItem"/>
     <xsl:copy copy-namespaces="no">
       <xsl:copy-of select="@* except @idml2xml:dropcaps, Properties"/>
-      <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, $instructions, @idml2xml:dropcaps)"/>
+      <xsl:sequence select="idml2xml:apply-nested-style(node() except Properties, ., $instructions, @idml2xml:dropcaps)"/>
     </xsl:copy>
   </xsl:template>
     
   <xsl:function name="idml2xml:apply-nested-style" as="node()*">
     <xsl:param name="nodes" as="node()*"/>
+    <xsl:param name="context" as="element()"/>
     <xsl:param name="instructions" as="element(ListItem)*"/>
     <xsl:param name="dropcaps-flag" as="attribute(idml2xml:dropcaps)?"/>
     <xsl:variable name="splitting-point-candidates" as="element(*)*" 
       select="idml2xml:NestedStyles-splitting-point-candidates($nodes, $instructions[1])"/>
-    <!--<cands>
-      <xsl:sequence select="$splitting-point-candidates, $instructions[1], $nodes"/>
-    </cands>-->
     <xsl:variable name="splitting-point" as="element(*)?" 
-      select="$splitting-point-candidates[position() = xs:integer(number($instructions[1]/Repetition))]"/>
+      select="$splitting-point-candidates[position() = (if (string($instructions[1]/Repetition) castable as xs:integer)
+                                                        then xs:integer(number($instructions[1]/Repetition))
+                                                        else 1)]"/>
+    <!--<cands>
+      <xsl:sequence select="$dropcaps-flag, exists($splitting-point), $splitting-point-candidates, $instructions[1], $nodes"/>
+    </cands>-->
     <xsl:choose>
       <xsl:when test="exists($splitting-point)">
         <xsl:variable name="pre-split-cstyle" as="xs:string" select="idml2xml:StyleName($instructions[1]/AppliedCharacterStyle)"/>
@@ -261,9 +265,18 @@
             <xsl:with-param name="pre-split-cstyle" select="$pre-split-cstyle" tunnel="yes"/>
           </xsl:apply-templates>
         </xsl:variable>
+        <xsl:variable name="meaningful-pre-splts" as="item()*" select="$pre-split-transformed[normalize-space() 
+                                                             or 
+                                                             exists(descendant-or-self::idml2xml:tab[@role = 'footnotemarker'][idml2xml:same-scope(., $context)])
+                                                            ]
+                                                            [not(self::idml2xml:genFrame)]"/>
         <xsl:choose>
-          <xsl:when test="every $n in $pre-split-transformed[normalize-space()][not(self::idml2xml:genFrame)] 
-                          satisfies ($n/@aid:cstyle = $pre-split-cstyle)">
+          <xsl:when test="exists($meaningful-pre-splts)
+                          and
+                          (
+                            every $n in $meaningful-pre-splts
+                            satisfies (exists($n/@aid:cstyle) and $n/@aid:cstyle = $pre-split-cstyle)
+                          )">
             <!-- The to-be-applied cstyle is already present or whitespace-only nodes, cf. UV 00495_Singh_Nekropolis,
                  Stories/Story_u17d.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[285]/CharacterStyleRange[5]
             idml2xml:genFrame: UV 39001 Story_u3dc.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[489]/CharacterStyleRange[2]-->
@@ -295,7 +308,8 @@
         <xsl:choose>
           <xsl:when test="exists($instructions[2])">
             <xsl:sequence
-              select="idml2xml:apply-nested-style($splitting-point/following-sibling::node(), 
+              select="idml2xml:apply-nested-style($splitting-point/following-sibling::node(),
+                                                  $context,
                                                   $instructions[position() gt 1], 
                                                   $dropcaps-flag)"/>
           </xsl:when>
@@ -355,6 +369,8 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="$pre-split-cstyle">
+        <!-- because of <xsl:variable name="role" select="idml2xml:StyleName( (@aid:cstyle, '')[1] )"/> in GenerateHubformat.xsl -->
+        <xsl:attribute name="idml2xml:rst" select="$pre-split-cstyle"/>
         <xsl:attribute name="aid:cstyle" select="$pre-split-cstyle"/>  
       </xsl:if>
       <xsl:apply-templates mode="#current"/>
@@ -425,7 +441,7 @@
   <xsl:template match="*[@aid:pstyle]
     [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
     [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
-    mode="idml2xml:NestedStyles-join">    
+    mode="idml2xml:NestedStyles-join">
     <xsl:apply-templates mode="idml2xml:JoinSpans"/>
   </xsl:template>
   

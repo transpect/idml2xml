@@ -1873,7 +1873,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="idml2xml:label" select="."/>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text()] ) ]" 
+  <xsl:template match="idml2xml:genSpan[ not( descendant::node()[self::text() | self::idml2xml:tab[@role = 'footnotemarker']] ) ]" 
 		mode="idml2xml:XML-Hubformat-remap-para-and-span"
 		priority="-1">
     <xsl:apply-templates mode="#current"/>
