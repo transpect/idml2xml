@@ -185,7 +185,9 @@
   
   <xsl:function name="idml2xml:is-pullable-tab" as="xs:boolean">
     <xsl:param name="el" as="element(*)?"/>
-    <xsl:sequence select="exists($el/self::idml2xml:tab[@role[not(. = 'footnotemarker')]])
+    <xsl:sequence select="exists($el/self::idml2xml:tab[@role[not(. = 'footnotemarker')]]
+                                 | $el/self::idml2xml:tab[empty(@role)]
+                                 | $el/self::idml2xml:sep)
                           and empty($el
                                  /parent::idml2xml:genSpan[
                                    every $n in node() 
@@ -397,6 +399,7 @@
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
         <!-- Problem was here: 00a0, 200a and 202f still count as the same word. so \p{Zs} was replaced by single space characters -->
         <xsl:sequence select="'&#x20;&#x2001;&#x2002;&#x2003;&#x2004;&#x2005;&#x2006;&#x2007;&#x2008;&#x2009;'"/>
+        <!-- &#9; isn’t included because AnyWord also looks at idml2xml:tab[empty(@role)] -->
       </xsl:when>
       <xsl:when test="$instruction/Delimiter/@type = 'string'">
         <xsl:sequence select="functx:escape-for-regex($instruction/Delimiter)"/>
@@ -429,8 +432,8 @@
         <xsl:sequence select="$nodes/self::idml2xml:tab[@role = 'right']"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter = 'AnyWord'">
-        <xsl:sequence select="$nodes/(self::idml2xml:sep | self::idml2xml:tab)
-          [not(preceding-sibling::node()[1]/(self::idml2xml:sep | self::idml2xml:tab))]"/>
+        <xsl:sequence select="$nodes/(self::idml2xml:sep | self::idml2xml:tab[empty(@role)])
+          [not(preceding-sibling::node()[1]/(self::idml2xml:sep | self::idml2xml:tab[empty(@role)]))]"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter/@type = 'string'">
         <xsl:sequence select="$nodes/self::idml2xml:sep[matches(., concat('^[', idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), ']$'))]"/>
