@@ -116,9 +116,13 @@
                       accumulator-before('text-length')[1] lt $dropcaps
                       and
                       accumulator-before('text-length')[1] + string-length(.) ge $dropcaps">
-        <xsl:value-of select="substring(., 1, $dropcaps - accumulator-before('text-length')[1])"/>
+        <xsl:variable name="head-length" as="xs:integer" select="$dropcaps - accumulator-before('text-length')[1]"/>
+        <xsl:value-of select="substring(., 1, $head-length)"/>
         <idml2xml:sep role="Dropcap"/>
-        <xsl:value-of select="substring(., string-length(.) - ($dropcaps - accumulator-before('text-length')[1]))"/>
+        <xsl:variable name="tail-length" as="xs:integer" select="string-length(.) - $head-length"/>
+        <xsl:if test="$tail-length gt 0">
+          <xsl:value-of select="substring(., $tail-length)"/>  
+        </xsl:if>
       </xsl:when>
       <xsl:when test="$regex and
                       (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
