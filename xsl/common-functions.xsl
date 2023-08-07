@@ -787,7 +787,9 @@
                           and
                           empty($text-node/(  ancestor::Properties 
                                             | ancestor::Note 
+                                            | ancestor::Cell[empty(ancestor::* intersect $para)]
                                             | ancestor::Footnote[empty(ancestor::* intersect $para)]
+                                            | parent::idml2xml:genSpan[matches(@AppliedConditions, 'PrintOnly')]
                                            ))"/>
   </xsl:function>
 
