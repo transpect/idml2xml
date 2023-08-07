@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
   xmlns:xsl   = "http://www.w3.org/1999/XSL/Transform"
   xmlns:xs    = "http://www.w3.org/2001/XMLSchema"
   xmlns:aid   = "http://ns.adobe.com/AdobeInDesign/4.0/"
@@ -48,6 +48,10 @@
       select="for $d in (/idml2xml:doc/*:Preferences/TextDefault/@DropCapCharacters,
                          $style-cascade/@DropCapCharacters)[last()][. > 0] 
               return idml2xml:dropcap-regex(xs:integer($d))"/>
+    <xsl:variable name="dropcaps" as="xs:integer?" 
+      select="for $d in (/idml2xml:doc/*:Preferences/TextDefault/@DropCapCharacters,
+                         $style-cascade/@DropCapCharacters)[last()][. > 0] 
+              return xs:integer($d)"/>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="$instructions[1]/Delimiter = 'Dropcap' and empty($dropcap-regex)">
@@ -84,6 +88,7 @@
                                                                  else if ($instructions[1]/Delimiter = 'Dropcap')
                                                                        then 'dropcap'
                                                                        else ()" tunnel="yes"/>
+        <xsl:with-param name="dropcaps" as="xs:integer?" tunnel="yes" select="$dropcaps"/>
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
@@ -91,21 +96,29 @@
   <!-- We don’t (yet) support:
     Sentence AnyCharacter Letters Digits InlineGraphic EndNestedStyle AutoPageNumber SectionMarker Repeat
     We do support:
-    Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord DropCap 
+    Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord DropCap string
     -->
   
-  <xsl:template match="text()" mode="idml2xml:NestedStyles-create-separators">
+  <xsl:mode name="idml2xml:NestedStyles-create-separators" use-accumulators="#all"/>
+  
+  <xsl:template match="text()[idml2xml:is-para-text(., ancestor::*[@aid:pstyle][1])]" mode="idml2xml:NestedStyles-create-separators">
     <xsl:param name="potentially-sep-containing-text-nodes" as="text()*" tunnel="yes"/>
     <xsl:param name="regex" as="xs:string?" tunnel="yes"/>
     <xsl:param name="instruction" as="element(ListItem)?" tunnel="yes"/>
-    <xsl:param name="regex-type" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="dropcaps" as="xs:integer?" tunnel="yes"/>
+    <!--<xsl:value-of select="'|tl=' || accumulator-before('text-length')[1] || '|wc=' || accumulator-before('word-count')[1] ||
+                          '|wbb=' || accumulator-before('word-boundary')[1] || '|tsf=' || accumulator-before('text-so-far')[1] || '|'"/>-->
     <xsl:choose>
-      <xsl:when test="$regex and $regex-type eq 'dropcap'
-                      and ($instruction/Delimiter = 'Dropcap')
-                      and (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
-        <xsl:value-of select="replace(., $regex, '$1')"/>
+      <xsl:when test="$instruction/Delimiter = 'Dropcap'
+                      and 
+                      $dropcaps instance of xs:integer
+                      and
+                      accumulator-before('text-length')[1] lt $dropcaps
+                      and
+                      accumulator-before('text-length')[1] + string-length(.) ge $dropcaps">
+        <xsl:value-of select="substring(., 1, $dropcaps - accumulator-before('text-length')[1])"/>
         <idml2xml:sep role="Dropcap"/>
-        <xsl:value-of select="replace(., $regex, '$2')"/>
+        <xsl:value-of select="substring(., string-length(.) - ($dropcaps - accumulator-before('text-length')[1]))"/>
       </xsl:when>
       <xsl:when test="$regex and
                       (some $t in $potentially-sep-containing-text-nodes satisfies ($t is .))">
