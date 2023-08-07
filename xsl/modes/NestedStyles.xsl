@@ -188,12 +188,18 @@
                           )
                           and 
                           idml2xml:is-pullable-tab($el)
-                          (:do not pull up separators that extend beyond defined Repetition (shouldn’t we consider repetition only for the specific delimiter in question?) :)
-                          and count($el/preceding::*[self::idml2xml:sep or idml2xml:is-pullable-tab(.[@role = $el/@role])]
+                          (:do not pull up separators that extend beyond defined Repetition (shouldn’t we consider repetition only for the specific delimiter in question?) 
+                          It turned out to be an obstacle in applying the nested styles in 
+                          https://subversion.le-tex.de/content/beltz/content/testset/Beltz/W/WQR/12345/idml/12345_WQR_Formate_Transpect.idml,
+                          for ex. in Allhoff, D.-W./Allhoff, W.: Rhetorik &amp; Kommunikation. München: Ernst Reinhardt (15. Auflage) 2010 
+                          There, ':' switched on char style 'kursiv', '.' switched it off. Both were set to Repetition=1, therefore
+                          it seems as if repetition only start to count after the preceding nested style rule has been applied,
+                          which we probably don’t account for in mode idml2xml:NestedStyles-apply. :)
+                          (:and count($el/preceding::*[self::idml2xml:sep or idml2xml:is-pullable-tab(.[@role = $el/@role])]
                                                     [ancestor::idml2xml:genPara[1] is $context-para]
                                     ) &lt; (if (string($instructions[1]/Repetition) castable as xs:integer)
                                             then xs:integer(number($instructions[1]/Repetition))
-                                            else 1)"/>
+                                            else 1):)"/>
   </xsl:function>
   
   <xsl:function name="idml2xml:is-pullable-tab" as="xs:boolean">

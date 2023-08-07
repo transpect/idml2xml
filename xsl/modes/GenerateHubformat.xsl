@@ -2707,8 +2707,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:attribute name="{name()}" select="replace(., '(normal | normal)', '')"/>
   </xsl:template>
 	<xsl:template match="css:rule[@layout-type = 'para']/@css:font-variant[. = 'normal']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br"/>
+  
   <xsl:template match="dbk:phrase[@srcpath][count(@*) = 1]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
   	<xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:phrase[empty(@*)]" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+  	<!-- probably a phrase generated when applying nested styles -->
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
 	
   <xsl:template match="@css:text-decoration-width[. = '-9999pt']" mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
