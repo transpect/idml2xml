@@ -132,9 +132,9 @@
                                    we mustn’t let styled spans consume these text nodes that have recently become unwrapped. 
                                 if ($node/self::text()
                                       [matches(., '^[\p{Zs}\s]+$')]
-                                      [idml2xml:signature($node/preceding-sibling::*[1]) eq idml2xml:signature($node/following-sibling::*[1])]
+                                      [idml2xml:link-signature($node/preceding-sibling::*[1]) eq idml2xml:link-signature($node/following-sibling::*[1])]
                                    )
-                                then idml2xml:signature($node/preceding-sibling::*[1])
+                                then idml2xml:link-signature($node/preceding-sibling::*[1])
                                 else:) ''
                           " />
   </xsl:function>
