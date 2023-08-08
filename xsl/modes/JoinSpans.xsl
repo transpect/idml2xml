@@ -128,13 +128,14 @@
                               if ($node/self::*)
                               then ''
                               else 
+                                (: If 'No character style' spans are dissolved (https://github.com/transpect/idml2xml/commit/0d4a639), 
+                                   we mustn’t let styled spans consume these text nodes that have recently become unwrapped. 
                                 if ($node/self::text()
                                       [matches(., '^[\p{Zs}\s]+$')]
-                                      [normalize-space(idml2xml:link-signature($node/preceding-sibling::*[1]))]
-                                      [idml2xml:link-signature($node/preceding-sibling::*[1]) = idml2xml:link-signature($node/following-sibling::*[1])]
+                                      [idml2xml:signature($node/preceding-sibling::*[1]) eq idml2xml:signature($node/following-sibling::*[1])]
                                    )
-                                then idml2xml:link-signature($node/preceding-sibling::*[1])
-                                else ''
+                                then idml2xml:signature($node/preceding-sibling::*[1])
+                                else:) ''
                           " />
   </xsl:function>
 
