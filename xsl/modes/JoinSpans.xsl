@@ -9,7 +9,7 @@
   <!-- mode: idml2xml:JoinSpans -->
   
   <xsl:template match="*[*[@aid:cstyle]]" mode="idml2xml:JoinSpans">
-    <xsl:copy >
+    <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current" />
       <xsl:for-each-group select="node()" group-adjacent="idml2xml:phrase-signature(.)">
         <xsl:choose>
@@ -106,12 +106,14 @@
                             if ($node/self::*)
                             then ''
                             else
+                              (: If 'No character style' spans are dissolved (https://github.com/transpect/idml2xml/commit/0d4a639), 
+                                 we mustn’t let styled spans consume these text nodes that have recently become unwrapped. 
                               if ($node/self::text()
                                     [matches(., '^[\p{Zs}\s]+$')]
                                     [idml2xml:signature($node/preceding-sibling::*[1]) eq idml2xml:signature($node/following-sibling::*[1])]
                                  )
                               then idml2xml:signature($node/preceding-sibling::*[1])
-                              else ''
+                              else:) ''
                           " />
   </xsl:function>
   
