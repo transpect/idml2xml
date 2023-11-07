@@ -634,7 +634,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
       <xsl:when test=". eq 'linear'">
         <xsl:choose>
-          <xsl:when test="../@target-name = ('hub:drop-cap-chars', 'hub:drop-cap-lines') and xs:integer($val) eq 0"/>
+          <xsl:when test="../@target-name = ('hub:drop-cap-chars', 'css:initial-letter') and xs:integer($val) eq 0"/>
           <xsl:otherwise>
             <idml2xml:attribute name="{../@target-name}"><xsl:value-of select="$val" /></idml2xml:attribute>
           </xsl:otherwise>
@@ -2017,6 +2017,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="@srcpath" mode="idml2xml:XML-Hubformat-remap-para-and-span" >
     <xsl:copy-of select="." />
   </xsl:template>
+
+  <!-- There is a collateral grouping for css:initial-letter (drop caps) in mode 
+       idml2xml:XML-Hubformat-modify-table-styles in NestedStyles.xsl -->
 
   <!-- Apply default cell style (which is solid, black, 0.5pt) -->
   <xsl:template match="dbk:style[parent::dbk:cellstyles] | css:rule[@layout-type eq 'cell']"

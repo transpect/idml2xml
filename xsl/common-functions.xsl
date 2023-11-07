@@ -9,7 +9,8 @@
     xmlns:aid5  = "http://ns.adobe.com/AdobeInDesign/5.0/"
     xmlns:idPkg = "http://ns.adobe.com/AdobeInDesign/idml/1.0/packaging"
     xmlns:idml2xml  = "http://transpect.io/idml2xml"
-    exclude-result-prefixes = "xs idPkg css math"
+    xmlns:map = "http://www.w3.org/2005/xpath-functions/map"
+    exclude-result-prefixes = "xs idPkg css math map"
 >
 
   <xsl:param name="item-not-on-workspace-pt-tolerance" as="xs:string" select="'1'"/>
@@ -259,6 +260,26 @@
                           or $elt/@idml2xml:story
                           or $elt/self::idml2xml:genFrame[empty(idml2xml:genFrame)]
                           " />
+  </xsl:function>
+  
+  <xsl:function name="idml2xml:is-para-text" as="xs:boolean">
+    <!-- use idml2xml:same-scope() instead? -->
+    <xsl:param name="text-node" as="text()?"/>
+    <xsl:param name="para" as="element()?"/>
+    <xsl:sequence select="exists($text-node)
+                          and
+                          exists($para)
+                          and
+                          $para is $text-node/ancestor::*[@aid:pstyle][1]
+                          and
+                          empty($text-node/(  ancestor::Properties 
+                                            | ancestor::Note 
+                                            | ancestor::Cell[exists(ancestor::* intersect $para)] (: if text is in cell, para should also be in cell :)
+                                            | ancestor::Footnote[exists(ancestor::* intersect $para)]
+                                            | parent::idml2xml:genSpan[matches(@AppliedConditions, 'PrintOnly')]
+                                            | ancestor::idml2xml:genFrame[exists(ancestor::* intersect $para)]
+                                           )
+                          )"/>
   </xsl:function>
 
   <xsl:function name="idml2xml:br-first" as="xs:boolean">
