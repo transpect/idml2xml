@@ -46,7 +46,7 @@
   
 
   <!-- We don’t (yet) support:
-    Sentence AnyCharacter Digits InlineGraphic EndNestedStyle AutoPageNumber SectionMarker Repeat
+    Sentence AnyCharacter Digits InlineGraphic EndNestedStyle(?) AutoPageNumber SectionMarker Repeat
     We do support:
     Tabs ForcedLineBreak IndentHereTab EmSpace EnSpace NonbreakingSpace AnyWord Letters DropCap string
     -->
@@ -349,15 +349,15 @@
       <xsl:when test="$instruction/Delimiter = ('Letters')">
         <xsl:sequence select="'\p{L}'"/>
       </xsl:when>
-      <xsl:when test="$instruction/Delimiter = ('EndNestedStyle')">
-        <!-- no idea whether that’s adequate or whether this requires more actions, such as suppressing
-             subsequent separators. Test file: 101024_86048_PRG -->
+      <!--<xsl:when test="$instruction/Delimiter = ('EndNestedStyle')">
+        <!-\- no idea whether that’s adequate or whether this requires more actions, such as suppressing
+             subsequent separators. Test file: 101024_86048_PRG -\->
         <xsl:sequence select="'.'"/>
-      </xsl:when>
+      </xsl:when>-->
       <xsl:when test="$instruction/Delimiter = ('Dropcap')"/>
-      <xsl:otherwise>
-        <xsl:sequence select="error(xs:QName('idml2xml:NestedStyles01'), $instruction/Delimiter)"></xsl:sequence>
-      </xsl:otherwise>
+      <!--<xsl:otherwise>
+        <xsl:sequence select="error(xs:QName('idml2xml:NestedStyles01'), $instruction/Delimiter)"/>
+      </xsl:otherwise>-->
     </xsl:choose>
   </xsl:function>
 
