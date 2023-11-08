@@ -227,7 +227,7 @@
     </xsl:param>
     <xsl:variable name="instruction" as="element(ListItem)" select="."/>
     
-    <xsl:variable name="regex" as="xs:string" select="
+    <xsl:variable name="regex" as="xs:string?" select="
       if ($instruction/Delimiter = 'Dropcap')
       then for $style-cascade in (for $s in key('idml2xml:by-Self', 'ParagraphStyle/' || $text-node/ancestor::*[@aid:pstyle][1]/@aid:pstyle) 
                                  return idml2xml:style-ancestors-and-self($s))
@@ -237,9 +237,12 @@
       else if ($instruction/Delimiter = 'AnyWord') 
            then '[^' || idml2xml:NestedStyles-Delimiter-to-regex-chars(.) || ']+'
            else '[' || idml2xml:NestedStyles-Delimiter-to-regex-chars(.) || ']'"/>
+    <xsl:if test="empty($regex)">
+      <xsl:message select="'Unexpected empty regex in NestedStyles.xsl. srcpath: ', ancestor::*[@aid:pstyle][1]/@srcpath, ' Instruction: ', $instruction"/>
+    </xsl:if>
     <xsl:variable name="applied" as="document-node()">
       <xsl:document>
-        <xsl:if test="not($regex = '[]')">
+        <xsl:if test="exists($regex) and not($regex = '[]')">
           <xsl:analyze-string select="$string" regex="{$regex}" flags="s">
             <xsl:matching-substring>
               <xsl:if test="$instruction/Inclusive = 'true'">
@@ -453,8 +456,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan[matches(@aid:cstyle, 'No.character.style')]" 
-                mode="idml2xml:NestedStyles-apply" priority="1">
+  <xsl:template match="idml2xml:genSpan" mode="idml2xml:NestedStyles-apply" priority="1">
     <!-- genSpans without ad-hoc attributes have been dissolved in https://github.com/transpect/idml2xml/commit/0d4a639
          Therefore this only applies to spans without an explicit character style that contain some ad-hoc formatting. -->
     <xsl:param name="seps" as="element(idml2xml:sep)*" tunnel="yes"/>
@@ -509,7 +511,6 @@
             <xsl:message select="'var:A', current-group()"/>
           </xsl:if>
           <idml2xml:genSpan>
-            <xsl:apply-templates select="$span-context/@*" mode="#current"/>
             <xsl:if test="$span-context/@aid:cstyle = 'No character style'">
               <!-- this named template is also called for applying dropcaps, but the cstyle specified in the dropcap sep
                    must not override an explicitly applied styling -->
@@ -519,7 +520,17 @@
             <xsl:if test="exists(current-group()[last()]/(@lines | idml2xml:sep/@lines))">
               <xsl:attribute name="DropCapLines" select="current-group()[last()]/(@lines | idml2xml:sep/@lines)"/>
             </xsl:if>
-            <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:choose>
+              <xsl:when test="exists($span-context)">
+                <idml2xml:genSpan>
+                  <xsl:apply-templates select="$span-context/@*" mode="#current"/>
+                  <xsl:apply-templates select="current-group()" mode="#current"/>
+                </idml2xml:genSpan>    
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="#current"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </idml2xml:genSpan>
         </xsl:when>
         <xsl:when test="exists($following-sep)">
@@ -529,7 +540,6 @@
             <xsl:message select="'var:B', current-group()"/>
           </xsl:if>
           <idml2xml:genSpan>
-            <xsl:apply-templates select="$span-context/@*" mode="#current"/>
             <xsl:if test="$span-context/@aid:cstyle = 'No character style'">
               <xsl:attribute name="aid:cstyle" select="$following-sep/@cstyle"/>
               <xsl:attribute name="idml2xml:rst" select="$following-sep/@cstyle"/>
@@ -537,7 +547,17 @@
             <xsl:if test="exists($following-sep/@lines)">
               <xsl:attribute name="DropCapLines" select="$following-sep/@lines"/>
             </xsl:if>
-            <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:choose>
+              <xsl:when test="exists($span-context)">
+                <idml2xml:genSpan>
+                  <xsl:apply-templates select="$span-context/@*" mode="#current"/>
+                  <xsl:apply-templates select="current-group()" mode="#current"/>
+                </idml2xml:genSpan>    
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="#current"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </idml2xml:genSpan>
         </xsl:when>
         <xsl:when test="exists($span-context)">
