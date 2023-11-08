@@ -237,9 +237,6 @@
       else if ($instruction/Delimiter = 'AnyWord') 
            then '[^' || idml2xml:NestedStyles-Delimiter-to-regex-chars(.) || ']+'
            else '[' || idml2xml:NestedStyles-Delimiter-to-regex-chars(.) || ']'"/>
-    <xsl:if test="empty($regex)">
-      <xsl:message select="'Unexpected empty regex in NestedStyles.xsl. srcpath: ', ancestor::*[@aid:pstyle][1]/@srcpath, ' Instruction: ', $instruction"/>
-    </xsl:if>
     <xsl:variable name="applied" as="document-node()">
       <xsl:document>
         <xsl:if test="exists($regex) and not($regex = '[]')">
