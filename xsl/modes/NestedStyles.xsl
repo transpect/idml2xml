@@ -511,12 +511,8 @@
             <xsl:message select="'var:A', current-group()"/>
           </xsl:if>
           <idml2xml:genSpan>
-            <xsl:if test="$span-context/@aid:cstyle = 'No character style'">
-              <!-- this named template is also called for applying dropcaps, but the cstyle specified in the dropcap sep
-                   must not override an explicitly applied styling -->
-              <xsl:attribute name="aid:cstyle" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
-              <xsl:attribute name="idml2xml:rst" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
-            </xsl:if>
+            <xsl:attribute name="aid:cstyle" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
+            <xsl:attribute name="idml2xml:rst" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
             <xsl:if test="exists(current-group()[last()]/(@lines | idml2xml:sep/@lines))">
               <xsl:attribute name="DropCapLines" select="current-group()[last()]/(@lines | idml2xml:sep/@lines)"/>
             </xsl:if>
@@ -540,10 +536,8 @@
             <xsl:message select="'var:B', current-group()"/>
           </xsl:if>
           <idml2xml:genSpan>
-            <xsl:if test="$span-context/@aid:cstyle = 'No character style'">
-              <xsl:attribute name="aid:cstyle" select="$following-sep/@cstyle"/>
-              <xsl:attribute name="idml2xml:rst" select="$following-sep/@cstyle"/>
-            </xsl:if>
+            <xsl:attribute name="aid:cstyle" select="$following-sep/@cstyle"/>
+            <xsl:attribute name="idml2xml:rst" select="$following-sep/@cstyle"/>
             <xsl:if test="exists($following-sep/@lines)">
               <xsl:attribute name="DropCapLines" select="$following-sep/@lines"/>
             </xsl:if>
