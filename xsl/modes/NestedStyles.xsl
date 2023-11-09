@@ -453,9 +453,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="idml2xml:genSpan" mode="idml2xml:NestedStyles-apply" priority="1">
-    <!-- genSpans without ad-hoc attributes have been dissolved in https://github.com/transpect/idml2xml/commit/0d4a639
-         Therefore this only applies to spans without an explicit character style that contain some ad-hoc formatting. -->
+  <xsl:template match="idml2xml:genSpan" mode="idml2xml:NestedStyles-apply">
     <xsl:param name="seps" as="element(idml2xml:sep)*" tunnel="yes"/>
     <xsl:choose>
       <xsl:when test="exists($seps)">
@@ -469,25 +467,6 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="idml2xml:genSpan" mode="idml2xml:NestedStyles-apply">
-    <!-- genSpans with a specific style: The specific style has precedence over nested styles. 
-         However, drop caps will be observed (in that the drop cap property is preserved; the character style
-         that is specified in the drop cap specification will not be applied. -->
-    <xsl:param name="seps" as="element(idml2xml:sep)*" tunnel="yes"/>
-    <xsl:variable name="dropseps" as="element(idml2xml:sep)*" select="$seps[@dtype = 'Dropcap'][number(@lines) > 1.0]"/>
-    <xsl:choose>
-      <xsl:when test="exists($dropseps)">
-        <xsl:call-template name="apply-nested-styles">
-          <xsl:with-param name="seps" select="$dropseps" tunnel="yes"/>
-          <xsl:with-param name="span-context" select="."/>
-        </xsl:call-template>    
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:next-match/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template name="apply-nested-styles">
     <xsl:param name="seps" as="element(idml2xml:sep)*" tunnel="yes"/>
     <xsl:param name="nodes" as="node()*" select="node()"/>
