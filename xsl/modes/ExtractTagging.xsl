@@ -528,7 +528,8 @@
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '4']" mode="idml2xml:ExtractTagging">
-    <idml2xml:tab role="footnotemarker" />
+    <!-- Insert fake content for AnyWord nested styles, https://mattermost.le-tex.de/letexml/pl/jbyk5sm1oifw5n4849gwbrc3bo -->
+    <idml2xml:tab role="footnotemarker">Fn</idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '7']" mode="idml2xml:ExtractTagging">

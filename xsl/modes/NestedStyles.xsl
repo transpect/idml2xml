@@ -566,6 +566,8 @@
   </xsl:template>
 
   <xsl:template match="idml2xml:sep" mode="idml2xml:NestedStyles-apply"/>
+  
+  <xsl:template match="idml2xml:tab[@role = 'footnotemarker'][. = 'Fn']/text()" mode="idml2xml:NestedStyles-apply"/>
 
   <!-- Collateral in mode idml2xml:XML-Hubformat-modify-table-styles for grouping css:initial-letter
        so that there is a single inline element with this property at the beginning of a para -->
