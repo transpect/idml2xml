@@ -36,6 +36,7 @@
                                    | *[name() = $idml2xml:shape-element-names] 
                                    | XMLElement" mode="#current">
         <xsl:with-param name="processed-stories" select="distinct-values($processed-stories)" tunnel="yes"/>
+        <xsl:with-param name="nested-styles" as="xs:boolean" select="exists(//AllNestedStyles/ListItem)" tunnel="yes"/>
       </xsl:apply-templates>
     </idml2xml:doc>
   </xsl:template>
@@ -524,24 +525,42 @@
 	</xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '3']" mode="idml2xml:ExtractTagging">
-    <idml2xml:tab role="end-nested-style" />
+    <xsl:param name="nested-styles" as="xs:boolean" tunnel="yes"/>
+    <idml2xml:tab role="end-nested-style">
+      <xsl:if test="$nested-styles">
+        <!-- we need this for regex matching in mode idml2xml:NestedStyles-create-separators -->
+        <xsl:text>&#xEA63;</xsl:text><!-- Choice of code point: decimal 60003 -->
+      </xsl:if>
+    </idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '4']" mode="idml2xml:ExtractTagging">
     <!-- Insert fake content for AnyWord nested styles, https://mattermost.le-tex.de/letexml/pl/jbyk5sm1oifw5n4849gwbrc3bo -->
+    <xsl:param name="nested-styles" as="xs:boolean" tunnel="yes"/>
     <idml2xml:tab role="footnotemarker">
-      <xsl:if test="exists(//AllNestedStyles/ListItem)">
+      <xsl:if test="$nested-styles">
         <xsl:text>Fn</xsl:text>
       </xsl:if>
     </idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '7']" mode="idml2xml:ExtractTagging">
-    <idml2xml:tab role="indent-to-here" />
+    <xsl:param name="nested-styles" as="xs:boolean" tunnel="yes"/>
+    <idml2xml:tab role="indent-to-here">
+      <xsl:if test="$nested-styles">
+        <xsl:text>&#xEA67;</xsl:text>
+      </xsl:if>
+    </idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '8']" mode="idml2xml:ExtractTagging">
-    <idml2xml:tab role="right" />
+    <xsl:param name="nested-styles" as="xs:boolean" tunnel="yes"/>
+    <idml2xml:tab role="right">
+      <!-- seems to map to <Delimiter type="string">^y</Delimiter> in nested style defs -->
+      <xsl:if test="$nested-styles">
+        <xsl:text>&#xEA68;</xsl:text>
+      </xsl:if>
+    </idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '18']" mode="idml2xml:ExtractTagging">

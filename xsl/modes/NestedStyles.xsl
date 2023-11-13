@@ -43,8 +43,6 @@
     <xsl:sequence select="concat('^(\S{', $count, '})')"/>
   </xsl:function>
 
-  
-
   <!-- We don’t (yet) support:
     Sentence AnyCharacter Digits InlineGraphic EndNestedStyle(?) AutoPageNumber SectionMarker Repeat
     We do support:
@@ -159,7 +157,8 @@
           </xsl:apply-templates>
         </xsl:variable>
         <xsl:if test="contains($current-text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-          <xsl:message select="'&#xa;FFFFFFF', string-length($input-text), '+++', $input-text, '+++', $current-text-node, '  ',empty($this-iteration-future-separator),(: $instructions[1],:)
+          <xsl:message select="'&#xa;FFFFFFF', string-length($input-text), '+++', $input-text, '+++', 
+            $current-text-node, '  ',empty($this-iteration-future-separator),(: $instructions[1],:)
             serialize($this-iteration-future-separator, map{'method': 'adaptive'})"></xsl:message>
         </xsl:if>
         <xsl:variable name="this-iteration-pos" as="xs:integer?"
@@ -260,11 +259,14 @@
       </xsl:document>
     </xsl:variable>
     <xsl:if test="contains($text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-      <!--      <xsl:message select="'applied:', $applied, string-length($string)"/>-->
+      <xsl:message select="'applied:', $applied, string-length($string)"/>
     </xsl:if>
+    <xsl:variable name="sep-count" as="xs:integer" select="count($applied/idml2xml:sep)"/>
     <xsl:variable name="selected-sep" as="element(idml2xml:sep)?" 
       select="$applied/idml2xml:sep[position() = (if ($instruction/Repetition castable as xs:integer)
-                                                  then xs:integer($instruction/Repetition)
+                                                  then if ($sep-count ge xs:integer($instruction/Repetition))
+                                                       then xs:integer($instruction/Repetition)
+                                                       else $sep-count
                                                   else 1) (: don’t use idml2xml:repetition-for-instruction since it gives
                                                   the dropcap char count for dropcaps, but here we need the repetition proper :)
                                    ]"/>
@@ -311,7 +313,7 @@
                    else ()"/>
     <xsl:variable name="offset" as="xs:integer" select="string-length($string) - string-length($text-node)"/>
     <xsl:if test="contains($text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-      <xsl:message select="'RRRRRR ', $string, exists($selected-sep), idml2xml:repetition-for-instruction($instruction, $text-node), '%%', $string-pos, '++', $offset"/>
+      <xsl:message select="'RRRRRR ', $string, exists($selected-sep), idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), idml2xml:repetition-for-instruction($instruction, $text-node), '%%', $string-pos, '++', $offset"/>
     </xsl:if>
     <xsl:if test="exists($string-pos) and ($string-pos ge $offset) and $word-boundary-after-AnyWord">
       <xsl:sequence select="map{$string-pos - $offset: $instruction}"/>  
@@ -338,6 +340,10 @@
         <xsl:sequence select="'&#x9;&#x20;&#x2001;&#x2002;&#x2003;&#x2004;&#x2005;&#x2006;&#x2007;&#x2008;&#x2009;'"/>
         <!-- &#9; wasn’t included because AnyWord also looked at idml2xml:tab[empty(@role)], but this is not true any more 
              with the accumulator implementation -->
+      </xsl:when>
+      <xsl:when test="$instruction/Delimiter/@type = 'string' and $instruction/Delimiter = '^y'">
+        <!-- right tab -->
+        <xsl:sequence select="'&#xEA68;'"/>
       </xsl:when>
       <xsl:when test="$instruction/Delimiter/@type = 'string'">
         <xsl:sequence select="functx:escape-for-regex($instruction/Delimiter)"/>
@@ -589,6 +595,12 @@
   <xsl:template match="idml2xml:sep" mode="idml2xml:NestedStyles-apply"/>
   
   <xsl:template match="idml2xml:tab[@role = 'footnotemarker'][. = 'Fn']/text()" mode="idml2xml:NestedStyles-apply"/>
+  
+  <xsl:template match="idml2xml:tab[@role = 'end-nested-style'][. = '&#xEA63;']/text()" mode="idml2xml:NestedStyles-apply"/>
+  
+  <xsl:template match="idml2xml:tab[@role = 'indent-to-here'][. = '&#xEA67;']/text()" mode="idml2xml:NestedStyles-apply"/>
+  
+  <xsl:template match="idml2xml:tab[@role = 'right'][. = '&#xEA68;']/text()" mode="idml2xml:NestedStyles-apply"/>
 
   <!-- Collateral in mode idml2xml:XML-Hubformat-modify-table-styles for grouping css:initial-letter
        so that there is a single inline element with this property at the beginning of a para -->
