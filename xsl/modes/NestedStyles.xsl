@@ -262,11 +262,14 @@
       <xsl:message select="'applied:', $applied, string-length($string)"/>
     </xsl:if>
     <xsl:variable name="sep-count" as="xs:integer" select="count($applied/idml2xml:sep)"/>
+    <xsl:variable name="para" as="element(*)" select="$text-node/ancestor::*[@aid:pstyle][1]"/>
+    <xsl:variable name="end-of-para" as="xs:boolean" 
+      select="empty($para//text()[idml2xml:is-para-text(., $para)][. >> $text-node])"/>
     <xsl:variable name="selected-sep" as="element(idml2xml:sep)?" 
       select="$applied/idml2xml:sep[position() = (if ($instruction/Repetition castable as xs:integer)
-                                                  then if ($sep-count ge xs:integer($instruction/Repetition))
-                                                       then xs:integer($instruction/Repetition)
-                                                       else $sep-count
+                                                  then if ($end-of-para and $sep-count lt xs:integer($instruction/Repetition))
+                                                       then $sep-count
+                                                       else xs:integer($instruction/Repetition)
                                                   else 1) (: don’t use idml2xml:repetition-for-instruction since it gives
                                                   the dropcap char count for dropcaps, but here we need the repetition proper :)
                                    ]"/>
@@ -313,7 +316,7 @@
                    else ()"/>
     <xsl:variable name="offset" as="xs:integer" select="string-length($string) - string-length($text-node)"/>
     <xsl:if test="contains($text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-      <xsl:message select="'RRRRRR ', $string, exists($selected-sep), idml2xml:NestedStyles-Delimiter-to-regex-chars($instruction), idml2xml:repetition-for-instruction($instruction, $text-node), '%%', $string-pos, '++', $offset"/>
+      <xsl:message select="'RRRRRR ', $string, exists($selected-sep), $sep-count, '***', idml2xml:repetition-for-instruction($instruction, $text-node), '%%', $string-pos, '++', $offset"/>
     </xsl:if>
     <xsl:if test="exists($string-pos) and ($string-pos ge $offset) and $word-boundary-after-AnyWord">
       <xsl:sequence select="map{$string-pos - $offset: $instruction}"/>  
