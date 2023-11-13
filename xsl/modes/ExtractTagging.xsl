@@ -529,7 +529,11 @@
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '4']" mode="idml2xml:ExtractTagging">
     <!-- Insert fake content for AnyWord nested styles, https://mattermost.le-tex.de/letexml/pl/jbyk5sm1oifw5n4849gwbrc3bo -->
-    <idml2xml:tab role="footnotemarker">Fn</idml2xml:tab>
+    <idml2xml:tab role="footnotemarker">
+      <xsl:if test="exists(//AllNestedStyles/ListItem)">
+        <xsl:text>Fn</xsl:text>
+      </xsl:if>
+    </idml2xml:tab>
   </xsl:template>
 
   <xsl:template match="processing-instruction()[name() eq 'ACE'][. eq '7']" mode="idml2xml:ExtractTagging">
