@@ -472,7 +472,8 @@
     <xsl:param name="nodes" as="node()*" select="node()"/>
     <xsl:param name="span-context" as="element(idml2xml:genSpan)?"/>
     <xsl:for-each-group select="$nodes" group-ending-with="*[exists((self::idml2xml:sep | self::idml2xml:tab/idml2xml:sep) intersect $seps)]">
-      <!-- intersect $seps is necessery when only Dropcap seps should be considered, as per the template that passes $dropseps as the seps param -->
+      <!-- intersect $seps is necessery when only Dropcap seps should be considered, as per the (now obsolete and removed)
+           template that passes $dropseps as the seps param -->
       <xsl:variable name="following-sep" as="element(idml2xml:sep)?" select="($seps[. >> current-group()[last()]])[1]"/>
       <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
         <xsl:message select="'&#xa;sssss', $seps"/>
@@ -487,17 +488,18 @@
             <xsl:message select="'var:A', current-group()"/>
           </xsl:if>
           <idml2xml:genSpan>
-            <xsl:attribute name="aid:cstyle" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
-            <xsl:attribute name="idml2xml:rst" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
+            <xsl:variable name="nested-cstyle" as="attribute(cstyle)" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
+            <xsl:attribute name="aid:cstyle" select="$nested-cstyle"/>
+            <xsl:attribute name="idml2xml:rst" select="$nested-cstyle"/>
             <xsl:if test="exists(current-group()[last()]/(@lines | idml2xml:sep/@lines))">
               <xsl:attribute name="DropCapLines" select="current-group()[last()]/(@lines | idml2xml:sep/@lines)"/>
             </xsl:if>
             <xsl:choose>
               <xsl:when test="exists($span-context)">
-                <idml2xml:genSpan>
-                  <xsl:apply-templates select="$span-context/@*" mode="#current"/>
-                  <xsl:apply-templates select="current-group()" mode="#current"/>
-                </idml2xml:genSpan>    
+                <xsl:call-template name="apply-nested-styles_process-original-span">
+                  <xsl:with-param name="span-context" as="element(idml2xml:genSpan)" select="$span-context"/>
+                  <xsl:with-param name="nested-cstyle" as="attribute(cstyle)" select="$nested-cstyle"/>
+                </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:apply-templates select="current-group()" mode="#current"/>
@@ -519,10 +521,10 @@
             </xsl:if>
             <xsl:choose>
               <xsl:when test="exists($span-context)">
-                <idml2xml:genSpan>
-                  <xsl:apply-templates select="$span-context/@*" mode="#current"/>
-                  <xsl:apply-templates select="current-group()" mode="#current"/>
-                </idml2xml:genSpan>    
+                <xsl:call-template name="apply-nested-styles_process-original-span">
+                  <xsl:with-param name="span-context" as="element(idml2xml:genSpan)" select="$span-context"/>
+                  <xsl:with-param name="nested-cstyle" as="attribute(cstyle)" select="$following-sep/@cstyle"/>
+                </xsl:call-template>    
               </xsl:when>
               <xsl:otherwise>
                 <xsl:apply-templates select="current-group()" mode="#current"/>
@@ -563,6 +565,25 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each-group>
+  </xsl:template>
+
+  <xsl:template name="apply-nested-styles_process-original-span">
+    <xsl:param name="span-context" as="element(idml2xml:genSpan)"/>
+    <xsl:param name="nested-cstyle" as="attribute(cstyle)"/>
+    <xsl:choose>
+      <xsl:when test="$span-context/@aid:cstyle = $nested-cstyle">
+        <!-- don’t wrap 2 spans if they share the same cstyle, only process overrides 
+             (plus the identical cstyle atts) and content -->  
+        <xsl:apply-templates select="$span-context/@*" mode="#current"/>
+        <xsl:apply-templates select="current-group()" mode="#current"/>
+      </xsl:when>
+      <xsl:otherwise>
+      <idml2xml:genSpan>
+        <xsl:apply-templates select="$span-context/@*" mode="#current"/>
+        <xsl:apply-templates select="current-group()" mode="#current"/>
+      </idml2xml:genSpan>    
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="idml2xml:sep" mode="idml2xml:NestedStyles-apply"/>
