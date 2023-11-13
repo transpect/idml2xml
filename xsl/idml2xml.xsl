@@ -84,7 +84,7 @@
       indent="yes" />
 
   <xsl:strip-space elements="*"/>
-  <xsl:preserve-space elements="Content idml2xml:* dbk:*"/>
+  <xsl:preserve-space elements="Delimiter Content idml2xml:* dbk:*"/>
 
   <xsl:param name="src-dir-uri" as="xs:string"/>
   <xsl:param name="archive-dir-uri" as="xs:string" select="replace($src-dir-uri, '[^/]+/?$', '')"/>
