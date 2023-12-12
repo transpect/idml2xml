@@ -276,7 +276,7 @@
                                             | ancestor::Note 
                                             | ancestor::Cell[exists(ancestor::* intersect $para)] (: if text is in cell, para should also be in cell :)
                                             | ancestor::Footnote[exists(ancestor::* intersect $para)]
-                                            | parent::idml2xml:genSpan[matches(@AppliedConditions, 'PrintOnly')]
+                                            (:| parent::idml2xml:genSpan[matches(@AppliedConditions, 'PrintOnly')] klett-cotta/ZS/MU/28/01/idml/MU_28_2024_01_0001-0128.idml :)
                                             | ancestor::idml2xml:genFrame[exists(ancestor::* intersect $para)]
                                            )
                           )"/>

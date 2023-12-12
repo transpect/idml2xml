@@ -15,6 +15,13 @@
     <!-- for test_after/hogrefe.ch/GWFB/85875 for example: 
       'Stories/Story_u51f.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[19]'
       'Stories/Story_u51f.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[85]/CharacterStyleRange[6]/Footnote[1]/ParagraphStyleRange[1]'
+      You need to set indentation of debug documents to false (many projects habe Makefile parameter
+      for that, INDENT_DEBUG=false will lead to something like
+      debug-dir-uri=file:/mnt/c/Users/…/debug/MU_28_2024_01_0001-0128.debug?indent=false
+      Then you can debug a single mode:
+      saxon -xsl:idml2xml/xsl/idml2xml.xsl -im:{http://transpect.io/idml2xml}NestedStyles-create-separators \
+        -s:…/debug/MU_28_2024_01_0001-0128.debug/idml2xml/idml2xml.54.idml2xml_JoinSpans.xml -o:out.xml \
+        nested-styles-debugging-srcpath='Stories/Story_u17eb.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[182]'
     -->
   </xsl:param>
 
@@ -259,7 +266,7 @@
       </xsl:document>
     </xsl:variable>
     <xsl:if test="contains($text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-      <xsl:message select="'applied:', $applied, string-length($string)"/>
+      <xsl:message select="'applied:', $applied, string-length($string), ' :: ', $regex"/>
     </xsl:if>
     <xsl:variable name="sep-count" as="xs:integer" select="count($applied/idml2xml:sep)"/>
     <xsl:variable name="para" as="element(*)" select="$text-node/ancestor::*[@aid:pstyle][1]"/>
