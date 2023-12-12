@@ -441,14 +441,14 @@
   <xsl:template match="*[@aid:pstyle]
     [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
     [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
-    mode="idml2xml:NestedStyles-apply" priority="2">
+    mode="idml2xml:NestedStyles-apply" priority="1">
     <xsl:next-match>
       <xsl:with-param name="seps" as="element(idml2xml:sep)*" tunnel="yes" 
         select="descendant::idml2xml:sep[idml2xml:same-scope(., current())]"/>
     </xsl:next-match>
   </xsl:template>
   
-  <xsl:template match="*[@aid:pstyle]" mode="idml2xml:NestedStyles-apply" priority="1">
+  <xsl:template match="*[@aid:pstyle]" mode="idml2xml:NestedStyles-apply" priority="2">
     <xsl:next-match>
       <!-- reset for paras in a frame, for example.
       See ZS/AEP/13/02/idml/AEP_13_2018_02_0081-0144.idml and https://redmine.le-tex.de/issues/15975#note-7 -->
