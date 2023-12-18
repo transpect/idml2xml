@@ -501,6 +501,7 @@
       <xsl:variable name="following-sep" as="element(idml2xml:sep)?" select="($seps[. >> current-group()[last()]])[1]"/>
       <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
         <xsl:message select="'&#xa;sssss', $seps"/>
+        <xsl:message select="'&#xa;fffff', $following-sep"/>
         <xsl:message select="'nnnnn', current-group()"/>
       </xsl:if>
       <xsl:choose>
@@ -531,9 +532,13 @@
             </xsl:choose>
           </idml2xml:genSpan>
         </xsl:when>
-        <xsl:when test="exists($following-sep)">
-          <!-- The first group doesn’t end with a sep or a tab with a sep, otherwise the first when branch would have
-               kicked in. If there is a sep in the text that follows the current span, use its @cstyle value. -->
+        <xsl:when test="exists($following-sep)
+                        and not(count(current-group()) = 1 and self::idml2xml:tab/idml2xml:sep[@incl = 'false'])">
+          <!-- test 'exists($following-sep)':
+                 The first group doesn’t end with a sep or a tab with a sep, otherwise the first when branch would have
+                 kicked in. If there is a sep in the text that follows the current span, use its @cstyle value. 
+               test 'and not(…)': 
+                 don't create extra genSpan for an excluded tab sep. next 'xsl:when' will match -->
           <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
             <xsl:message select="'var:B', current-group()"/>
           </xsl:if>
