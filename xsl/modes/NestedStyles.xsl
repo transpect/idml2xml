@@ -365,11 +365,9 @@
       <xsl:when test="$instruction/Delimiter = ('Letters')">
         <xsl:sequence select="'\p{L}'"/>
       </xsl:when>
-      <!--<xsl:when test="$instruction/Delimiter = ('EndNestedStyle')">
-        <!-\- no idea whether that’s adequate or whether this requires more actions, such as suppressing
-             subsequent separators. Test file: 101024_86048_PRG -\->
-        <xsl:sequence select="'.'"/>
-      </xsl:when>-->
+      <xsl:when test="$instruction/Delimiter = ('EndNestedStyle')">
+        <xsl:sequence select="'&#xEA63;'"/>
+      </xsl:when>
       <xsl:when test="$instruction/Delimiter = ('Dropcap')"/>
       <!--<xsl:otherwise>
         <xsl:sequence select="error(xs:QName('idml2xml:NestedStyles01'), $instruction/Delimiter)"/>
