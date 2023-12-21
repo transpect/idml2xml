@@ -617,7 +617,7 @@
   
   <xsl:template match="idml2xml:tab[@role = 'footnotemarker'][. = 'Fn']/text()" mode="idml2xml:NestedStyles-apply"/>
   
-  <xsl:template match="idml2xml:tab[@role = 'end-nested-style'][. = '&#xEA63;']/text()" mode="idml2xml:NestedStyles-apply"/>
+  <xsl:template match="idml2xml:tab[@role = 'end-nested-style']" mode="idml2xml:NestedStyles-apply"/>
   
   <xsl:template match="idml2xml:tab[@role = 'indent-to-here'][. = '&#xEA67;']/text()" mode="idml2xml:NestedStyles-apply"/>
   
