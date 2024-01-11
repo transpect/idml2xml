@@ -80,7 +80,9 @@
   <xsl:accumulator name="nested-style-instruction" initial-value="()" as="map(xs:string, item()*)*">
     <xsl:accumulator-rule match="*[@aid:pstyle]" phase="start">
       <xsl:variable name="nested-style-cascade" as="element(*)*" 
-        select="key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))"/>
+        select="if(exists(Properties/AllNestedStyles))
+                then Properties/AllNestedStyles
+                else key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))"/>
       <xsl:variable name="instruction-list" as="element(AllNestedStyles)?" 
         select="($nested-style-cascade)[ListItem][last()]"/>
       <xsl:sequence select="(map{'instruction': $instruction-list/ListItem[1], 
@@ -437,8 +439,8 @@
   
   
   <xsl:template match="*[@aid:pstyle]
-    [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle))]
-    [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')]]"
+    [key('idml2xml:nested-style', concat('ParagraphStyle/', @aid:pstyle)) or exists(Properties/AllNestedStyles)]
+    [key('idml2xml:by-Self', concat('ParagraphStyle/', @aid:pstyle))[not(@EmptyNestedStyles='true')] or exists(Properties/AllNestedStyles)]"
     mode="idml2xml:NestedStyles-apply" priority="1">
     <xsl:next-match>
       <xsl:with-param name="seps" as="element(idml2xml:sep)*" tunnel="yes" 
@@ -510,6 +512,7 @@
           <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
             <xsl:message select="'var:A', current-group()"/>
           </xsl:if>
+          <xsl:apply-templates select="current-group()/self::Properties" mode="#current"/>
           <idml2xml:genSpan>
             <xsl:variable name="nested-cstyle" as="attribute(cstyle)" select="current-group()[last()]/(@cstyle | idml2xml:sep/@cstyle)"/>
             <xsl:attribute name="aid:cstyle" select="$nested-cstyle"/>
@@ -525,7 +528,7 @@
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:apply-templates select="current-group()" mode="#current"/>
+                <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
               </xsl:otherwise>
             </xsl:choose>
           </idml2xml:genSpan>
@@ -540,6 +543,7 @@
           <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
             <xsl:message select="'var:B', current-group()"/>
           </xsl:if>
+          <xsl:apply-templates select="current-group()/self::Properties" mode="#current"/>
           <idml2xml:genSpan>
             <xsl:attribute name="aid:cstyle" select="$following-sep/@cstyle"/>
             <xsl:attribute name="idml2xml:rst" select="$following-sep/@cstyle"/>
@@ -554,7 +558,7 @@
                 </xsl:call-template>    
               </xsl:when>
               <xsl:otherwise>
-                <xsl:apply-templates select="current-group()" mode="#current"/>
+                <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
               </xsl:otherwise>
             </xsl:choose>
           </idml2xml:genSpan>
@@ -564,9 +568,10 @@
           <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
             <xsl:message select="'var:C', current-group()"/>
           </xsl:if>
+          <xsl:apply-templates select="current-group()/self::Properties" mode="#current"/>
           <idml2xml:genSpan>
             <xsl:apply-templates select="$span-context/@*" mode="#current"/>
-            <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
           </idml2xml:genSpan>
         </xsl:when>
         <xsl:otherwise>
@@ -576,10 +581,11 @@
               <xsl:if test="contains(current-group()/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
                 <xsl:message select="'var:D1', $seps"/>
               </xsl:if>
+              <xsl:apply-templates select="current-group()/self::Properties" mode="#current"/>
               <idml2xml:genSpan>
                 <xsl:attribute name="aid:cstyle" select="$following-sep/@cstyle"/>
                 <xsl:attribute name="idml2xml:rst" select="$following-sep/@cstyle"/>
-                <xsl:apply-templates select="current-group()" mode="#current"/>
+                <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
               </idml2xml:genSpan>
             </xsl:when>
             <xsl:otherwise>
@@ -602,12 +608,12 @@
         <!-- don’t wrap 2 spans if they share the same cstyle, only process overrides 
              (plus the identical cstyle atts) and content -->  
         <xsl:apply-templates select="$span-context/@*" mode="#current"/>
-        <xsl:apply-templates select="current-group()" mode="#current"/>
+        <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
       </xsl:when>
       <xsl:otherwise>
       <idml2xml:genSpan>
         <xsl:apply-templates select="$span-context/@*" mode="#current"/>
-        <xsl:apply-templates select="current-group()" mode="#current"/>
+        <xsl:apply-templates select="current-group()[empty(self::Properties)]" mode="#current"/>
       </idml2xml:genSpan>    
       </xsl:otherwise>
     </xsl:choose>
