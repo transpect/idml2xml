@@ -237,7 +237,7 @@
     
     <xsl:variable name="regex" as="xs:string?" select="
       if ($instruction/Delimiter = 'Dropcap')
-      then for $style-cascade in (for $s in key('idml2xml:by-Self', 'ParagraphStyle/' || $text-node/ancestor::*[@aid:pstyle][1]/@aid:pstyle) 
+      then let $style-cascade := (for $s in key('idml2xml:by-Self', 'ParagraphStyle/' || $text-node/ancestor::*[@aid:pstyle][1]/@aid:pstyle) 
                                  return idml2xml:style-ancestors-and-self($s))
            return for $d in (root($text-node)/idml2xml:doc/*:Preferences/TextDefault/@DropCapCharacters,
                              $style-cascade/@DropCapCharacters)[last()][. > 0] 
@@ -426,7 +426,7 @@
       </xsl:if>
       <xsl:if test="Delimiter = 'Dropcap'">
         <xsl:attribute name="lines" 
-          select="for $style-cascade in idml2xml:style-ancestors-and-self(ancestor::ParagraphStyle)
+          select="let $style-cascade := idml2xml:style-ancestors-and-self(ancestor::ParagraphStyle)
                   return 
                     for $d in (/idml2xml:doc/*:Preferences/TextDefault/@DropCapLines,
                                $style-cascade/@DropCapLines)[last()][. > 0] 
