@@ -79,6 +79,9 @@
       <xsl:if test="*[self::PDF | self::Image | self::EPS]/@*:CustomAltText[matches(., '\S')]">
         <xsl:attribute name="alt" select="*[self::PDF | self::Image | self::EPS]/@*:CustomAltText"/>
       </xsl:if>
+      <xsl:if test="*[self::PDF | self::Image | self::EPS]/@*:ApplyTagType[. = 'TagArtifact']">
+        <xsl:attribute name="condition" select="'artifact'"/>
+      </xsl:if>
     </image>
   </xsl:template>
 
