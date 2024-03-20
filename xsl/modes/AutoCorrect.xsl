@@ -371,6 +371,8 @@
                           and
                           exists($para/idml2xml:genAnchor)
                           and
+                          not($para/following-sibling::*[1]/self::idml2xml:parsep)
+                          and
                           (every $child in $para/* satisfies ($child/self::idml2xml:genAnchor))"/>
   </xsl:function>
 
