@@ -379,6 +379,8 @@
 
   <xsl:template match="text()" mode="idml2xml:NestedStyles-create-separators">
     <xsl:variable name="context" as="text()" select="."/>
+    <xsl:variable name="pstyle" as="element(ParagraphStyle)?"
+      select="key('idml2xml:by-Self', 'ParagraphStyle/' || ancestor::*[@aid:pstyle][1]/@aid:pstyle)"/>
     <xsl:variable name="aa" as="map(xs:string, item()*)?" select="accumulator-after('nested-style-instruction')[1]"/>
     <xsl:variable name="separators" as="map(xs:integer, element(ListItem))?" 
       select="if (exists($aa?future-separators)) then map:merge(map:get($aa, 'future-separators')) else ()"/>
@@ -403,14 +405,20 @@
       </xsl:if>
       <xsl:choose>
         <xsl:when test=". = 0">
-          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions"/>
+          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions">
+            <xsl:with-param name="original-pstyle" as="element(ParagraphStyle)?" tunnel="yes" select="$pstyle"/>
+          </xsl:apply-templates>
           <xsl:value-of select="substring($context, 1, ($string-positions[$sequence-position + 1], string-length($context))[1])"/>
         </xsl:when>
         <xsl:when test=". = string-length($context)">
-          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions"/>
+          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions">
+            <xsl:with-param name="original-pstyle" as="element(ParagraphStyle)?" tunnel="yes" select="$pstyle"/>
+          </xsl:apply-templates>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions"/>
+          <xsl:apply-templates select="$separators(.)" mode="idml2xml:NestedStyles-create-separators_instructions">
+            <xsl:with-param name="original-pstyle" as="element(ParagraphStyle)?" tunnel="yes" select="$pstyle"/>
+          </xsl:apply-templates>
           <xsl:value-of select="substring($context, . + 1, ($string-positions[$sequence-position + 1], string-length($context))[1] - .)"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -419,18 +427,27 @@
   
   
   <xsl:template match="ListItem" mode="idml2xml:NestedStyles-create-separators_instructions">
+    <xsl:param name="original-pstyle" as="element(ParagraphStyle)" tunnel="yes">
+      <!-- we pass element(ParagraphStyle)? when text() is processed above 
+           but this template is only invoked when text() is in an actual paragraph -->
+    </xsl:param>
     <idml2xml:sep cstyle="{idml2xml:StyleName(AppliedCharacterStyle)}" 
       dtype="{if (Delimiter/@type = 'string') then 'string' else Delimiter}">
+      <xsl:variable name="style-cascade" as="element(ParagraphStyle)+" select="idml2xml:style-ancestors-and-self($original-pstyle)"/>
       <xsl:if test="Delimiter/@type = 'string'">
         <xsl:attribute name="string" select="Delimiter"/>
       </xsl:if>
       <xsl:if test="Delimiter = 'Dropcap'">
-        <xsl:attribute name="lines" 
-          select="let $style-cascade := idml2xml:style-ancestors-and-self(ancestor::ParagraphStyle)
-                  return 
-                    for $d in (/idml2xml:doc/*:Preferences/TextDefault/@DropCapLines,
-                               $style-cascade/@DropCapLines)[last()][. > 0] 
-                    return xs:integer($d)"/>
+        <xsl:variable name="chars" as="xs:integer" 
+          select="for $d in ($style-cascade ! @DropCapCharacters (: using ! instead of / in order to keep the cascade order – most specific first –
+                                                                    instead of forcing it into document order :),
+                             /idml2xml:doc/*:Preferences/TextDefault/@DropCapCharacters)[1] 
+                  return xs:integer($d)"/>
+        <xsl:if test="$chars gt 0">
+          <xsl:attribute name="lines" select="for $d in ($style-cascade ! @DropCapLines,
+                                                         /idml2xml:doc/*:Preferences/TextDefault/@DropCapLines)[1] 
+                                              return (if (xs:integer($d) = 0) then 1 else xs:integer($d))"/>
+        </xsl:if>
       </xsl:if>
       <xsl:attribute name="incl" select="Inclusive"/>
     </idml2xml:sep>
