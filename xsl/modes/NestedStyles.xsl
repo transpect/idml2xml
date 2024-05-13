@@ -380,7 +380,9 @@
   <xsl:template match="text()" mode="idml2xml:NestedStyles-create-separators">
     <xsl:variable name="context" as="text()" select="."/>
     <xsl:variable name="pstyle" as="element(ParagraphStyle)?"
-      select="key('idml2xml:by-Self', 'ParagraphStyle/' || ancestor::*[@aid:pstyle][1]/@aid:pstyle)"/>
+      select="if (matches(ancestor::*[@aid:pstyle][1]/@aid:pstyle, 'no paragraph|kein Absatz', 'i')(:special handling for default paras:)) 
+              then key('idml2xml:by-Self', 'ParagraphStyle/$ID/[' || ancestor::*[@aid:pstyle][1]/@aid:pstyle || ']')
+              else key('idml2xml:by-Self', 'ParagraphStyle/' || ancestor::*[@aid:pstyle][1]/@aid:pstyle)"/>
     <xsl:variable name="aa" as="map(xs:string, item()*)?" select="accumulator-after('nested-style-instruction')[1]"/>
     <xsl:variable name="separators" as="map(xs:integer, element(ListItem))?" 
       select="if (exists($aa?future-separators)) then map:merge(map:get($aa, 'future-separators')) else ()"/>
