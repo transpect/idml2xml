@@ -863,6 +863,10 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         <xsl:variable name="vals" select="for $c in tokenize(@ColorValue, '\s+') return number($c)" as="xs:double+"/>
         <xsl:sequence select="idml2xml:tint-dec-rgb-triple($vals, $multiplier)"/>
       </xsl:when>
+      <xsl:when test="@Name[starts-with(., 'HKS ')] and @Space='LAB'">
+        <xsl:variable name="vals" select="for $c in tokenize(tr:hks-to-rgb(@Name), '\s+') return number($c)" as="xs:double*"/>
+        <xsl:sequence select="if (exists($vals)) then idml2xml:tint-dec-rgb-triple($vals, $multiplier) else @ColorValue"/>
+      </xsl:when>
       <xsl:when test="@Name[starts-with(., 'PANTONE ') and matches(., ' [CU]$')]">
         <xsl:variable name="vals" select="for $c in tokenize(tr:pantone-to-rgb(@Name), '\s+') return number($c)" as="xs:double*"/>
         <xsl:sequence select="if (exists($vals)) then idml2xml:tint-dec-rgb-triple($vals, $multiplier) else @ColorValue"/>
