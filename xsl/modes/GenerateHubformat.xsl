@@ -816,7 +816,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="val/@match" mode="idml2xml:XML-Hubformat-add-properties" as="element(*)?">
     <xsl:param name="val" as="node()" tunnel="yes" />
-    <xsl:if test="matches($val, .)">
+    <xsl:if test="matches($val, .) and not(../@not-match[matches($val, .)])">
       <xsl:call-template name="idml2xml:XML-Hubformat-atts" />
     </xsl:if>
   </xsl:template>

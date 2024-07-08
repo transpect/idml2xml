@@ -203,7 +203,8 @@
           <val match="Medium" target-name="css:font-weight" target-value="normal" />
           <val eq="Medium" target-name="css:font-style" target-value="normal" />
           <val eq="Medium" target-name="css:font-weight" target-value="normal" />
-          <val match="(Regular|Plain)" target-name="css:font-weight" target-value="normal" />
+          <!-- 7/2024 introduced not-match to avoid css:font-weight="bold normal" from FontStyle="Bold Plain"-->
+          <val match="(Regular|Plain)" not-match="[Bb]old" target-name="css:font-weight" target-value="normal" />
           <val match="Regular" target-name="css:font-style" target-value="normal" />
           <val match="^((\d+ )?(Condensed ))?Roman( Condensed)?$" target-name="css:font-weight" target-value="normal" />
           <val match="Roman" target-name="css:font-style" target-value="normal" />
