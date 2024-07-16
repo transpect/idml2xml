@@ -123,6 +123,7 @@
         </xsl:for-each-group>
       </idml2xml:namespaces>
       <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)*"/>
+      <xsl:variable name="articles" select="Article" as="element(Article)*"/>
       <xsl:for-each select="$spreads">
         <xsl:variable name="spread-pos" select="position()" as="xs:integer"/>
         <idml2xml:sidebar remap="Spread" xml:id="idml2xml_spread_{$spread-pos}">
@@ -190,35 +191,82 @@
       <idml2xml:backingstory>
         <xsl:sequence select="idPkg:BackingStory/XmlStory"/>
       </idml2xml:backingstory>
-      <xsl:choose>
+      <idml2xml:articles>
+        <xsl:sequence select="$articles"/>
+      </idml2xml:articles>
+<!--      <xsl:choose>
         <xsl:when test="Article[@ArticleExportStatus='true'][ArticleMember]">
-          <!-- Reading Order is handled via Article function, https://redmine.le-tex.de/issues/17017 -->
+          <!-\- Reading Order is handled via Article function, https://redmine.le-tex.de/issues/17017. disadvantage: no warning concerning unanchored texts are possible. -\->
           <xsl:apply-templates select="Article[@ArticleExportStatus='true' or $export-all-articles = ('yes','1','true')]" mode="idml2xml:DocumentResolveTextFrames">
             <xsl:with-param name="endnote-number-start" select="$endnote-number-start" as="xs:integer?" tunnel="yes"/>
           </xsl:apply-templates>
         </xsl:when>
+        <xsl:otherwise>-->
+      <xsl:variable name="processed-spreads" as="element(*)+">
+        <xsl:apply-templates 
+          select="idPkg:Spread/Spread, //XmlStory[not(ancestor::idPkg:BackingStory)]" mode="idml2xml:DocumentResolveTextFrames">
+          <xsl:with-param name="endnote-number-start" select="$endnote-number-start" as="xs:integer?" tunnel="yes"/>
+        </xsl:apply-templates>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="Article[@ArticleExportStatus='true' or $export-all-articles = ('yes','1','true')][ArticleMember]">
+          <xsl:variable name="articles-and-rest" as="element(*)*">
+            <xsl:for-each-group select="$processed-spreads" group-by="if (@article) then @article else @Self">
+              <xsl:choose>
+                <xsl:when test="current-group()[1][@article]">
+                  <idml2xml:sidebar name="article" role="{current-grouping-key()}" export="{current-group()[1]/@article-export}">
+                    <xsl:for-each-group select="current-group()" group-by="@article-pos">
+                      <xsl:sort order="ascending" select="xs:integer(current-grouping-key())"/>
+                      <xsl:sequence select="current-group()"/>
+                    </xsl:for-each-group>
+                  </idml2xml:sidebar>
+                </xsl:when>
+                <xsl:otherwise>
+                  <!-- Objects that are not articles in their order. Can be deleted later. -->
+                  <xsl:sequence select="current-group()"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each-group>
+          </xsl:variable>
+          <xsl:variable name="sorted-articles-and-rest" as="element(*)*">
+            <xsl:perform-sort select="$articles-and-rest">
+              <xsl:sort order="ascending" select="if (.[@name = 'article']) then xs:integer(index-of($articles/@Name, .[@name = 'article']/@role)) else position()"/>
+            </xsl:perform-sort>
+          </xsl:variable>
+          <xsl:sequence select="$sorted-articles-and-rest"/>
+        </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates 
-            select="idPkg:Spread/Spread, //XmlStory[not(ancestor::idPkg:BackingStory)]" mode="idml2xml:DocumentResolveTextFrames">
-            <xsl:with-param name="endnote-number-start" select="$endnote-number-start" as="xs:integer?" tunnel="yes"/>
-          </xsl:apply-templates>
+          <!-- If there is no article to be exported, export everything -->
+          <xsl:sequence select="$processed-spreads"/>
         </xsl:otherwise>
       </xsl:choose>
+<!--        </xsl:otherwise>
+      </xsl:choose>-->
     </xsl:copy>
   </xsl:template>
   
+    <xsl:key name="select-article-by-Self" match="ArticleMember" use="@ItemRef"/>
   
-  <xsl:template match="Article" mode="idml2xml:DocumentResolveTextFrames">
-    <!-- articles contain members that reference members. members reference TextFrames -->
-    <!-- <Article Self="u3e05" Name="preface" ArticleExportStatus="true">
+  <xsl:template match="*/@Self[key('select-article-by-Self', .)[self::ArticleMember]]" mode="idml2xml:DocumentResolveTextFrames" priority="5">
+    <xsl:next-match/>
+    <xsl:variable name="article" select="key('select-article-by-Self', .)/parent::Article" as="element(Article)"/>
+    <!-- find objects that were referenced in articles. -->
+    <xsl:attribute name="article" select="$article/@Name"/>
+    <xsl:attribute name="article-pos" select="index-of($article/ArticleMember/@ItemRef, .)"/>
+    <xsl:attribute name="article-export" select="if ($export-all-articles = ('yes','1','true')) then 'true' else $article/@ArticleExportStatus"/>
+  </xsl:template>
+  
+  <!--<xsl:template match="Article" mode="idml2xml:DocumentResolveTextFrames">
+    <!-\- articles contain members that reference members. members reference TextFrames -\->
+    <!-\- <Article Self="u3e05" Name="preface" ArticleExportStatus="true">
             <ArticleMember Self="u3e05ArticleMember0" ItemRef="u2604"/>
-         </Article>-->
-    <!-- open questions: 
+         </Article>-\->
+    <!-\- open questions: 
           - handle members if exportStatus is not true? -> $export-all-articles
           - only handle Textframes are all other stuff on Spread containing referenced Textframes?
           - what to do with unreferenced Spreads?
           - what to do with XMLStory?
-     -->
+     -\->
     <xsl:for-each select="ArticleMember">
       
       <xsl:variable name="item-ref" select="@ItemRef"/>
@@ -273,7 +321,7 @@
     </xsl:for-each>
     
           
-  </xsl:template>
+  </xsl:template>-->
   
   <xsl:template match="Spread" mode="idml2xml:DocumentResolveTextFrames">
   <!-- The following instruction will only work as expected if $output-items-not-on-workspace is false so that the return
@@ -425,7 +473,7 @@
                             return idml2xml:text-content($e), 
                             '' 
                           )"/>
-    <xsl:variable name="same-id-stories" as="element(Story)+" select="key('Story-by-StoryID', $id, root($frame))"/>
+    <xsl:variable name="same-id-stories" as="element(Story)*" select="key('Story-by-StoryID', $id, root($frame))"/>
     <xsl:variable name="referencing-story" as="element(Story)*" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
     <xsl:sequence select="if ($id and $id != '' and count($same-id-stories) eq 1) 
                           then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
@@ -433,22 +481,7 @@
 <!-- müsste false ergeben, wenn via KombiRef verankert-->
   </xsl:function>
 
-  <!--<xsl:function name="idml2xml:conditional-text-anchored" as="xs:boolean">
-    <xsl:param name="frame" as="element(*)"/>
-    <xsl:variable name="id" as="xs:string?"  
-      select="string-join( 
-                            for $e in key('Story-by-Self', $frame/@ParentStory, root($frame))//*[@AppliedConditions = 'Condition/StoryID'] 
-                            return idml2xml:text-content($e), 
-                            '' 
-                          )"/>
-    <xsl:variable name="same-id-stories" as="element(Story)+" select="key('Story-by-StoryID', $id, root($frame))"/>
-    <xsl:variable name="referencing-story" as="element(Story)*" select="key('referencing-Story-by-StoryID', $id, root($frame))"/>
-    <xsl:sequence select="$frame[self::TextFrame | self::EndnoteTextFrame]
-                          and (
-                          if ($id and $id != '' and count($same-id-stories) eq 1) 
-                          then exists($referencing-story) and ($referencing-story/@Self != $frame/@ParentStory) 
-                          else false())"/>
-  </xsl:function>-->
+  
   <xsl:key name="Every-TextFrame-by-ParentStory" match="TextFrame" use="@ParentStory"/>
 
   <xsl:template match="*[@AppliedConditions eq 'Condition/StoryRef']" mode="idml2xml:DocumentResolveTextFrames">

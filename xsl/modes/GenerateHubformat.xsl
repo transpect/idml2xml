@@ -94,6 +94,11 @@
               <xsl:value-of select="string-join(idml2xml:tags/idPkg:Tags/XMLTag/@Name, '&#x20;')"/>
             </keyword>
           </xsl:if>
+          <xsl:if test="exists(/*/idml2xml:sidebar[@name='article'][@export='true'])">
+            <keyword role="exported-articles">
+              <xsl:value-of select="'true'"/>
+            </keyword>
+          </xsl:if>
         </keywordset>
         <xsl:choose>
           <xsl:when test="$hub-version eq '1.0'">
@@ -321,6 +326,18 @@
   </xsl:template>
   <xsl:template match="idml2xml:sidebar[$fixed-layout = 'no']" mode="idml2xml:XML-Hubformat-add-properties" priority="1"/>
 
+  <xsl:template match="idml2xml:sidebar[@name='article']" mode="idml2xml:XML-Hubformat-add-properties" priority="3">
+    <!-- articles. -->
+    <sidebar role="{@role}" remap="article">
+      <xsl:if test="(@export = 'false' or not(@export)) 
+                    and 
+                    not($export-all-articles = ('yes','1','true')) ">
+         <xsl:attribute name="condition" select="'PrintOnly'"/>
+       </xsl:if>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </sidebar>
+  </xsl:template>
+  
   <xsl:template match="idml2xml:sidebar/@remap" mode="idml2xml:XML-Hubformat-add-properties">
     <xsl:attribute name="remap" select="concat('idml2xml:', .)"/>
   </xsl:template>
