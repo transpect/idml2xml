@@ -113,6 +113,9 @@
        (We’re not talking about anchoring TextFrames here because this
        mechanism actually works on Story Level) -->
   <xsl:param name="use-StoryID-conditional-text-for-anchoring" select="'yes'" as="xs:string"/>
+  <xsl:param name="export-all-articles" as="xs:string" select="'no'">
+    <!-- if set to 'yes' -> do not consider Article/@ArticleExportStatus-->
+  </xsl:param>
   <xsl:param name="output-deleted-text" select="'no'" as="xs:string"/>
 
   <xsl:param name="hub-version" select="'1.2'" as="xs:string"/>

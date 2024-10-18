@@ -26,6 +26,7 @@
   <p:option name="preserve-original-image-refs" required="false" select="'no'"/>
   <p:option name="hub-other-elementnames-whitelist" required="false" select="''"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
+  <p:option name="export-all-articles" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'debug/status'"/>

@@ -61,7 +61,13 @@
       <p>Default is +0.01 point: sometimes InDesign is calculating and saving i.e. '6.77952…' for i.e. '6.78' in GUI.</p>
     </p:documentation>
   </p:option>
-      
+  <p:option name="export-all-articles" required="false" select="'no'">
+    <p:documentation>
+      <p>Articles are exported in their occuring order to ensure correct reading order</p>
+      <p>if set to 'yes' -> do not consider Article/@ArticleExportStatus</p>
+    </p:documentation>
+  </p:option>
+    
   <p:input port="xslt-stylesheet">
     <p:document href="../xsl/idml2xml.xsl"/>
   </p:input>
@@ -132,6 +138,7 @@
     <p:with-option name="hub-other-elementnames-whitelist" select="$hub-other-elementnames-whitelist"/>
     <p:with-option name="output-items-not-on-workspace" select="$output-items-not-on-workspace"/>
     <p:with-option name="item-not-on-workspace-pt-tolerance" select="$item-not-on-workspace-pt-tolerance"/>
+    <p:with-option name="export-all-articles" select="$export-all-articles"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </idml2xml:single-doc>
 

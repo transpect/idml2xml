@@ -34,7 +34,8 @@
                                        else TextFrame/Story[not(@Self = distinct-values($processed-stories))] 
                                      )
                                    | *[name() = $idml2xml:shape-element-names] 
-                                   | XMLElement" mode="#current">
+                                   | XMLElement
+                                   | idml2xml:sidebar[@name='article']" mode="#current">
         <xsl:with-param name="processed-stories" select="distinct-values($processed-stories)" tunnel="yes"/>
         <xsl:with-param name="nested-styles" as="xs:boolean" select="exists(//AllNestedStyles/ListItem)" tunnel="yes"/>
       </xsl:apply-templates>

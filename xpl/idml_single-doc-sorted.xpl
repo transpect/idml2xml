@@ -25,6 +25,7 @@
   <p:option name="srcpaths" required="false" select="'yes'"/>
   <p:option name="discard-tagging" required="false" select="'no'"/>
   <p:option name="output-items-not-on-workspace" required="false" select="'no'"/>
+  <p:option name="export-all-articles" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="'debug/status'"/>
