@@ -235,6 +235,9 @@
     </xsl:param>
     <xsl:variable name="instruction" as="element(ListItem)" select="."/>
     
+    <xsl:variable name="para" as="element(*)" select="$text-node/ancestor::*[@aid:pstyle][1]"/>
+    <xsl:variable name="end-of-para" as="xs:boolean" 
+      select="empty($para//text()[idml2xml:is-para-text(., $para)][. >> $text-node])"/>
     <xsl:variable name="regex" as="xs:string?" select="
       if ($instruction/Delimiter = 'Dropcap')
       then let $style-cascade := (for $s in key('idml2xml:by-Self', 'ParagraphStyle/' || $text-node/ancestor::*[@aid:pstyle][1]/@aid:pstyle) 
@@ -267,23 +270,37 @@
         </xsl:if>
       </xsl:document>
     </xsl:variable>
+    <xsl:variable name="applied-inclusive" as="document-node()">
+      <xsl:document>
+        <xsl:sequence select="$applied/node()"/>
+        <xsl:if test="$instruction/Inclusive = 'true'
+                      and not($instruction/Delimiter = 'Dropcap')
+                      and (if ($instruction/Repetition castable as xs:integer)
+                           then ($end-of-para and count($applied/idml2xml:sep) lt xs:integer($instruction/Repetition))
+                           else false())">
+          <!-- https://redmine.le-tex.de/issues/8771#note-15 
+              End of para, not enough delimiters yet, but instruction is inclusive: create the necessary delimiter at the end
+          -->
+          <idml2xml:sep exhausted-incl="true">
+            <xsl:sequence select="$instruction"/>
+          </idml2xml:sep>
+        </xsl:if>
+      </xsl:document>
+    </xsl:variable>
     <xsl:if test="contains($text-node/ancestor::*[@aid:pstyle][1]/@srcpath, $nested-styles-debugging-srcpath)">
-      <xsl:message select="'applied:', $applied, string-length($string), ' :: ', $regex"/>
+      <xsl:message select="'applied:', $applied-inclusive, string-length($string), ' :: ', $regex"/>
     </xsl:if>
-    <xsl:variable name="sep-count" as="xs:integer" select="count($applied/idml2xml:sep)"/>
-    <xsl:variable name="para" as="element(*)" select="$text-node/ancestor::*[@aid:pstyle][1]"/>
-    <xsl:variable name="end-of-para" as="xs:boolean" 
-      select="empty($para//text()[idml2xml:is-para-text(., $para)][. >> $text-node])"/>
+    <xsl:variable name="sep-count" as="xs:integer" select="count($applied-inclusive/idml2xml:sep)"/>
     <xsl:variable name="selected-sep" as="element(idml2xml:sep)?" 
-      select="$applied/idml2xml:sep[position() = (if ($instruction/Repetition castable as xs:integer)
+      select="$applied-inclusive/idml2xml:sep[position() = (if ($instruction/Repetition castable as xs:integer)
                                                   then if ($end-of-para and $sep-count lt xs:integer($instruction/Repetition))
                                                        then $sep-count
                                                        else xs:integer($instruction/Repetition)
                                                   else 1) (: don’t use idml2xml:repetition-for-instruction since it gives
                                                   the dropcap char count for dropcaps, but here we need the repetition proper :)
                                    ]"/>
-    <xsl:variable name="string-before" as="xs:string*" select="$applied/text()[$selected-sep >> .]"/>
-    <xsl:variable name="string-after" as="xs:string*" select="$applied/text()[. >> $selected-sep]"/>
+    <xsl:variable name="string-before" as="xs:string*" select="$applied-inclusive/text()[$selected-sep >> .]"/>
+    <xsl:variable name="string-after" as="xs:string*" select="$applied-inclusive/text()[. >> $selected-sep]"/>
     <xsl:variable name="word-boundary-after-AnyWord" as="xs:boolean">
       <xsl:choose>
         <xsl:when test="not($instruction/Delimiter = 'AnyWord')">
