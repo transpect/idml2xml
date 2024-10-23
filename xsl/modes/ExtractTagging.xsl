@@ -141,6 +141,7 @@
     <xsl:copy-of select="@SpaceAfter, @SpaceBefore, @*[matches(name(), 'BorderStroke(Weight|Type|Color)')]"/>
     <xsl:attribute name="idml2xml:width" select="sum(Column/@SingleColumnWidth/number())"/>
     <xsl:copy-of select="ancestor::Story[1]/parent::TextFrame/@idml2xml:objectstyle" />
+    <xsl:copy-of select="@srcpath" />
   </xsl:template>
 
   <xsl:template match="Cell" mode="idml2xml:ExtractAttributes">
