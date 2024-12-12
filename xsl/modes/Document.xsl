@@ -203,11 +203,12 @@
       <xsl:choose>
         <xsl:when test="Article[@ArticleExportStatus='true' or $export-all-articles = ('yes','1','true')][ArticleMember]">
           <xsl:variable name="articles-and-rest" as="element(*)*">
-            <xsl:for-each-group select="$processed-spreads" group-by="if (@article) then @article else @Self">
+            <xsl:for-each-group select="$processed-spreads" group-by="if (@article) then string-join((@article, @Self), '_#-#-#_') else @Self">
               
               <xsl:choose>
                 <xsl:when test="current-group()[1][@article]">
-                  <idml2xml:sidebar name="article" role="{current-grouping-key()}" export="{current-group()[1]/@article-export}">
+                 
+                  <idml2xml:sidebar name="article" role="{replace(current-grouping-key(), '_#-#-#_.+$', '')}" export="{current-group()[1]/@article-export}" Self="{current-group()[1]/@Self}">
                     <xsl:for-each-group select="current-group()" group-by="@article-pos">
                       <xsl:sort order="ascending" select="xs:integer(current-grouping-key())"/>
                       <xsl:sequence select="current-group()"/>
@@ -221,9 +222,10 @@
               </xsl:choose>
             </xsl:for-each-group>
           </xsl:variable>
+          
           <xsl:variable name="sorted-articles-and-rest" as="element(*)*">
             <xsl:perform-sort select="$articles-and-rest">
-              <xsl:sort order="ascending" select="if (.[@name = 'article']) then xs:integer(index-of($articles/@Name, .[@name = 'article']/@role)) else position()"/>
+              <xsl:sort order="ascending" select="if (.[@name = 'article']) then xs:integer(index-of($articles/@Self, .[@name = 'article']/@Self)) else position()"/>
             </xsl:perform-sort>
           </xsl:variable>
           <xsl:sequence select="$sorted-articles-and-rest"/>
