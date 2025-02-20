@@ -3175,14 +3175,16 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                       ) + 1"/>
             <xsl:variable name="picture-string"
               select="(@hub:numbering-picture-string, $rule/@hub:numbering-picture-string)[1]" as="xs:string?"/>
+            
             <xsl:element name="phrase">
               <xsl:attribute name="role" select="'hub:identifier'"/>
               <!-- The picture strings should now be reproduced 1:1 according to their levels -->              
-              <xsl:variable name="prefix" select="substring-before($picture-string, '^')[not(matches(.,'^\(\d?\.?$'))]" as="xs:string?"/>
+              <xsl:variable name="prefix" select="substring-before($picture-string, '^')[not(matches(.,'^[\(\[]\d?\.?$'))]" as="xs:string?"/>
               <xsl:if test="$prefix">
                 <xsl:value-of select="$prefix"/>
               </xsl:if>
               <xsl:variable name="stripped-picture-string" select="if ($prefix) then replace($picture-string, $prefix, '') else $picture-string" as="xs:string"/>
+              
               <xsl:variable name="picture-result"
                 select="(
                           replace(
@@ -3197,13 +3199,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                           $list-style-type
                         )[1]"
                 as="xs:string"/>
-              <xsl:if test="@idml2xml:aux-list-level ne '1' or matches($stripped-picture-string, '\^H')">
+              <xsl:if test="@idml2xml:aux-list-level ne '1' or matches($stripped-picture-string, '\^[H1-9]')">
                 <xsl:variable name="pre" as="xs:string*">
                 <xsl:for-each select="tokenize($stripped-picture-string, '\^')[normalize-space()]">
                   <xsl:if test="matches(current(), 'H\.')">
                     <xsl:value-of select="concat(root($context)//dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'chapter-number'], '.')"/>
                   </xsl:if>
-                  <xsl:if test="replace(current(), '\D', '')[normalize-space()]">      
+                  <xsl:if test="replace(current(), '\D', '')[normalize-space()]">
+                      
                     <xsl:variable name="pre-same-list-famlvl" as="element(dbk:para)*"
                       select="$same-list-family[@idml2xml:aux-list-level = replace(current(), '\D', '')]
                                                [not(@css:display = 'block')]
