@@ -1311,8 +1311,13 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     priority="2" mode="idml2xml:XML-Hubformat-properties2atts"/>
   
   <!-- As local override: -->
-  <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType'][. = 'NoList']" mode="idml2xml:XML-Hubformat-properties2atts">
+  <xsl:template match="idml2xml:attribute[@name = 'BulletsAndNumberingListType'][. = 'NoList'] | 
+                       idml2xml:attribute[@name = 'css:display'][not(normalize-space())][..[self::idml2xml:genPara|self::idml2xml:genFrame]]" mode="idml2xml:XML-Hubformat-properties2atts">
     <xsl:attribute name="css:display" select="'block'"/>
+  </xsl:template>
+  
+  <xsl:template match="idml2xml:genSpan/idml2xml:attribute[@name = 'css:display'][not(normalize-space())]" mode="idml2xml:XML-Hubformat-properties2atts">
+    <xsl:attribute name="css:display" select="'inline'"/>
   </xsl:template>
   
   <xsl:template match="idml2xml:attribute[@name = 'css:text-decoration-line']" mode="idml2xml:XML-Hubformat-properties2atts">
