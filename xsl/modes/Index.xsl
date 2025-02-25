@@ -408,10 +408,10 @@
       <xsl:if test="$PageReference[starts-with(@PageNumberStyleOverride, 'CharacterStyle')]">
         <xsl:variable name="cstyle" as="element()?"
           select="key('by-Self', $PageReference/@PageNumberStyleOverride)"/>
-        <xsl:if test="matches($cstyle/@FontStyle, 'Italic')">
+        <xsl:if test="matches($cstyle/@FontStyle, 'Italic|Oblique', 'i')">
           <xsl:attribute name="role" select="'hub:pagenum-italic'"/>
         </xsl:if>
-        <xsl:if test="matches($cstyle/@FontStyle, 'Bold')">
+        <xsl:if test="matches($cstyle/@FontStyle, 'Bold', 'i')">
           <xsl:attribute name="role" select="'hub:pagenum-bold'"/>
         </xsl:if>
       </xsl:if>
