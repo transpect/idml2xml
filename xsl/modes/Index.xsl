@@ -414,6 +414,9 @@
         <xsl:if test="matches($cstyle/@FontStyle, 'Bold', 'i')">
           <xsl:attribute name="role" select="'hub:pagenum-bold'"/>
         </xsl:if>
+        <xsl:if test="matches($cstyle/@FontStyle, 'Bold', 'i') and matches($cstyle/@FontStyle, 'Italic|Oblique', 'i')">
+          <xsl:attribute name="role" select="'hub:pagenum-bolditalic'"/>
+        </xsl:if>
       </xsl:if>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:element>
