@@ -879,6 +879,7 @@
             <!-- descendant instead of child because there can be another group inside the group, see
             https://redmine.le-tex.de/issues/7076 -->
           </xsl:variable>
+
           <xsl:element name="{($first-shape/name(), 'Rectangle')[1]}">
             <xsl:attribute name="Self" select="generate-id()"/>
             <xsl:attribute name="ContentType" select="'GraphicType'"/>
@@ -887,6 +888,11 @@
               <xsl:apply-templates select="Properties/Label" mode="#current"/>
               <xsl:apply-templates select="$first-shape/Properties/node()[not(self::Label)]" mode="#current"/>
             </Properties>
+            <xsl:if test="   ObjectExportOption[not(@CustomAltText = '$ID/') 
+                          or @AltTextSourceType='SourceDecorativeImage'
+                          or @ApplyTagType='TagArtifact']">
+                          <xsl:copy-of select="ObjectExportOption"/>
+            </xsl:if>
             <!-- evt. noch die Alt-Tags der Bilder mitnehmen?-->
             <xsl:element name="Image">
               <xsl:attribute name="Self" select="generate-id()"/>
