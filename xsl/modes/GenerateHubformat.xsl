@@ -2277,6 +2277,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:variable name="alt-text" as="xs:string?" 
                   select="(Properties/Label/KeyValuePair[@Key = 'letex:altText']/@Value,
                            replace($image-info/@alt, '&#xD;(&#xA;)?', ' '))[1]"/>
+    <xsl:variable name="alt-text-from-meta" as="xs:string?" 
+                  select="Properties/Label/KeyValuePair[@Key = 'letex:altTextFromXMP']/@Value"/>
      <!-- *
           * mediaobject wrapper element
           * -->
@@ -2307,9 +2309,23 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
         </xsl:if>
         <xsl:apply-templates select="@idml2xml:objectstyle | @idml2xml:layer" mode="#current"/>
         <xsl:apply-templates select="*[self::Image | self::EPS | self::PDF]/@srcpath" mode="idml2xml:XML-Hubformat-add-properties_tagged"/>
-          <xsl:if test="$alt-text">
-            <alt><xsl:value-of select="$alt-text"/></alt>
+          <xsl:if test="$alt-text or $alt-text-from-meta">
+            
+            <!--  only alt text      
+              <alt>hurz</alt>
+              Alt-Text + XMP-Alt-Text:
+              <alt annotations="hier steht text von xmp" remap="fromXMP">hurz</alt>
+              only XMP-Alt-Text:
+              <alt remap="fromXMP">hier steht text von xmp</alt>-->
+            <alt>
+              <xsl:if test="$alt-text-from-meta">
+                <xsl:attribute name="remap" select="'fromXMP'"/>
+                <xsl:if test="$alt-text"><xsl:attribute name="annotations" select="$alt-text-from-meta"/></xsl:if>
+              </xsl:if>
+              <xsl:value-of select="($alt-text[normalize-space()], $alt-text-from-meta)[1]"/>
+            </alt>
           </xsl:if>
+
         <imageobject>
           <xsl:if test="exists($image-info[@*:condition])">
             <xsl:attribute name="condition" select="$image-info/@*:condition"/>
