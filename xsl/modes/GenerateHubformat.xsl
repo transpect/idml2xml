@@ -2244,7 +2244,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
 
   <xsl:template match="*[name() = $idml2xml:shape-element-names][MathObject]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3">
     <xsl:if test="MathObject/@idml2xml:MathMLDescription">
-      <xsl:variable name="mathcode" select="substring-after(MathObject/@idml2xml:MathMLDescription, '$ID/')"/>
+      <xsl:variable name="mathcode" select="replace(MathObject/@idml2xml:MathMLDescription, '^$ID/', '')"/>
       <xsl:variable name="parsed" as="document-node(element(tmp))" 
                   select="parse-xml('&lt;tmp>' || $mathcode || '&lt;/tmp>')"/>
       <xsl:element name="equation">
@@ -2262,7 +2262,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     
     
   <xsl:template match="*:math/@id" mode="math-ns" priority="4">
-    <xsl:copy-of select="."/>
+    <xsl:attribute name="id" select="concat('mml_', .)"/>
   </xsl:template>
   
   <xsl:template match="@mathsize" mode="math-ns" priority="3">
