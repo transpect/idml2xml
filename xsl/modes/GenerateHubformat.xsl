@@ -2265,7 +2265,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:copy-of select="."/>
   </xsl:template>
   
-  <xsl:template match="@*|node()" mode="math-ns" priority="2">
+  <xsl:template match="@mathsize" mode="math-ns" priority="3">
+    <xsl:attribute name="css:font-size" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="@mathcolor" mode="math-ns" priority="3">
+    <xsl:attribute name="css:color" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="@*|node()" mode="math-ns">
     <xsl:copy-of select="."/>
   </xsl:template>
   
