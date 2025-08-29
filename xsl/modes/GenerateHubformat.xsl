@@ -2256,28 +2256,42 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   
   <xsl:template match="*" mode="math-ns" priority="4">
     <xsl:element name="mml:{local-name()}">
-     <xsl:apply-templates select="@*, node()" mode="math-ns"/>
+     <xsl:apply-templates select="@*" mode="math-ns"/>
+      <xsl:call-template name="mathstyle"/>
+     <xsl:apply-templates select="node()" mode="math-ns"/>
     </xsl:element>
   </xsl:template>
     
-    
+  <xsl:template name="mathstyle">
+    <xsl:variable name="style" as="attribute()*">
+      <xsl:apply-templates select="@*" mode="math-style"/>
+    </xsl:variable>
+    <xsl:if test="$style or @style">
+      <xsl:attribute name="style" select="string-join((@style, 
+                                                       for $s in $style return string-join(($s/name(), $s), ': ')
+                                                       ), '; ')"/>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template match="*:math/@id" mode="math-ns" priority="4">
     <xsl:attribute name="id" select="concat('mml_', .)"/>
   </xsl:template>
   
-  <xsl:template match="@mathsize" mode="math-ns" priority="3">
-    <xsl:attribute name="css:font-size" select="."/>
+  <xsl:template match="@mathsize" mode="math-style" priority="3">
+    <xsl:attribute name="font-size" select="."/>
   </xsl:template>
   
-  <xsl:template match="@mathcolor" mode="math-ns" priority="3">
-    <xsl:attribute name="css:color" select="."/>
+  <xsl:template match="@mathcolor" mode="math-style" priority="3">
+    <xsl:attribute name="color" select="."/>
   </xsl:template>
   
   <xsl:template match="@*|node()" mode="math-ns">
     <xsl:copy-of select="."/>
   </xsl:template>
   
-  <xsl:template match="@id" mode="math-ns" priority="3"/>
+  <xsl:template match="@id|*:math/@mathcolor|*:math/@mathsize|*:math/@style" mode="math-ns" priority="3"/>
+  
+  <xsl:template match="@*" mode="math-style"/>
   
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
 
