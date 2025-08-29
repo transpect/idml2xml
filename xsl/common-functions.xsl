@@ -27,7 +27,7 @@
   <xsl:variable
     name="idml2xml:idml-content-element-names-without-textSource" 
     select="('Content', 'PageReference', 'idml2xml:control', 'idml2xml:genAnchor', 'idml2xml:genTable', $idml2xml:shape-element-names, 'TextFrame',
-    'TextVariableInstance', 'idml2xml:tab', 'idml2xml:sep', 'MathToolsML', 'Endnote')" 
+    'TextVariableInstance', 'idml2xml:tab', 'idml2xml:sep', 'MathToolsML', 'MathObject', 'Endnote')" 
     as="xs:string+" />
   <xsl:variable
     name="idml2xml:idml-content-element-names" 

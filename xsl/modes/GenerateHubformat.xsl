@@ -2242,6 +2242,35 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     </xsl:choose>
   </xsl:function>
 
+  <xsl:template match="*[name() = $idml2xml:shape-element-names][MathObject]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="3">
+    <xsl:if test="MathObject/@idml2xml:MathMLDescription">
+      <xsl:variable name="mathcode" select="substring-after(MathObject/@idml2xml:MathMLDescription, '$ID/')"/>
+      <xsl:variable name="parsed" as="document-node(element(tmp))" 
+                  select="parse-xml('&lt;tmp>' || $mathcode || '&lt;/tmp>')"/>
+      <xsl:element name="equation">
+        <xsl:attribute name="role" select="'mml'"/>
+        <xsl:apply-templates select="$parsed/tmp/*" mode="math-ns"/>
+      </xsl:element>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="math-ns" priority="4">
+    <xsl:element name="mml:{local-name()}">
+     <xsl:apply-templates select="@*, node()" mode="math-ns"/>
+    </xsl:element>
+  </xsl:template>
+    
+    
+  <xsl:template match="*:math/@id" mode="math-ns" priority="4">
+    <xsl:copy-of select="."/>
+  </xsl:template>
+  
+  <xsl:template match="@*|node()" mode="math-ns" priority="2">
+    <xsl:copy-of select="."/>
+  </xsl:template>
+  
+  <xsl:template match="@id" mode="math-ns" priority="3"/>
+  
   <xsl:template match="*[name() = $idml2xml:shape-element-names]" mode="idml2xml:XML-Hubformat-remap-para-and-span" priority="2">
 
     <xsl:variable name="suffix" as="xs:string"
@@ -2874,6 +2903,15 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <inlinemediaobject>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </inlinemediaobject> 
+  </xsl:template>
+  
+    <xsl:template match="dbk:equation[(some $n in ancestor::dbk:para[not(dbk:informaltable or dbk:phrase/dbk:informaltable or dbk:sidebar[@remap eq 'HiddenText'])][1]//text()[not(parent::dbk:alt)] satisfies (matches($n, '\S')))
+                                       or
+                                       (exists(parent::dbk:link))]" 		
+    mode="idml2xml:XML-Hubformat-cleanup-paras-and-br">
+    <inlineequation>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </inlineequation> 
   </xsl:template>
   
   <xsl:template match="dbk:para[parent::dbk:para]" 

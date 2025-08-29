@@ -249,7 +249,7 @@
       <!--  *
             * retain the Contents element or get 0KB big images
             * -->
-      <xsl:copy-of select="Image/Properties/Contents, EPS/Properties/Contents"/>
+      <xsl:copy-of select="Image/Properties/Contents | EPS/Properties/Contents"/>
     </xsl:copy>
   </xsl:template>
   
@@ -268,7 +268,7 @@
   </xsl:template>
   
   <xsl:template match="*[name() = $idml2xml:shape-element-names]
-                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF))]
+                        [not(exists(XMLElement) or exists(EPS) or exists(PDF) or exists(Image) or exists(WMF) or exists(MathObject))]
                         [empty(descendant::Link/@LinkResourceURI) or count(descendant::Link/@LinkResourceURI) gt 1]
                         [empty(TextFrame | Group)]" mode="idml2xml:ExtractTagging" priority="3">
     <xsl:choose>
