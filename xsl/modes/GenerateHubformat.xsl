@@ -939,9 +939,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:function name="idml2xml:most-frequent-lang" as="xs:string?">
     <xsl:param name="context" as="element(*)"/>
     <xsl:variable name="langs" as="xs:string*">
-      <xsl:for-each-group select="$context//idml2xml:genPara" group-by="idml2xml:text-lang(.)">
-        <xsl:sort select="string-length(string-join(current-group()/*, ''))" order="descending"/>
-<!--        <xsl:message select="string-length(string-join(current-group()/*, '')), '###### groups:', current-grouping-key(), ' -\-\-\-\-\-\-\-\-\-\-\-\-\- ', count(current-group()), ' ##### ', distinct-values(current-group()/@aid:pstyle)"/>-->
+      <xsl:for-each-group select="$context//idml2xml:genPara" group-by="idml2xml:text-lang(.)" >
+        <xsl:sort select="string-length(string-join(current-group(), ''))" order="descending" data-type="number"/>
+<!--        <xsl:message select="'//', string-length(string-join(current-group(), '')), '###### groups:', current-grouping-key()"/>-->
         <xsl:sequence select="current-grouping-key()"/>
       </xsl:for-each-group>
     </xsl:variable>
