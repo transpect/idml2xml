@@ -1434,7 +1434,9 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:apply-templates select="$frames-after-text"  mode="idml2xml:XML-Hubformat-extract-frames-genFrame"/>
   </xsl:template>
 
-  <xsl:template match="/*/idml2xml:genFrame (: unanchored frames :)" mode="idml2xml:XML-Hubformat-extract-frames">
+  <xsl:template match="/*/idml2xml:genFrame (: unanchored frames :)
+                      |
+                      /*/*:sidebar[@remap = 'article']/idml2xml:genFrame" mode="idml2xml:XML-Hubformat-extract-frames">
     <!-- Not sure whether the following apply-templates is still needed for some IDML files.
       In the case of Campus/ap/51120, a frame that contains a table with the text "company is fixed. When the" was 
       duplicated because 2 genFrames were converted by this apply-templates, but the second of which was converted
