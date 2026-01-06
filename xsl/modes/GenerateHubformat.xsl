@@ -1719,10 +1719,14 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                     else exists($preceding-higher)
                   else false()
                 )
+                (: consider first para in textframe, numbering starts new in every textframe,
+                restart if last preceding-same is in different story :)
+                or (not($preceding-same[last()]/@idml2xml:story = ./@idml2xml:story))
                 or 
                 not($continue)"/>
-      <!--<xsl:if test="contains(@srcpath, '[837]')">
-        <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same"></xsl:message>
+      <!--<xsl:if test="contains(@srcpath, '[74];n=1')">
+        <xsl:message select="'SSSSSSSSSSSSSS ', count($preceding-same-family), count($preceding-same), $restart, $preceding-same,
+          'fffffffffffff',@idml2xml:story, $preceding-same[last()]/@idml2xml:story, $preceding-same[last()]/@idml2xml:story = ./@idml2xml:story"/>
       </xsl:if>-->
       <xsl:if test="$restart">
         <xsl:attribute name="idml2xml:aux-list-restart" select="'true'"/>

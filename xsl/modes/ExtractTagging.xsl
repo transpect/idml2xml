@@ -82,8 +82,8 @@
       <xsl:apply-templates select="(ancestor::Cell[1] | ancestor::XMLElement[1])[last()]" mode="idml2xml:ExtractAttributes"/>
 
 
-      <xsl:if test="parent::Story or parent::XmlStory">
-        <xsl:attribute name="idml2xml:story" select="../@Self" />
+      <xsl:if test="ancestor::Story[1] or parent::XmlStory">
+        <xsl:attribute name="idml2xml:story" select="(ancestor::Story[1]/@Self,../@Self)[1]" />
       </xsl:if>
 
       <xsl:apply-templates mode="#current"/>
