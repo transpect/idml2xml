@@ -69,6 +69,9 @@
       namespace="{if (contains( $ElementName, ':' ) ) then /Document/idml2xml:namespaces/ns[ @short = $ElementSpace ]/@space  else  ''}">
 
       <xsl:apply-templates select="@*" mode="idml2xml:ExtractAttributes" />
+		  <xsl:if test="ancestor::Story[1] or parent::XmlStory">
+        <xsl:attribute name="idml2xml:story" select="(ancestor::Story[1]/@Self,../@Self)[1]" />
+      </xsl:if>
       <xsl:apply-templates select="ancestor::Story[1]/parent::TextFrame/@idml2xml:layer|ancestor::Story[1]/parent::TextFrame/@idml2xml:label" mode="idml2xml:ExtractAttributes"/>
       <xsl:apply-templates select="(XMLAttribute, Properties, Table)" mode="idml2xml:ExtractAttributes"/>
       <xsl:if test="XMLAttribute[@Name eq 'aid:pstyle']">
@@ -80,11 +83,6 @@
       <!-- ancestor::XMLElement[1] is here for the following reason:
            If Cell was preceded by XMLElement when looking upwards the ancestor axis, do nothing. -->
       <xsl:apply-templates select="(ancestor::Cell[1] | ancestor::XMLElement[1])[last()]" mode="idml2xml:ExtractAttributes"/>
-
-
-      <xsl:if test="ancestor::Story[1] or parent::XmlStory">
-        <xsl:attribute name="idml2xml:story" select="(ancestor::Story[1]/@Self,../@Self)[1]" />
-      </xsl:if>
 
       <xsl:apply-templates mode="#current"/>
 		</xsl:element>
