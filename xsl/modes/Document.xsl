@@ -242,7 +242,9 @@
   
   <xsl:template match="*/@Self[key('select-article-by-Self', .)[self::ArticleMember]]" mode="idml2xml:DocumentResolveTextFrames" priority="5">
     <xsl:next-match/>
-    <xsl:variable name="article" select="key('select-article-by-Self', .)/parent::Article" as="element(Article)"/>
+    <xsl:variable name="articles" select="key('select-article-by-Self', .)/parent::Article" as="element(Article)*"/>
+    <xsl:if test="count($articles) gt 1"><xsl:message select="'CONTENT for ', local-name(), ' Self: ', xs:string(@Self), ' in more than one Article. Ony first occurence will be processed'"/></xsl:if>
+    <xsl:variable name="article" select="$articles[1]" as="element(Article)"/>
     <!-- find objects that were referenced in articles. -->
     <xsl:attribute name="article" select="$article/@Name"/>
     <xsl:attribute name="article-pos" select="index-of($article/ArticleMember/@ItemRef, .)"/>
