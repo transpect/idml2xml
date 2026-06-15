@@ -2332,8 +2332,8 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                    ) 
               else $LinkResourceURI"/>
     <xsl:variable name="alt-text" as="xs:string?" 
-                  select="(Properties/Label/KeyValuePair[@Key = 'letex:altText']/@Value,
-                           replace($image-info/@alt, '&#xD;(&#xA;)?', ' '))[1]"/>
+                  select="(replace($image-info/@alt, '&#xD;(&#xA;)?', ' ')[normalize-space()],
+                  Properties/Label/KeyValuePair[@Key = 'letex:altText']/@Value)[1]"/>
     <xsl:variable name="alt-text-from-meta" as="xs:string?" 
                   select="Properties/Label/KeyValuePair[@Key = 'letex:altTextFromXMP']/@Value"/>
      <!-- *
