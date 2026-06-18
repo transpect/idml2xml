@@ -44,7 +44,7 @@
     </xsl:copy>
   </xsl:template>
   <xsl:template match="Cell | CharacterStyleRange | HyperlinkTextSource | Footnote | Endnote 
-                       | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF"
+                       | ParagraphStyleRange | Table | XMLElement | Image | EPS | PDF | MathObject"
     mode="idml2xml:Document">
     <xsl:copy>
       <xsl:if test="$srcpaths = 'yes'">
@@ -204,7 +204,6 @@
         <xsl:when test="Article[@ArticleExportStatus='true' or $export-all-articles = ('yes','1','true')][ArticleMember]">
           <xsl:variable name="articles-and-rest" as="element(*)*">
             <xsl:for-each-group select="$processed-spreads" group-by="if (@article) then string-join((@article, @Self), '_#-#-#_') else @Self">
-              
               <xsl:choose>
                 <xsl:when test="current-group()[1][@article]">
                  
@@ -270,6 +269,7 @@
       select="xs:double(tokenize(@ItemTransform, ' ')[5])"/>
     <xsl:variable name="spread-y" as="xs:double"
       select="xs:double(tokenize(@ItemTransform, ' ')[6])"/>
+
     <xsl:apply-templates 
         select="(
                      TextFrame[idml2xml:is-story-origin(.)]

@@ -1024,7 +1024,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <xsl:template match="TextWrapPreference | FrameFittingOption | ObjectExportOption | AnchoredObjectSetting"
     mode="idml2xml:XML-Hubformat-properties2atts"/>
   
-  <xsl:template match="*[self::*:PDF | self::*:Image | self::*:EPS][..[*:ObjectExportOption[@CustomAltText ne '$ID/' or @ApplyTagType = 'TagArtifact' or @AltTextSourceType='SourceDecorativeImage']]]/@Self"  mode="idml2xml:JoinSpans" priority="2">
+  <xsl:template match="*[self::*:PDF | self::*:Image | self::*:EPS | self::*:MathObject][..[*:ObjectExportOption[@CustomAltText ne '$ID/' or @ApplyTagType = 'TagArtifact' or @AltTextSourceType='SourceDecorativeImage']]]/@Self"  mode="idml2xml:JoinSpans" priority="2">
     <xsl:next-match/>
     <xsl:apply-templates select="../../*:ObjectExportOption/(@CustomAltText[. ne '$ID/']|@ApplyTagType[. = 'TagArtifact']|@AltTextSourceType[.='SourceDecorativeImage'])" mode="#current"/>
   </xsl:template>
@@ -2255,13 +2255,20 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
                   select="parse-xml('&lt;tmp>' || $mathcode || '&lt;/tmp>')"/>
       <xsl:element name="equation">
         <xsl:attribute name="role" select="'mml'"/>
-        <xsl:apply-templates select="$parsed/tmp/*" mode="math-ns"/>
+        <xsl:apply-templates select="MathObject/@srcpath" mode="#current"/>
+        <xsl:apply-templates select="$parsed/tmp/*" mode="math-ns">
+          <xsl:with-param name="alt-text" as="attribute(idml2xml:CustomAltText)?" select="MathObject/@idml2xml:CustomAltText" tunnel="yes"/>
+        </xsl:apply-templates>
       </xsl:element>
     </xsl:if>
   </xsl:template>
   
   <xsl:template match="*" mode="math-ns" priority="4">
+    <xsl:param name="alt-text" as="attribute(idml2xml:CustomAltText)?" tunnel="yes"/>
     <xsl:element name="mml:{local-name()}">
+      <xsl:if test="$alt-text and self::*:math">
+        <xsl:attribute name="alttext" select="$alt-text"/>
+      </xsl:if>
      <xsl:apply-templates select="@*" mode="math-ns"/>
       <xsl:call-template name="mathstyle"/>
      <xsl:apply-templates select="node()" mode="math-ns"/>
