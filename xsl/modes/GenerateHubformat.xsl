@@ -34,6 +34,7 @@
                $level-element-name
               )" as="xs:string+"/>
 
+ <xsl:variable name="fallback-cell-width" select="40" as="xs:double"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode: XML-Hubformat-add-properties -->
@@ -2081,7 +2082,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
   <!-- BEGIN: tables -->
 
   <xsl:template match="Column" mode="idml2xml:XML-Hubformat-remap-para-and-span">
-    <colspec colname="c{position()}" colwidth="{idml2xml:pt-length(@SingleColumnWidth)}">
+    <colspec colname="c{position()}" colwidth="{idml2xml:pt-length((@SingleColumnWidth, string($fallback-cell-width))[1])}">
       <xsl:attribute name="colname" select="concat('c',position())"/>
     </colspec>
   </xsl:template>
@@ -2190,7 +2191,7 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
           <xsl:variable name="colspan" select="xs:integer(@aid:ccols)" as="xs:integer"/>
           <xsl:choose>
             <xsl:when test="number(@aid:ccols) gt 1">
-              <xsl:variable name="colwidths" select="../Column/@SingleColumnWidth" as="xs:double*"/>
+              <xsl:variable name="colwidths" select="for $c in ../Column return ($c/@SingleColumnWidth, $fallback-cell-width)[1]" as="xs:double*"/>
               <xsl:attribute name="namest" select="concat('c',$col)"/>
               <xsl:attribute name="nameend" select="concat('c',$col + $colspan - 1)"/>
               <xsl:attribute name="css:width" select="idml2xml:pt-length(string(sum($colwidths[position() = ($col to $col + $colspan - 1)])))"/>
