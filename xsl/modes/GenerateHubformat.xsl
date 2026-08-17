@@ -2197,7 +2197,11 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
               <xsl:attribute name="css:width" select="idml2xml:pt-length(string(sum($colwidths[position() = ($col to $col + $colspan - 1)])))"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:attribute name="colname" select="concat('c',number(@aid:colname)+1)"/>
+              <xsl:variable name="col" select="number(@aid:colname)+1" as="xs:double?"/>
+              <xsl:attribute name="colname" select="concat('c',$col)"/>
+              <xsl:if test="@css:width='' and ancestor::idml2xml:genTable[1]/Column[$col][not(@SingleColumnWidth)]">
+                <xsl:attribute name="css:width" select="idml2xml:pt-length(string($fallback-cell-width))"/>
+              </xsl:if>
             </xsl:otherwise>
           </xsl:choose>
           <xsl:if test="number(@aid:crows) gt 1">
