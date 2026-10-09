@@ -366,6 +366,7 @@
     <xsl:param name="frame" as="element(TextFrame)"/>
     <xsl:sequence select="exists(
                             $frame[@PreviousTextFrame eq 'n']
+                                  [. is key('TextFrame-by-ParentStory',@ParentStory)[1]]
                                   [$output-items-not-on-workspace = ('yes','1','true') or idml2xml:item-is-on-workspace(.)]
                                   [not($use-StoryID-conditional-text-for-anchoring = ('yes','1','true') and idml2xml:conditional-text-anchored(.))]
                           )"/>
@@ -763,7 +764,7 @@
       </xsl:if>
       <xsl:sequence select="$reason-attribute"/>
       <xsl:apply-templates select="@* | *" mode="#current" />
-      <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )" mode="#current">
+      <xsl:apply-templates select="key( 'Story-by-Self', current()/@ParentStory )[1](:some buggy exports produced the same story more than once in the designmap.xml:)" mode="#current">
         <xsl:with-param name="do-not-discard-kombiref-anchored-group" select="true()" as="xs:boolean" tunnel="yes"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="key('EndnoteTextFrameStory', (key( 'Story-by-Self', current()/@ParentStory )/descendant::Endnote[1])/@Self)
