@@ -3149,14 +3149,28 @@ http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/indesign/cs
     <xsl:if test="exists($orphaned-indexterms)">
       <itermset>
         <xsl:for-each select="$orphaned-indexterms">
-          <xsl:copy copy-namespaces="no">
-            <xsl:apply-templates select="@* except @see-crossref-topics, node()" mode="#current"/>
-            <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
-              <see>
-                <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
-              </see>
-            </xsl:if>
-          </xsl:copy>
+          <xsl:choose>
+            <xsl:when test=".[dbk:seealso][dbk:see]">    
+              <!-- make two indexterms if both are contained.-->
+              <xsl:copy>
+                <xsl:apply-templates select="@*, node() except dbk:seealso" mode="#current" />
+              </xsl:copy>
+              <xsl:copy>
+                <xsl:attribute name="xml:id" select="concat(@xml:id, '-seealso')"/>
+                <xsl:apply-templates select="@* except @xml:id, node() except dbk:see" mode="#current" />
+              </xsl:copy>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:copy copy-namespaces="no">
+                <xsl:apply-templates select="@* except @see-crossref-topics, node()" mode="#current"/>
+                <xsl:if test="@see-crossref-topics and not(dbk:primary/dbk:see)">
+                  <see>
+                    <xsl:value-of select="substring-after(@see-crossref-topics, 'Topicn')"/>
+                  </see>
+                </xsl:if>
+              </xsl:copy>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:for-each>
       </itermset>  
     </xsl:if>
