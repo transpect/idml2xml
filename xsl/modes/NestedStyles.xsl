@@ -15,7 +15,7 @@
     <!-- for test_after/hogrefe.ch/GWFB/85875 for example: 
       'Stories/Story_u51f.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[19]'
       'Stories/Story_u51f.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[85]/CharacterStyleRange[6]/Footnote[1]/ParagraphStyleRange[1]'
-      You need to set indentation of debug documents to false (many projects habe Makefile parameter
+      You need to set indentation of debug documents to false (many projects have a Makefile parameter
       for that, INDENT_DEBUG=false will lead to something like
       debug-dir-uri=file:/mnt/c/Users/…/debug/MU_28_2024_01_0001-0128.debug?indent=false
       Then you can debug a single mode:
@@ -47,7 +47,7 @@
 
   <xsl:function name="idml2xml:dropcap-regex" as="xs:string">
     <xsl:param name="count" as="xs:integer"/>
-    <xsl:sequence select="concat('^(\S{', $count, '})')"/>
+    <xsl:sequence select="concat('^(\S{1,', $count, '})')"/>
   </xsl:function>
 
   <!-- We don’t (yet) support:
