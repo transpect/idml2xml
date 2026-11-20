@@ -123,7 +123,9 @@
         </xsl:for-each-group>
       </idml2xml:namespaces>
       <xsl:variable name="spreads" select="idPkg:Spread/Spread" as="element(Spread)*"/>
-      <xsl:variable name="articles" select="Article" as="element(Article)*"/>
+      <xsl:variable name="articles" as="document-node()">
+       <xsl:document><xsl:sequence select="Article"/></xsl:document>
+      </xsl:variable>
       <xsl:for-each select="$spreads">
         <xsl:variable name="spread-pos" select="position()" as="xs:integer"/>
         <idml2xml:sidebar remap="Spread" xml:id="idml2xml_spread_{$spread-pos}">
@@ -206,7 +208,6 @@
             <xsl:for-each-group select="$processed-spreads" group-by="if (@article) then string-join((@article, @Self), '_#-#-#_') else @Self">
               <xsl:choose>
                 <xsl:when test="current-group()[1][@article]">
-                 
                   <idml2xml:sidebar name="article" role="{replace(current-grouping-key(), '_#-#-#_.+$', '')}" export="{current-group()[1]/@article-export}" Self="{current-group()[1]/@Self}">
                     <xsl:for-each-group select="current-group()" group-by="@article-pos">
                       <xsl:sort order="ascending" select="xs:integer(current-grouping-key())"/>
@@ -215,7 +216,7 @@
                   </idml2xml:sidebar>
                 </xsl:when>
                 <xsl:otherwise>
-                  <!-- Objects that are not articles in their order. Can be deleted later. -->
+                  <!-- Objects that are not articles in their order. Can be deleted later. Problem: Objects that are between objects of an article. This splits the article. -->
                   <xsl:sequence select="current-group()"/>
                 </xsl:otherwise>
               </xsl:choose>
@@ -224,10 +225,22 @@
           
           <xsl:variable name="sorted-articles-and-rest" as="element(*)*">
             <xsl:perform-sort select="$articles-and-rest">
-              <xsl:sort order="ascending" select="if (.[@name = 'article']) then xs:integer(index-of($articles/@Self, .[@name = 'article']/@Self)) else position()"/>
+              <xsl:sort order="ascending" select="if (.[@name = 'article']) then xs:integer(index-of($articles//@Self, .[@name = 'article']/@Self)) else position()"/>
             </xsl:perform-sort>
           </xsl:variable>
-          <xsl:sequence select="$sorted-articles-and-rest"/>
+          <xsl:for-each-group select="$sorted-articles-and-rest" group-adjacent="(@role, 'zz')[1]">
+            <!-- this tries to handle the case that several sidebars of the same article type were created, whose contents are not in the correct order.-->
+            <xsl:choose>
+              <xsl:when test="current-group()[@role]">
+                <xsl:perform-sort select="current-group()">
+                  <xsl:sort order="ascending" select="xs:integer(*[@article-pos][1]/@article-pos)"/>
+                </xsl:perform-sort>
+              </xsl:when>
+            <xsl:otherwise>
+              <xsl:sequence select="current-group()"/>
+            </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each-group>
         </xsl:when>
         <xsl:otherwise>
           <!-- If there is no article to be exported, export everything -->
